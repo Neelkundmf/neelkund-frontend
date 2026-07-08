@@ -6,167 +6,410 @@
 <title>NEELKUND — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #102A40;
-    --ink-deep: #0A1C2B;
+    --navy: #102A40;
+    --navy-deep: #0A1C2B;
     --paper: #F4F6F8;
     --card: #FFFFFF;
-    --marigold: #E12A1F;
+    --red: #E12A1F;
+    --red-soft: #FBE4E1;
+    --green: #2E8B57;
+    --green-soft: #E4F3EA;
+    --amber: #C98A1B;
+    --amber-soft: #FBF0DD;
     --text-muted: #5B6B75;
-    --border: #DDE3E8;
+    --border: #E2E7EB;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: 'Manrope', 'Hind Siliguri', sans-serif;
     background: var(--paper);
-    color: var(--ink-deep);
+    color: var(--navy-deep);
     min-height: 100vh;
   }
   .bn { font-family: 'Hind Siliguri', sans-serif; }
+  a { color: inherit; }
 
+  /* ---- Layout shell ---- */
+  .app-shell { display: flex; min-height: 100vh; }
+
+  /* ---- Sidebar ---- */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #163454 0%, var(--navy) 55%, var(--navy-deep) 100%);
+    color: #EAF0F5;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+  }
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-brand img { width: 32px; height: auto; }
+  .sidebar-brand .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .sidebar-brand .name span {
+    display: block;
+    font-size: 11px;
+    color: #9FB3C2;
+    font-weight: 400;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #C4D3DD;
+    cursor: pointer;
+    margin-bottom: 3px;
+    transition: background 0.12s ease, color 0.12s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: right;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active { background: var(--red); color: #fff; }
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .logout-link {
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 13px;
+    color: #9FB3C2;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+  }
+  .logout-link:hover { color: #fff; }
+
+  /* ---- Main area ---- */
+  .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .topbar {
-    background: var(--ink);
-    color: #EAF3EF;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
     padding: 16px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .topbar h1 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
+    margin: 0;
   }
-  .topbar-badge {
-    width: 34px;
-    height: auto;
-  }
-  .topbar-role {
+  .topbar .user-chip {
     font-family: 'Hind Siliguri', sans-serif;
     font-size: 13px;
-    color: #B9CCC4;
+    color: var(--text-muted);
   }
-  .topbar-user {
-    display: flex;
-    align-items: center;
+  .content { padding: 28px; flex: 1; overflow-y: auto; }
+
+  /* ---- Cards / stats ---- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
+    margin-bottom: 28px;
   }
-  .logout-btn {
-    background: transparent;
-    border: 1px solid #3F5F58;
-    color: #EAF3EF;
-    padding: 8px 16px;
-    border-radius: 8px;
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .stat-card .label {
     font-family: 'Hind Siliguri', sans-serif;
     font-size: 13px;
-    cursor: pointer;
+    color: var(--text-muted);
+    margin-bottom: 8px;
   }
-  .logout-btn:hover { background: #1A4943; }
-
-  .main {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 48px 24px;
-  }
-
-  .welcome-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 40px;
-    border: 1px solid var(--border);
-  }
-
-  .welcome-card h1 {
+  .stat-card .value {
     font-family: 'Fraunces', serif;
     font-weight: 600;
     font-size: 26px;
-    margin: 0 0 8px;
   }
+  .stat-card .value.red { color: var(--red); }
+  .stat-card .value.green { color: var(--green); }
 
-  .welcome-card p {
-    font-family: 'Hind Siliguri', sans-serif;
-    color: var(--text-muted);
-    line-height: 1.7;
-    margin: 0 0 24px;
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
   }
-
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #EAF3EF;
-    color: var(--ink);
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .status-pill::before {
-    content: '';
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #4C9A6B;
-  }
-
-  .coming-soon {
-    margin-top: 32px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-  }
-
-  .coming-soon h2 {
+  .panel h2 {
     font-family: 'Fraunces', serif;
     font-size: 18px;
     font-weight: 600;
-    margin: 0 0 12px;
+    margin: 0 0 18px;
   }
 
-  .coming-soon ul {
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    text-align: right;
     font-family: 'Hind Siliguri', sans-serif;
+    font-size: 12.5px;
     color: var(--text-muted);
-    line-height: 2;
-    padding-left: 20px;
-    margin: 0;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 1.5px solid var(--border);
   }
+  td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFBFC; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  .badge.green { background: var(--green-soft); color: var(--green); }
+  .badge.amber { background: var(--amber-soft); color: var(--amber); }
+  .badge.red { background: var(--red-soft); color: var(--red); }
+  .badge.gray { background: #EEF1F3; color: var(--text-muted); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  /* ---- Form ---- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field { margin-bottom: 4px; }
+  .field label {
+    display: block;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1.5px solid var(--border);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--navy);
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 9px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .btn-primary:hover { background: var(--navy-deep); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .toast {
+    display: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  .toast.success { background: var(--green-soft); color: var(--green); }
+  .toast.error { background: var(--red-soft); color: var(--red); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .loading-row { text-align: center; padding: 30px; color: var(--text-muted); font-family: 'Hind Siliguri', sans-serif; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-brand">
-    <img class="topbar-badge" src="assets/logo.png" alt="NEELKUND">
-    <div>NEELKUND
-      <div class="topbar-role" id="roleLabel">—</div>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/logo.png" alt="NEELKUND">
+      <div class="name">NEELKUND
+        <span class="bn">Admin Panel</span>
+      </div>
+    </div>
+
+    <button class="nav-item bn active" data-view="overview">ওভারভিউ</button>
+    <button class="nav-item bn" data-view="customers">Customer তালিকা</button>
+    <button class="nav-item bn" data-view="loans">Loan তালিকা</button>
+    <button class="nav-item bn" data-view="users">নতুন User তৈরি</button>
+    <button class="nav-item bn" data-view="audit">Audit Log</button>
+
+    <div class="sidebar-footer">
+      <button class="logout-link bn" id="logoutBtn">লগ আউট</button>
     </div>
   </div>
-  <div class="topbar-user">
-    <span class="bn" id="userNameLabel">—</span>
-    <button class="logout-btn bn" id="logoutBtn">লগ আউট</button>
-  </div>
-</div>
 
-<div class="main">
-  <div class="welcome-card">
-    <span class="status-pill bn">সফলভাবে লগইন হয়েছে</span>
-    <h1 class="bn" style="margin-top:20px;" id="greeting">স্বাগতম</h1>
-    <p class="bn" id="roleDescription">—</p>
+  <!-- Main -->
+  <div class="main-area">
+    <div class="topbar">
+      <h1 class="bn" id="pageTitle">ওভারভিউ</h1>
+      <span class="user-chip bn" id="userChip">—</span>
+    </div>
 
-    <div class="coming-soon">
-      <h2 class="bn">শীঘ্রই আসছে</h2>
-      <ul class="bn" id="featureList"></ul>
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <div class="view active" id="view-overview">
+        <div class="stat-grid" id="statGrid">
+          <div class="loading-row bn">লোড হচ্ছে...</div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS -->
+      <div class="view" id="view-customers">
+        <div class="panel">
+          <h2 class="bn">সব Customer</h2>
+          <table>
+            <thead>
+              <tr>
+                <th class="bn">নাম</th>
+                <th class="bn">ফোন</th>
+                <th class="bn">Aadhaar</th>
+                <th class="bn">KYC Status</th>
+              </tr>
+            </thead>
+            <tbody id="customerTableBody">
+              <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LOANS -->
+      <div class="view" id="view-loans">
+        <div class="panel">
+          <h2 class="bn">সব Loan</h2>
+          <table>
+            <thead>
+              <tr>
+                <th class="bn">Loan ID</th>
+                <th class="bn">Customer ID</th>
+                <th class="bn">Principal</th>
+                <th class="bn">Total Repayable</th>
+                <th class="bn">Daily EMI</th>
+                <th class="bn">Status</th>
+              </tr>
+            </thead>
+            <tbody id="loanTableBody">
+              <tr><td colspan="6" class="loading-row bn">লোড হচ্ছে...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CREATE USER -->
+      <div class="view" id="view-users">
+        <div class="panel" style="max-width: 560px;">
+          <h2 class="bn">নতুন User তৈরি করুন</h2>
+          <div class="toast" id="userToast"></div>
+          <form id="createUserForm">
+            <div class="field" style="margin-bottom:16px;">
+              <label class="bn">পুরো নাম</label>
+              <input type="text" id="newFullName" required>
+            </div>
+            <div class="form-grid" style="margin-bottom:16px;">
+              <div class="field">
+                <label class="bn">ফোন নম্বর</label>
+                <input type="tel" id="newPhone" maxlength="10" required>
+              </div>
+              <div class="field">
+                <label class="bn">পাসওয়ার্ড</label>
+                <input type="text" id="newPassword" required>
+              </div>
+            </div>
+            <div class="form-grid" style="margin-bottom:16px;">
+              <div class="field">
+                <label class="bn">Role</label>
+                <select id="newRole">
+                  <option value="AGENT">Agent</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="PARTNER">Partner</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="bn">Reports To (User ID, ঐচ্ছিক)</label>
+                <input type="number" id="newReportsTo">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary bn" id="createUserBtn">User তৈরি করুন</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- AUDIT LOG -->
+      <div class="view" id="view-audit">
+        <div class="panel">
+          <h2 class="bn">Audit Log — সাম্প্রতিক কার্যকলাপ</h2>
+          <table>
+            <thead>
+              <tr>
+                <th class="bn">সময়</th>
+                <th class="bn">ফোন</th>
+                <th class="bn">Action</th>
+                <th class="bn">বিবরণ</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
 <script>
-  // ---- Session guard ----
+  const API_BASE = 'https://neelkund-backend.onrender.com';
   const token = localStorage.getItem('neelkund_access_token');
   const role = localStorage.getItem('neelkund_role');
   const fullName = localStorage.getItem('neelkund_full_name');
@@ -175,30 +418,235 @@
     window.location.href = 'login.html';
   }
 
-  document.getElementById('roleLabel').textContent = 'Admin Dashboard';
-  document.getElementById('userNameLabel').textContent = fullName || '';
-  document.getElementById('greeting').textContent = `স্বাগতম, ${fullName || ''}`;
-  document.getElementById('roleDescription').textContent =
-    'Admin হিসেবে আপনি পুরো সিস্টেম নিয়ন্ত্রণ করতে পারবেন — সব ইউজার, লোন, রিপোর্ট, আর অডিট লগ।';
+  document.getElementById('userChip').textContent = `${fullName} · Admin`;
 
-  const features = [
-    'সব Customer, Loan, Collection-এর সম্পূর্ণ তালিকা',
-    'নতুন User (Partner/Manager/Agent) তৈরি',
-    'P&L রিপোর্ট ও Agent Performance',
-    'Salary Management',
-    'Audit Log — কে কী করলো তার ইতিহাস'
-  ];
-  const list = document.getElementById('featureList');
-  features.forEach(f => {
-    const li = document.createElement('li');
-    li.textContent = f;
-    list.appendChild(li);
+  // ---- Generic authenticated fetch ----
+  async function apiGet(path) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+      return null;
+    }
+    if (!res.ok) throw new Error('Request failed: ' + path);
+    return res.json();
+  }
+
+  async function apiPost(path, body) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  // ---- Navigation ----
+  const navItems = document.querySelectorAll('.nav-item[data-view]');
+  const titles = {
+    overview: 'ওভারভিউ',
+    customers: 'Customer তালিকা',
+    loans: 'Loan তালিকা',
+    users: 'নতুন User তৈরি',
+    audit: 'Audit Log'
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const viewName = item.dataset.view;
+      document.getElementById('view-' + viewName).classList.add('active');
+      document.getElementById('pageTitle').textContent = titles[viewName];
+      loadView(viewName);
+    });
+  });
+
+  const loadedViews = new Set();
+
+  function loadView(name) {
+    if (loadedViews.has(name)) return; // load once, cache in DOM
+    loadedViews.add(name);
+    if (name === 'customers') loadCustomers();
+    if (name === 'loans') loadLoans();
+    if (name === 'audit') loadAuditLog();
+  }
+
+  // ---- Overview ----
+  function money(n) {
+    return '₹' + Number(n).toLocaleString('en-IN');
+  }
+
+  async function loadOverview() {
+    try {
+      const summary = await apiGet('/api/manager/reports/summary');
+      const grid = document.getElementById('statGrid');
+      grid.innerHTML = `
+        <div class="stat-card">
+          <div class="label bn">মোট বিতরণকৃত (Principal)</div>
+          <div class="value">${money(summary.totalPrincipalDisbursed)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label bn">মোট প্রাপ্য (Repayable)</div>
+          <div class="value">${money(summary.totalRepayableCommitted)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label bn">মোট আদায়কৃত</div>
+          <div class="value green">${money(summary.totalCollected)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label bn">বকেয়া (Outstanding)</div>
+          <div class="value red">${money(summary.totalOutstanding)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label bn">সক্রিয় Loan</div>
+          <div class="value">${summary.activeLoansCount}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label bn">Defaulted Loan</div>
+          <div class="value red">${summary.defaultedLoansCount}</div>
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById('statGrid').innerHTML =
+        `<div class="empty-state bn">রিপোর্ট লোড করা যায়নি — একটু পরে আবার চেষ্টা করুন।</div>`;
+    }
+  }
+
+  // ---- Customers ----
+  function kycBadge(status) {
+    const map = { VERIFIED: 'green', PENDING: 'amber', REJECTED: 'red' };
+    const labels = { VERIFIED: 'ভেরিফাইড', PENDING: 'অপেক্ষমান', REJECTED: 'বাতিল' };
+    return `<span class="badge ${map[status] || 'gray'} bn">${labels[status] || status}</span>`;
+  }
+
+  async function loadCustomers() {
+    const tbody = document.getElementById('customerTableBody');
+    try {
+      const page = await apiGet('/api/customers?page=0&size=50');
+      const items = page.content || [];
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">কোনো Customer এখনো যোগ হয়নি</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map(c => `
+        <tr>
+          <td>${c.fullName}</td>
+          <td>${c.phone}</td>
+          <td>${c.aadhaarMasked || '—'}</td>
+          <td>${kycBadge(c.kycStatus)}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">লোড করা যায়নি</td></tr>`;
+    }
+  }
+
+  // ---- Loans ----
+  function loanBadge(status) {
+    const map = { ACTIVE: 'green', CLOSED: 'gray', DEFAULTED: 'red' };
+    const labels = { ACTIVE: 'সক্রিয়', CLOSED: 'শেষ', DEFAULTED: 'ডিফল্টেড' };
+    return `<span class="badge ${map[status] || 'gray'} bn">${labels[status] || status}</span>`;
+  }
+
+  async function loadLoans() {
+    const tbody = document.getElementById('loanTableBody');
+    try {
+      const page = await apiGet('/api/loans?page=0&size=50');
+      const items = page.content || [];
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state bn">কোনো Loan এখনো তৈরি হয়নি</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map(l => `
+        <tr>
+          <td>#${l.id}</td>
+          <td>${l.customerId}</td>
+          <td>${money(l.principal)}</td>
+          <td>${money(l.totalRepayable)}</td>
+          <td>${money(l.dailyEmiAmount)}</td>
+          <td>${loanBadge(l.status)}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state bn">লোড করা যায়নি</td></tr>`;
+    }
+  }
+
+  // ---- Audit Log ----
+  async function loadAuditLog() {
+    const tbody = document.getElementById('auditTableBody');
+    try {
+      const page = await apiGet('/api/admin/audit-logs?page=0&size=50&sort=timestamp,desc');
+      const items = page.content || [];
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">কোনো লগ নেই</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map(a => `
+        <tr>
+          <td>${new Date(a.timestamp).toLocaleString('bn-IN')}</td>
+          <td>${a.userPhone || '—'}</td>
+          <td><span class="badge gray">${a.action}</span></td>
+          <td class="bn">${a.details || '—'}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">লোড করা যায়নি</td></tr>`;
+    }
+  }
+
+  // ---- Create User ----
+  const userForm = document.getElementById('createUserForm');
+  const userToast = document.getElementById('userToast');
+  const createUserBtn = document.getElementById('createUserBtn');
+
+  userForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    userToast.style.display = 'none';
+    createUserBtn.disabled = true;
+    createUserBtn.textContent = 'তৈরি হচ্ছে...';
+
+    const body = {
+      fullName: document.getElementById('newFullName').value.trim(),
+      phone: document.getElementById('newPhone').value.trim(),
+      password: document.getElementById('newPassword').value,
+      role: document.getElementById('newRole').value,
+      reportsToId: document.getElementById('newReportsTo').value
+        ? Number(document.getElementById('newReportsTo').value) : null
+    };
+
+    try {
+      await apiPost('/api/admin/users', body);
+      userToast.className = 'toast success bn';
+      userToast.textContent = 'User সফলভাবে তৈরি হয়েছে!';
+      userToast.style.display = 'block';
+      userForm.reset();
+    } catch (err) {
+      userToast.className = 'toast error bn';
+      userToast.textContent = err.message || 'তৈরি করা যায়নি, আবার চেষ্টা করুন';
+      userToast.style.display = 'block';
+    } finally {
+      createUserBtn.disabled = false;
+      createUserBtn.textContent = 'User তৈরি করুন';
+    }
   });
 
   document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.clear();
     window.location.href = 'login.html';
   });
+
+  // Initial load
+  loadOverview();
 </script>
 
 </body>
