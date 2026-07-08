@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEELKUND — লগইন</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #123832;
+    --ink-deep: #0B2621;
+    --paper: #EEF2ED;
+    --card: #FFFFFF;
+    --marigold: #D89A2B;
+    --marigold-deep: #B8802099;
+    --text-muted: #5C6B65;
+    --error: #B3432B;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    font-family: 'Manrope', 'Hind Siliguri', sans-serif;
+    color: var(--ink-deep);
+  }
+
+  .bn { font-family: 'Hind Siliguri', 'Manrope', sans-serif; }
+
+  .shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ---------- Brand panel ---------- */
+  .brand-panel {
+    flex: 1 1 46%;
+    background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%);
+    color: #EAF3EF;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 56px;
+    min-height: 100vh;
+  }
+
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-badge {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--marigold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink-deep);
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+
+  .brand-name span {
+    display: block;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: #B9CCC4;
+    margin-top: 2px;
+  }
+
+  .brand-hero {
+    max-width: 420px;
+  }
+
+  .brand-hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(28px, 3.4vw, 40px);
+    line-height: 1.25;
+    margin: 0 0 18px;
+  }
+
+  .brand-hero p {
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #C7D8D1;
+    margin: 0;
+  }
+
+  /* Ledger line signature graphic */
+  .ledger {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .ledger svg { width: 100%; height: auto; display: block; }
+
+  .ledger-path {
+    fill: none;
+    stroke: var(--marigold);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: draw 2.2s ease-out forwards 0.3s;
+  }
+
+  .ledger-dot {
+    fill: var(--marigold);
+    opacity: 0;
+    animation: pop 0.4s ease-out forwards;
+  }
+
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes pop {
+    to { opacity: 1; }
+  }
+
+  .brand-foot {
+    font-size: 13px;
+    color: #7C9188;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  /* ---------- Form panel ---------- */
+  .form-panel {
+    flex: 1 1 54%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .form-card {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .form-card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    margin: 0 0 6px;
+    color: var(--ink-deep);
+  }
+
+  .form-card .subtitle {
+    font-family: 'Hind Siliguri', sans-serif;
+    color: var(--text-muted);
+    font-size: 15px;
+    margin: 0 0 32px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-deep);
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #D8DFDA;
+    background: var(--card);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    color: var(--ink-deep);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(18, 56, 50, 0.12);
+  }
+
+  .field input::placeholder { color: #A6B2AC; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--ink);
+    color: #EAF3EF;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+    margin-top: 6px;
+  }
+
+  .submit-btn:hover { background: var(--ink-deep); }
+  .submit-btn:active { transform: scale(0.99); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .error-box {
+    display: none;
+    background: #FBEAE5;
+    border: 1px solid #F0C4B7;
+    color: var(--error);
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .form-foot {
+    margin-top: 28px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media (max-width: 860px) {
+    .shell { flex-direction: column; }
+    .brand-panel {
+      min-height: auto;
+      padding: 32px 28px 40px;
+    }
+    .brand-hero p { display: none; }
+    .ledger { display: none; }
+    .form-panel { padding: 36px 24px 60px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ledger-path, .ledger-dot { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Brand panel -->
+  <div class="brand-panel">
+    <div>
+      <div class="brand-mark">
+        <div class="logo-badge">N</div>
+        <div class="brand-name">NEELKUND
+          <span class="bn">মাইক্রোফাইন্যান্স ম্যানেজমেন্ট সিস্টেম</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-hero">
+      <h1 class="bn">প্রতিদিনের হিসাব, এক জায়গায় স্পষ্ট।</h1>
+      <p class="bn">Admin, Partner, Manager আর Agent — প্রত্যেকের জন্য আলাদা, নিরাপদ প্রবেশাধিকার। যেখানেই থাকুন, রিয়েল-টাইম আপডেট।</p>
+
+      <div class="ledger">
+        <svg viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
+          <path class="ledger-path" d="M10,95 L70,80 L130,88 L190,55 L250,62 L310,30 L400,18" />
+          <circle class="ledger-dot" cx="10" cy="95" r="4" style="animation-delay: 0.4s"/>
+          <circle class="ledger-dot" cx="130" cy="88" r="4" style="animation-delay: 0.9s"/>
+          <circle class="ledger-dot" cx="250" cy="62" r="4" style="animation-delay: 1.5s"/>
+          <circle class="ledger-dot" cx="400" cy="18" r="5" style="animation-delay: 2.1s"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="brand-foot">© NEELKUND · Patuli, Kolkata</div>
+  </div>
+
+  <!-- Form panel -->
+  <div class="form-panel">
+    <div class="form-card">
+      <h2>স্বাগতম</h2>
+      <p class="subtitle bn">আপনার ফোন নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন</p>
+
+      <div class="error-box" id="errorBox"></div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label class="bn" for="phone">ফোন নম্বর</label>
+          <input type="tel" id="phone" placeholder="যেমন: 9999999999" maxlength="10" inputmode="numeric" required>
+        </div>
+
+        <div class="field">
+          <label class="bn" for="password">পাসওয়ার্ড</label>
+          <input type="password" id="password" placeholder="আপনার পাসওয়ার্ড" required>
+        </div>
+
+        <button type="submit" class="submit-btn bn" id="submitBtn">লগইন করুন</button>
+      </form>
+
+      <div class="form-foot bn">সমস্যা হলে আপনার Admin-এর সাথে যোগাযোগ করুন</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API_BASE = 'https://neelkund-backend.onrender.com';
+
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('errorBox');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const ROLE_REDIRECT = {
+    ADMIN: 'admin-dashboard.html',
+    PARTNER: 'partner-dashboard.html',
+    MANAGER: 'manager-dashboard.html',
+    AGENT: 'agent-dashboard.html'
+  };
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.style.display = 'block';
+  }
+
+  function hideError() {
+    errorBox.style.display = 'none';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      showError('সঠিক ১০ সংখ্যার ফোন নম্বর দিন');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'লগইন হচ্ছে...';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || 'ফোন নম্বর বা পাসওয়ার্ড ভুল');
+      }
+
+      const data = await res.json();
+
+      // Store session
+      localStorage.setItem('neelkund_access_token', data.accessToken);
+      localStorage.setItem('neelkund_refresh_token', data.refreshToken);
+      localStorage.setItem('neelkund_full_name', data.fullName);
+      localStorage.setItem('neelkund_role', data.role);
+
+      const target = ROLE_REDIRECT[data.role] || 'admin-dashboard.html';
+      window.location.href = target;
+
+    } catch (err) {
+      showError(err.message || 'কিছু একটা সমস্যা হয়েছে, আবার চেষ্টা করুন');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'লগইন করুন';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEELKUND — Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #123832;
+    --ink-deep: #0B2621;
+    --paper: #EEF2ED;
+    --card: #FFFFFF;
+    --marigold: #D89A2B;
+    --text-muted: #5C6B65;
+    --border: #DDE4DF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Manrope', 'Hind Siliguri', sans-serif;
+    background: var(--paper);
+    color: var(--ink-deep);
+    min-height: 100vh;
+  }
+  .bn { font-family: 'Hind Siliguri', sans-serif; }
+
+  .topbar {
+    background: var(--ink);
+    color: #EAF3EF;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+  }
+  .topbar-badge {
+    width: 34px; height: 34px;
+    background: var(--marigold);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-deep);
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+  }
+  .topbar-role {
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 13px;
+    color: #B9CCC4;
+  }
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid #3F5F58;
+    color: #EAF3EF;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .logout-btn:hover { background: #1A4943; }
+
+  .main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  .welcome-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 40px;
+    border: 1px solid var(--border);
+  }
+
+  .welcome-card h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
+
+  .welcome-card p {
+    font-family: 'Hind Siliguri', sans-serif;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin: 0 0 24px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #EAF3EF;
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .status-pill::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4C9A6B;
+  }
+
+  .coming-soon {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .coming-soon h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .coming-soon ul {
+    font-family: 'Hind Siliguri', sans-serif;
+    color: var(--text-muted);
+    line-height: 2;
+    padding-left: 20px;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-badge">N</div>
+    <div>NEELKUND
+      <div class="topbar-role" id="roleLabel">—</div>
+    </div>
+  </div>
+  <div class="topbar-user">
+    <span class="bn" id="userNameLabel">—</span>
+    <button class="logout-btn bn" id="logoutBtn">লগ আউট</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="welcome-card">
+    <span class="status-pill bn">সফলভাবে লগইন হয়েছে</span>
+    <h1 class="bn" style="margin-top:20px;" id="greeting">স্বাগতম</h1>
+    <p class="bn" id="roleDescription">—</p>
+
+    <div class="coming-soon">
+      <h2 class="bn">শীঘ্রই আসছে</h2>
+      <ul class="bn" id="featureList"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Session guard ----
+  const token = localStorage.getItem('neelkund_access_token');
+  const role = localStorage.getItem('neelkund_role');
+  const fullName = localStorage.getItem('neelkund_full_name');
+
+  if (!token || role !== 'MANAGER') {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('roleLabel').textContent = 'Manager Dashboard';
+  document.getElementById('userNameLabel').textContent = fullName || '';
+  document.getElementById('greeting').textContent = `স্বাগতম, ${fullName || ''}`;
+  document.getElementById('roleDescription').textContent =
+    'Manager হিসেবে আপনি Defaulter, Agent Performance, আর Salary approve করতে পারবেন।';
+
+  const features = [
+    'Defaulter তালিকা (Green/Yellow/Red flag)',
+    'Agent Performance দেখা',
+    'Salary সেট করা ও Paid মার্ক করা',
+    'KYC ভেরিফাই করা'
+  ];
+  const list = document.getElementById('featureList');
+  features.forEach(f => {
+    const li = document.createElement('li');
+    li.textContent = f;
+    list.appendChild(li);
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  });
+</script>
+
+</body>
+</html>
