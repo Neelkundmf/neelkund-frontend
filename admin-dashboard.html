@@ -9,13 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #123832;
-    --ink-deep: #0B2621;
-    --paper: #EEF2ED;
+    --ink: #102A40;
+    --ink-deep: #0A1C2B;
+    --paper: #F4F6F8;
     --card: #FFFFFF;
-    --marigold: #D89A2B;
-    --text-muted: #5C6B65;
-    --border: #DDE4DF;
+    --marigold: #E12A1F;
+    --text-muted: #5B6B75;
+    --border: #DDE3E8;
   }
   * { box-sizing: border-box; }
   body {
@@ -44,13 +44,8 @@
     font-size: 18px;
   }
   .topbar-badge {
-    width: 34px; height: 34px;
-    background: var(--marigold);
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink-deep);
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
+    width: 34px;
+    height: auto;
   }
   .topbar-role {
     font-family: 'Hind Siliguri', sans-serif;
@@ -146,7 +141,7 @@
 
 <div class="topbar">
   <div class="topbar-brand">
-    <div class="topbar-badge">N</div>
+    <img class="topbar-badge" src="assets/logo.png" alt="NEELKUND">
     <div>NEELKUND
       <div class="topbar-role" id="roleLabel">—</div>
     </div>

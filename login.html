@@ -6,18 +6,18 @@
 <title>NEELKUND — লগইন</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #123832;
-    --ink-deep: #0B2621;
-    --paper: #EEF2ED;
+    --navy: #102A40;
+    --navy-deep: #0A1C2B;
+    --paper: #F4F6F8;
     --card: #FFFFFF;
-    --marigold: #D89A2B;
-    --marigold-deep: #B8802099;
-    --text-muted: #5C6B65;
-    --error: #B3432B;
-    --radius: 14px;
+    --red: #E12A1F;
+    --red-soft: #FBE4E1;
+    --text-muted: #5B6B75;
+    --error: #C22A1E;
+    --border: #DDE3E8;
   }
 
   * { box-sizing: border-box; }
@@ -28,7 +28,7 @@
     min-height: 100vh;
     background: var(--paper);
     font-family: 'Manrope', 'Hind Siliguri', sans-serif;
-    color: var(--ink-deep);
+    color: var(--navy-deep);
   }
 
   .bn { font-family: 'Hind Siliguri', 'Manrope', sans-serif; }
@@ -38,11 +38,10 @@
     min-height: 100vh;
   }
 
-  /* ---------- Brand panel ---------- */
   .brand-panel {
     flex: 1 1 46%;
-    background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%);
-    color: #EAF3EF;
+    background: radial-gradient(120% 140% at 15% 0%, #163454 0%, var(--navy) 45%, var(--navy-deep) 100%);
+    color: #EAF0F5;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -55,21 +54,12 @@
   .brand-mark {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
   }
 
-  .logo-badge {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    background: var(--marigold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 22px;
-    color: var(--ink-deep);
+  .logo-mark {
+    width: 52px;
+    height: auto;
     flex-shrink: 0;
   }
 
@@ -77,7 +67,7 @@
     font-family: 'Fraunces', serif;
     font-weight: 600;
     font-size: 22px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
   }
 
   .brand-name span {
@@ -85,7 +75,7 @@
     font-family: 'Hind Siliguri', sans-serif;
     font-weight: 400;
     font-size: 13px;
-    color: #B9CCC4;
+    color: #9FB3C2;
     margin-top: 2px;
   }
 
@@ -96,8 +86,9 @@
   .brand-hero h1 {
     font-family: 'Fraunces', serif;
     font-weight: 500;
+    font-style: italic;
     font-size: clamp(28px, 3.4vw, 40px);
-    line-height: 1.25;
+    line-height: 1.28;
     margin: 0 0 18px;
   }
 
@@ -105,11 +96,10 @@
     font-family: 'Hind Siliguri', sans-serif;
     font-size: 16px;
     line-height: 1.7;
-    color: #C7D8D1;
+    color: #B7C6D1;
     margin: 0;
   }
 
-  /* Ledger line signature graphic */
   .ledger {
     margin-top: 40px;
     width: 100%;
@@ -120,7 +110,7 @@
 
   .ledger-path {
     fill: none;
-    stroke: var(--marigold);
+    stroke: var(--red);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-dasharray: 600;
@@ -129,26 +119,20 @@
   }
 
   .ledger-dot {
-    fill: var(--marigold);
+    fill: var(--red);
     opacity: 0;
     animation: pop 0.4s ease-out forwards;
   }
 
-  @keyframes draw {
-    to { stroke-dashoffset: 0; }
-  }
-
-  @keyframes pop {
-    to { opacity: 1; }
-  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes pop { to { opacity: 1; } }
 
   .brand-foot {
     font-size: 13px;
-    color: #7C9188;
+    color: #6C8494;
     font-family: 'Hind Siliguri', sans-serif;
   }
 
-  /* ---------- Form panel ---------- */
   .form-panel {
     flex: 1 1 54%;
     display: flex;
@@ -157,17 +141,14 @@
     padding: 40px 24px;
   }
 
-  .form-card {
-    width: 100%;
-    max-width: 400px;
-  }
+  .form-card { width: 100%; max-width: 400px; }
 
   .form-card h2 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
     font-size: 28px;
     margin: 0 0 6px;
-    color: var(--ink-deep);
+    color: var(--navy-deep);
   }
 
   .form-card .subtitle {
@@ -177,16 +158,14 @@
     margin: 0 0 32px;
   }
 
-  .field {
-    margin-bottom: 20px;
-  }
+  .field { margin-bottom: 20px; }
 
   .field label {
     display: block;
     font-family: 'Hind Siliguri', sans-serif;
     font-size: 14px;
     font-weight: 600;
-    color: var(--ink-deep);
+    color: var(--navy-deep);
     margin-bottom: 8px;
   }
 
@@ -194,29 +173,29 @@
     width: 100%;
     padding: 13px 16px;
     border-radius: 10px;
-    border: 1.5px solid #D8DFDA;
+    border: 1.5px solid var(--border);
     background: var(--card);
     font-family: 'Manrope', sans-serif;
     font-size: 15px;
-    color: var(--ink-deep);
+    color: var(--navy-deep);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .field input:focus {
     outline: none;
-    border-color: var(--ink);
-    box-shadow: 0 0 0 3px rgba(18, 56, 50, 0.12);
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(16, 42, 64, 0.12);
   }
 
-  .field input::placeholder { color: #A6B2AC; }
+  .field input::placeholder { color: #A7B4BC; }
 
   .submit-btn {
     width: 100%;
     padding: 14px;
     border: none;
     border-radius: 10px;
-    background: var(--ink);
-    color: #EAF3EF;
+    background: var(--navy);
+    color: #F2F6F9;
     font-family: 'Manrope', sans-serif;
     font-weight: 700;
     font-size: 15px;
@@ -225,14 +204,14 @@
     margin-top: 6px;
   }
 
-  .submit-btn:hover { background: var(--ink-deep); }
+  .submit-btn:hover { background: var(--navy-deep); }
   .submit-btn:active { transform: scale(0.99); }
   .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .error-box {
     display: none;
-    background: #FBEAE5;
-    border: 1px solid #F0C4B7;
+    background: var(--red-soft);
+    border: 1px solid #F2C2BC;
     color: var(--error);
     font-family: 'Hind Siliguri', sans-serif;
     font-size: 14px;
@@ -252,10 +231,7 @@
 
   @media (max-width: 860px) {
     .shell { flex-direction: column; }
-    .brand-panel {
-      min-height: auto;
-      padding: 32px 28px 40px;
-    }
+    .brand-panel { min-height: auto; padding: 32px 28px 40px; }
     .brand-hero p { display: none; }
     .ledger { display: none; }
     .form-panel { padding: 36px 24px 60px; }
@@ -270,11 +246,10 @@
 
 <div class="shell">
 
-  <!-- Brand panel -->
   <div class="brand-panel">
     <div>
       <div class="brand-mark">
-        <div class="logo-badge">N</div>
+        <img class="logo-mark" src="assets/logo.png" alt="NEELKUND">
         <div class="brand-name">NEELKUND
           <span class="bn">মাইক্রোফাইন্যান্স ম্যানেজমেন্ট সিস্টেম</span>
         </div>
@@ -299,7 +274,6 @@
     <div class="brand-foot">© NEELKUND · Patuli, Kolkata</div>
   </div>
 
-  <!-- Form panel -->
   <div class="form-panel">
     <div class="form-card">
       <h2>স্বাগতম</h2>
@@ -345,10 +319,7 @@
     errorBox.textContent = message;
     errorBox.style.display = 'block';
   }
-
-  function hideError() {
-    errorBox.style.display = 'none';
-  }
+  function hideError() { errorBox.style.display = 'none'; }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -379,7 +350,6 @@
 
       const data = await res.json();
 
-      // Store session
       localStorage.setItem('neelkund_access_token', data.accessToken);
       localStorage.setItem('neelkund_refresh_token', data.refreshToken);
       localStorage.setItem('neelkund_full_name', data.fullName);
