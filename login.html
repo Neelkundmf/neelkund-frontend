@@ -81,6 +81,20 @@
 
   .brand-hero {
     max-width: 420px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .watermark-logo {
+    position: absolute;
+    width: 560px;
+    height: auto;
+    opacity: 0.07;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
   }
 
   .brand-hero h1 {
@@ -247,6 +261,7 @@
 <div class="shell">
 
   <div class="brand-panel">
+    <img class="watermark-logo" src="assets/logo.png" alt="">
     <div>
       <div class="brand-mark">
         <img class="logo-mark" src="assets/logo.png" alt="NEELKUND">
