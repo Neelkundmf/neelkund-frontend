@@ -5,223 +5,365 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEELKUND — Admin</title>
 <link rel="icon" href="assets/logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#102A40; --navy-deep:#0A1C2B; --paper:#F4F6F8; --card:#FFFFFF;
-    --red:#E12A1F; --red-soft:#FBE4E1; --green:#2E8B57; --green-soft:#E4F3EA;
-    --amber:#C98A1B; --amber-soft:#FBF0DD; --text-muted:#5B6B75; --border:#E2E7EB;
+    --navy:#102A40;--navy-deep:#0A1C2B;--paper:#F4F6F8;--card:#fff;
+    --red:#E12A1F;--red-soft:#FBE4E1;--green:#2E8B57;--green-soft:#E4F3EA;
+    --amber:#C98A1B;--amber-soft:#FBF0DD;--muted:#5B6B75;--border:#E2E7EB;
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:'Manrope','Hind Siliguri',sans-serif;background:var(--paper);color:var(--navy-deep);min-height:100vh;}
+  body{margin:0;font-family:'Manrope','Hind Siliguri',sans-serif;background:var(--paper);color:var(--navy-deep);}
   .bn{font-family:'Hind Siliguri',sans-serif;}
+  .shell{display:flex;min-height:100vh;}
 
-  .app-shell{display:flex;min-height:100vh;}
-
-  .sidebar{width:240px;flex-shrink:0;background:linear-gradient(180deg,#163454 0%,var(--navy) 55%,var(--navy-deep) 100%);
-    color:#EAF0F5;display:flex;flex-direction:column;padding:22px 16px;}
-  .sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px;margin-bottom:12px;
+  .side{width:230px;flex-shrink:0;background:linear-gradient(180deg,#163454,var(--navy) 55%,var(--navy-deep));
+    color:#EAF0F5;display:flex;flex-direction:column;padding:20px 14px;}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 8px 18px;margin-bottom:10px;
     border-bottom:1px solid rgba(255,255,255,.1);}
-  .sidebar-brand img{width:32px;height:auto;}
-  .sidebar-brand .name{font-family:'Fraunces',serif;font-weight:600;font-size:16px;}
-  .sidebar-brand .name span{display:block;font-size:11px;color:#9FB3C2;font-weight:400;}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;
-    font-family:'Hind Siliguri',sans-serif;font-size:14.5px;font-weight:500;color:#C4D3DD;cursor:pointer;
-    margin-bottom:3px;border:none;background:transparent;width:100%;text-align:left;}
-  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
-  .nav-item.active{background:var(--red);color:#fff;}
-  .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);}
-  .logout-link{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:#9FB3C2;cursor:pointer;
-    background:none;border:none;padding:8px;}
-  .logout-link:hover{color:#fff;}
+  .brand img{width:30px;}
+  .brand b{font-family:'Fraunces',serif;font-size:15px;font-weight:600;display:block;}
+  .brand span{font-size:11px;color:#9FB3C2;}
+  .nav{display:block;width:100%;text-align:left;padding:10px 13px;border-radius:8px;border:0;background:none;
+    font-family:'Hind Siliguri',sans-serif;font-size:14px;color:#C4D3DD;cursor:pointer;margin-bottom:2px;}
+  .nav:hover{background:rgba(255,255,255,.07);color:#fff;}
+  .nav.on{background:var(--red);color:#fff;font-weight:600;}
+  .side-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);}
+  .side-foot button{background:none;border:0;color:#9FB3C2;font-family:'Hind Siliguri',sans-serif;
+    font-size:13px;cursor:pointer;padding:8px;}
+  .side-foot button:hover{color:#fff;}
 
-  .main-area{flex:1;display:flex;flex-direction:column;min-width:0;}
-  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 28px;
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .top{background:var(--card);border-bottom:1px solid var(--border);padding:14px 26px;
     display:flex;align-items:center;justify-content:space-between;}
-  .topbar h1{font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin:0;}
-  .user-chip{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--text-muted);}
-  .content{padding:28px;flex:1;overflow-y:auto;}
+  .top h1{font-family:'Fraunces',serif;font-size:19px;margin:0;font-weight:600;}
+  .chip{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--muted);}
+  .body{padding:24px 26px;flex:1;}
 
-  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
-  .stat-card .label{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--text-muted);margin-bottom:8px;}
-  .stat-card .value{font-family:'Fraunces',serif;font-weight:600;font-size:26px;}
-  .stat-card .value.red{color:var(--red);}
-  .stat-card .value.green{color:var(--green);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;}
+  .stat .l{font-family:'Hind Siliguri',sans-serif;font-size:12.5px;color:var(--muted);margin-bottom:7px;}
+  .stat .v{font-family:'Fraunces',serif;font-size:24px;font-weight:600;}
+  .v.g{color:var(--green);} .v.r{color:var(--red);}
 
-  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;}
-  .panel h2{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 18px;}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:22px;margin-bottom:20px;}
+  .panel h2{font-family:'Fraunces',serif;font-size:17px;margin:0 0 16px;font-weight:600;}
+  .panel h2 .sub{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--muted);font-weight:400;margin-left:8px;}
 
-  table{width:100%;border-collapse:collapse;font-size:14px;}
-  th{text-align:left;font-family:'Hind Siliguri',sans-serif;font-size:12.5px;color:var(--text-muted);
-    font-weight:600;padding:10px 12px;border-bottom:1.5px solid var(--border);}
-  td{padding:12px;border-bottom:1px solid var(--border);font-family:'Hind Siliguri',sans-serif;}
-  tr:last-child td{border-bottom:none;}
-  tr:hover td{background:#FAFBFC;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;font-family:'Hind Siliguri',sans-serif;font-size:12px;color:var(--muted);
+    font-weight:600;padding:9px 10px;border-bottom:1.5px solid var(--border);white-space:nowrap;}
+  td{padding:10px;border-bottom:1px solid var(--border);font-family:'Hind Siliguri',sans-serif;}
+  tr:last-child td{border-bottom:0;}
+  tbody tr:hover td{background:#FAFBFC;}
 
-  .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;
-    font-family:'Hind Siliguri',sans-serif;}
-  .badge.green{background:var(--green-soft);color:var(--green);}
-  .badge.amber{background:var(--amber-soft);color:var(--amber);}
-  .badge.red{background:var(--red-soft);color:var(--red);}
-  .badge.gray{background:#EEF1F3;color:var(--text-muted);}
+  .b{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;
+    font-family:'Hind Siliguri',sans-serif;white-space:nowrap;}
+  .b.g{background:var(--green-soft);color:var(--green);}
+  .b.a{background:var(--amber-soft);color:var(--amber);}
+  .b.r{background:var(--red-soft);color:var(--red);}
+  .b.n{background:#EEF1F3;color:var(--muted);}
 
-  .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:'Hind Siliguri',sans-serif;}
-  .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-family:'Hind Siliguri',sans-serif;}
+  .empty,.loading{text-align:center;padding:34px 16px;color:var(--muted);font-family:'Hind Siliguri',sans-serif;font-size:14px;}
 
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  .field label{display:block;font-family:'Hind Siliguri',sans-serif;font-size:13.5px;font-weight:600;margin-bottom:6px;}
-  .field input,.field select{width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);
-    font-family:'Manrope',sans-serif;font-size:14px;}
-  .field input:focus,.field select:focus{outline:none;border-color:var(--navy);}
-  .btn-primary{background:var(--navy);color:#fff;border:none;padding:12px 22px;border-radius:9px;
-    font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-top:16px;}
-  .btn-primary:hover{background:var(--navy-deep);}
-  .btn-primary:disabled{opacity:.6;cursor:not-allowed;}
+  .f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  .fld{margin-bottom:14px;}
+  .fld label{display:block;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:600;margin-bottom:5px;}
+  .fld input,.fld select{width:100%;padding:10px 12px;border-radius:8px;
+    border:1.5px solid var(--border);font-family:'Manrope',sans-serif;font-size:14px;background:#fff;}
+  .fld input:focus,.fld select:focus{outline:0;border-color:var(--navy);}
+  .fld .hint{font-size:11.5px;color:var(--muted);margin-top:4px;font-family:'Hind Siliguri',sans-serif;}
 
-  .toast{display:none;padding:12px 16px;border-radius:10px;font-family:'Hind Siliguri',sans-serif;
-    font-size:14px;margin-bottom:18px;}
-  .toast.success{background:var(--green-soft);color:var(--green);}
-  .toast.error{background:var(--red-soft);color:var(--red);}
+  .btn{background:var(--navy);color:#fff;border:0;padding:11px 20px;border-radius:8px;
+    font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;cursor:pointer;}
+  .btn:hover{background:var(--navy-deep);}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+  .btn.sm{padding:6px 12px;font-size:12.5px;}
+  .btn.gh{background:#fff;color:var(--navy);border:1.5px solid var(--border);}
 
-  .view{display:none;}
-  .view.active{display:block;}
+  .msg{display:none;padding:11px 14px;border-radius:8px;font-family:'Hind Siliguri',sans-serif;
+    font-size:13.5px;margin-bottom:14px;line-height:1.5;}
+  .msg.ok{display:block;background:var(--green-soft);color:var(--green);}
+  .msg.er{display:block;background:var(--red-soft);color:var(--red);}
 
-  /* লগইন না থাকলে এই পর্দা — কোনো redirect নয় */
+  .view{display:none;} .view.on{display:block;}
+  .row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;}
+  .row .fld{margin-bottom:0;min-width:150px;}
+
   #gate{display:none;position:fixed;inset:0;z-index:99;background:var(--paper);
     align-items:center;justify-content:center;padding:24px;}
-  #gate.open{display:flex;}
-  #gate .box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:34px 30px;
-    max-width:400px;text-align:center;}
-  #gate h3{font-family:'Fraunces',serif;font-size:22px;margin:0 0 10px;color:var(--navy);}
-  #gate p{font-family:'Hind Siliguri',sans-serif;font-size:14.5px;color:var(--text-muted);line-height:1.6;margin:0 0 20px;}
-  #gate a{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;padding:12px 24px;
-    border-radius:9px;font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;}
+  #gate.on{display:flex;}
+  #gate div{background:#fff;border:1px solid var(--border);border-radius:14px;padding:32px;max-width:390px;text-align:center;}
+  #gate h3{font-family:'Fraunces',serif;font-size:21px;margin:0 0 8px;color:var(--navy);}
+  #gate p{font-family:'Hind Siliguri',sans-serif;font-size:14px;color:var(--muted);margin:0 0 18px;line-height:1.6;}
+  #gate a{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;padding:11px 22px;
+    border-radius:8px;font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;}
+
+  #toast{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+  .tst{min-width:220px;max-width:340px;padding:11px 15px;border-radius:8px;color:#fff;font-size:13.5px;
+    font-family:'Hind Siliguri',sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.18);}
+  .tst.ok{background:var(--green);} .tst.er{background:var(--red);} .tst.in{background:var(--navy);}
 </style>
 </head>
 <body>
 
-<!-- লগইন না থাকলে: শুধু বার্তা, কোনো স্বয়ংক্রিয় redirect নয় → blink অসম্ভব -->
+<div id="toast"></div>
+
 <div id="gate">
-  <div class="box">
+  <div>
     <h3 class="bn">লগইন করা নেই</h3>
     <p class="bn">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
     <a href="login.html" class="bn">লগইন পাতায় যান</a>
   </div>
 </div>
 
-<div class="app-shell">
-  <div class="sidebar">
-    <div class="sidebar-brand">
-      <img src="assets/logo.png" alt="NEELKUND">
-      <div class="name">NEELKUND<span class="bn">Admin Panel</span></div>
+<div class="shell">
+  <div class="side">
+    <div class="brand">
+      <img src="assets/logo.png" alt="">
+      <div><b>NEELKUND</b><span class="bn" id="roleTag">Admin Panel</span></div>
     </div>
 
-    <button class="nav-item bn active" data-view="overview">ওভারভিউ</button>
-    <button class="nav-item bn" data-view="customers">Customer তালিকা</button>
-    <button class="nav-item bn" data-view="loans">Loan তালিকা</button>
-    <button class="nav-item bn" data-view="users">নতুন User তৈরি</button>
-    <button class="nav-item bn" data-view="audit">Audit Log</button>
+    <button class="nav bn on" data-v="dash">📊 ড্যাশবোর্ড</button>
+    <button class="nav bn" data-v="cust">👤 গ্রাহক</button>
+    <button class="nav bn" data-v="loan">💳 লোন</button>
+    <button class="nav bn" data-v="coll">🗓️ কালেকশন</button>
+    <button class="nav bn" data-v="def">🚨 খেলাপি</button>
+    <button class="nav bn" data-v="team">🏢 টিম</button>
+    <button class="nav bn" data-v="money">🏦 ফান্ড ও খরচ</button>
 
-    <div class="sidebar-footer">
-      <button class="logout-link bn" id="logoutBtn">লগ আউট</button>
+    <div class="side-foot">
+      <button id="logout" class="bn">লগ আউট</button>
     </div>
   </div>
 
-  <div class="main-area">
-    <div class="topbar">
-      <h1 class="bn" id="pageTitle">ওভারভিউ</h1>
-      <span class="user-chip bn" id="userChip">—</span>
+  <div class="main">
+    <div class="top">
+      <h1 class="bn" id="title">ড্যাশবোর্ড</h1>
+      <span class="chip" id="chip">—</span>
     </div>
 
-    <div class="content">
-      <div class="view active" id="view-overview">
-        <div class="stat-grid" id="statGrid">
-          <div class="loading-row bn">লোড হচ্ছে...</div>
-        </div>
-      </div>
+    <div class="body">
 
-      <div class="view" id="view-customers">
+      <div class="view on" id="v-dash">
+        <div class="grid" id="stats"><div class="loading bn">লোড হচ্ছে...</div></div>
         <div class="panel">
-          <h2 class="bn">সব Customer</h2>
-          <table>
-            <thead><tr>
-              <th class="bn">নাম</th><th class="bn">ফোন</th><th class="bn">Aadhaar</th><th class="bn">KYC Status</th>
-            </tr></thead>
-            <tbody id="customerTableBody">
-              <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
-            </tbody>
-          </table>
+          <h2 class="bn">আজকের অবস্থা</h2>
+          <div id="todayBox" class="loading bn">লোড হচ্ছে...</div>
         </div>
       </div>
 
-      <div class="view" id="view-loans">
+      <div class="view" id="v-cust">
         <div class="panel">
-          <h2 class="bn">সব Loan</h2>
-          <table>
-            <thead><tr>
-              <th class="bn">Loan ID</th><th class="bn">Customer ID</th><th class="bn">Principal</th>
-              <th class="bn">Total Repayable</th><th class="bn">Daily EMI</th><th class="bn">Status</th>
-            </tr></thead>
-            <tbody id="loanTableBody">
-              <tr><td colspan="6" class="loading-row bn">লোড হচ্ছে...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="view" id="view-users">
-        <div class="panel" style="max-width:560px;">
-          <h2 class="bn">নতুন User তৈরি করুন</h2>
-          <div class="toast" id="userToast"></div>
-          <form id="createUserForm">
-            <div class="field" style="margin-bottom:16px;">
-              <label class="bn">পুরো নাম</label>
-              <input type="text" id="newFullName" required>
+          <h2 class="bn">নতুন গ্রাহক যোগ করুন</h2>
+          <div class="msg" id="custMsg"></div>
+          <form id="custForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">পুরো নাম *</label><input id="c_name" required></div>
+              <div class="fld"><label class="bn">ফোন নম্বর *</label><input id="c_phone" maxlength="10" required></div>
             </div>
-            <div class="form-grid" style="margin-bottom:16px;">
-              <div class="field">
-                <label class="bn">ফোন নম্বর</label>
-                <input type="tel" id="newPhone" maxlength="10" required>
-              </div>
-              <div class="field">
-                <label class="bn">পাসওয়ার্ড</label>
-                <input type="text" id="newPassword" required>
-              </div>
+            <div class="f2">
+              <div class="fld"><label class="bn">আধার নম্বর</label><input id="c_aadhaar" maxlength="12">
+                <div class="hint">১২ সংখ্যা</div></div>
+              <div class="fld"><label class="bn">প্যান নম্বর</label><input id="c_pan" maxlength="10" style="text-transform:uppercase">
+                <div class="hint">যেমন ABCDE1234F</div></div>
             </div>
-            <div class="form-grid" style="margin-bottom:16px;">
-              <div class="field">
-                <label class="bn">Role</label>
-                <select id="newRole">
-                  <option value="AGENT">Agent</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="PARTNER">Partner</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-              <div class="field">
-                <label class="bn">Reports To (User ID, ঐচ্ছিক)</label>
-                <input type="number" id="newReportsTo">
-              </div>
+            <div class="f2">
+              <div class="fld"><label class="bn">ঠিকানা</label><input id="c_addr"></div>
+              <div class="fld"><label class="bn">জামিনদারের নাম</label><input id="c_guar"></div>
             </div>
-            <button type="submit" class="btn-primary bn" id="createUserBtn">User তৈরি করুন</button>
+            <button type="submit" class="btn bn" id="c_btn">গ্রাহক যোগ করুন</button>
           </form>
         </div>
-      </div>
 
-      <div class="view" id="view-audit">
         <div class="panel">
-          <h2 class="bn">Audit Log — সাম্প্রতিক কার্যকলাপ</h2>
+          <h2 class="bn">সব গ্রাহক <span class="sub" id="custCount"></span></h2>
           <table>
             <thead><tr>
-              <th class="bn">সময়</th><th class="bn">ফোন</th><th class="bn">Action</th><th class="bn">বিবরণ</th>
+              <th>#</th><th class="bn">নাম</th><th class="bn">ফোন</th>
+              <th class="bn">আধার</th><th class="bn">KYC</th><th class="bn">পতাকা</th>
             </tr></thead>
-            <tbody id="auditTableBody">
-              <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
-            </tbody>
+            <tbody id="custBody"><tr><td colspan="6" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
           </table>
         </div>
       </div>
+
+      <div class="view" id="v-loan">
+        <div class="panel">
+          <h2 class="bn">নতুন লোন দিন</h2>
+          <div class="msg" id="loanMsg"></div>
+          <form id="loanForm">
+            <div class="f3">
+              <div class="fld"><label class="bn">গ্রাহক *</label>
+                <select id="l_cust" required><option value="">— বাছুন —</option></select></div>
+              <div class="fld"><label class="bn">এজেন্ট *</label>
+                <select id="l_agent" required><option value="">— বাছুন —</option></select></div>
+              <div class="fld"><label class="bn">লোনের অঙ্ক *</label>
+                <select id="l_amt" required>
+                  <option value="2000">₹2,000</option>
+                  <option value="4000">₹4,000</option>
+                  <option value="6000">₹6,000</option>
+                  <option value="8000">₹8,000</option>
+                  <option value="10000">₹10,000</option>
+                </select></div>
+            </div>
+            <div id="l_calc" class="msg ok bn" style="display:block;"></div>
+            <button type="submit" class="btn bn" id="l_btn">লোন দিন</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">সব লোন <span class="sub" id="loanCount"></span></h2>
+          <table>
+            <thead><tr>
+              <th>#</th><th class="bn">গ্রাহক</th><th class="bn">আসল</th><th class="bn">মোট প্রাপ্য</th>
+              <th class="bn">দৈনিক EMI</th><th class="bn">অবস্থা</th><th></th>
+            </tr></thead>
+            <tbody id="loanBody"><tr><td colspan="7" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view" id="v-coll">
+        <div class="panel">
+          <h2 class="bn">টাকা জমা নিন</h2>
+          <div class="msg" id="collMsg"></div>
+          <div class="row">
+            <div class="fld" style="flex:1;"><label class="bn">লোন বাছুন</label>
+              <select id="co_loan"><option value="">— বাছুন —</option></select></div>
+            <button class="btn gh bn" id="co_load">কিস্তির তালিকা দেখুন</button>
+          </div>
+
+          <div id="co_status"></div>
+
+          <div class="panel" style="margin:14px 0 0;background:#FAFBFC;">
+            <h2 class="bn" style="font-size:15px;">অগ্রিম / যেকোনো অঙ্ক জমা</h2>
+            <div class="row">
+              <div class="fld"><label class="bn">টাকার অঙ্ক</label><input id="co_amt" type="number" placeholder="₹"></div>
+              <div class="fld" style="flex:1;"><label class="bn">নোট (ঐচ্ছিক)</label><input id="co_note"></div>
+              <button class="btn bn" id="co_adv">জমা নিন</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">কিস্তির তালিকা</h2>
+          <table>
+            <thead><tr>
+              <th>#</th><th class="bn">তারিখ</th><th class="bn">অঙ্ক</th><th class="bn">অবস্থা</th><th></th>
+            </tr></thead>
+            <tbody id="emiBody"><tr><td colspan="5" class="empty bn">উপরে একটা লোন বাছুন</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view" id="v-def">
+        <div class="panel">
+          <h2 class="bn">খেলাপি তালিকা</h2>
+          <div class="row">
+            <button class="btn gh bn" id="def_run">এখনই যাচাই করুন</button>
+            <span class="chip bn">১ দিন = 🟡 · ৪৬ দিন = 🔴 · ৯০ দিন = খেলাপি</span>
+          </div>
+          <table>
+            <thead><tr>
+              <th class="bn">গ্রাহক</th><th class="bn">ফোন</th><th class="bn">লোন</th>
+              <th class="bn">বকেয়া</th><th class="bn">কত দিন</th><th class="bn">পতাকা</th>
+            </tr></thead>
+            <tbody id="defBody"><tr><td colspan="6" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view" id="v-team">
+        <div class="panel" style="max-width:620px;">
+          <h2 class="bn">নতুন কর্মী তৈরি করুন</h2>
+          <div class="msg" id="uMsg"></div>
+          <form id="uForm">
+            <div class="fld"><label class="bn">পুরো নাম *</label><input id="u_name" required></div>
+            <div class="f2">
+              <div class="fld"><label class="bn">ফোন নম্বর *</label><input id="u_phone" maxlength="10" required>
+                <div class="hint">এটা দিয়েই লগইন করবে</div></div>
+              <div class="fld"><label class="bn">পাসওয়ার্ড *</label><input id="u_pass" required>
+                <div class="hint">কমপক্ষে ৮ অক্ষর</div></div>
+            </div>
+            <div class="f2">
+              <div class="fld"><label class="bn">পদ *</label>
+                <select id="u_role">
+                  <option value="AGENT">এজেন্ট</option>
+                  <option value="MANAGER">ম্যানেজার</option>
+                  <option value="PARTNER">পার্টনার</option>
+                  <option value="ADMIN">অ্যাডমিন</option>
+                </select></div>
+              <div class="fld"><label class="bn">কার অধীনে (ID, ঐচ্ছিক)</label><input id="u_rep" type="number"></div>
+            </div>
+            <button type="submit" class="btn bn" id="u_btn">কর্মী তৈরি করুন</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">সব কর্মী</h2>
+          <table>
+            <thead><tr>
+              <th>ID</th><th class="bn">নাম</th><th class="bn">ফোন</th><th class="bn">পদ</th>
+            </tr></thead>
+            <tbody id="teamBody"><tr><td colspan="4" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view" id="v-money">
+        <div class="grid" id="moneyStats"></div>
+
+        <div class="panel" style="max-width:560px;">
+          <h2 class="bn">পুঁজি জমা / উত্তোলন</h2>
+          <div class="msg" id="fMsg"></div>
+          <form id="fForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">ধরন *</label>
+                <select id="f_type">
+                  <option value="DEPOSIT">জমা (পুঁজি ঢালা)</option>
+                  <option value="WITHDRAWAL">উত্তোলন</option>
+                </select></div>
+              <div class="fld"><label class="bn">অঙ্ক *</label><input id="f_amt" type="number" required></div>
+            </div>
+            <div class="fld"><label class="bn">নোট</label><input id="f_note"></div>
+            <button type="submit" class="btn bn" id="f_btn">সংরক্ষণ করুন</button>
+          </form>
+        </div>
+
+        <div class="panel" style="max-width:560px;">
+          <h2 class="bn">খরচ যোগ করুন</h2>
+          <div class="msg" id="eMsg"></div>
+          <form id="eForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">খাত *</label>
+                <select id="e_cat">
+                  <option value="RENT">ভাড়া</option>
+                  <option value="TRANSPORT">যাতায়াত</option>
+                  <option value="UTILITIES">বিদ্যুৎ/জল/বিল</option>
+                  <option value="OFFICE_SUPPLIES">অফিস সামগ্রী</option>
+                  <option value="MARKETING">বিজ্ঞাপন</option>
+                  <option value="MISCELLANEOUS">বিবিধ</option>
+                </select></div>
+              <div class="fld"><label class="bn">অঙ্ক *</label><input id="e_amt" type="number" required></div>
+            </div>
+            <div class="fld"><label class="bn">বিবরণ</label><input id="e_desc"></div>
+            <button type="submit" class="btn bn" id="e_btn">খরচ যোগ করুন</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">খরচের তালিকা</h2>
+          <table>
+            <thead><tr>
+              <th class="bn">তারিখ</th><th class="bn">খাত</th><th class="bn">অঙ্ক</th><th class="bn">বিবরণ</th>
+            </tr></thead>
+            <tbody id="expBody"><tr><td colspan="4" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -230,291 +372,539 @@
 (function () {
   "use strict";
 
-  var API_BASE = "https://neelkund-backend.onrender.com";
+  var API = "https://neelkund-backend.onrender.com";
 
-  /* ---------------------------------------------------------------------
-   * টোকেন — দুই নামেই খুঁজি (নতুন ইঞ্জিন nk_*, পুরনো নাম neelkund_*)
-   * ------------------------------------------------------------------- */
-  function readToken() {
+  function tok() {
     return localStorage.getItem("neelkund_access_token")
-        || localStorage.getItem("nk_access_token")
-        || "";
+        || localStorage.getItem("nk_access_token") || "";
   }
-
-  function readUser() {
-    var name = localStorage.getItem("neelkund_full_name") || "";
-    var role = localStorage.getItem("neelkund_role") || "";
-    if (!name || !role) {
+  function who() {
+    var n = localStorage.getItem("neelkund_full_name") || "";
+    var r = localStorage.getItem("neelkund_role") || "";
+    if (!n || !r) {
       try {
         var u = JSON.parse(localStorage.getItem("nk_user") || "null");
-        if (u) {
-          name = name || u.fullName || u.phone || "";
-          role = role || u.role || "";
-        }
+        if (u) { n = n || u.fullName || u.phone || ""; r = r || u.role || ""; }
       } catch (e) {}
     }
-    return { name: name || "Admin", role: (role || "").toUpperCase() };
+    return { name: n || "User", role: (r || "").toUpperCase() };
   }
 
-  var token = readToken();
-  var me = readUser();
+  var TOKEN = tok(), ME = who();
 
-  /* =====================================================================
-   * এই পাতা কখনও নিজে থেকে অন্য পাতায় যাবে না।
-   * লগইন না থাকলে শুধু একটা বার্তা দেখাবে। → blink অসম্ভব।
-   * =================================================================== */
-  if (!token) {
-    document.getElementById("gate").classList.add("open");
-    return;
+  /* এই পাতা কখনও নিজে থেকে পাতা বদলায় না → blink অসম্ভব */
+  if (!TOKEN) { document.getElementById("gate").classList.add("on"); return; }
+
+  function q(id){ return document.getElementById(id); }
+  function esc(s){ var d=document.createElement("div"); d.textContent = s==null?"":String(s); return d.innerHTML; }
+  function inr(n){ return "₹" + Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0}); }
+  function dt(v){ if(!v) return "—"; var d=new Date(v); return isNaN(d.getTime())?String(v):d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
+
+  q("chip").textContent = ME.name + " · " + (ME.role || "User");
+  q("roleTag").textContent = (ME.role || "USER") + " Panel";
+
+  function toast(msg, kind) {
+    var w = q("toast"), t = document.createElement("div");
+    t.className = "tst " + (kind || "in");
+    t.textContent = msg;
+    w.appendChild(t);
+    setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3800);
+  }
+  function say(id, msg, ok) { var e = q(id); e.textContent = msg; e.className = "msg " + (ok ? "ok" : "er"); }
+  function hide(id) { q(id).className = "msg"; }
+
+  function hmsg(s) {
+    if (s === 401) return "লগইনের মেয়াদ শেষ। আবার লগইন করুন।";
+    if (s === 403) return "এই কাজের অনুমতি নেই।";
+    if (s === 404) return "সার্ভারে এই তথ্য নেই।";
+    if (s === 409) return "এই তথ্য আগে থেকেই আছে (ডুপ্লিকেট)।";
+    if (s >= 500)  return "সার্ভারে সমস্যা হয়েছে।";
+    return "কাজটি করা গেল না (কোড " + s + ")।";
   }
 
-  document.getElementById("userChip").textContent = me.name + " · " + (me.role || "User");
-
-  /* ---------------------------------------------------------------------
-   * API — ভুল হলে বার্তা দেখায়, পাতা বদলায় না
-   * ------------------------------------------------------------------- */
-  function apiGet(path) {
-    return fetch(API_BASE + path, { headers: { Authorization: "Bearer " + token } })
-      .then(function (res) {
-        if (!res.ok) {
-          return res.json().catch(function () { return {}; }).then(function (b) {
-            var e = new Error(b.message || httpMsg(res.status));
-            e.status = res.status;
-            throw e;
-          });
-        }
-        return res.json();
-      });
-  }
-
-  function apiPost(path, body) {
-    return fetch(API_BASE + path, {
-      method: "POST",
-      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then(function (res) {
-      return res.json().catch(function () { return {}; }).then(function (b) {
-        if (!res.ok) {
-          var e = new Error(b.message || httpMsg(res.status));
-          e.status = res.status;
-          throw e;
-        }
+  function call(method, path, body) {
+    var o = { method: method, headers: { Authorization: "Bearer " + TOKEN } };
+    if (body !== undefined) {
+      o.headers["Content-Type"] = "application/json";
+      o.body = JSON.stringify(body);
+    }
+    return fetch(API + path, o).then(function (r) {
+      if (r.status === 204) return null;
+      return r.json().catch(function () { return {}; }).then(function (b) {
+        if (!r.ok) { var e = new Error(b.message || hmsg(r.status)); e.status = r.status; throw e; }
         return b;
       });
     });
   }
+  function GET(p){ return call("GET", p); }
+  function POST(p, b){ return call("POST", p, b === undefined ? {} : b); }
 
-  function httpMsg(s) {
-    if (s === 401) return "লগইনের মেয়াদ শেষ। আবার লগইন করুন।";
-    if (s === 403) return "এই তথ্য দেখার অনুমতি নেই।";
-    if (s === 404) return "এই তথ্য সার্ভারে পাওয়া যায়নি।";
-    if (s >= 500) return "সার্ভারে সমস্যা হয়েছে।";
-    return "লোড করা যায়নি (কোড " + s + ")।";
+  function rows(r) {
+    if (!r) return [];
+    if (Array.isArray(r)) return r;
+    return r.content || r.items || [];
   }
 
-  function money(n) {
-    var v = Number(n || 0);
-    return "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 0 });
-  }
-
-  /* ---------------------------------------------------------------------
-   * মেনু
-   * ------------------------------------------------------------------- */
-  var titles = {
-    overview: "ওভারভিউ",
-    customers: "Customer তালিকা",
-    loans: "Loan তালিকা",
-    users: "নতুন User তৈরি",
-    audit: "Audit Log",
-  };
-
+  var TITLES = { dash:"ড্যাশবোর্ড", cust:"গ্রাহক", loan:"লোন", coll:"কালেকশন",
+                 def:"খেলাপি", team:"টিম", money:"ফান্ড ও খরচ" };
   var loaded = {};
-  var navItems = document.querySelectorAll(".nav-item[data-view]");
+  var navs = document.querySelectorAll(".nav[data-v]");
 
-  Array.prototype.forEach.call(navItems, function (item) {
-    item.addEventListener("click", function () {
-      Array.prototype.forEach.call(navItems, function (i) { i.classList.remove("active"); });
-      item.classList.add("active");
-
-      var views = document.querySelectorAll(".view");
-      Array.prototype.forEach.call(views, function (v) { v.classList.remove("active"); });
-
-      var name = item.getAttribute("data-view");
-      document.getElementById("view-" + name).classList.add("active");
-      document.getElementById("pageTitle").textContent = titles[name];
-
-      if (loaded[name]) return;
-      loaded[name] = true;
-      if (name === "customers") loadCustomers();
-      if (name === "loans") loadLoans();
-      if (name === "audit") loadAudit();
+  Array.prototype.forEach.call(navs, function (n) {
+    n.addEventListener("click", function () {
+      Array.prototype.forEach.call(navs, function (x) { x.classList.remove("on"); });
+      n.classList.add("on");
+      Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) { v.classList.remove("on"); });
+      var k = n.getAttribute("data-v");
+      q("v-" + k).classList.add("on");
+      q("title").textContent = TITLES[k];
+      if (loaded[k]) return;
+      loaded[k] = true;
+      var f = { cust: loadCust, loan: loadLoan, coll: loadColl, def: loadDef, team: loadTeam, money: loadMoney }[k];
+      if (f) f();
     });
   });
 
-  /* ---------------------------------------------------------------------
-   * ওভারভিউ
-   * ------------------------------------------------------------------- */
-  function loadOverview() {
-    var grid = document.getElementById("statGrid");
-
-    apiGet("/api/manager/reports/summary")
-      .then(function (s) {
-        grid.innerHTML =
-          card("মোট বিতরণকৃত (Principal)", money(s.totalPrincipalDisbursed), "") +
-          card("মোট প্রাপ্য (Repayable)", money(s.totalRepayableCommitted), "") +
-          card("মোট আদায়কৃত", money(s.totalCollected), "green") +
-          card("বকেয়া (Outstanding)", money(s.totalOutstanding), "red") +
-          card("সক্রিয় Loan", s.activeLoansCount == null ? "0" : s.activeLoansCount, "") +
-          card("Defaulted Loan", s.defaultedLoansCount == null ? "0" : s.defaultedLoansCount, "red");
-      })
-      .catch(function (err) {
-        grid.innerHTML = '<div class="empty-state bn">' + esc(err.message) + "</div>";
-      });
+  function st(l, v, t) {
+    return '<div class="stat"><div class="l bn">' + esc(l) + '</div><div class="v ' + (t || "") + '">' + esc(String(v)) + "</div></div>";
   }
 
-  function card(label, value, tone) {
-    return '<div class="stat-card"><div class="label bn">' + esc(label) +
-      '</div><div class="value ' + tone + '">' + esc(String(value)) + "</div></div>";
+  /* ---------------- DASHBOARD ---------------- */
+  function loadDash() {
+    GET("/api/manager/reports/summary").then(function (s) {
+      q("stats").innerHTML =
+        st("মোট বিতরণকৃত", inr(s.totalPrincipalDisbursed)) +
+        st("মোট প্রাপ্য", inr(s.totalRepayableCommitted)) +
+        st("মোট আদায়", inr(s.totalCollected), "g") +
+        st("বকেয়া", inr(s.totalOutstanding), "r") +
+        st("সক্রিয় লোন", s.activeLoansCount || 0) +
+        st("খেলাপি লোন", s.defaultedLoansCount || 0, "r") +
+        (s.totalExpenses !== undefined ? st("মোট খরচ", inr(s.totalExpenses), "r") : "") +
+        (s.netProfit !== undefined ? st("নিট লাভ", inr(s.netProfit), "g") : "");
+    }).catch(function (e) {
+      q("stats").innerHTML = '<div class="empty bn">' + esc(e.message) + "</div>";
+    });
+
+    GET("/api/payments/today").then(function (r) {
+      var list = rows(r);
+      var total = list.reduce(function (a, p) { return a + Number(p.amount || 0); }, 0);
+      q("todayBox").innerHTML = '<div class="grid" style="margin:0;">' +
+        st("আজ জমা হয়েছে", inr(total), "g") + st("আজকের লেনদেন", list.length) + "</div>";
+    }).catch(function () {
+      q("todayBox").innerHTML = '<div class="empty bn">আজকের তথ্য এখন পাওয়া যাচ্ছে না।</div>';
+    });
   }
 
-  function esc(s) {
-    var d = document.createElement("div");
-    d.textContent = s == null ? "" : String(s);
-    return d.innerHTML;
+  /* ---------------- CUSTOMERS ---------------- */
+  var CUSTOMERS = [];
+
+  function kyc(s) {
+    var t = { VERIFIED:"g", PENDING:"a", REJECTED:"r" }[s] || "n";
+    var l = { VERIFIED:"যাচাই হয়েছে", PENDING:"যাচাই বাকি", REJECTED:"বাতিল" }[s] || s || "—";
+    return '<span class="b ' + t + '">' + esc(l) + "</span>";
+  }
+  function flag(f) {
+    var t = { GREEN:"g", YELLOW:"a", RED:"r" }[f] || "n";
+    var l = { GREEN:"সবুজ", YELLOW:"হলুদ", RED:"লাল" }[f] || "—";
+    return '<span class="b ' + t + '">' + esc(l) + "</span>";
   }
 
-  /* ---------------------------------------------------------------------
-   * Customer
-   * ------------------------------------------------------------------- */
-  function kycBadge(st) {
-    var tone = { VERIFIED: "green", PENDING: "amber", REJECTED: "red" }[st] || "gray";
-    var lab = { VERIFIED: "ভেরিফাইড", PENDING: "অপেক্ষমান", REJECTED: "বাতিল" }[st] || st || "—";
-    return '<span class="badge ' + tone + ' bn">' + esc(lab) + "</span>";
+  function loadCust() {
+    var tb = q("custBody");
+    return GET("/api/customers?page=0&size=200").then(function (r) {
+      CUSTOMERS = rows(r);
+      q("custCount").textContent = "(" + CUSTOMERS.length + " জন)";
+      q("l_cust").innerHTML = '<option value="">— বাছুন —</option>' + CUSTOMERS.map(function (c) {
+        return '<option value="' + esc(c.id) + '">' + esc(c.fullName) + " · " + esc(c.phone) + "</option>";
+      }).join("");
+
+      if (!CUSTOMERS.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="empty bn">এখনো কোনো গ্রাহক নেই। উপরের ফর্ম থেকে যোগ করুন।</td></tr>';
+        return;
+      }
+      tb.innerHTML = CUSTOMERS.map(function (c) {
+        return "<tr><td>" + esc(c.id) + "</td><td>" + esc(c.fullName) + "</td><td>" + esc(c.phone) +
+          "</td><td>" + esc(c.aadhaarMasked || "—") + "</td><td>" + kyc(c.kycStatus) +
+          "</td><td>" + flag(c.flag) + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
   }
 
-  function loadCustomers() {
-    var tb = document.getElementById("customerTableBody");
-    apiGet("/api/customers?page=0&size=50")
-      .then(function (p) {
-        var items = p.content || p || [];
-        if (!items.length) {
-          tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">কোনো Customer এখনো যোগ হয়নি</td></tr>';
-          return;
-        }
-        tb.innerHTML = items.map(function (c) {
-          return "<tr><td>" + esc(c.fullName) + "</td><td>" + esc(c.phone) +
-            "</td><td>" + esc(c.aadhaarMasked || "—") + "</td><td>" + kycBadge(c.kycStatus) + "</td></tr>";
-        }).join("");
-      })
-      .catch(function (err) {
-        tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">' + esc(err.message) + "</td></tr>";
-      });
-  }
-
-  /* ---------------------------------------------------------------------
-   * Loan
-   * ------------------------------------------------------------------- */
-  function loanBadge(st) {
-    var tone = { ACTIVE: "green", CLOSED: "gray", DEFAULTED: "red" }[st] || "gray";
-    var lab = { ACTIVE: "সক্রিয়", CLOSED: "শেষ", DEFAULTED: "ডিফল্টেড" }[st] || st || "—";
-    return '<span class="badge ' + tone + ' bn">' + esc(lab) + "</span>";
-  }
-
-  function loadLoans() {
-    var tb = document.getElementById("loanTableBody");
-    apiGet("/api/loans?page=0&size=50")
-      .then(function (p) {
-        var items = p.content || p || [];
-        if (!items.length) {
-          tb.innerHTML = '<tr><td colspan="6" class="empty-state bn">কোনো Loan এখনো তৈরি হয়নি</td></tr>';
-          return;
-        }
-        tb.innerHTML = items.map(function (l) {
-          return "<tr><td>#" + esc(l.id) + "</td><td>" + esc(l.customerId) +
-            "</td><td>" + money(l.principal) + "</td><td>" + money(l.totalRepayable) +
-            "</td><td>" + money(l.dailyEmiAmount) + "</td><td>" + loanBadge(l.status) + "</td></tr>";
-        }).join("");
-      })
-      .catch(function (err) {
-        tb.innerHTML = '<tr><td colspan="6" class="empty-state bn">' + esc(err.message) + "</td></tr>";
-      });
-  }
-
-  /* ---------------------------------------------------------------------
-   * Audit Log
-   * ------------------------------------------------------------------- */
-  function loadAudit() {
-    var tb = document.getElementById("auditTableBody");
-    apiGet("/api/admin/audit-logs?page=0&size=50")
-      .then(function (p) {
-        var items = p.content || p || [];
-        if (!items.length) {
-          tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">কোনো লগ নেই</td></tr>';
-          return;
-        }
-        tb.innerHTML = items.map(function (a) {
-          var when = a.timestamp ? new Date(a.timestamp).toLocaleString("en-IN") : "—";
-          return "<tr><td>" + esc(when) + "</td><td>" + esc(a.userPhone || "—") +
-            '</td><td><span class="badge gray">' + esc(a.action) + "</span></td><td class=\"bn\">" +
-            esc(a.details || "—") + "</td></tr>";
-        }).join("");
-      })
-      .catch(function (err) {
-        tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">' + esc(err.message) + "</td></tr>";
-      });
-  }
-
-  /* ---------------------------------------------------------------------
-   * নতুন User তৈরি
-   * ------------------------------------------------------------------- */
-  var form = document.getElementById("createUserForm");
-  var toast = document.getElementById("userToast");
-  var btn = document.getElementById("createUserBtn");
-
-  form.addEventListener("submit", function (e) {
+  q("custForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    toast.style.display = "none";
-    btn.disabled = true;
-    btn.textContent = "তৈরি হচ্ছে...";
+    hide("custMsg");
+    var b = q("c_btn");
+    b.disabled = true; b.textContent = "যোগ হচ্ছে...";
 
-    var rt = document.getElementById("newReportsTo").value;
-    var body = {
-      fullName: document.getElementById("newFullName").value.trim(),
-      phone: document.getElementById("newPhone").value.trim(),
-      password: document.getElementById("newPassword").value,
-      role: document.getElementById("newRole").value,
-      reportsToId: rt ? Number(rt) : null,
-    };
-
-    apiPost("/api/admin/users", body)
-      .then(function () {
-        toast.className = "toast success bn";
-        toast.textContent = "User সফলভাবে তৈরি হয়েছে!";
-        toast.style.display = "block";
-        form.reset();
-      })
-      .catch(function (err) {
-        toast.className = "toast error bn";
-        toast.textContent = err.message || "তৈরি করা যায়নি, আবার চেষ্টা করুন";
-        toast.style.display = "block";
-      })
-      .then(function () {
-        btn.disabled = false;
-        btn.textContent = "User তৈরি করুন";
-      });
+    POST("/api/customers", {
+      fullName: q("c_name").value.trim(),
+      phone: q("c_phone").value.trim(),
+      aadhaarNumber: q("c_aadhaar").value.trim() || null,
+      panNumber: q("c_pan").value.trim().toUpperCase() || null,
+      address: q("c_addr").value.trim() || null,
+      guarantorName: q("c_guar").value.trim() || null,
+    }).then(function () {
+      say("custMsg", "গ্রাহক যোগ হয়েছে ✓", true);
+      toast("গ্রাহক যোগ হয়েছে", "ok");
+      q("custForm").reset();
+      loadCust();
+    }).catch(function (err) {
+      say("custMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "গ্রাহক যোগ করুন";
+    });
   });
 
-  /* ---------------------------------------------------------------------
-   * লগ আউট — একমাত্র জায়গা যেখানে পাতা বদলাবে, তাও শুধু ক্লিকে
-   * ------------------------------------------------------------------- */
-  document.getElementById("logoutBtn").addEventListener("click", function () {
+  /* ---------------- LOANS ---------------- */
+  var LOANS = [];
+
+  function lstat(s) {
+    var t = { ACTIVE:"g", CLOSED:"n", DEFAULTED:"r" }[s] || "n";
+    var l = { ACTIVE:"চলমান", CLOSED:"শোধ হয়েছে", DEFAULTED:"খেলাপি" }[s] || s || "—";
+    return '<span class="b ' + t + '">' + esc(l) + "</span>";
+  }
+
+  function calc() {
+    var p = Number(q("l_amt").value || 0);
+    var total = Math.round(p * 1.15);
+    var emi = Math.ceil(total / 46);
+    q("l_calc").innerHTML = "আসল <b>" + inr(p) + "</b> · ১৫% মার্কআপ · মোট ফেরত <b>" + inr(total) +
+      "</b> · ৪৬ দিনের দৈনিক কিস্তি <b>" + inr(emi) + "</b> · লাভ <b>" + inr(total - p) + "</b>";
+  }
+  q("l_amt").addEventListener("change", calc);
+  calc();
+
+  function loadLoan() {
+    if (!CUSTOMERS.length) loadCust();
+    loadAgents();
+
+    var tb = q("loanBody");
+    return GET("/api/loans?page=0&size=200").then(function (r) {
+      LOANS = rows(r);
+      q("loanCount").textContent = "(" + LOANS.length + "টি)";
+
+      q("co_loan").innerHTML = '<option value="">— বাছুন —</option>' +
+        LOANS.filter(function (l) { return l.status !== "CLOSED"; }).map(function (l) {
+          return '<option value="' + esc(l.id) + '">#' + esc(l.id) + " · " +
+            esc(l.customerName || ("গ্রাহক " + l.customerId)) + " · " + inr(l.principal) + "</option>";
+        }).join("");
+
+      if (!LOANS.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty bn">এখনো কোনো লোন দেওয়া হয়নি।</td></tr>';
+        return;
+      }
+      tb.innerHTML = LOANS.map(function (l) {
+        return "<tr><td>#" + esc(l.id) + "</td><td>" + esc(l.customerName || l.customerId) +
+          "</td><td>" + inr(l.principal) + "</td><td>" + inr(l.totalRepayable) +
+          "</td><td>" + inr(l.dailyEmiAmount) + "</td><td>" + lstat(l.status) +
+          '</td><td><button class="btn sm gh bn" data-loan="' + esc(l.id) + '">কালেকশন</button></td></tr>';
+      }).join("");
+
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-loan]"), function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelector('.nav[data-v="coll"]').click();
+          q("co_loan").value = btn.getAttribute("data-loan");
+          loadEmi();
+        });
+      });
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="7" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("loanForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("loanMsg");
+    var b = q("l_btn");
+    b.disabled = true; b.textContent = "দেওয়া হচ্ছে...";
+
+    POST("/api/loans", {
+      customerId: Number(q("l_cust").value),
+      agentId: Number(q("l_agent").value),
+      principal: Number(q("l_amt").value),
+    }).then(function () {
+      say("loanMsg", "লোন দেওয়া হয়েছে ✓ ৪৬ দিনের কিস্তি নিজে থেকেই তৈরি হয়ে গেছে।", true);
+      toast("লোন দেওয়া হয়েছে", "ok");
+      q("l_cust").value = "";
+      loadLoan();
+    }).catch(function (err) {
+      say("loanMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "লোন দিন";
+    });
+  });
+
+  /* ---------------- TEAM / AGENTS ---------------- */
+  var TEAM = [];
+
+  function loadAgents() {
+    return GET("/api/manager/users").then(function (r) {
+      TEAM = rows(r);
+      var ags = TEAM.filter(function (u) { return u.role === "AGENT"; });
+      if (!ags.length) {
+        q("l_agent").innerHTML = '<option value="">কোনো এজেন্ট নেই — টিম থেকে যোগ করুন</option>';
+      } else {
+        q("l_agent").innerHTML = '<option value="">— বাছুন —</option>' + ags.map(function (a) {
+          return '<option value="' + esc(a.id) + '">' + esc(a.fullName) + "</option>";
+        }).join("");
+      }
+      return TEAM;
+    }).catch(function () { return []; });
+  }
+
+  function loadTeam() {
+    var tb = q("teamBody");
+    loadAgents().then(function () {
+      if (!TEAM.length) {
+        tb.innerHTML = '<tr><td colspan="4" class="empty bn">শুধু আপনিই আছেন। উপরের ফর্ম থেকে কর্মী যোগ করুন।</td></tr>';
+        return;
+      }
+      var lab = { ADMIN:"অ্যাডমিন", PARTNER:"পার্টনার", MANAGER:"ম্যানেজার", AGENT:"এজেন্ট" };
+      tb.innerHTML = TEAM.map(function (u) {
+        return "<tr><td>" + esc(u.id) + "</td><td>" + esc(u.fullName) + "</td><td>" + esc(u.phone) +
+          '</td><td><span class="b n">' + esc(lab[u.role] || u.role) + "</span></td></tr>";
+      }).join("");
+    });
+  }
+
+  q("uForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("uMsg");
+    var b = q("u_btn");
+    b.disabled = true; b.textContent = "তৈরি হচ্ছে...";
+
+    var rep = q("u_rep").value;
+    POST("/api/admin/users", {
+      fullName: q("u_name").value.trim(),
+      phone: q("u_phone").value.trim(),
+      password: q("u_pass").value,
+      role: q("u_role").value,
+      reportsToId: rep ? Number(rep) : null,
+    }).then(function () {
+      say("uMsg", "কর্মী তৈরি হয়েছে ✓ এখন সে ওই ফোন নম্বর দিয়ে লগইন করতে পারবে।", true);
+      toast("কর্মী তৈরি হয়েছে", "ok");
+      q("uForm").reset();
+      loadTeam();
+    }).catch(function (err) {
+      say("uMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "কর্মী তৈরি করুন";
+    });
+  });
+
+  /* ---------------- COLLECTION ---------------- */
+  function loadColl() {
+    if (!LOANS.length) loadLoan();
+  }
+
+  q("co_load").addEventListener("click", loadEmi);
+  q("co_loan").addEventListener("change", loadEmi);
+
+  function loadEmi() {
+    var id = q("co_loan").value;
+    var tb = q("emiBody");
+    hide("collMsg");
+
+    if (!id) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty bn">উপরে একটা লোন বাছুন</td></tr>';
+      q("co_status").innerHTML = "";
+      return;
+    }
+
+    tb.innerHTML = '<tr><td colspan="5" class="loading bn">লোড হচ্ছে...</td></tr>';
+
+    GET("/api/payments/loan/" + id + "/status").then(function (s) {
+      var rem = s.remaining !== undefined ? s.remaining
+        : (Number(s.totalRepayable || 0) - Number(s.totalPaid || 0));
+      var lab = { UP_TO_DATE:"আপ-টু-ডেট", BEHIND:"পিছিয়ে আছে", ADVANCE:"অগ্রিম জমা", CLOSED:"শোধ হয়েছে" };
+      q("co_status").innerHTML = '<div class="grid" style="margin:14px 0 0;">' +
+        st("মোট প্রাপ্য", inr(s.totalRepayable)) +
+        st("জমা হয়েছে", inr(s.totalPaid), "g") +
+        st("বাকি", inr(rem), "r") +
+        (s.standing ? st("অবস্থা", lab[s.standing] || s.standing) : "") + "</div>";
+    }).catch(function () { q("co_status").innerHTML = ""; });
+
+    GET("/api/loans/" + id + "/emi-schedule").then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="5" class="empty bn">কিস্তির তালিকা পাওয়া যায়নি।</td></tr>';
+        return;
+      }
+      function estat(s) {
+        var t = { PAID:"g", PENDING:"n", OVERDUE:"r" }[s] || "n";
+        var l = { PAID:"জমা হয়েছে", PENDING:"বাকি", OVERDUE:"সময় পার" }[s] || s;
+        return '<span class="b ' + t + '">' + esc(l) + "</span>";
+      }
+      tb.innerHTML = list.map(function (e, i) {
+        var btn = e.status === "PAID" ? "—"
+          : '<button class="btn sm bn" data-emi="' + esc(e.id) + '">জমা নিন</button>';
+        return "<tr><td>" + (i + 1) + "</td><td>" + dt(e.dueDate) + "</td><td>" +
+          inr(e.amount) + "</td><td>" + estat(e.status) + "</td><td>" + btn + "</td></tr>";
+      }).join("");
+
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-emi]"), function (btn) {
+        btn.addEventListener("click", function () {
+          btn.disabled = true; btn.textContent = "...";
+          POST("/api/collections/emi/" + btn.getAttribute("data-emi")).then(function () {
+            toast("কিস্তি জমা হয়েছে", "ok");
+            loadEmi();
+          }).catch(function (err) {
+            toast(err.message, "er");
+            say("collMsg", err.message, false);
+            btn.disabled = false; btn.textContent = "জমা নিন";
+          });
+        });
+      });
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("co_adv").addEventListener("click", function () {
+    var id = q("co_loan").value;
+    var amt = Number(q("co_amt").value || 0);
+    hide("collMsg");
+
+    if (!id)  { say("collMsg", "আগে একটা লোন বাছুন।", false); return; }
+    if (!amt) { say("collMsg", "টাকার অঙ্ক লিখুন।", false); return; }
+
+    var b = q("co_adv");
+    b.disabled = true; b.textContent = "জমা হচ্ছে...";
+
+    POST("/api/collections/advance", {
+      loanId: Number(id), amount: amt, note: q("co_note").value.trim() || "",
+    }).then(function () {
+      say("collMsg", inr(amt) + " জমা হয়েছে ✓", true);
+      toast("টাকা জমা হয়েছে", "ok");
+      q("co_amt").value = ""; q("co_note").value = "";
+      loadEmi();
+    }).catch(function (err) {
+      say("collMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "জমা নিন";
+    });
+  });
+
+  /* ---------------- DEFAULTERS ---------------- */
+  function loadDef() {
+    var tb = q("defBody");
+    return GET("/api/manager/defaulters").then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="empty bn">✓ কোনো খেলাপি নেই।</td></tr>';
+        return;
+      }
+      tb.innerHTML = list.map(function (d) {
+        var amt = d.outstandingAmount !== undefined ? d.outstandingAmount : d.overdueAmount;
+        return "<tr><td>" + esc(d.customerName || "—") +
+          '</td><td><a href="tel:' + esc(d.customerPhone || "") + '">' + esc(d.customerPhone || "—") +
+          "</a></td><td>#" + esc(d.loanId) + "</td><td>" + inr(amt) +
+          "</td><td>" + esc(d.daysOverdue != null ? d.daysOverdue + " দিন" : "—") +
+          "</td><td>" + flag(d.flag) + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("def_run").addEventListener("click", function () {
+    var b = q("def_run");
+    b.disabled = true; b.textContent = "যাচাই হচ্ছে...";
+    POST("/api/admin/defaulters/run-check").then(function () {
+      toast("যাচাই সম্পূর্ণ", "ok");
+      loadDef();
+    }).catch(function (e) {
+      toast(e.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "এখনই যাচাই করুন";
+    });
+  });
+
+  /* ---------------- FUND + EXPENSE ---------------- */
+  function loadMoney() {
+    GET("/api/funds/balance").then(function (r) {
+      var bal = r && (r.balance !== undefined ? r.balance : r.totalBalance);
+      q("moneyStats").innerHTML = st("ফান্ডে আছে", inr(bal || 0), "g");
+    }).catch(function () { q("moneyStats").innerHTML = ""; });
+
+    var tb = q("expBody");
+    GET("/api/expenses").then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="4" class="empty bn">কোনো খরচ যোগ হয়নি।</td></tr>';
+        return;
+      }
+      var lab = { RENT:"ভাড়া", TRANSPORT:"যাতায়াত", UTILITIES:"বিদ্যুৎ/জল/বিল",
+                  OFFICE_SUPPLIES:"অফিস সামগ্রী", MARKETING:"বিজ্ঞাপন", MISCELLANEOUS:"বিবিধ" };
+      tb.innerHTML = list.map(function (x) {
+        return "<tr><td>" + dt(x.expenseDate || x.createdAt) +
+          '</td><td><span class="b n">' + esc(lab[x.category] || x.category) + "</span></td><td>" +
+          inr(x.amount) + "</td><td>" + esc(x.description || "—") + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("fForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("fMsg");
+    var b = q("f_btn");
+    b.disabled = true; b.textContent = "সংরক্ষণ হচ্ছে...";
+
+    POST("/api/funds", {
+      type: q("f_type").value,
+      amount: Number(q("f_amt").value),
+      note: q("f_note").value.trim() || "",
+    }).then(function () {
+      say("fMsg", "সংরক্ষিত হয়েছে ✓", true);
+      toast("ফান্ড হালনাগাদ হয়েছে", "ok");
+      q("fForm").reset();
+      loadMoney();
+    }).catch(function (err) {
+      say("fMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "সংরক্ষণ করুন";
+    });
+  });
+
+  q("eForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("eMsg");
+    var b = q("e_btn");
+    b.disabled = true; b.textContent = "যোগ হচ্ছে...";
+
+    POST("/api/expenses", {
+      category: q("e_cat").value,
+      amount: Number(q("e_amt").value),
+      description: q("e_desc").value.trim() || "",
+    }).then(function () {
+      say("eMsg", "খরচ যোগ হয়েছে ✓", true);
+      toast("খরচ যোগ হয়েছে", "ok");
+      q("eForm").reset();
+      loadMoney();
+    }).catch(function (err) {
+      say("eMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "খরচ যোগ করুন";
+    });
+  });
+
+  q("logout").addEventListener("click", function () {
     localStorage.clear();
     window.location.href = "login.html";
   });
 
-  loadOverview();
+  loadDash();
 })();
 </script>
-
 </body>
 </html>
