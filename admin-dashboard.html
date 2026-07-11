@@ -4,275 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEELKUND — Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #102A40;
-    --navy-deep: #0A1C2B;
-    --paper: #F4F6F8;
-    --card: #FFFFFF;
-    --red: #E12A1F;
-    --red-soft: #FBE4E1;
-    --green: #2E8B57;
-    --green-soft: #E4F3EA;
-    --amber: #C98A1B;
-    --amber-soft: #FBF0DD;
-    --text-muted: #5B6B75;
-    --border: #E2E7EB;
+  :root{
+    --navy:#102A40; --navy-deep:#0A1C2B; --paper:#F4F6F8; --card:#FFFFFF;
+    --red:#E12A1F; --red-soft:#FBE4E1; --green:#2E8B57; --green-soft:#E4F3EA;
+    --amber:#C98A1B; --amber-soft:#FBF0DD; --text-muted:#5B6B75; --border:#E2E7EB;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: 'Manrope', 'Hind Siliguri', sans-serif;
-    background: var(--paper);
-    color: var(--navy-deep);
-    min-height: 100vh;
-  }
-  .bn { font-family: 'Hind Siliguri', sans-serif; }
-  a { color: inherit; }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Manrope','Hind Siliguri',sans-serif;background:var(--paper);color:var(--navy-deep);min-height:100vh;}
+  .bn{font-family:'Hind Siliguri',sans-serif;}
 
-  /* ---- Layout shell ---- */
-  .app-shell { display: flex; min-height: 100vh; }
+  .app-shell{display:flex;min-height:100vh;}
 
-  /* ---- Sidebar ---- */
-  .sidebar {
-    width: 240px;
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #163454 0%, var(--navy) 55%, var(--navy-deep) 100%);
-    color: #EAF0F5;
-    display: flex;
-    flex-direction: column;
-    padding: 22px 16px;
-  }
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 8px 20px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-  .sidebar-brand img { width: 32px; height: auto; }
-  .sidebar-brand .name {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 16px;
-  }
-  .sidebar-brand .name span {
-    display: block;
-    font-size: 11px;
-    color: #9FB3C2;
-    font-weight: 400;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 11px 14px;
-    border-radius: 9px;
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 14.5px;
-    font-weight: 500;
-    color: #C4D3DD;
-    cursor: pointer;
-    margin-bottom: 3px;
-    transition: background 0.12s ease, color 0.12s ease;
-    border: none;
-    background: transparent;
-    width: 100%;
-    text-align: right;
-  }
-  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
-  .nav-item.active { background: var(--red); color: #fff; }
-  .sidebar-footer {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-  }
-  .logout-link {
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 13px;
-    color: #9FB3C2;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 8px;
-  }
-  .logout-link:hover { color: #fff; }
+  .sidebar{width:240px;flex-shrink:0;background:linear-gradient(180deg,#163454 0%,var(--navy) 55%,var(--navy-deep) 100%);
+    color:#EAF0F5;display:flex;flex-direction:column;padding:22px 16px;}
+  .sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px;margin-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,.1);}
+  .sidebar-brand img{width:32px;height:auto;}
+  .sidebar-brand .name{font-family:'Fraunces',serif;font-weight:600;font-size:16px;}
+  .sidebar-brand .name span{display:block;font-size:11px;color:#9FB3C2;font-weight:400;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;
+    font-family:'Hind Siliguri',sans-serif;font-size:14.5px;font-weight:500;color:#C4D3DD;cursor:pointer;
+    margin-bottom:3px;border:none;background:transparent;width:100%;text-align:left;}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .nav-item.active{background:var(--red);color:#fff;}
+  .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);}
+  .logout-link{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:#9FB3C2;cursor:pointer;
+    background:none;border:none;padding:8px;}
+  .logout-link:hover{color:#fff;}
 
-  /* ---- Main area ---- */
-  .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .topbar {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .topbar h1 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 20px;
-    margin: 0;
-  }
-  .topbar .user-chip {
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .content { padding: 28px; flex: 1; overflow-y: auto; }
+  .main-area{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 28px;
+    display:flex;align-items:center;justify-content:space-between;}
+  .topbar h1{font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin:0;}
+  .user-chip{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--text-muted);}
+  .content{padding:28px;flex:1;overflow-y:auto;}
 
-  /* ---- Cards / stats ---- */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-  }
-  .stat-card .label {
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .stat-card .value {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 26px;
-  }
-  .stat-card .value.red { color: var(--red); }
-  .stat-card .value.green { color: var(--green); }
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .stat-card .label{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:var(--text-muted);margin-bottom:8px;}
+  .stat-card .value{font-family:'Fraunces',serif;font-weight:600;font-size:26px;}
+  .stat-card .value.red{color:var(--red);}
+  .stat-card .value.green{color:var(--green);}
 
-  .panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-  .panel h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 18px;
-  }
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;}
+  .panel h2{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 18px;}
 
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th {
-    text-align: right;
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 12.5px;
-    color: var(--text-muted);
-    font-weight: 600;
-    padding: 10px 12px;
-    border-bottom: 1.5px solid var(--border);
-  }
-  td {
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
-    font-family: 'Hind Siliguri', sans-serif;
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #FAFBFC; }
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:left;font-family:'Hind Siliguri',sans-serif;font-size:12.5px;color:var(--text-muted);
+    font-weight:600;padding:10px 12px;border-bottom:1.5px solid var(--border);}
+  td{padding:12px;border-bottom:1px solid var(--border);font-family:'Hind Siliguri',sans-serif;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#FAFBFC;}
 
-  .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'Hind Siliguri', sans-serif;
-  }
-  .badge.green { background: var(--green-soft); color: var(--green); }
-  .badge.amber { background: var(--amber-soft); color: var(--amber); }
-  .badge.red { background: var(--red-soft); color: var(--red); }
-  .badge.gray { background: #EEF1F3; color: var(--text-muted); }
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;
+    font-family:'Hind Siliguri',sans-serif;}
+  .badge.green{background:var(--green-soft);color:var(--green);}
+  .badge.amber{background:var(--amber-soft);color:var(--amber);}
+  .badge.red{background:var(--red-soft);color:var(--red);}
+  .badge.gray{background:#EEF1F3;color:var(--text-muted);}
 
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
-    font-family: 'Hind Siliguri', sans-serif;
-  }
+  .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:'Hind Siliguri',sans-serif;}
+  .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-family:'Hind Siliguri',sans-serif;}
 
-  /* ---- Form ---- */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .field { margin-bottom: 4px; }
-  .field label {
-    display: block;
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 13.5px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-  .field input, .field select {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 9px;
-    border: 1.5px solid var(--border);
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-  }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--navy);
-  }
-  .btn-primary {
-    background: var(--navy);
-    color: #fff;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 9px;
-    font-family: 'Hind Siliguri', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 16px;
-  }
-  .btn-primary:hover { background: var(--navy-deep); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field label{display:block;font-family:'Hind Siliguri',sans-serif;font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .field input,.field select{width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);
+    font-family:'Manrope',sans-serif;font-size:14px;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--navy);}
+  .btn-primary{background:var(--navy);color:#fff;border:none;padding:12px 22px;border-radius:9px;
+    font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-top:16px;}
+  .btn-primary:hover{background:var(--navy-deep);}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;}
 
-  .toast {
-    display: none;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-family: 'Hind Siliguri', sans-serif;
-    font-size: 14px;
-    margin-bottom: 18px;
-  }
-  .toast.success { background: var(--green-soft); color: var(--green); }
-  .toast.error { background: var(--red-soft); color: var(--red); }
+  .toast{display:none;padding:12px 16px;border-radius:10px;font-family:'Hind Siliguri',sans-serif;
+    font-size:14px;margin-bottom:18px;}
+  .toast.success{background:var(--green-soft);color:var(--green);}
+  .toast.error{background:var(--red-soft);color:var(--red);}
 
-  .view { display: none; }
-  .view.active { display: block; }
+  .view{display:none;}
+  .view.active{display:block;}
 
-  .loading-row { text-align: center; padding: 30px; color: var(--text-muted); font-family: 'Hind Siliguri', sans-serif; }
+  /* লগইন না থাকলে এই পর্দা — কোনো redirect নয় */
+  #gate{display:none;position:fixed;inset:0;z-index:99;background:var(--paper);
+    align-items:center;justify-content:center;padding:24px;}
+  #gate.open{display:flex;}
+  #gate .box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:34px 30px;
+    max-width:400px;text-align:center;}
+  #gate h3{font-family:'Fraunces',serif;font-size:22px;margin:0 0 10px;color:var(--navy);}
+  #gate p{font-family:'Hind Siliguri',sans-serif;font-size:14.5px;color:var(--text-muted);line-height:1.6;margin:0 0 20px;}
+  #gate a{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;padding:12px 24px;
+    border-radius:9px;font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;}
 </style>
 </head>
 <body>
 
-<div class="app-shell">
+<!-- লগইন না থাকলে: শুধু বার্তা, কোনো স্বয়ংক্রিয় redirect নয় → blink অসম্ভব -->
+<div id="gate">
+  <div class="box">
+    <h3 class="bn">লগইন করা নেই</h3>
+    <p class="bn">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
+    <a href="login.html" class="bn">লগইন পাতায় যান</a>
+  </div>
+</div>
 
-  <!-- Sidebar -->
+<div class="app-shell">
   <div class="sidebar">
     <div class="sidebar-brand">
       <img src="assets/logo.png" alt="NEELKUND">
-      <div class="name">NEELKUND
-        <span class="bn">Admin Panel</span>
-      </div>
+      <div class="name">NEELKUND<span class="bn">Admin Panel</span></div>
     </div>
 
     <button class="nav-item bn active" data-view="overview">ওভারভিউ</button>
@@ -286,7 +128,6 @@
     </div>
   </div>
 
-  <!-- Main -->
   <div class="main-area">
     <div class="topbar">
       <h1 class="bn" id="pageTitle">ওভারভিউ</h1>
@@ -294,27 +135,19 @@
     </div>
 
     <div class="content">
-
-      <!-- OVERVIEW -->
       <div class="view active" id="view-overview">
         <div class="stat-grid" id="statGrid">
           <div class="loading-row bn">লোড হচ্ছে...</div>
         </div>
       </div>
 
-      <!-- CUSTOMERS -->
       <div class="view" id="view-customers">
         <div class="panel">
           <h2 class="bn">সব Customer</h2>
           <table>
-            <thead>
-              <tr>
-                <th class="bn">নাম</th>
-                <th class="bn">ফোন</th>
-                <th class="bn">Aadhaar</th>
-                <th class="bn">KYC Status</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="bn">নাম</th><th class="bn">ফোন</th><th class="bn">Aadhaar</th><th class="bn">KYC Status</th>
+            </tr></thead>
             <tbody id="customerTableBody">
               <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
             </tbody>
@@ -322,21 +155,14 @@
         </div>
       </div>
 
-      <!-- LOANS -->
       <div class="view" id="view-loans">
         <div class="panel">
           <h2 class="bn">সব Loan</h2>
           <table>
-            <thead>
-              <tr>
-                <th class="bn">Loan ID</th>
-                <th class="bn">Customer ID</th>
-                <th class="bn">Principal</th>
-                <th class="bn">Total Repayable</th>
-                <th class="bn">Daily EMI</th>
-                <th class="bn">Status</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="bn">Loan ID</th><th class="bn">Customer ID</th><th class="bn">Principal</th>
+              <th class="bn">Total Repayable</th><th class="bn">Daily EMI</th><th class="bn">Status</th>
+            </tr></thead>
             <tbody id="loanTableBody">
               <tr><td colspan="6" class="loading-row bn">লোড হচ্ছে...</td></tr>
             </tbody>
@@ -344,9 +170,8 @@
         </div>
       </div>
 
-      <!-- CREATE USER -->
       <div class="view" id="view-users">
-        <div class="panel" style="max-width: 560px;">
+        <div class="panel" style="max-width:560px;">
           <h2 class="bn">নতুন User তৈরি করুন</h2>
           <div class="toast" id="userToast"></div>
           <form id="createUserForm">
@@ -384,269 +209,311 @@
         </div>
       </div>
 
-      <!-- AUDIT LOG -->
       <div class="view" id="view-audit">
         <div class="panel">
           <h2 class="bn">Audit Log — সাম্প্রতিক কার্যকলাপ</h2>
           <table>
-            <thead>
-              <tr>
-                <th class="bn">সময়</th>
-                <th class="bn">ফোন</th>
-                <th class="bn">Action</th>
-                <th class="bn">বিবরণ</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="bn">সময়</th><th class="bn">ফোন</th><th class="bn">Action</th><th class="bn">বিবরণ</th>
+            </tr></thead>
             <tbody id="auditTableBody">
               <tr><td colspan="4" class="loading-row bn">লোড হচ্ছে...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <script>
-  const API_BASE = 'https://neelkund-backend.onrender.com';
-  const token = localStorage.getItem('neelkund_access_token');
-  const role = localStorage.getItem('neelkund_role');
-  const fullName = localStorage.getItem('neelkund_full_name');
+(function () {
+  "use strict";
 
-  if (!token || role !== 'ADMIN') {
-    window.location.href = 'login.html';
+  var API_BASE = "https://neelkund-backend.onrender.com";
+
+  /* ---------------------------------------------------------------------
+   * টোকেন — দুই নামেই খুঁজি (নতুন ইঞ্জিন nk_*, পুরনো নাম neelkund_*)
+   * ------------------------------------------------------------------- */
+  function readToken() {
+    return localStorage.getItem("neelkund_access_token")
+        || localStorage.getItem("nk_access_token")
+        || "";
   }
 
-  document.getElementById('userChip').textContent = `${fullName} · Admin`;
-
-  // ---- Generic authenticated fetch ----
-  async function apiGet(path) {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (res.status === 401 || res.status === 403) {
-      localStorage.clear();
-      window.location.href = 'login.html';
-      return null;
+  function readUser() {
+    var name = localStorage.getItem("neelkund_full_name") || "";
+    var role = localStorage.getItem("neelkund_role") || "";
+    if (!name || !role) {
+      try {
+        var u = JSON.parse(localStorage.getItem("nk_user") || "null");
+        if (u) {
+          name = name || u.fullName || u.phone || "";
+          role = role || u.role || "";
+        }
+      } catch (e) {}
     }
-    if (!res.ok) throw new Error('Request failed: ' + path);
-    return res.json();
+    return { name: name || "Admin", role: (role || "").toUpperCase() };
   }
 
-  async function apiPost(path, body) {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
+  var token = readToken();
+  var me = readUser();
+
+  /* =====================================================================
+   * এই পাতা কখনও নিজে থেকে অন্য পাতায় যাবে না।
+   * লগইন না থাকলে শুধু একটা বার্তা দেখাবে। → blink অসম্ভব।
+   * =================================================================== */
+  if (!token) {
+    document.getElementById("gate").classList.add("open");
+    return;
+  }
+
+  document.getElementById("userChip").textContent = me.name + " · " + (me.role || "User");
+
+  /* ---------------------------------------------------------------------
+   * API — ভুল হলে বার্তা দেখায়, পাতা বদলায় না
+   * ------------------------------------------------------------------- */
+  function apiGet(path) {
+    return fetch(API_BASE + path, { headers: { Authorization: "Bearer " + token } })
+      .then(function (res) {
+        if (!res.ok) {
+          return res.json().catch(function () { return {}; }).then(function (b) {
+            var e = new Error(b.message || httpMsg(res.status));
+            e.status = res.status;
+            throw e;
+          });
+        }
+        return res.json();
+      });
+  }
+
+  function apiPost(path, body) {
+    return fetch(API_BASE + path, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (b) {
+        if (!res.ok) {
+          var e = new Error(b.message || httpMsg(res.status));
+          e.status = res.status;
+          throw e;
+        }
+        return b;
+      });
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || 'Request failed');
-    return data;
   }
 
-  // ---- Navigation ----
-  const navItems = document.querySelectorAll('.nav-item[data-view]');
-  const titles = {
-    overview: 'ওভারভিউ',
-    customers: 'Customer তালিকা',
-    loans: 'Loan তালিকা',
-    users: 'নতুন User তৈরি',
-    audit: 'Audit Log'
+  function httpMsg(s) {
+    if (s === 401) return "লগইনের মেয়াদ শেষ। আবার লগইন করুন।";
+    if (s === 403) return "এই তথ্য দেখার অনুমতি নেই।";
+    if (s === 404) return "এই তথ্য সার্ভারে পাওয়া যায়নি।";
+    if (s >= 500) return "সার্ভারে সমস্যা হয়েছে।";
+    return "লোড করা যায়নি (কোড " + s + ")।";
+  }
+
+  function money(n) {
+    var v = Number(n || 0);
+    return "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+  }
+
+  /* ---------------------------------------------------------------------
+   * মেনু
+   * ------------------------------------------------------------------- */
+  var titles = {
+    overview: "ওভারভিউ",
+    customers: "Customer তালিকা",
+    loans: "Loan তালিকা",
+    users: "নতুন User তৈরি",
+    audit: "Audit Log",
   };
 
-  navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      navItems.forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      const viewName = item.dataset.view;
-      document.getElementById('view-' + viewName).classList.add('active');
-      document.getElementById('pageTitle').textContent = titles[viewName];
-      loadView(viewName);
+  var loaded = {};
+  var navItems = document.querySelectorAll(".nav-item[data-view]");
+
+  Array.prototype.forEach.call(navItems, function (item) {
+    item.addEventListener("click", function () {
+      Array.prototype.forEach.call(navItems, function (i) { i.classList.remove("active"); });
+      item.classList.add("active");
+
+      var views = document.querySelectorAll(".view");
+      Array.prototype.forEach.call(views, function (v) { v.classList.remove("active"); });
+
+      var name = item.getAttribute("data-view");
+      document.getElementById("view-" + name).classList.add("active");
+      document.getElementById("pageTitle").textContent = titles[name];
+
+      if (loaded[name]) return;
+      loaded[name] = true;
+      if (name === "customers") loadCustomers();
+      if (name === "loans") loadLoans();
+      if (name === "audit") loadAudit();
     });
   });
 
-  const loadedViews = new Set();
+  /* ---------------------------------------------------------------------
+   * ওভারভিউ
+   * ------------------------------------------------------------------- */
+  function loadOverview() {
+    var grid = document.getElementById("statGrid");
 
-  function loadView(name) {
-    if (loadedViews.has(name)) return; // load once, cache in DOM
-    loadedViews.add(name);
-    if (name === 'customers') loadCustomers();
-    if (name === 'loans') loadLoans();
-    if (name === 'audit') loadAuditLog();
+    apiGet("/api/manager/reports/summary")
+      .then(function (s) {
+        grid.innerHTML =
+          card("মোট বিতরণকৃত (Principal)", money(s.totalPrincipalDisbursed), "") +
+          card("মোট প্রাপ্য (Repayable)", money(s.totalRepayableCommitted), "") +
+          card("মোট আদায়কৃত", money(s.totalCollected), "green") +
+          card("বকেয়া (Outstanding)", money(s.totalOutstanding), "red") +
+          card("সক্রিয় Loan", s.activeLoansCount == null ? "0" : s.activeLoansCount, "") +
+          card("Defaulted Loan", s.defaultedLoansCount == null ? "0" : s.defaultedLoansCount, "red");
+      })
+      .catch(function (err) {
+        grid.innerHTML = '<div class="empty-state bn">' + esc(err.message) + "</div>";
+      });
   }
 
-  // ---- Overview ----
-  function money(n) {
-    return '₹' + Number(n).toLocaleString('en-IN');
+  function card(label, value, tone) {
+    return '<div class="stat-card"><div class="label bn">' + esc(label) +
+      '</div><div class="value ' + tone + '">' + esc(String(value)) + "</div></div>";
   }
 
-  async function loadOverview() {
-    try {
-      const summary = await apiGet('/api/manager/reports/summary');
-      const grid = document.getElementById('statGrid');
-      grid.innerHTML = `
-        <div class="stat-card">
-          <div class="label bn">মোট বিতরণকৃত (Principal)</div>
-          <div class="value">${money(summary.totalPrincipalDisbursed)}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label bn">মোট প্রাপ্য (Repayable)</div>
-          <div class="value">${money(summary.totalRepayableCommitted)}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label bn">মোট আদায়কৃত</div>
-          <div class="value green">${money(summary.totalCollected)}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label bn">বকেয়া (Outstanding)</div>
-          <div class="value red">${money(summary.totalOutstanding)}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label bn">সক্রিয় Loan</div>
-          <div class="value">${summary.activeLoansCount}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label bn">Defaulted Loan</div>
-          <div class="value red">${summary.defaultedLoansCount}</div>
-        </div>
-      `;
-    } catch (err) {
-      document.getElementById('statGrid').innerHTML =
-        `<div class="empty-state bn">রিপোর্ট লোড করা যায়নি — একটু পরে আবার চেষ্টা করুন।</div>`;
-    }
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
   }
 
-  // ---- Customers ----
-  function kycBadge(status) {
-    const map = { VERIFIED: 'green', PENDING: 'amber', REJECTED: 'red' };
-    const labels = { VERIFIED: 'ভেরিফাইড', PENDING: 'অপেক্ষমান', REJECTED: 'বাতিল' };
-    return `<span class="badge ${map[status] || 'gray'} bn">${labels[status] || status}</span>`;
+  /* ---------------------------------------------------------------------
+   * Customer
+   * ------------------------------------------------------------------- */
+  function kycBadge(st) {
+    var tone = { VERIFIED: "green", PENDING: "amber", REJECTED: "red" }[st] || "gray";
+    var lab = { VERIFIED: "ভেরিফাইড", PENDING: "অপেক্ষমান", REJECTED: "বাতিল" }[st] || st || "—";
+    return '<span class="badge ' + tone + ' bn">' + esc(lab) + "</span>";
   }
 
-  async function loadCustomers() {
-    const tbody = document.getElementById('customerTableBody');
-    try {
-      const page = await apiGet('/api/customers?page=0&size=50');
-      const items = page.content || [];
-      if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">কোনো Customer এখনো যোগ হয়নি</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = items.map(c => `
-        <tr>
-          <td>${c.fullName}</td>
-          <td>${c.phone}</td>
-          <td>${c.aadhaarMasked || '—'}</td>
-          <td>${kycBadge(c.kycStatus)}</td>
-        </tr>
-      `).join('');
-    } catch (err) {
-      tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">লোড করা যায়নি</td></tr>`;
-    }
+  function loadCustomers() {
+    var tb = document.getElementById("customerTableBody");
+    apiGet("/api/customers?page=0&size=50")
+      .then(function (p) {
+        var items = p.content || p || [];
+        if (!items.length) {
+          tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">কোনো Customer এখনো যোগ হয়নি</td></tr>';
+          return;
+        }
+        tb.innerHTML = items.map(function (c) {
+          return "<tr><td>" + esc(c.fullName) + "</td><td>" + esc(c.phone) +
+            "</td><td>" + esc(c.aadhaarMasked || "—") + "</td><td>" + kycBadge(c.kycStatus) + "</td></tr>";
+        }).join("");
+      })
+      .catch(function (err) {
+        tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">' + esc(err.message) + "</td></tr>";
+      });
   }
 
-  // ---- Loans ----
-  function loanBadge(status) {
-    const map = { ACTIVE: 'green', CLOSED: 'gray', DEFAULTED: 'red' };
-    const labels = { ACTIVE: 'সক্রিয়', CLOSED: 'শেষ', DEFAULTED: 'ডিফল্টেড' };
-    return `<span class="badge ${map[status] || 'gray'} bn">${labels[status] || status}</span>`;
+  /* ---------------------------------------------------------------------
+   * Loan
+   * ------------------------------------------------------------------- */
+  function loanBadge(st) {
+    var tone = { ACTIVE: "green", CLOSED: "gray", DEFAULTED: "red" }[st] || "gray";
+    var lab = { ACTIVE: "সক্রিয়", CLOSED: "শেষ", DEFAULTED: "ডিফল্টেড" }[st] || st || "—";
+    return '<span class="badge ' + tone + ' bn">' + esc(lab) + "</span>";
   }
 
-  async function loadLoans() {
-    const tbody = document.getElementById('loanTableBody');
-    try {
-      const page = await apiGet('/api/loans?page=0&size=50');
-      const items = page.content || [];
-      if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-state bn">কোনো Loan এখনো তৈরি হয়নি</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = items.map(l => `
-        <tr>
-          <td>#${l.id}</td>
-          <td>${l.customerId}</td>
-          <td>${money(l.principal)}</td>
-          <td>${money(l.totalRepayable)}</td>
-          <td>${money(l.dailyEmiAmount)}</td>
-          <td>${loanBadge(l.status)}</td>
-        </tr>
-      `).join('');
-    } catch (err) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty-state bn">লোড করা যায়নি</td></tr>`;
-    }
+  function loadLoans() {
+    var tb = document.getElementById("loanTableBody");
+    apiGet("/api/loans?page=0&size=50")
+      .then(function (p) {
+        var items = p.content || p || [];
+        if (!items.length) {
+          tb.innerHTML = '<tr><td colspan="6" class="empty-state bn">কোনো Loan এখনো তৈরি হয়নি</td></tr>';
+          return;
+        }
+        tb.innerHTML = items.map(function (l) {
+          return "<tr><td>#" + esc(l.id) + "</td><td>" + esc(l.customerId) +
+            "</td><td>" + money(l.principal) + "</td><td>" + money(l.totalRepayable) +
+            "</td><td>" + money(l.dailyEmiAmount) + "</td><td>" + loanBadge(l.status) + "</td></tr>";
+        }).join("");
+      })
+      .catch(function (err) {
+        tb.innerHTML = '<tr><td colspan="6" class="empty-state bn">' + esc(err.message) + "</td></tr>";
+      });
   }
 
-  // ---- Audit Log ----
-  async function loadAuditLog() {
-    const tbody = document.getElementById('auditTableBody');
-    try {
-      const page = await apiGet('/api/admin/audit-logs?page=0&size=50&sort=timestamp,desc');
-      const items = page.content || [];
-      if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">কোনো লগ নেই</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = items.map(a => `
-        <tr>
-          <td>${new Date(a.timestamp).toLocaleString('bn-IN')}</td>
-          <td>${a.userPhone || '—'}</td>
-          <td><span class="badge gray">${a.action}</span></td>
-          <td class="bn">${a.details || '—'}</td>
-        </tr>
-      `).join('');
-    } catch (err) {
-      tbody.innerHTML = `<tr><td colspan="4" class="empty-state bn">লোড করা যায়নি</td></tr>`;
-    }
+  /* ---------------------------------------------------------------------
+   * Audit Log
+   * ------------------------------------------------------------------- */
+  function loadAudit() {
+    var tb = document.getElementById("auditTableBody");
+    apiGet("/api/admin/audit-logs?page=0&size=50")
+      .then(function (p) {
+        var items = p.content || p || [];
+        if (!items.length) {
+          tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">কোনো লগ নেই</td></tr>';
+          return;
+        }
+        tb.innerHTML = items.map(function (a) {
+          var when = a.timestamp ? new Date(a.timestamp).toLocaleString("en-IN") : "—";
+          return "<tr><td>" + esc(when) + "</td><td>" + esc(a.userPhone || "—") +
+            '</td><td><span class="badge gray">' + esc(a.action) + "</span></td><td class=\"bn\">" +
+            esc(a.details || "—") + "</td></tr>";
+        }).join("");
+      })
+      .catch(function (err) {
+        tb.innerHTML = '<tr><td colspan="4" class="empty-state bn">' + esc(err.message) + "</td></tr>";
+      });
   }
 
-  // ---- Create User ----
-  const userForm = document.getElementById('createUserForm');
-  const userToast = document.getElementById('userToast');
-  const createUserBtn = document.getElementById('createUserBtn');
+  /* ---------------------------------------------------------------------
+   * নতুন User তৈরি
+   * ------------------------------------------------------------------- */
+  var form = document.getElementById("createUserForm");
+  var toast = document.getElementById("userToast");
+  var btn = document.getElementById("createUserBtn");
 
-  userForm.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
-    userToast.style.display = 'none';
-    createUserBtn.disabled = true;
-    createUserBtn.textContent = 'তৈরি হচ্ছে...';
+    toast.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = "তৈরি হচ্ছে...";
 
-    const body = {
-      fullName: document.getElementById('newFullName').value.trim(),
-      phone: document.getElementById('newPhone').value.trim(),
-      password: document.getElementById('newPassword').value,
-      role: document.getElementById('newRole').value,
-      reportsToId: document.getElementById('newReportsTo').value
-        ? Number(document.getElementById('newReportsTo').value) : null
+    var rt = document.getElementById("newReportsTo").value;
+    var body = {
+      fullName: document.getElementById("newFullName").value.trim(),
+      phone: document.getElementById("newPhone").value.trim(),
+      password: document.getElementById("newPassword").value,
+      role: document.getElementById("newRole").value,
+      reportsToId: rt ? Number(rt) : null,
     };
 
-    try {
-      await apiPost('/api/admin/users', body);
-      userToast.className = 'toast success bn';
-      userToast.textContent = 'User সফলভাবে তৈরি হয়েছে!';
-      userToast.style.display = 'block';
-      userForm.reset();
-    } catch (err) {
-      userToast.className = 'toast error bn';
-      userToast.textContent = err.message || 'তৈরি করা যায়নি, আবার চেষ্টা করুন';
-      userToast.style.display = 'block';
-    } finally {
-      createUserBtn.disabled = false;
-      createUserBtn.textContent = 'User তৈরি করুন';
-    }
+    apiPost("/api/admin/users", body)
+      .then(function () {
+        toast.className = "toast success bn";
+        toast.textContent = "User সফলভাবে তৈরি হয়েছে!";
+        toast.style.display = "block";
+        form.reset();
+      })
+      .catch(function (err) {
+        toast.className = "toast error bn";
+        toast.textContent = err.message || "তৈরি করা যায়নি, আবার চেষ্টা করুন";
+        toast.style.display = "block";
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "User তৈরি করুন";
+      });
   });
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
+  /* ---------------------------------------------------------------------
+   * লগ আউট — একমাত্র জায়গা যেখানে পাতা বদলাবে, তাও শুধু ক্লিকে
+   * ------------------------------------------------------------------- */
+  document.getElementById("logoutBtn").addEventListener("click", function () {
     localStorage.clear();
-    window.location.href = 'login.html';
+    window.location.href = "login.html";
   });
 
-  // Initial load
   loadOverview();
+})();
 </script>
 
 </body>
