@@ -135,6 +135,9 @@
     <button class="nav bn" data-v="agents">👥 এজেন্ট হিসাব</button>
     <button class="nav bn" data-v="salary">💰 বেতন</button>
     <button class="nav bn" data-v="report">📋 রিপোর্ট / লাভ-ক্ষতি</button>
+    <button class="nav bn" data-v="perm">🔐 পারমিশন</button>
+    <button class="nav bn" data-v="log">🔑 লগইন লগ</button>
+    <button class="nav bn" data-v="about">🏢 সম্পর্কে</button>
 
     <div class="side-foot">
       <button id="logout" class="bn">লগ আউট</button>
@@ -450,6 +453,63 @@
         </div>
       </div>
 
+
+      <!-- ================= PERMISSIONS ================= -->
+      <div class="view" id="v-perm">
+        <div class="panel">
+          <h2 class="bn">কে কী দেখতে পাবে</h2>
+          <div class="msg" id="pMsg"></div>
+          <div class="row">
+            <div class="fld" style="min-width:220px;"><label class="bn">পদ বাছুন</label>
+              <select id="p_role">
+                <option value="PARTNER">পার্টনার</option>
+                <option value="MANAGER">ম্যানেজার</option>
+                <option value="AGENT">এজেন্ট</option>
+              </select></div>
+            <button class="btn bn" id="p_save">সংরক্ষণ করুন</button>
+          </div>
+          <p class="bn" style="font-size:13px;color:#5B6B75;margin:0 0 14px;">
+            অ্যাডমিন সবসময় সবকিছু পারে — তাই তালিকায় নেই।
+          </p>
+          <div id="p_box" class="loading bn">লোড হচ্ছে...</div>
+        </div>
+      </div>
+
+      <!-- ================= LOGIN LOG ================= -->
+      <div class="view" id="v-log">
+        <div class="panel">
+          <h2 class="bn">কে কখন লগইন করল</h2>
+          <table>
+            <thead><tr>
+              <th class="bn">সময়</th><th class="bn">ফোন</th>
+              <th class="bn">ফল</th><th class="bn">বিবরণ</th>
+            </tr></thead>
+            <tbody id="logBody"><tr><td colspan="4" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= ABOUT ================= -->
+      <div class="view" id="v-about">
+        <div class="panel" style="max-width:620px;">
+          <h2 class="bn">কোম্পানির তথ্য</h2>
+          <div id="aboutBox" class="loading bn">লোড হচ্ছে...</div>
+        </div>
+        <div class="panel" style="max-width:620px;">
+          <h2 class="bn">লোনের নিয়ম</h2>
+          <table>
+            <thead><tr>
+              <th class="bn">আসল</th><th class="bn">মোট ফেরত</th>
+              <th class="bn">দৈনিক EMI</th><th class="bn">লাভ</th>
+            </tr></thead>
+            <tbody id="ruleBody"></tbody>
+          </table>
+          <p class="bn" style="font-size:13px;color:#5B6B75;margin:14px 0 0;">
+            ১৫% ফ্ল্যাট মার্কআপ · ৪৬ দিনের দৈনিক কিস্তি · ১ দিন দেরি = হলুদ, ৪৬ দিন = লাল, ৯০ দিন = খেলাপি
+          </p>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -533,7 +593,8 @@
 
   var TITLES = { dash:"ড্যাশবোর্ড", cust:"গ্রাহক", loan:"লোন", coll:"কালেকশন",
                  def:"খেলাপি", team:"টিম", money:"ফান্ড ও খরচ",
-                 agents:"এজেন্ট হিসাব", salary:"বেতন", report:"রিপোর্ট / লাভ-ক্ষতি" };
+                 agents:"এজেন্ট হিসাব", salary:"বেতন", report:"রিপোর্ট / লাভ-ক্ষতি",
+                 perm:"পারমিশন", log:"লগইন লগ", about:"সম্পর্কে" };
   var loaded = {};
   var navs = document.querySelectorAll(".nav[data-v]");
 
@@ -548,7 +609,8 @@
       if (loaded[k]) return;
       loaded[k] = true;
       var f = { cust: loadCust, loan: loadLoan, coll: loadColl, def: loadDef, team: loadTeam,
-                money: loadMoney, agents: loadAgentView, salary: loadSalary, report: loadReport }[k];
+                money: loadMoney, agents: loadAgentView, salary: loadSalary, report: loadReport,
+                perm: loadPerm, log: loadLog, about: loadAbout }[k];
       if (f) f();
     });
   });
@@ -1205,6 +1267,143 @@
     }).catch(function (e) {
       q("rStats").innerHTML = '<div class="empty bn">' + esc(e.message) + "</div>";
       q("pnlBody").innerHTML = '<tr><td colspan="2" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+
+  /* ================= PERMISSIONS ================= */
+  var PERM_KEYS = [
+    { k:"DASHBOARD_VIEW",   l:"ড্যাশবোর্ড দেখা" },
+    { k:"CUSTOMER_VIEW",    l:"গ্রাহক দেখা" },
+    { k:"CUSTOMER_MANAGE",  l:"গ্রাহক যোগ / সম্পাদনা" },
+    { k:"LOAN_VIEW",        l:"লোন দেখা" },
+    { k:"LOAN_MANAGE",      l:"লোন দেওয়া / সম্পাদনা" },
+    { k:"COLLECTION_VIEW",  l:"কালেকশন দেখা" },
+    { k:"COLLECTION_MANAGE",l:"টাকা জমা নেওয়া" },
+    { k:"DEFAULTER_VIEW",   l:"খেলাপি তালিকা" },
+    { k:"AGENT_VIEW",       l:"এজেন্ট দেখা" },
+    { k:"AGENT_MANAGE",     l:"এজেন্ট পরিচালনা" },
+    { k:"SALARY_VIEW",      l:"বেতন দেখা" },
+    { k:"SALARY_MANAGE",    l:"বেতন পরিচালনা" },
+    { k:"EXPENSE_MANAGE",   l:"খরচ পরিচালনা" },
+    { k:"FUND_MANAGE",      l:"ফান্ড / পুঁজি পরিচালনা" },
+    { k:"REPORT_VIEW",      l:"রিপোর্ট ও লাভ-ক্ষতি" },
+    { k:"USER_MANAGE",      l:"টিম / ইউজার পরিচালনা" },
+    { k:"PERMISSION_MANAGE",l:"পারমিশন এডিটর" },
+    { k:"AUDIT_VIEW",       l:"লগইন লগ / অডিট" }
+  ];
+
+  function loadPerm() { showPerm(); }
+  q("p_role").addEventListener("change", showPerm);
+
+  function showPerm() {
+    var role = q("p_role").value;
+    var box = q("p_box");
+    hide("pMsg");
+    box.className = "loading bn";
+    box.textContent = "লোড হচ্ছে...";
+
+    GET("/api/permissions/" + role).then(function (r) {
+      var have = Array.isArray(r) ? r : (r.permissions || r.keys || []);
+      box.className = "";
+      box.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;">' +
+        PERM_KEYS.map(function (p) {
+          var on = have.indexOf(p.k) !== -1 ? " checked" : "";
+          return '<label class="bn" style="display:flex;align-items:center;gap:8px;padding:9px 11px;' +
+            'border:1.5px solid #E2E7EB;border-radius:8px;font-size:13.5px;cursor:pointer;">' +
+            '<input type="checkbox" data-perm="' + p.k + '"' + on + ' style="width:16px;height:16px;">' +
+            esc(p.l) + "</label>";
+        }).join("") + "</div>";
+    }).catch(function (e) {
+      box.className = "empty bn";
+      box.textContent = e.message;
+    });
+  }
+
+  q("p_save").addEventListener("click", function () {
+    var role = q("p_role").value;
+    var picked = [];
+    Array.prototype.forEach.call(q("p_box").querySelectorAll("[data-perm]"), function (c) {
+      if (c.checked) picked.push(c.getAttribute("data-perm"));
+    });
+
+    var b = q("p_save");
+    b.disabled = true; b.textContent = "সংরক্ষণ হচ্ছে...";
+    hide("pMsg");
+
+    POST("/api/permissions", { role: role, permissions: picked }).then(function () {
+      say("pMsg", "সংরক্ষিত হয়েছে ✓ (" + picked.length + "টি অনুমতি)", true);
+      toast("পারমিশন সংরক্ষিত", "ok");
+    }).catch(function (err) {
+      say("pMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "সংরক্ষণ করুন";
+    });
+  });
+
+  /* ================= LOGIN LOG ================= */
+  function loadLog() {
+    var tb = q("logBody");
+    GET("/api/admin/audit-logs/logins?page=0&size=100").then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="4" class="empty bn">কোনো লগ নেই।</td></tr>';
+        return;
+      }
+      tb.innerHTML = list.map(function (a) {
+        var act = a.action || "";
+        var tone = act.indexOf("SUCCESS") !== -1 ? "g"
+                 : act.indexOf("RATE") !== -1 ? "a" : "r";
+        var lab = { LOGIN_SUCCESS:"সফল", LOGIN_FAILED:"ব্যর্থ", LOGIN_RATE_LIMITED:"বেশি চেষ্টা" }[act] || act;
+        var when = a.timestamp ? new Date(a.timestamp).toLocaleString("en-IN") : "—";
+        return "<tr><td>" + esc(when) + "</td><td>" + esc(a.userPhone || "—") +
+          '</td><td><span class="b ' + tone + '">' + esc(lab) + "</span></td><td>" +
+          esc(a.details || "—") + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  /* ================= ABOUT ================= */
+  function loadAbout() {
+    var rows5 = [2000, 4000, 6000, 8000, 10000].map(function (p) {
+      var total = Math.round(p * 1.15);
+      var emi = Math.ceil(total / 46);
+      return "<tr><td><b>" + inr(p) + "</b></td><td>" + inr(total) +
+        "</td><td>" + inr(emi) + '</td><td style="color:#2E8B57;font-weight:600;">' +
+        inr(total - p) + "</td></tr>";
+    }).join("");
+    q("ruleBody").innerHTML = rows5;
+
+    GET("/api/about").then(function (a) {
+      var box = q("aboutBox");
+      box.className = "";
+      function line(l, v) {
+        if (!v) return "";
+        return '<tr><td class="bn" style="color:#5B6B75;width:40%;">' + esc(l) +
+          '</td><td style="font-weight:600;">' + esc(v) + "</td></tr>";
+      }
+      box.innerHTML = "<table>" +
+        line("কোম্পানি", a.companyName || a.name || "NEELKUND Microfinance") +
+        line("সংস্করণ", a.version) +
+        line("ঠিকানা", a.address) +
+        line("ফোন", a.phone) +
+        line("ইমেল", a.email) +
+        line("ওয়েবসাইট", a.website) +
+        line("সার্ভার", "neelkund-backend.onrender.com") +
+        "</table>";
+    }).catch(function () {
+      var box = q("aboutBox");
+      box.className = "";
+      box.innerHTML = "<table>" +
+        '<tr><td class="bn" style="color:#5B6B75;width:40%;">কোম্পানি</td>' +
+        '<td style="font-weight:600;">NEELKUND Microfinance</td></tr>' +
+        '<tr><td class="bn" style="color:#5B6B75;">এলাকা</td>' +
+        '<td style="font-weight:600;">Patuli / Garia, Kolkata</td></tr>' +
+        '<tr><td class="bn" style="color:#5B6B75;">সার্ভার</td>' +
+        '<td style="font-weight:600;">neelkund-backend.onrender.com</td></tr></table>';
     });
   }
 
