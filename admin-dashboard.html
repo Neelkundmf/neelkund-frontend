@@ -109,6 +109,7 @@
 <body>
 
 <div id="toast"></div>
+<input type="file" id="photoPick" accept="image/*" capture="environment" style="display:none;">
 
 <div id="gate">
   <div>
@@ -137,6 +138,8 @@
     <button class="nav bn" data-v="report">📋 রিপোর্ট / লাভ-ক্ষতি</button>
     <button class="nav bn" data-v="perm">🔐 পারমিশন</button>
     <button class="nav bn" data-v="log">🔑 লগইন লগ</button>
+    <button class="nav bn" data-v="acc">⏰ অ্যাক্সেস নিয়ন্ত্রণ</button>
+    <button class="nav bn" data-v="agcust">📋 এজেন্টের গ্রাহক</button>
     <button class="nav bn" data-v="about">🏢 সম্পর্কে</button>
 
     <div class="side-foot">
@@ -189,8 +192,9 @@
             <thead><tr>
               <th>#</th><th class="bn">নাম</th><th class="bn">ফোন</th>
               <th class="bn">আধার</th><th class="bn">KYC</th><th class="bn">পতাকা</th>
+              <th class="bn">ছবি ও যাচাই</th>
             </tr></thead>
-            <tbody id="custBody"><tr><td colspan="6" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+            <tbody id="custBody"><tr><td colspan="7" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -510,6 +514,77 @@
         </div>
       </div>
 
+
+      <!-- ================= ACCESS CONTROL ================= -->
+      <div class="view" id="v-acc">
+        <div class="panel" style="max-width:560px;">
+          <h2 class="bn">ছুটির দিন যোগ করুন</h2>
+          <div class="msg" id="hMsg"></div>
+          <form id="hForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">তারিখ *</label><input id="h_date" type="date" required></div>
+              <div class="fld"><label class="bn">কারণ</label><input id="h_note" placeholder="যেমন দুর্গাপূজা"></div>
+            </div>
+            <p class="bn" style="font-size:13px;color:#5B6B75;margin:0 0 12px;">
+              ছুটির দিনে কেউ লগইন করতে পারবে না (অ্যাডমিন ছাড়া)।
+            </p>
+            <button type="submit" class="btn bn" id="h_btn">ছুটি যোগ করুন</button>
+          </form>
+        </div>
+
+        <div class="panel" style="max-width:560px;">
+          <h2 class="bn">লগইনের সময়সীমা</h2>
+          <div class="msg" id="tMsg"></div>
+          <form id="tForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">শুরু *</label><input id="t_start" type="time" required></div>
+              <div class="fld"><label class="bn">শেষ *</label><input id="t_end" type="time" required></div>
+            </div>
+            <p class="bn" style="font-size:13px;color:#5B6B75;margin:0 0 12px;">
+              এই সময়ের বাইরে কর্মীরা লগইন করতে পারবে না।
+            </p>
+            <button type="submit" class="btn bn" id="t_btn">সময়সীমা বসান</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">চালু নিয়মগুলো</h2>
+          <table>
+            <thead><tr>
+              <th class="bn">ধরন</th><th class="bn">বিবরণ</th><th></th>
+            </tr></thead>
+            <tbody id="accBody"><tr><td colspan="3" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= AGENT CUSTOMERS ================= -->
+      <div class="view" id="v-agcust">
+        <div class="panel">
+          <h2 class="bn">এজেন্ট অনুযায়ী গ্রাহক</h2>
+          <div class="row">
+            <div class="fld" style="flex:1;"><label class="bn">এজেন্ট</label>
+              <select id="ac_pick"><option value="">— বাছুন —</option></select></div>
+            <div class="fld"><label class="bn">দেখান</label>
+              <select id="ac_tab">
+                <option value="ALL">সব</option>
+                <option value="ACTIVE">চলমান</option>
+                <option value="CLOSED">শোধ হয়েছে</option>
+                <option value="LATE">পিছিয়ে আছে</option>
+              </select></div>
+            <button class="btn gh bn" id="ac_go">দেখুন</button>
+          </div>
+          <div class="grid" id="acStats"></div>
+          <table>
+            <thead><tr>
+              <th class="bn">গ্রাহক</th><th class="bn">ফোন</th><th class="bn">লোন</th>
+              <th class="bn">মোট প্রাপ্য</th><th class="bn">জমা</th><th class="bn">বাকি</th><th class="bn">অবস্থা</th>
+            </tr></thead>
+            <tbody id="acBody"><tr><td colspan="7" class="empty bn">উপরে একজন এজেন্ট বাছুন</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -594,7 +669,8 @@
   var TITLES = { dash:"ড্যাশবোর্ড", cust:"গ্রাহক", loan:"লোন", coll:"কালেকশন",
                  def:"খেলাপি", team:"টিম", money:"ফান্ড ও খরচ",
                  agents:"এজেন্ট হিসাব", salary:"বেতন", report:"রিপোর্ট / লাভ-ক্ষতি",
-                 perm:"পারমিশন", log:"লগইন লগ", about:"সম্পর্কে" };
+                 perm:"পারমিশন", log:"লগইন লগ", about:"সম্পর্কে",
+                 acc:"অ্যাক্সেস নিয়ন্ত্রণ", agcust:"এজেন্টের গ্রাহক" };
   var loaded = {};
   var navs = document.querySelectorAll(".nav[data-v]");
 
@@ -610,7 +686,8 @@
       loaded[k] = true;
       var f = { cust: loadCust, loan: loadLoan, coll: loadColl, def: loadDef, team: loadTeam,
                 money: loadMoney, agents: loadAgentView, salary: loadSalary, report: loadReport,
-                perm: loadPerm, log: loadLog, about: loadAbout }[k];
+                perm: loadPerm, log: loadLog, about: loadAbout,
+                acc: loadAcc, agcust: loadAgCust }[k];
       if (f) f();
     });
   });
@@ -669,18 +746,84 @@
       }).join("");
 
       if (!CUSTOMERS.length) {
-        tb.innerHTML = '<tr><td colspan="6" class="empty bn">এখনো কোনো গ্রাহক নেই। উপরের ফর্ম থেকে যোগ করুন।</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7" class="empty bn">এখনো কোনো গ্রাহক নেই। উপরের ফর্ম থেকে যোগ করুন।</td></tr>';
         return;
       }
       tb.innerHTML = CUSTOMERS.map(function (c) {
+        var acts =
+          '<button class="btn sm gh bn" data-photo="' + esc(c.id) + '">📷 ছবি</button> ' +
+          (c.kycStatus === "VERIFIED"
+            ? ""
+            : '<button class="btn sm bn" data-kyc="' + esc(c.id) + '">✓ যাচাই</button>');
         return "<tr><td>" + esc(c.id) + "</td><td>" + esc(c.fullName) + "</td><td>" + esc(c.phone) +
           "</td><td>" + esc(c.aadhaarMasked || "—") + "</td><td>" + kyc(c.kycStatus) +
-          "</td><td>" + flag(c.flag) + "</td></tr>";
+          "</td><td>" + flag(c.flag) + "</td><td>" + acts + "</td></tr>";
       }).join("");
+
+      /* ছবি তোলা / আপলোড */
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-photo]"), function (b) {
+        b.addEventListener("click", function () {
+          PHOTO_FOR = b.getAttribute("data-photo");
+          q("photoPick").value = "";
+          q("photoPick").click();
+        });
+      });
+
+      /* KYC যাচাই */
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-kyc]"), function (b) {
+        b.addEventListener("click", function () {
+          b.disabled = true; b.textContent = "...";
+          call("PATCH", "/api/customers/" + b.getAttribute("data-kyc") + "/kyc-status",
+               { kycStatus: "VERIFIED" }).then(function () {
+            toast("KYC যাচাই হয়েছে", "ok");
+            loadCust();
+          }).catch(function (err) {
+            toast(err.message, "er");
+            b.disabled = false; b.textContent = "✓ যাচাই";
+          });
+        });
+      });
     }).catch(function (e) {
-      tb.innerHTML = '<tr><td colspan="6" class="empty bn">' + esc(e.message) + "</td></tr>";
+      tb.innerHTML = '<tr><td colspan="7" class="empty bn">' + esc(e.message) + "</td></tr>";
     });
   }
+
+  /* ---- KYC ছবি আপলোড ---- */
+  var PHOTO_FOR = null;
+
+  q("photoPick").addEventListener("change", function () {
+    var f = q("photoPick").files[0];
+    if (!f || !PHOTO_FOR) return;
+
+    if (f.size > 5 * 1024 * 1024) {
+      toast("ছবিটা খুব বড় (৫MB-র বেশি)। ছোট ছবি নিন।", "er");
+      return;
+    }
+
+    var id = PHOTO_FOR;
+    toast("ছবি পাঠানো হচ্ছে...", "in");
+
+    var fd = new FormData();
+    fd.append("file", f);
+
+    fetch(API + "/api/customers/" + id + "/photo", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + TOKEN },
+      body: fd,
+    }).then(function (r) {
+      if (!r.ok) {
+        return r.json().catch(function () { return {}; }).then(function (b) {
+          throw new Error(b.message || hmsg(r.status));
+        });
+      }
+      toast("ছবি সংরক্ষিত হয়েছে ✓", "ok");
+      say("custMsg", "গ্রাহক #" + id + " এর ছবি সংরক্ষিত হয়েছে ✓", true);
+      loadCust();
+    }).catch(function (err) {
+      toast(err.message, "er");
+      say("custMsg", err.message, false);
+    });
+  });
 
   q("custForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -1404,6 +1547,166 @@
         '<td style="font-weight:600;">Patuli / Garia, Kolkata</td></tr>' +
         '<tr><td class="bn" style="color:#5B6B75;">সার্ভার</td>' +
         '<td style="font-weight:600;">neelkund-backend.onrender.com</td></tr></table>';
+    });
+  }
+
+
+  /* ================= ACCESS CONTROL ================= */
+  function loadAcc() {
+    var tb = q("accBody");
+    GET("/api/admin/access").then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="3" class="empty bn">কোনো নিয়ম নেই — সবাই যেকোনো সময় লগইন করতে পারবে।</td></tr>';
+        return;
+      }
+      tb.innerHTML = list.map(function (a) {
+        var isHol = a.type === "HOLIDAY" || a.holidayDate;
+        var kind = isHol
+          ? '<span class="b a">ছুটির দিন</span>'
+          : '<span class="b n">সময়সীমা</span>';
+        var desc = isHol
+          ? dt(a.holidayDate || a.date) + (a.note ? " · " + a.note : "")
+          : (a.startTime || "—") + " থেকে " + (a.endTime || "—") + " পর্যন্ত";
+        return "<tr><td>" + kind + '</td><td class="bn">' + esc(desc) +
+          '</td><td><button class="btn sm bn" data-acc="' + esc(a.id) +
+          '" style="background:#E12A1F;">মুছুন</button></td></tr>';
+      }).join("");
+
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-acc]"), function (b) {
+        b.addEventListener("click", function () {
+          b.disabled = true; b.textContent = "...";
+          call("DELETE", "/api/admin/access/" + b.getAttribute("data-acc")).then(function () {
+            toast("নিয়ম মুছে ফেলা হয়েছে", "ok");
+            loadAcc();
+          }).catch(function (err) {
+            toast(err.message, "er");
+            b.disabled = false; b.textContent = "মুছুন";
+          });
+        });
+      });
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="3" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("hForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("hMsg");
+    var b = q("h_btn");
+    b.disabled = true; b.textContent = "যোগ হচ্ছে...";
+
+    POST("/api/admin/access/holiday", {
+      holidayDate: q("h_date").value,
+      note: q("h_note").value.trim() || "",
+    }).then(function () {
+      say("hMsg", "ছুটির দিন যোগ হয়েছে ✓", true);
+      toast("ছুটি যোগ হয়েছে", "ok");
+      q("hForm").reset();
+      loadAcc();
+    }).catch(function (err) {
+      say("hMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "ছুটি যোগ করুন";
+    });
+  });
+
+  q("tForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("tMsg");
+    var b = q("t_btn");
+    b.disabled = true; b.textContent = "বসানো হচ্ছে...";
+
+    POST("/api/admin/access/time-window", {
+      startTime: q("t_start").value,
+      endTime: q("t_end").value,
+    }).then(function () {
+      say("tMsg", "সময়সীমা বসানো হয়েছে ✓ " + q("t_start").value + " – " + q("t_end").value, true);
+      toast("সময়সীমা বসানো হয়েছে", "ok");
+      loadAcc();
+    }).catch(function (err) {
+      say("tMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "সময়সীমা বসান";
+    });
+  });
+
+  /* ================= AGENT CUSTOMERS ================= */
+  function loadAgCust() {
+    loadAgents().then(function () {
+      var ags = TEAM.filter(function (u) { return u.role === "AGENT"; });
+      if (!ags.length) {
+        q("ac_pick").innerHTML = '<option value="">কোনো এজেন্ট নেই — টিম থেকে যোগ করুন</option>';
+        return;
+      }
+      q("ac_pick").innerHTML = '<option value="">— বাছুন —</option>' + ags.map(function (a) {
+        return '<option value="' + esc(a.id) + '">' + esc(a.fullName) + "</option>";
+      }).join("");
+    });
+  }
+
+  q("ac_go").addEventListener("click", showAgCust);
+  q("ac_pick").addEventListener("change", showAgCust);
+  q("ac_tab").addEventListener("change", showAgCust);
+
+  function showAgCust() {
+    var id = q("ac_pick").value;
+    var tab = q("ac_tab").value;
+    var tb = q("acBody");
+
+    if (!id) {
+      tb.innerHTML = '<tr><td colspan="7" class="empty bn">উপরে একজন এজেন্ট বাছুন</td></tr>';
+      q("acStats").innerHTML = "";
+      return;
+    }
+
+    tb.innerHTML = '<tr><td colspan="7" class="loading bn">লোড হচ্ছে...</td></tr>';
+
+    GET("/api/manager/agent-dashboard/" + id).then(function (r) {
+      var all = rows(r.loans || r.customers || r);
+
+      function paid(l) { return Number(l.totalPaid || l.collected || 0); }
+      function due(l)  { return Number(l.totalRepayable || 0) - paid(l); }
+      function late(l) { return l.status === "DEFAULTED" || l.flag === "RED" || l.flag === "YELLOW"
+                           || (l.daysOverdue && l.daysOverdue > 0); }
+
+      var list = all.filter(function (l) {
+        if (tab === "ACTIVE") return l.status === "ACTIVE";
+        if (tab === "CLOSED") return l.status === "CLOSED";
+        if (tab === "LATE")   return late(l);
+        return true;
+      });
+
+      var totalDue  = all.reduce(function (a, l) { return a + due(l); }, 0);
+      var totalPaid = all.reduce(function (a, l) { return a + paid(l); }, 0);
+
+      q("acStats").innerHTML =
+        st("মোট গ্রাহক", all.length) +
+        st("চলমান লোন", all.filter(function (l) { return l.status === "ACTIVE"; }).length) +
+        st("মোট জমা", inr(totalPaid), "g") +
+        st("মোট বাকি", inr(totalDue), "r") +
+        st("পিছিয়ে আছে", all.filter(late).length, "r");
+
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty bn">এই তালিকায় কেউ নেই।</td></tr>';
+        return;
+      }
+
+      tb.innerHTML = list.map(function (l) {
+        return "<tr><td>" + esc(l.customerName || l.fullName || "—") +
+          '</td><td><a href="tel:' + esc(l.customerPhone || l.phone || "") + '">' +
+          esc(l.customerPhone || l.phone || "—") +
+          "</a></td><td>#" + esc(l.loanId || l.id || "—") +
+          "</td><td>" + inr(l.totalRepayable) +
+          "</td><td>" + inr(paid(l)) +
+          '</td><td style="color:#E12A1F;font-weight:600;">' + inr(due(l)) +
+          "</td><td>" + lstat(l.status) + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="7" class="empty bn">' + esc(e.message) + "</td></tr>";
+      q("acStats").innerHTML = "";
     });
   }
 
