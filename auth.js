@@ -136,6 +136,20 @@
         localStorage.setItem(S.USER, JSON.stringify(user));
         if (user.branchId) localStorage.setItem(S.BRANCH, String(user.branchId));
 
+        /* -----------------------------------------------------------------
+         * জরুরি: dashboard পাতাগুলো (admin/manager/agent/partner) আলাদা করে
+         * লেখা — সেগুলো 'neelkund_*' নামে টোকেন খোঁজে, 'nk_*' নয়।
+         * নাম না মিললে dashboard আবার login-এ ফেরত পাঠায় → blink চক্র।
+         * তাই দুই নামেই রেখে দিচ্ছি। dashboard-এ কিছু বদলাতে হবে না।
+         * --------------------------------------------------------------- */
+        localStorage.setItem("neelkund_access_token", token);
+        localStorage.setItem("neelkund_refresh_token", localStorage.getItem(S.REFRESH_TOKEN) || "");
+        localStorage.setItem("neelkund_role", user.role || "");
+        localStorage.setItem("neelkund_full_name", user.fullName || "");
+        localStorage.setItem("neelkund_phone", user.phone || "");
+        localStorage.setItem("neelkund_user_id", user.id == null ? "" : String(user.id));
+        if (user.branchId) localStorage.setItem("neelkund_branch_id", String(user.branchId));
+
         return auth.loadPermissions().then(function () {
           return user;
         });

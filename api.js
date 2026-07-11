@@ -53,6 +53,20 @@
     localStorage.removeItem(S.REFRESH_TOKEN);
     localStorage.removeItem(S.USER);
     localStorage.removeItem(S.PERMISSIONS);
+
+    /* dashboard পাতাগুলোর পুরনো নামের চাবিগুলোও মুছি — নইলে
+     * লগ-আউটের পরেও dashboard ভাববে ইউজার লগইন করা আছে */
+    [
+      "neelkund_access_token",
+      "neelkund_refresh_token",
+      "neelkund_role",
+      "neelkund_full_name",
+      "neelkund_phone",
+      "neelkund_user_id",
+      "neelkund_branch_id",
+    ].forEach(function (k) {
+      localStorage.removeItem(k);
+    });
   }
 
   function buildUrl(path, params, query) {
@@ -119,6 +133,9 @@
       })
       .then(function (data) {
         saveTokens(data);
+        /* dashboard-এর পুরনো নামের চাবিটাও নতুন টোকেনে হালনাগাদ করি */
+        var fresh = localStorage.getItem(S.ACCESS_TOKEN);
+        if (fresh) localStorage.setItem("neelkund_access_token", fresh);
         refreshPromise = null;
         return data;
       })
