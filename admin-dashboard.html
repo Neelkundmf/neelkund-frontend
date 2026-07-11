@@ -132,6 +132,9 @@
     <button class="nav bn" data-v="def">🚨 খেলাপি</button>
     <button class="nav bn" data-v="team">🏢 টিম</button>
     <button class="nav bn" data-v="money">🏦 ফান্ড ও খরচ</button>
+    <button class="nav bn" data-v="agents">👥 এজেন্ট হিসাব</button>
+    <button class="nav bn" data-v="salary">💰 বেতন</button>
+    <button class="nav bn" data-v="report">📋 রিপোর্ট / লাভ-ক্ষতি</button>
 
     <div class="side-foot">
       <button id="logout" class="bn">লগ আউট</button>
@@ -364,6 +367,89 @@
         </div>
       </div>
 
+
+      <!-- ================= AGENTS ================= -->
+      <div class="view" id="v-agents">
+        <div class="panel">
+          <h2 class="bn">এজেন্ট বাছুন</h2>
+          <div class="row">
+            <div class="fld" style="flex:1;"><label class="bn">এজেন্ট</label>
+              <select id="ag_pick"><option value="">— বাছুন —</option></select></div>
+            <button class="btn gh bn" id="ag_go">হিসাব দেখুন</button>
+          </div>
+        </div>
+
+        <div class="grid" id="agStats"></div>
+
+        <div class="panel">
+          <h2 class="bn">এই এজেন্টের গ্রাহক ও লোন</h2>
+          <table>
+            <thead><tr>
+              <th class="bn">গ্রাহক</th><th class="bn">ফোন</th><th class="bn">লোন</th>
+              <th class="bn">মোট প্রাপ্য</th><th class="bn">জমা</th><th class="bn">অবস্থা</th>
+            </tr></thead>
+            <tbody id="agBody"><tr><td colspan="6" class="empty bn">উপরে একজন এজেন্ট বাছুন</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= SALARY ================= -->
+      <div class="view" id="v-salary">
+        <div class="panel" style="max-width:620px;">
+          <h2 class="bn">বেতন যোগ করুন</h2>
+          <div class="msg" id="sMsg"></div>
+          <form id="sForm">
+            <div class="f2">
+              <div class="fld"><label class="bn">কর্মী *</label>
+                <select id="s_user" required><option value="">— বাছুন —</option></select></div>
+              <div class="fld"><label class="bn">অঙ্ক *</label><input id="s_amt" type="number" required></div>
+            </div>
+            <div class="f2">
+              <div class="fld"><label class="bn">মাস *</label><input id="s_month" type="month" required></div>
+              <div class="fld"><label class="bn">নোট</label><input id="s_note"></div>
+            </div>
+            <button type="submit" class="btn bn" id="s_btn">বেতন যোগ করুন</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2 class="bn">বেতনের তালিকা <span class="sub" id="sMonthLbl"></span></h2>
+          <div class="row">
+            <div class="fld"><label class="bn">মাস দেখুন</label><input id="s_filter" type="month"></div>
+            <button class="btn gh bn" id="s_look">দেখুন</button>
+          </div>
+          <table>
+            <thead><tr>
+              <th class="bn">কর্মী</th><th class="bn">মাস</th><th class="bn">অঙ্ক</th>
+              <th class="bn">অবস্থা</th><th></th>
+            </tr></thead>
+            <tbody id="salBody"><tr><td colspan="5" class="empty bn">উপরে একটা মাস বাছুন</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= REPORT / P&L ================= -->
+      <div class="view" id="v-report">
+        <div class="panel">
+          <h2 class="bn">লাভ-ক্ষতির হিসাব</h2>
+          <div class="row">
+            <div class="fld"><label class="bn">ব্রাঞ্চ (ঐচ্ছিক)</label>
+              <select id="r_branch"><option value="">সব ব্রাঞ্চ</option></select></div>
+            <button class="btn gh bn" id="r_go">হিসাব দেখুন</button>
+          </div>
+        </div>
+
+        <div class="grid" id="rStats"><div class="loading bn">লোড হচ্ছে...</div></div>
+
+        <div class="panel">
+          <h2 class="bn">খতিয়ান</h2>
+          <table id="pnlTable">
+            <thead><tr><th class="bn">খাত</th><th class="bn" style="text-align:right;">টাকা</th></tr></thead>
+            <tbody id="pnlBody"><tr><td colspan="2" class="loading bn">লোড হচ্ছে...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -446,7 +532,8 @@
   }
 
   var TITLES = { dash:"ড্যাশবোর্ড", cust:"গ্রাহক", loan:"লোন", coll:"কালেকশন",
-                 def:"খেলাপি", team:"টিম", money:"ফান্ড ও খরচ" };
+                 def:"খেলাপি", team:"টিম", money:"ফান্ড ও খরচ",
+                 agents:"এজেন্ট হিসাব", salary:"বেতন", report:"রিপোর্ট / লাভ-ক্ষতি" };
   var loaded = {};
   var navs = document.querySelectorAll(".nav[data-v]");
 
@@ -460,7 +547,8 @@
       q("title").textContent = TITLES[k];
       if (loaded[k]) return;
       loaded[k] = true;
-      var f = { cust: loadCust, loan: loadLoan, coll: loadColl, def: loadDef, team: loadTeam, money: loadMoney }[k];
+      var f = { cust: loadCust, loan: loadLoan, coll: loadColl, def: loadDef, team: loadTeam,
+                money: loadMoney, agents: loadAgentView, salary: loadSalary, report: loadReport }[k];
       if (f) f();
     });
   });
@@ -897,6 +985,228 @@
       b.disabled = false; b.textContent = "খরচ যোগ করুন";
     });
   });
+
+
+  /* ================= AGENTS — এজেন্ট হিসাব ================= */
+  function loadAgentView() {
+    loadAgents().then(function () {
+      var ags = TEAM.filter(function (u) { return u.role === "AGENT"; });
+      if (!ags.length) {
+        q("ag_pick").innerHTML = '<option value="">কোনো এজেন্ট নেই — টিম থেকে যোগ করুন</option>';
+        return;
+      }
+      q("ag_pick").innerHTML = '<option value="">— বাছুন —</option>' + ags.map(function (a) {
+        return '<option value="' + esc(a.id) + '">' + esc(a.fullName) + " · " + esc(a.phone) + "</option>";
+      }).join("");
+    });
+  }
+
+  q("ag_go").addEventListener("click", showAgent);
+  q("ag_pick").addEventListener("change", showAgent);
+
+  function showAgent() {
+    var id = q("ag_pick").value;
+    var tb = q("agBody");
+
+    if (!id) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty bn">উপরে একজন এজেন্ট বাছুন</td></tr>';
+      q("agStats").innerHTML = "";
+      return;
+    }
+
+    q("agStats").innerHTML = '<div class="loading bn">লোড হচ্ছে...</div>';
+    tb.innerHTML = '<tr><td colspan="6" class="loading bn">লোড হচ্ছে...</td></tr>';
+
+    GET("/api/manager/reports/agent/" + id).then(function (r) {
+      q("agStats").innerHTML =
+        st("মোট বিতরণ", inr(r.totalPrincipalDisbursed || r.totalDisbursed)) +
+        st("মোট আদায়", inr(r.totalCollected), "g") +
+        st("বকেয়া", inr(r.totalOutstanding), "r") +
+        st("গ্রাহক সংখ্যা", r.customerCount != null ? r.customerCount : (r.totalCustomers || 0)) +
+        st("সক্রিয় লোন", r.activeLoansCount || 0) +
+        st("খেলাপি", r.defaultedLoansCount || 0, "r");
+    }).catch(function () {
+      q("agStats").innerHTML = "";
+    });
+
+    GET("/api/manager/agent-dashboard/" + id).then(function (r) {
+      var list = rows(r.loans || r.customers || r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="empty bn">এই এজেন্টের অধীনে কোনো লোন নেই।</td></tr>';
+        return;
+      }
+      tb.innerHTML = list.map(function (l) {
+        return "<tr><td>" + esc(l.customerName || l.fullName || "—") +
+          "</td><td>" + esc(l.customerPhone || l.phone || "—") +
+          "</td><td>#" + esc(l.loanId || l.id || "—") +
+          "</td><td>" + inr(l.totalRepayable) +
+          "</td><td>" + inr(l.totalPaid || l.collected) +
+          "</td><td>" + lstat(l.status) + "</td></tr>";
+      }).join("");
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  /* ================= SALARY — বেতন ================= */
+  function thisMonth() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+
+  function loadSalary() {
+    loadAgents().then(function () {
+      q("s_user").innerHTML = '<option value="">— বাছুন —</option>' + TEAM.map(function (u) {
+        var lab = { ADMIN:"অ্যাডমিন", PARTNER:"পার্টনার", MANAGER:"ম্যানেজার", AGENT:"এজেন্ট" };
+        return '<option value="' + esc(u.id) + '">' + esc(u.fullName) + " · " +
+          esc(lab[u.role] || u.role) + "</option>";
+      }).join("");
+    });
+
+    if (!q("s_month").value)  q("s_month").value = thisMonth();
+    if (!q("s_filter").value) q("s_filter").value = thisMonth();
+    showSalary();
+  }
+
+  q("s_look").addEventListener("click", showSalary);
+
+  function showSalary() {
+    var m = q("s_filter").value;
+    var tb = q("salBody");
+
+    if (!m) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty bn">একটা মাস বাছুন</td></tr>';
+      return;
+    }
+
+    q("sMonthLbl").textContent = "(" + m + ")";
+    tb.innerHTML = '<tr><td colspan="5" class="loading bn">লোড হচ্ছে...</td></tr>';
+
+    GET("/api/manager/salary/month?month=" + encodeURIComponent(m)).then(function (r) {
+      var list = rows(r);
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="5" class="empty bn">এই মাসে কোনো বেতন যোগ হয়নি।</td></tr>';
+        return;
+      }
+      tb.innerHTML = list.map(function (x) {
+        var paid = x.status === "PAID";
+        var badge = '<span class="b ' + (paid ? "g" : "a") + '">' +
+          (paid ? "দেওয়া হয়েছে" : "বাকি") + "</span>";
+        var btn = paid ? "—"
+          : '<button class="btn sm bn" data-sal="' + esc(x.id) + '">দেওয়া হয়েছে</button>';
+        return "<tr><td>" + esc(x.userName || x.fullName || ("ID " + x.userId)) +
+          "</td><td>" + esc(x.month || m) + "</td><td>" + inr(x.amount) +
+          "</td><td>" + badge + "</td><td>" + btn + "</td></tr>";
+      }).join("");
+
+      Array.prototype.forEach.call(tb.querySelectorAll("[data-sal]"), function (b) {
+        b.addEventListener("click", function () {
+          b.disabled = true; b.textContent = "...";
+          POST("/api/manager/salary/" + b.getAttribute("data-sal") + "/mark-paid").then(function () {
+            toast("বেতন দেওয়া হয়েছে বলে চিহ্নিত করা হল", "ok");
+            showSalary();
+          }).catch(function (err) {
+            toast(err.message, "er");
+            b.disabled = false; b.textContent = "দেওয়া হয়েছে";
+          });
+        });
+      });
+    }).catch(function (e) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
+
+  q("sForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide("sMsg");
+    var b = q("s_btn");
+    b.disabled = true; b.textContent = "যোগ হচ্ছে...";
+
+    POST("/api/manager/salary", {
+      userId: Number(q("s_user").value),
+      amount: Number(q("s_amt").value),
+      month: q("s_month").value,
+      note: q("s_note").value.trim() || "",
+    }).then(function () {
+      say("sMsg", "বেতন যোগ হয়েছে ✓", true);
+      toast("বেতন যোগ হয়েছে", "ok");
+      q("s_amt").value = ""; q("s_note").value = "";
+      q("s_filter").value = q("s_month").value;
+      showSalary();
+    }).catch(function (err) {
+      say("sMsg", err.message, false);
+      toast(err.message, "er");
+    }).then(function () {
+      b.disabled = false; b.textContent = "বেতন যোগ করুন";
+    });
+  });
+
+  /* ================= REPORT / P&L ================= */
+  function loadReport() {
+    GET("/api/branches").then(function (r) {
+      var list = rows(r);
+      q("r_branch").innerHTML = '<option value="">সব ব্রাঞ্চ</option>' + list.map(function (b) {
+        return '<option value="' + esc(b.id) + '">' + esc(b.name || b.branchName) + "</option>";
+      }).join("");
+    }).catch(function () {});
+
+    showReport();
+  }
+
+  q("r_go").addEventListener("click", showReport);
+  q("r_branch").addEventListener("change", showReport);
+
+  function showReport() {
+    var b = q("r_branch").value;
+    var path = "/api/manager/reports/summary" + (b ? "?branchId=" + encodeURIComponent(b) : "");
+
+    q("rStats").innerHTML = '<div class="loading bn">লোড হচ্ছে...</div>';
+    q("pnlBody").innerHTML = '<tr><td colspan="2" class="loading bn">লোড হচ্ছে...</td></tr>';
+
+    GET(path).then(function (s) {
+      var disbursed  = Number(s.totalPrincipalDisbursed || 0);
+      var repayable  = Number(s.totalRepayableCommitted || 0);
+      var collected  = Number(s.totalCollected || 0);
+      var outstanding= Number(s.totalOutstanding || 0);
+      var expenses   = Number(s.totalExpenses || 0);
+      var interest   = repayable - disbursed;              /* মোট সুদ/লাভের প্রতিশ্রুতি */
+      var net        = s.netProfit !== undefined ? Number(s.netProfit) : (collected - disbursed - expenses);
+
+      q("rStats").innerHTML =
+        st("মোট বিতরণকৃত", inr(disbursed)) +
+        st("মোট প্রাপ্য", inr(repayable)) +
+        st("মোট আদায়", inr(collected), "g") +
+        st("বকেয়া", inr(outstanding), "r") +
+        st("মোট খরচ", inr(expenses), "r") +
+        st("নিট লাভ", inr(net), net >= 0 ? "g" : "r");
+
+      function row(label, amt, tone) {
+        var color = tone === "g" ? "#2E8B57" : tone === "r" ? "#E12A1F" : "inherit";
+        return '<tr><td class="bn">' + esc(label) +
+          '</td><td style="text-align:right;font-weight:600;color:' + color + ';">' +
+          inr(amt) + "</td></tr>";
+      }
+
+      q("pnlBody").innerHTML =
+        row("মোট বিতরণকৃত পুঁজি (আসল)", disbursed) +
+        row("প্রতিশ্রুত সুদ / মার্কআপ (১৫%)", interest, "g") +
+        row("মোট আদায় হয়েছে", collected, "g") +
+        row("এখনও বকেয়া", outstanding, "r") +
+        row("পরিচালন খরচ", expenses, "r") +
+        '<tr style="border-top:2px solid #102A40;"><td class="bn"><b>নিট লাভ / ক্ষতি</b></td>' +
+        '<td style="text-align:right;font-weight:700;font-size:16px;color:' +
+        (net >= 0 ? "#2E8B57" : "#E12A1F") + ';">' + inr(net) + "</td></tr>" +
+        (s.activeLoansCount != null
+          ? '<tr><td class="bn">সক্রিয় লোন সংখ্যা</td><td style="text-align:right;font-weight:600;">' +
+            esc(s.activeLoansCount) + "</td></tr>" : "") +
+        (s.defaultedLoansCount != null
+          ? '<tr><td class="bn">খেলাপি লোন সংখ্যা</td><td style="text-align:right;font-weight:600;color:#E12A1F;">' +
+            esc(s.defaultedLoansCount) + "</td></tr>" : "");
+    }).catch(function (e) {
+      q("rStats").innerHTML = '<div class="empty bn">' + esc(e.message) + "</div>";
+      q("pnlBody").innerHTML = '<tr><td colspan="2" class="empty bn">' + esc(e.message) + "</td></tr>";
+    });
+  }
 
   q("logout").addEventListener("click", function () {
     localStorage.clear();
