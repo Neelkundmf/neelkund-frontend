@@ -1,12 +1,8 @@
 /* =========================================================================
- * NEELKUND MICROFINANCE — api.js
- * Engine File 3 of 4  |  API call handlers
+ * NEELKUND MICROFINANCE — api.js  (v2 — চক্র/blink বন্ধ করা সংস্করণ)
  *
- * এটা অ্যাপের "বার্তাবাহক"। সার্ভারে যা কিছু পাঠানো বা আনার দরকার,
- * সব এই ফাইলের মাধ্যমে যায়। এটা নিজে থেকেই তিনটে কঠিন কাজ সামলায়:
- *   ১. প্রতিটি রিকোয়েস্টে লগইন টোকেন জুড়ে দেয়
- *   ২. টোকেনের মেয়াদ শেষ হলে ব্যাকগ্রাউন্ডে নতুন টোকেন এনে কাজ চালিয়ে যায়
- *   ৩. ভুল হলে বাংলায় বোধগম্য মেসেজ দেয়
+ * বদল: সেশন শেষ হলে পাতা বদলানো এখন **প্রতি পাতা-লোডে একবারই** হবে,
+ * আর login পাতায় থাকলে কখনওই হবে না। এতে blink-চক্র ভেঙে যায়।
  *
  * Load order: config.js → theme.js → api.js → auth.js
  * ========================================================================= */
@@ -18,7 +14,6 @@
   var NK = window.NK;
   var S = NK.STORAGE;
 
-  /* ট্রান্সলেশন: HTTP কোড → বাংলা মেসেজ */
   var HTTP_MSG = {
     0: "সার্ভারে পৌঁছানো যাচ্ছে না। ইন্টারনেট দেখুন।",
     400: "তথ্যে ভুল আছে। আবার দেখে নিন।",
@@ -34,7 +29,6 @@
     504: "সার্ভার সময়মতো উত্তর দিল না।",
   };
 
-  /* কাস্টম error object — .status, .message, .data থাকে */
   function ApiError(status, message, data) {
     var e = new Error(message || HTTP_MSG[status] || "অজানা সমস্যা হয়েছে।");
     e.name = "ApiError";
@@ -43,13 +37,9 @@
     return e;
   }
 
-  /* ---- টোকেন হেল্পার ---- */
-  function getAccess() {
-    return localStorage.getItem(S.ACCESS_TOKEN) || "";
-  }
-  function getRefresh() {
-    return localStorage.getItem(S.REFRESH_TOKEN) || "";
-  }
+  function getAccess() { return localStorage.getItem(S.ACCESS_TOKEN) || ""; }
+  function getRefresh() { return localStorage.getItem(S.REFRESH_TOKEN) || ""; }
+
   function saveTokens(data) {
     if (!data) return;
     var a = data.accessToken || data.token || data.access_token;
@@ -57,6 +47,7 @@
     if (a) localStorage.setItem(S.ACCESS_TOKEN, a);
     if (r) localStorage.setItem(S.REFRESH_TOKEN, r);
   }
+
   function clearTokens() {
     localStorage.removeItem(S.ACCESS_TOKEN);
     localStorage.removeItem(S.REFRESH_TOKEN);
@@ -64,7 +55,6 @@
     localStorage.removeItem(S.PERMISSIONS);
   }
 
-  /* URL বানানো: "/api/loans/{id}" + {id:5} → "/api/loans/5" */
   function buildUrl(path, params, query) {
     var p = String(path);
     if (params) {
@@ -76,26 +66,39 @@
     return NK.API_BASE_URL + p + qs;
   }
 
-  /* সার্ভারের error body থেকে আসল মেসেজ বের করা */
   function extractMessage(body, status) {
     if (!body) return HTTP_MSG[status] || "সমস্যা হয়েছে।";
     if (typeof body === "string") return body;
     if (body.message) return body.message;
     if (body.error) return body.error;
     if (body.errors && body.errors.length) {
-      return body.errors
-        .map(function (e) {
-          return e.defaultMessage || e.message || String(e);
-        })
-        .join(", ");
+      return body.errors.map(function (e) {
+        return e.defaultMessage || e.message || String(e);
+      }).join(", ");
     }
     return HTTP_MSG[status] || "সমস্যা হয়েছে।";
   }
 
   /* -----------------------------------------------------------------------
+   * চক্র-রোধক: সেশন শেষ হলে একবারই login পাতায় পাঠাবে
+   * --------------------------------------------------------------------- */
+  var kickedOut = false;
+
+  function onSessionExpired() {
+    clearTokens();
+    if (kickedOut) return;
+
+    var here = (window.location.pathname || "").split("/").pop().toLowerCase();
+    var login = String(NK.ROUTES.LOGIN).toLowerCase();
+
+    if (here === login) return;  /* login পাতায় থাকলে কিছুই করব না */
+
+    kickedOut = true;
+    window.location.replace(NK.ROUTES.LOGIN + "?expired=1");
+  }
+
+  /* -----------------------------------------------------------------------
    * টোকেন রিফ্রেশ — single flight
-   * একসাথে ৫টা রিকোয়েস্ট 401 খেলেও শুধু একবারই refresh কল হবে,
-   * বাকিরা সেই একই প্রতিশ্রুতির জন্য অপেক্ষা করবে।
    * --------------------------------------------------------------------- */
   var refreshPromise = null;
 
@@ -129,7 +132,7 @@
   }
 
   /* -----------------------------------------------------------------------
-   * মূল রিকোয়েস্ট ফাংশন
+   * মূল রিকোয়েস্ট
    * --------------------------------------------------------------------- */
   function request(method, path, options) {
     options = options || {};
@@ -148,12 +151,9 @@
       var token = getAccess();
       if (token && !options.skipAuth) headers.Authorization = "Bearer " + token;
 
-      var controller =
-        typeof AbortController !== "undefined" ? new AbortController() : null;
+      var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
       var timer = controller
-        ? setTimeout(function () {
-            controller.abort();
-          }, NK.NET.TIMEOUT_MS)
+        ? setTimeout(function () { controller.abort(); }, NK.NET.TIMEOUT_MS)
         : null;
 
       var init = { method: method, headers: headers };
@@ -170,7 +170,6 @@
         .then(function (res) {
           if (timer) clearTimeout(timer);
 
-          /* 401 → একবার রিফ্রেশ করে আবার চেষ্টা */
           if (res.status === 401 && !attempted && !options.skipAuth && getRefresh()) {
             attempted = true;
             return refreshTokens().then(fire, function () {
@@ -179,21 +178,16 @@
             });
           }
 
-          /* 204 No Content */
           if (res.status === 204) return null;
 
           var ct = res.headers.get("content-type") || "";
           var parse = ct.indexOf("application/json") !== -1
-            ? res.json().catch(function () {
-                return null;
-              })
-            : res.text().catch(function () {
-                return null;
-              });
+            ? res.json().catch(function () { return null; })
+            : res.text().catch(function () { return null; });
 
           return parse.then(function (body) {
             if (!res.ok) {
-              if (res.status === 401) onSessionExpired();
+              if (res.status === 401 && !options.skipAuth) onSessionExpired();
               throw ApiError(res.status, extractMessage(body, res.status), body);
             }
             return body;
@@ -202,15 +196,6 @@
     }
 
     return fire();
-  }
-
-  /* সেশন শেষ হলে লগইন পেজে ফেরত */
-  function onSessionExpired() {
-    clearTokens();
-    var here = (window.location.pathname || "").toLowerCase();
-    if (here.indexOf(NK.ROUTES.LOGIN.toLowerCase()) === -1) {
-      window.location.href = NK.ROUTES.LOGIN + "?expired=1";
-    }
   }
 
   /* -----------------------------------------------------------------------
@@ -225,42 +210,19 @@
     getRefreshToken: getRefresh,
     refreshTokens: refreshTokens,
 
-    /* সাধারণ মেথড */
-    get: function (path, opts) {
-      return request("GET", path, opts);
-    },
-    post: function (path, body, opts) {
-      opts = opts || {};
-      opts.body = body;
-      return request("POST", path, opts);
-    },
-    put: function (path, body, opts) {
-      opts = opts || {};
-      opts.body = body;
-      return request("PUT", path, opts);
-    },
-    patch: function (path, body, opts) {
-      opts = opts || {};
-      opts.body = body;
-      return request("PATCH", path, opts);
-    },
-    del: function (path, opts) {
-      return request("DELETE", path, opts);
-    },
+    get: function (p, o) { return request("GET", p, o); },
+    post: function (p, b, o) { o = o || {}; o.body = b; return request("POST", p, o); },
+    put: function (p, b, o) { o = o || {}; o.body = b; return request("PUT", p, o); },
+    patch: function (p, b, o) { o = o || {}; o.body = b; return request("PATCH", p, o); },
+    del: function (p, o) { return request("DELETE", p, o); },
 
-    /* ফাইল/ছবি আপলোড (KYC ডকুমেন্ট, গ্রাহকের ছবি) */
     upload: function (file, extra) {
       var fd = new FormData();
       fd.append("file", file);
-      if (extra) {
-        Object.keys(extra).forEach(function (k) {
-          fd.append(k, extra[k]);
-        });
-      }
+      if (extra) Object.keys(extra).forEach(function (k) { fd.append(k, extra[k]); });
       return request("POST", NK.ENDPOINTS.UPLOAD, { body: fd });
     },
 
-    /* ভুল হলে টোস্টে দেখানোর শর্টকাট */
     handleError: function (err) {
       var msg = (err && err.message) || "অজানা সমস্যা হয়েছে।";
       if (NK.theme) NK.theme.toast(msg, "error");
@@ -268,262 +230,125 @@
       return msg;
     },
 
-    /* =====================================================================
-     * RESOURCE SHORTCUTS — পেজ থেকে সরাসরি ডাকা যায়
-     * ===================================================================*/
     auth: {
-      /* ব্যাকএন্ড ফোন নম্বর চায় (LoginRequest: phone + password) */
       login: function (phone, password) {
-        return api.post(
-          NK.ENDPOINTS.LOGIN,
-          { phone: phone, password: password },
-          { skipAuth: true }
-        );
+        return api.post(NK.ENDPOINTS.LOGIN, { phone: phone, password: password }, { skipAuth: true });
       },
       logoutServer: function () {
-        return api.post(NK.ENDPOINTS.LOGOUT, {}).catch(function () {
-          return null; /* সার্ভার না পারলেও লোকাল লগআউট হবেই */
-        });
+        return api.post(NK.ENDPOINTS.LOGOUT, {}).catch(function () { return null; });
       },
-      me: function () {
-        return api.get(NK.ENDPOINTS.ME);
-      },
-
-      /* ইমেলে রিসেট লিংক পাঠাও */
+      me: function () { return api.get(NK.ENDPOINTS.ME); },
       forgotPassword: function (email) {
-        return api.post(
-          NK.ENDPOINTS.FORGOT_PASSWORD,
-          { email: email },
-          { skipAuth: true }
-        );
+        return api.post(NK.ENDPOINTS.FORGOT_PASSWORD, { email: email }, { skipAuth: true });
       },
-
-      /* টোকেন + নতুন পাসওয়ার্ড পাঠাও */
       resetPassword: function (token, newPassword) {
-        return api.post(
-          NK.ENDPOINTS.RESET_PASSWORD,
-          { token: token, newPassword: newPassword },
-          { skipAuth: true }
-        );
+        return api.post(NK.ENDPOINTS.RESET_PASSWORD, { token: token, newPassword: newPassword }, { skipAuth: true });
       },
     },
 
     customers: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.CUSTOMERS, { query: query });
-      },
-      get: function (id) {
-        return api.get(NK.ENDPOINTS.CUSTOMER_BY_ID, { params: { id: id } });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.CUSTOMERS, data);
-      },
-      update: function (id, data) {
-        return api.put(NK.ENDPOINTS.CUSTOMER_BY_ID, data, { params: { id: id } });
-      },
-      remove: function (id) {
-        return api.del(NK.ENDPOINTS.CUSTOMER_BY_ID, { params: { id: id } });
-      },
-      kyc: function (id, data) {
-        return api.put(NK.ENDPOINTS.CUSTOMER_KYC, data, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.CUSTOMERS, { query: q }); },
+      get: function (id) { return api.get(NK.ENDPOINTS.CUSTOMER_BY_ID, { params: { id: id } }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.CUSTOMERS, d); },
+      update: function (id, d) { return api.put(NK.ENDPOINTS.CUSTOMER_BY_ID, d, { params: { id: id } }); },
+      remove: function (id) { return api.del(NK.ENDPOINTS.CUSTOMER_BY_ID, { params: { id: id } }); },
+      kyc: function (id, d) { return api.put(NK.ENDPOINTS.CUSTOMER_KYC, d, { params: { id: id } }); },
       photo: function (id, file) {
-        var fd = new FormData();
-        fd.append("file", file);
-        return request("POST", NK.ENDPOINTS.CUSTOMER_PHOTO, {
-          params: { id: id },
-          body: fd,
-        });
+        var fd = new FormData(); fd.append("file", file);
+        return request("POST", NK.ENDPOINTS.CUSTOMER_PHOTO, { params: { id: id }, body: fd });
       },
     },
 
     loans: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.LOANS, { query: query });
-      },
-      get: function (id) {
-        return api.get(NK.ENDPOINTS.LOAN_BY_ID, { params: { id: id } });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.LOANS, data);
-      },
-      schedule: function (id) {
-        return api.get(NK.ENDPOINTS.LOAN_SCHEDULE, { params: { id: id } });
-      },
-      close: function (id) {
-        return api.post(NK.ENDPOINTS.LOAN_CLOSE, {}, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.LOANS, { query: q }); },
+      get: function (id) { return api.get(NK.ENDPOINTS.LOAN_BY_ID, { params: { id: id } }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.LOANS, d); },
+      schedule: function (id) { return api.get(NK.ENDPOINTS.LOAN_SCHEDULE, { params: { id: id } }); },
+      close: function (id) { return api.post(NK.ENDPOINTS.LOAN_CLOSE, {}, { params: { id: id } }); },
     },
 
     payments: {
-      /* যেকোনো অঙ্কের টাকা জমা — আংশিক বা অগ্রিম, দুটোই চলবে */
       collect: function (loanId, amount, note) {
         return api.post(NK.ENDPOINTS.PAYMENTS, {
-          loanId: loanId,
-          amount: Number(amount),
-          note: note || "",
-          paidOn: NK.utils.today(),
+          loanId: loanId, amount: Number(amount), note: note || "", paidOn: NK.utils.today(),
         });
       },
-      status: function (loanId) {
-        return api.get(NK.ENDPOINTS.PAYMENT_STATUS, { params: { id: loanId } });
-      },
-      byLoan: function (loanId) {
-        return api.get(NK.ENDPOINTS.PAYMENTS_BY_LOAN, { params: { id: loanId } });
-      },
-      today: function (query) {
-        return api.get(NK.ENDPOINTS.PAYMENTS_TODAY, { query: query });
-      },
+      status: function (id) { return api.get(NK.ENDPOINTS.PAYMENT_STATUS, { params: { id: id } }); },
+      byLoan: function (id) { return api.get(NK.ENDPOINTS.PAYMENTS_BY_LOAN, { params: { id: id } }); },
+      today: function (q) { return api.get(NK.ENDPOINTS.PAYMENTS_TODAY, { query: q }); },
     },
 
-    defaulters: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.DEFAULTERS, { query: query });
-      },
-    },
+    defaulters: { list: function (q) { return api.get(NK.ENDPOINTS.DEFAULTERS, { query: q }); } },
 
     agents: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.AGENTS, { query: query });
-      },
-      customers: function (id) {
-        return api.get(NK.ENDPOINTS.AGENT_CUSTOMERS, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.AGENTS, { query: q }); },
+      customers: function (id) { return api.get(NK.ENDPOINTS.AGENT_CUSTOMERS, { params: { id: id } }); },
     },
 
     salaries: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.SALARIES, { query: query });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.SALARIES, data);
-      },
-      update: function (id, data) {
-        return api.put(NK.ENDPOINTS.SALARY_BY_ID, data, { params: { id: id } });
-      },
-      remove: function (id) {
-        return api.del(NK.ENDPOINTS.SALARY_BY_ID, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.SALARIES, { query: q }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.SALARIES, d); },
+      update: function (id, d) { return api.put(NK.ENDPOINTS.SALARY_BY_ID, d, { params: { id: id } }); },
+      remove: function (id) { return api.del(NK.ENDPOINTS.SALARY_BY_ID, { params: { id: id } }); },
     },
 
     expenses: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.EXPENSES, { query: query });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.EXPENSES, data);
-      },
-      update: function (id, data) {
-        return api.put(NK.ENDPOINTS.EXPENSE_BY_ID, data, { params: { id: id } });
-      },
-      remove: function (id) {
-        return api.del(NK.ENDPOINTS.EXPENSE_BY_ID, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.EXPENSES, { query: q }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.EXPENSES, d); },
+      update: function (id, d) { return api.put(NK.ENDPOINTS.EXPENSE_BY_ID, d, { params: { id: id } }); },
+      remove: function (id) { return api.del(NK.ENDPOINTS.EXPENSE_BY_ID, { params: { id: id } }); },
     },
 
     funds: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.FUNDS, { query: query });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.FUNDS, data);
-      },
-      balance: function (query) {
-        return api.get(NK.ENDPOINTS.FUND_BALANCE, { query: query });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.FUNDS, { query: q }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.FUNDS, d); },
+      balance: function (q) { return api.get(NK.ENDPOINTS.FUND_BALANCE, { query: q }); },
     },
 
     users: {
-      list: function (query) {
-        return api.get(NK.ENDPOINTS.USERS, { query: query });
-      },
-      get: function (id) {
-        return api.get(NK.ENDPOINTS.USER_BY_ID, { params: { id: id } });
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.USERS, data);
-      },
-      update: function (id, data) {
-        return api.put(NK.ENDPOINTS.USER_BY_ID, data, { params: { id: id } });
-      },
-      remove: function (id) {
-        return api.del(NK.ENDPOINTS.USER_BY_ID, { params: { id: id } });
-      },
+      list: function (q) { return api.get(NK.ENDPOINTS.USERS, { query: q }); },
+      get: function (id) { return api.get(NK.ENDPOINTS.USER_BY_ID, { params: { id: id } }); },
+      create: function (d) { return api.post(NK.ENDPOINTS.USERS, d); },
+      update: function (id, d) { return api.put(NK.ENDPOINTS.USER_BY_ID, d, { params: { id: id } }); },
+      remove: function (id) { return api.del(NK.ENDPOINTS.USER_BY_ID, { params: { id: id } }); },
     },
 
     branches: {
-      list: function () {
-        return api.get(NK.ENDPOINTS.BRANCHES);
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.BRANCHES, data);
-      },
-      update: function (id, data) {
-        return api.put(NK.ENDPOINTS.BRANCH_BY_ID, data, { params: { id: id } });
-      },
+      list: function () { return api.get(NK.ENDPOINTS.BRANCHES); },
+      create: function (d) { return api.post(NK.ENDPOINTS.BRANCHES, d); },
+      update: function (id, d) { return api.put(NK.ENDPOINTS.BRANCH_BY_ID, d, { params: { id: id } }); },
     },
 
     permissions: {
-      all: function () {
-        return api.get(NK.ENDPOINTS.PERMISSIONS);
-      },
-      mine: function () {
-        return api.get(NK.ENDPOINTS.MY_PERMISSIONS);
-      },
-      byRole: function (role) {
-        return api.get(NK.ENDPOINTS.PERMISSIONS_BY_ROLE, { params: { role: role } });
-      },
-      save: function (role, keys) {
-        return api.put(
-          NK.ENDPOINTS.PERMISSIONS_BY_ROLE,
-          { permissions: keys },
-          { params: { role: role } }
-        );
+      all: function () { return api.get(NK.ENDPOINTS.PERMISSIONS); },
+      mine: function () { return api.get(NK.ENDPOINTS.MY_PERMISSIONS); },
+      byRole: function (r) { return api.get(NK.ENDPOINTS.PERMISSIONS_BY_ROLE, { params: { role: r } }); },
+      save: function (r, keys) {
+        return api.put(NK.ENDPOINTS.PERMISSIONS_BY_ROLE, { permissions: keys }, { params: { role: r } });
       },
     },
 
     reports: {
-      summary: function (query) {
-        return api.get(NK.ENDPOINTS.REPORT_SUMMARY, { query: query });
-      },
-      pnl: function (query) {
-        return api.get(NK.ENDPOINTS.REPORT_PNL, { query: query });
-      },
+      summary: function (q) { return api.get(NK.ENDPOINTS.REPORT_SUMMARY, { query: q }); },
+      pnl: function (q) { return api.get(NK.ENDPOINTS.REPORT_PNL, { query: q }); },
     },
 
     accessRules: {
-      list: function () {
-        return api.get(NK.ENDPOINTS.ACCESS_RULES);
-      },
-      create: function (data) {
-        return api.post(NK.ENDPOINTS.ACCESS_RULES, data);
-      },
-      remove: function (id) {
-        return api.del(NK.ENDPOINTS.ACCESS_RULES + "/" + id);
-      },
+      list: function () { return api.get(NK.ENDPOINTS.ACCESS_RULES); },
+      create: function (d) { return api.post(NK.ENDPOINTS.ACCESS_RULES, d); },
+      remove: function (id) { return api.del(NK.ENDPOINTS.ACCESS_RULES + "/" + id); },
     },
 
     audit: {
-      logs: function (query) {
-        return api.get(NK.ENDPOINTS.AUDIT_LOGS, { query: query });
-      },
-      logins: function (query) {
-        return api.get(NK.ENDPOINTS.LOGIN_LOGS, { query: query });
-      },
+      logs: function (q) { return api.get(NK.ENDPOINTS.AUDIT_LOGS, { query: q }); },
+      logins: function (q) { return api.get(NK.ENDPOINTS.LOGIN_LOGS, { query: q }); },
     },
 
-    about: function () {
-      return api.get(NK.ENDPOINTS.ABOUT, { skipAuth: true });
-    },
+    about: function () { return api.get(NK.ENDPOINTS.ABOUT, { skipAuth: true }); },
 
-    /* সার্ভার ঘুমিয়ে থাকলে জাগানোর জন্য (login পেজে ডাকুন) */
-    wake: function () {
-      return api.about().catch(function () {
-        return null;
-      });
-    },
+    wake: function () { return api.about().catch(function () { return null; }); },
   };
 
   NK.api = api;
-  if (NK.DEBUG) console.log("[NK] api loaded");
+  if (NK.DEBUG) console.log("[NK] api v2 loaded");
 })();
