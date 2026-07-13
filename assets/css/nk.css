@@ -1,0 +1,240 @@
+/* =========================================================================
+   NEELKUND — সব পাতার সাধারণ চেহারা
+   ফোনের জন্য আগে, তারপর বড় পর্দা।
+   ========================================================================= */
+
+:root {
+    --navy:       #0F2942;
+    --navy-deep:  #0A1B2E;
+    --navy-soft:  #1B3B5C;
+
+    --red:        #E12A1F;
+    --red-soft:   #FDECEA;
+    --green:      #16A34A;
+    --green-soft: #E7F6EC;
+    --amber:      #D97706;
+    --amber-soft: #FEF3E2;
+    --blue:       #2563EB;
+    --blue-soft:  #EAF1FE;
+
+    --ink:        #0F1B2A;
+    --muted:      #64748B;
+    --line:       #E4E9EF;
+    --paper:      #F5F7FA;
+    --card:       #FFFFFF;
+
+    --r:          14px;
+    --shadow:     0 1px 3px rgba(15,41,66,.06), 0 8px 24px rgba(15,41,66,.06);
+    --tap:        48px;   /* আঙুলে টেপার সর্বনিম্ন মাপ */
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Hind Siliguri', 'Manrope', -apple-system, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ফোনে লেখা নির্বাচন বন্ধ — অ্যাপের মতো লাগবে */
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, .sel { -webkit-user-select: text; user-select: text; }
+
+h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.01em; }
+h1 { font-size: 20px; }
+h2 { font-size: 17px; }
+h3 { font-size: 15px; }
+
+a { color: var(--blue); text-decoration: none; }
+
+
+/* ---------------- বোতাম ---------------- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: var(--tap);
+    padding: 0 20px;
+
+    border: 0;
+    border-radius: 10px;
+    background: var(--navy);
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: transform .06s, opacity .15s;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn.block { width: 100%; }
+.btn.sm { min-height: 38px; padding: 0 14px; font-size: 13.5px; border-radius: 8px; }
+
+.btn.ghost {
+    background: #fff;
+    color: var(--navy);
+    border: 1.5px solid var(--line);
+}
+.btn.danger  { background: var(--red); }
+.btn.success { background: var(--green); }
+
+
+/* ---------------- ঘর (input) ---------------- */
+
+.fld { margin-bottom: 16px; }
+
+.fld label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 7px;
+}
+
+.fld input,
+.fld select,
+.fld textarea {
+    width: 100%;
+    min-height: var(--tap);
+    padding: 12px 14px;
+
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+
+    font-family: inherit;
+    font-size: 16px;        /* ১৬px না হলে iPhone-এ পর্দা জুম করে */
+    color: var(--ink);
+}
+
+.fld input:focus,
+.fld select:focus,
+.fld textarea:focus {
+    outline: 0;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(15,41,66,.08);
+}
+
+.fld .hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+
+/* ---------------- বার্তা ---------------- */
+
+.msg {
+    display: none;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+.msg.ok { display: block; background: var(--green-soft); color: var(--green); }
+.msg.er { display: block; background: var(--red-soft);   color: var(--red); }
+.msg.in { display: block; background: var(--blue-soft);  color: var(--blue); }
+
+
+/* ---------------- কার্ড ---------------- */
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+
+/* ---------------- ব্যাজ ---------------- */
+
+.b {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.b.g { background: var(--green-soft); color: var(--green); }
+.b.a { background: var(--amber-soft); color: var(--amber); }
+.b.r { background: var(--red-soft);   color: var(--red); }
+.b.b { background: var(--blue-soft);  color: var(--blue); }
+.b.n { background: #EEF2F6;           color: var(--muted); }
+
+
+/* ---------------- টোস্ট ---------------- */
+
+#toast {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 20px;
+    z-index: 300;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.tst {
+    padding: 13px 16px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    animation: rise .22s ease-out;
+}
+.tst.ok { background: var(--green); }
+.tst.er { background: var(--red); }
+.tst.in { background: var(--navy); }
+
+@keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ---------------- লোড হচ্ছে ---------------- */
+
+.loading, .empty {
+    text-align: center;
+    padding: 36px 16px;
+    color: var(--muted);
+    font-size: 14.5px;
+}
+
+.spin {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* ---------------- বড় পর্দা ---------------- */
+
+@media (min-width: 768px) {
+    h1 { font-size: 24px; }
+    .btn { min-height: 44px; }
+}

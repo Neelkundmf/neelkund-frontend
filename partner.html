@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0F2942">
+    <title>NEELKUND</title>
+
+    <link rel="icon" href="assets/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/nk.css">
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- লগইন করা নেই -->
+<div id="gate" style="display:none;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div class="card" style="max-width:340px;text-align:center;">
+        <h2>লগইন করা নেই</h2>
+        <p style="color:var(--muted);font-size:14px;">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
+        <a href="login.html" class="btn block">লগইন পাতায় যান</a>
+    </div>
+</div>
+
+<!-- আসল পাতা -->
+<div id="app" style="display:none;padding:20px;">
+    <div class="card">
+        <h1 id="hi">—</h1>
+        <p style="color:var(--muted);font-size:14px;" id="sub">—</p>
+        <button class="btn ghost sm" id="out">লগ আউট</button>
+    </div>
+</div>
+
+<script src="assets/js/nk.js"></script>
+<script>
+    (function () {
+        "use strict";
+
+        /* ⚠️ প্রতিটা ফাইলে এই লাইনটা আলাদা */
+        var PAGE_ROLE = "PARTNER";
+
+        var q = function (id) { return document.getElementById(id); };
+
+        var ROLE_BN = {
+            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
+            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
+        };
+
+        NK.boot().then(function (r) {
+
+            /* লগইন করা নেই — নিজে থেকে redirect করব না */
+            if (!r.ok || !r.me) {
+                q("gate").style.display = "flex";
+                return;
+            }
+
+            var u = r.me;
+
+            /* পাসওয়ার্ড বদলাতে হবে */
+            if (u.mustChangePassword) {
+                window.location.replace("change-password.html");
+                return;
+            }
+
+            /* ভুল পাতায় এসেছে — নিজের পাতায় পাঠাই */
+            if (u.role !== PAGE_ROLE) {
+                window.location.replace(NK.homeFor(u.role));
+                return;
+            }
+
+            q("app").style.display = "block";
+            q("hi").textContent = "নমস্কার, " + u.fullName;
+            q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
+        });
+
+        q("out").addEventListener("click", function () {
+            NK.logout();
+            window.location.replace("login.html");
+        });
+
+    })();
+</script>
+</body>
+</html>
