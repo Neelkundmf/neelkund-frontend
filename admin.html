@@ -136,6 +136,7 @@
             /* লগইন করা নেই — নিজে থেকে redirect করব না */
             if (!r.ok || !r.me) {
                 q("gate").style.display = "flex";
+                q("app").remove();
                 return;
             }
 
@@ -152,7 +153,7 @@
                 window.location.replace(NK.homeFor(u.role));
                 return;
             }
-
+            q("gate").remove();
             q("app").style.display = "block";
             q("hi").textContent = "নমস্কার, " + u.fullName;
             q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
