@@ -2316,6 +2316,29 @@
                 });
         });
         /* ---------------- শুরু ---------------- */
+        q("kycFile").addEventListener("change", function () {
+            var f = this.files[0];
+            if (!f || !kFor || !kType) return;
+
+            if (f.size > 5 * 1024 * 1024) {
+                toast("ছবি ৫MB-র কম হতে হবে", "er");
+                return;
+            }
+
+            toast("ছবি পাঠানো হচ্ছে...", "in");
+
+            var fd = new FormData();
+            fd.append("file", f);
+
+            NK.UPLOAD("/api/customers/" + kFor + "/document?type=" + kType, fd)
+                .then(function () {
+                    toast("ছবি সংরক্ষিত ✓", "ok");
+                    loadKyc();
+                })
+                .catch(function (e) {
+                    toast(e.message, "er");
+                });
+        });
         NK.boot().then(function (r) {
 
             if (!r.ok || !r.me) {
