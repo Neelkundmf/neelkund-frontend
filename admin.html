@@ -59,16 +59,57 @@
 
 
         <!-- ---------------- বাকি পাতা (পরে) ---------------- -->
+        <!-- ---------------- গ্রাহক ---------------- -->
         <div class="view" id="v-cust">
-            <div class="card"><div class="empty">গ্রাহক — শীঘ্রই</div></div>
+
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="cq" type="search" placeholder="নাম / ফোন / আইডি দিয়ে খুঁজুন">
+            </div>
+
+            <div class="chips" id="ctabs">
+                <button class="on" data-t="ACTIVE">চলমান</button>
+                <button data-t="OVERDUE">পিছিয়ে</button>
+                <button data-t="COMPLETED">শোধ হয়েছে</button>
+                <button data-t="ALL">সব</button>
+            </div>
+
+            <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+
+        <!-- ---------------- লোন ---------------- -->
         <div class="view" id="v-loan">
-            <div class="card"><div class="empty">লোন — শীঘ্রই</div></div>
+
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="lq" type="search" placeholder="গ্রাহকের নাম খুঁজুন">
+            </div>
+
+            <div class="chips" id="ltabs">
+                <button class="on" data-t="ACTIVE">চলমান</button>
+                <button data-t="CLOSED">শোধ হয়েছে</button>
+                <button data-t="ALL">সব</button>
+            </div>
+
+            <div id="lList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+
+        <!-- ---------------- কালেকশন ---------------- -->
         <div class="view" id="v-coll">
-            <div class="card"><div class="empty">কালেকশন — শীঘ্রই</div></div>
+
+            <div class="fld">
+                <label>এজেন্ট বাছুন</label>
+                <select id="ag"><option value="">— বাছুন —</option></select>
+            </div>
+
+            <div class="fld">
+                <label>তারিখ</label>
+                <input id="cd" type="date">
+            </div>
+
+            <div id="collBox"><div class="empty">উপরে এজেন্ট বাছুন</div></div>
         </div>
 
         <div class="view" id="v-more">
@@ -158,6 +199,9 @@
             if (!loaded[key]) {
                 loaded[key] = true;
                 if (key === "dash") loadDash();
+                if (key === "cust") loadCust();
+                if (key === "loan") loadLoan();
+                if (key === "coll") loadColl();
             }
         }
 
@@ -278,7 +322,290 @@
                 q("br").innerHTML = opts;
             }).catch(function () {});
         }
+        /* =====================================================================
+           * গ্রাহক
+           * ===================================================================== */
 
+        var cTab = "ACTIVE";
+        var cTimer = null;
+
+        var FLAG_BN = {
+            GREEN: ["সবুজ", "g"], BLUE: ["অগ্রিম", "b"],
+            YELLOW: ["হলুদ", "a"], RED: ["লাল", "r"], OD: ["OD", "r"]
+        };
+
+        function loadCust() {
+            var s = q("cq").value.trim();
+            var path = "/api/customers/list?tab=" + cTab +
+                (s ? "&search=" + encodeURIComponent(s) : "");
+
+            q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET(path).then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+
+                rows.slice(0, 100).forEach(function (c) {
+                    var f = FLAG_BN[c.flag] || ["—", "n"];
+
+                    html += '<div class="item">';
+                    html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+
+                    html += '<div class="mid">';
+                    html += '<b>' + NK.esc(c.fullName) + '</b>';
+                    html += '<span>' + NK.esc(c.customerCode || "") + ' · ' +
+                        NK.esc(c.phone || "—") + '</span>';
+                    html += '</div>';
+
+                    html += '<div class="end">';
+                    html += '<b>' + NK.inrShort(c.outstanding) + '</b>';
+                    html += '<span class="b ' + f[1] + '">' + NK.esc(c.daysLabel || f[0]) + '</span>';
+                    html += '</div>';
+
+                    html += '</div>';
+                });
+
+                html += '</div>';
+
+                if (rows.length > 100) {
+                    html += '<div class="empty">মোট ' + rows.length +
+                        ' জন · প্রথম ১০০ দেখানো হচ্ছে</div>';
+                }
+
+                q("cList").innerHTML = html;
+
+            }).catch(function (e) {
+                q("cList").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                cTab = b.getAttribute("data-t");
+                loadCust();
+            });
+        });
+
+        q("cq").addEventListener("input", function () {
+            clearTimeout(cTimer);
+            cTimer = setTimeout(loadCust, 400);
+        });
+
+
+        /* =====================================================================
+         * লোন
+         * ===================================================================== */
+
+        var LOANS = [];
+        var lTab = "ACTIVE";
+
+        var LSTAT = {
+            ACTIVE: ["চলমান", "g"], CLOSED: ["শোধ", "n"], DEFAULTED: ["খেলাপি", "r"]
+        };
+
+        function loadLoan() {
+            q("lList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/loans?page=0&size=300").then(function (r) {
+                LOANS = NK.rows(r);
+                drawLoans();
+            }).catch(function (e) {
+                q("lList").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawLoans() {
+            var s = q("lq").value.trim().toLowerCase();
+
+            var list = LOANS.filter(function (l) {
+                if (lTab === "ACTIVE" && l.status !== "ACTIVE") return false;
+                if (lTab === "CLOSED" && l.status !== "CLOSED") return false;
+                if (s) {
+                    var name = (l.customerName || "").toLowerCase();
+                    return name.indexOf(s) !== -1 || String(l.id).indexOf(s) !== -1;
+                }
+                return true;
+            });
+
+            if (!list.length) {
+                q("lList").innerHTML = '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
+                return;
+            }
+
+            var html = '<div class="list">';
+
+            list.slice(0, 100).forEach(function (l) {
+                var st = LSTAT[l.status] || ["—", "n"];
+                var due = Number(l.totalRepayable || 0) - Number(l.totalPaid || 0);
+
+                html += '<div class="item">';
+                html += '<div class="av">#' + NK.esc(l.id) + '</div>';
+
+                html += '<div class="mid">';
+                html += '<b>' + NK.esc(l.customerName || ("গ্রাহক " + l.customerId)) + '</b>';
+                html += '<span>' + NK.inr(l.principal) + ' · EMI ' +
+                    NK.inr(l.dailyEmiAmount) + '</span>';
+                html += '</div>';
+
+                html += '<div class="end">';
+                html += '<b>' + NK.inrShort(due) + '</b>';
+                html += '<span class="b ' + st[1] + '">' + st[0] + '</span>';
+                html += '</div>';
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+
+            if (list.length > 100) {
+                html += '<div class="empty">মোট ' + list.length +
+                    'টি · প্রথম ১০০ দেখানো হচ্ছে</div>';
+            }
+
+            q("lList").innerHTML = html;
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#ltabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#ltabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                lTab = b.getAttribute("data-t");
+                drawLoans();
+            });
+        });
+
+        q("lq").addEventListener("input", function () {
+            clearTimeout(cTimer);
+            cTimer = setTimeout(drawLoans, 300);
+        });
+
+
+        /* =====================================================================
+         * কালেকশন — এজেন্টের দিন
+         * ===================================================================== */
+
+        function loadColl() {
+            NK.GET("/api/manager/users?role=AGENT").then(function (list) {
+                var opts = '<option value="">— বাছুন —</option>';
+                NK.rows(list).forEach(function (a) {
+                    opts += '<option value="' + NK.esc(a.id) + '">' +
+                        NK.esc(a.fullName) + '</option>';
+                });
+                q("ag").innerHTML = opts;
+            }).catch(function () {});
+
+            if (!q("cd").value) {
+                q("cd").value = new Date().toISOString().slice(0, 10);
+            }
+        }
+
+        function showColl() {
+            var id = q("ag").value;
+            var d = q("cd").value;
+
+            if (!id) {
+                q("collBox").innerHTML = '<div class="empty">উপরে এজেন্ট বাছুন</div>';
+                return;
+            }
+
+            q("collBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/manager/agent/" + id + "/daily" + (d ? "?date=" + d : ""))
+                .then(function (r) {
+
+                    var html = "";
+
+                    html += '<div class="stats">';
+                    html += st("আজ ওঠার কথা", NK.inrShort(r.netTarget));
+                    html += st("উঠেছে", NK.inrShort(r.collectedToday), "g");
+                    html += st("দিয়েছে", r.paidCount, "g");
+                    html += st("দেয়নি", r.unpaidCount, "r");
+                    html += '</div>';
+
+                    /* যারা দেয়নি */
+                    if (r.unpaid && r.unpaid.length) {
+                        html += '<h2 style="margin:16px 0 10px;color:var(--red);">দেয়নি (' +
+                            r.unpaid.length + ')</h2>';
+                        html += '<div class="list">';
+
+                        r.unpaid.forEach(function (x) {
+                            html += '<div class="item">';
+                            html += '<div class="av" style="background:var(--red-soft);color:var(--red);">' +
+                                NK.esc((x.customerName || "?").charAt(0)) + '</div>';
+                            html += '<div class="mid"><b>' + NK.esc(x.customerName) +
+                                '</b><span>' + NK.esc(x.customerPhone) + '</span></div>';
+                            html += '<div class="end"><b style="color:var(--red);">' +
+                                NK.inr(x.dueAmount) + '</b></div>';
+                            html += '</div>';
+                        });
+
+                        html += '</div>';
+                    }
+
+                    /* যারা দিয়েছে */
+                    if (r.paid && r.paid.length) {
+                        html += '<h2 style="margin:16px 0 10px;color:var(--green);">দিয়েছে (' +
+                            r.paid.length + ')</h2>';
+                        html += '<div class="list">';
+
+                        r.paid.forEach(function (x) {
+                            html += '<div class="item">';
+                            html += '<div class="av" style="background:var(--green-soft);color:var(--green);">✓</div>';
+                            html += '<div class="mid"><b>' + NK.esc(x.customerName) +
+                                '</b><span>' + NK.esc(x.customerPhone) + '</span></div>';
+                            html += '<div class="end"><b style="color:var(--green);">' +
+                                NK.inr(x.dueAmount) + '</b></div>';
+                            html += '</div>';
+                        });
+
+                        html += '</div>';
+                    }
+
+                    /* OD */
+                    if (r.odCustomers && r.odCustomers.length) {
+                        html += '<h2 style="margin:16px 0 10px;">⛔ OD (' +
+                            r.odCustomers.length + ')</h2>';
+                        html += '<div class="list">';
+
+                        r.odCustomers.forEach(function (x) {
+                            html += '<div class="item">';
+                            html += '<div class="av" style="background:#1F2937;color:#fff;">' +
+                                x.daysOverdue + '</div>';
+                            html += '<div class="mid"><b>' + NK.esc(x.customerName) +
+                                '</b><span>' + NK.esc(x.customerPhone) + '</span></div>';
+                            html += '<div class="end"><b>' + NK.inrShort(x.outstanding) + '</b></div>';
+                            html += '</div>';
+                        });
+
+                        html += '</div>';
+                    }
+
+                    if (!html) html = '<div class="empty">এই দিনে কিছু নেই</div>';
+
+                    q("collBox").innerHTML = html;
+
+                }).catch(function (e) {
+                q("collBox").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("ag").addEventListener("change", showColl);
+        q("cd").addEventListener("change", showColl);
         /* ---------------- নোটিফিকেশন ---------------- */
         function loadNotif() {
             NK.GET("/api/notifications").then(function (n) {
