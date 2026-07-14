@@ -133,6 +133,8 @@
 
                 <div class="fld"><label>নাম *</label><input id="br_name"></div>
                 <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="fld"><label>কোডের ছাঁচ (ঐচ্ছিক)</label><input id="br_pattern" maxlength="40" placeholder="যেমন PTL/25-A/"><div class="hint">ফাঁকা রাখলে পুরনো নিয়ম: কোড-নম্বর (যেমন PTL-000001)</div></div>
+                <div class="fld"><label>নম্বর কত অঙ্কের</label><input id="br_digits" type="number" min="3" max="9" value="6"><div class="hint">৬ হলে 000001</div></div>
                 <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"></div>
                 <div class="fld"><label>ঠিকানা</label><input id="br_addr"></div>
 
@@ -1283,8 +1285,8 @@
                     html += '<div class="item">';
                     html += '<div class="av">' + NK.esc(b.code || "?") + '</div>';
                     html += '<div class="mid"><b>' + NK.esc(b.name) + '</b>' +
-                        '<span>' + b.customerCount + ' গ্রাহক · ' +
-                        b.marketCount + ' মার্কেট</span></div>';
+                        '<span>' + NK.esc(b.nextCodePreview || b.code || "") +
+                        ' · ' + b.customerCount + ' গ্রাহক</span></div>';
                     html += '<div class="end"><b>#' + b.nextCustomerNumber + '</b></div>';
                     html += '</div>';
                 });
@@ -1303,6 +1305,8 @@
             NK.POST("/api/branches", {
                 name: q("br_name").value.trim(),
                 code: q("br_code").value.trim().toUpperCase(),
+                codePattern: q("br_pattern").value.trim() || null,
+                codeDigits: Number(q("br_digits").value || 6),
                 startNumber: Number(q("br_start").value || 1),
                 address: q("br_addr").value.trim() || null
             }).then(function () {
@@ -1310,6 +1314,7 @@
                 toast("ব্রাঞ্চ তৈরি হয়েছে", "ok");
                 q("br_name").value = "";
                 q("br_code").value = "";
+                q("br_pattern").value = "";
                 q("br_addr").value = "";
                 loadBranch();
                 loadBranches();
