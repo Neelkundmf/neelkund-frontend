@@ -314,7 +314,17 @@
                 <h2 style="margin-bottom:14px;">লোনের অনুরোধ</h2>
                 <div class="msg" id="lMsg"></div>
 
-                <div class="fld"><label>গ্রাহক *</label><select id="l_c"><option value="">— বাছুন —</option></select></div>
+                <div class="fld">
+                    <label>গ্রাহক খুঁজুন *</label>
+                    <input id="l_q" type="search" placeholder="নাম বা ফোন নম্বর লিখুন" autocomplete="off">
+                    <div class="hint">পুরনো গ্রাহক হলে নিচে দেখাবে</div>
+                </div>
+
+                <div id="l_hits"></div>
+
+                <div id="l_sel" style="display:none;"></div>
+
+                <input type="hidden" id="l_c">
 
                 <div class="fld"><label>লোনের অঙ্ক *</label>
                     <select id="l_amt">
@@ -1084,21 +1094,159 @@
                 { enableHighAccuracy: true, timeout: 12000 }
             );
         });
+        /* =====================================================================
+           * লোন — গ্রাহক খোঁজা + ইতিহাস
+           * ===================================================================== */
+        var ALLC = [];
+        var lTimer = null;
 
-        function loadLoan() {
-            /* গ্রাহকের তালিকা */
-            NK.GET("/api/customers?page=0&size=200").then(function (r) {
-                var rows = NK.rows(r);
-                var o = '<option value="">— বাছুন —</option>';
+        function drawHits() {
+            var s = q("l_q").value.trim().toLowerCase();
 
-                rows.forEach(function (c) {
-                    o += '<option value="' + NK.esc(c.id) + '">' +
-                        NK.esc(c.fullName) + ' · ' + NK.esc(c.phone || "") + '</option>';
+            if (!s || s.length < 2) {
+                q("l_hits").innerHTML = "";
+                return;
+            }
+
+            var hits = ALLC.filter(function (c) {
+                return (c.fullName || "").toLowerCase().indexOf(s) !== -1
+                    || (c.phone || "").indexOf(s) !== -1
+                    || (c.customerCode || "").toLowerCase().indexOf(s) !== -1;
+            }).slice(0, 8);
+
+            if (!hits.length) {
+                q("l_hits").innerHTML =
+                    '<div class="card" style="padding:12px;"><div class="empty" ' +
+                    'style="padding:12px;">কেউ নেই — আগে গ্রাহক যোগ করুন</div></div>';
+                return;
+            }
+
+            var h = '<div class="list" style="margin-bottom:14px;">';
+
+            hits.forEach(function (c) {
+                h += '<div class="item" data-pick="' + c.id + '">';
+                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
+                    '<span>' + NK.esc(c.customerCode || "") + ' · ' +
+                    NK.esc(c.phone || "—") + '</span></div>';
+                h += '<div class="end"><span class="b n">বাছুন</span></div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+            q("l_hits").innerHTML = h;
+
+            Array.prototype.forEach.call(q("l_hits").querySelectorAll("[data-pick]"), function (el) {
+                el.addEventListener("click", function () {
+                    pickCust(el.getAttribute("data-pick"));
+                });
+            });
+        }
+
+        function pickCust(id) {
+            q("l_c").value = id;
+            q("l_hits").innerHTML = "";
+            q("l_q").value = "";
+
+            q("l_sel").style.display = "block";
+            q("l_sel").innerHTML = '<div class="loading">ইতিহাস দেখছি...</div>';
+
+            NK.GET("/api/customers/" + id + "/profile").then(function (p) {
+                var c = p.customer;
+                var h = "";
+
+                h += '<div class="card" style="border-left:4px solid ' +
+                    NK.esc(p.ratingColor) + ';">';
+
+                /* নাম + রেটিং */
+                h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<div style="flex:1;min-width:0;">';
+                h += '<b style="font-size:15px;">' + NK.esc(c.fullName) + '</b><br>';
+                h += '<span style="font-size:12px;color:var(--muted);">' +
+                    NK.esc(c.customerCode || "") + ' · ' + NK.esc(c.phone || "") + '</span>';
+                h += '</div>';
+                h += '<button class="btn sm ghost" id="l_clear">✕</button>';
+                h += '</div>';
+
+                /* রেটিং */
+                h += '<div style="text-align:center;padding:10px;border-radius:10px;' +
+                    'background:' + NK.esc(p.ratingColor) + ';color:#fff;font-weight:700;' +
+                    'font-size:14px;margin-bottom:12px;">' + NK.esc(p.ratingLabel) + '</div>';
+
+                /* ব্লক */
+                if (!p.canTakeNewLoan) {
+                    h += '<div class="msg er" style="display:block;">⛔ ' +
+                        NK.esc(p.blockReason) + '</div>';
+                }
+
+                /* এক নজরে */
+                if (p.totalLoans > 0) {
+                    h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;' +
+                        'font-size:12.5px;color:var(--muted);line-height:1.8;">';
+                    h += '<div>মোট লোন: <b style="color:var(--ink);">' + p.totalLoans + '</b></div>';
+                    h += '<div>শোধ: <b style="color:var(--green);">' + p.closedLoans + '</b></div>';
+                    h += '<div>সময়ে: <b style="color:var(--green);">' + p.onTimeCount + '</b></div>';
+                    h += '<div>দেরিতে: <b style="color:var(--amber);">' + p.lateCount + '</b></div>';
+
+                    if (Number(p.outstanding) > 0) {
+                        h += '<div style="grid-column:1/-1;">এখনও বাকি: <b style="color:var(--red);">' +
+                            NK.inr(p.outstanding) + '</b></div>';
+                    }
+
+                    if (p.avgDaysToClose > 0) {
+                        h += '<div style="grid-column:1/-1;">গড়ে <b style="color:var(--ink);">' +
+                            p.avgDaysToClose + ' দিনে</b> শোধ করেন</div>';
+                    }
+
+                    h += '</div>';
+
+                    /* আগের লোনগুলো */
+                    h += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">';
+                    h += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">আগের লোন</div>';
+
+                    p.loans.slice(0, 5).forEach(function (l) {
+                        var col = l.gradeColor || l.stageColor || "#94A3B8";
+
+                        h += '<div style="display:flex;justify-content:space-between;' +
+                            'align-items:center;padding:6px 0;font-size:12.5px;">';
+                        h += '<span>' + NK.inr(l.principal) + ' · ' + NK.dt(l.startDate) + '</span>';
+                        h += '<span style="color:' + NK.esc(col) + ';font-weight:700;">' +
+                            NK.esc(l.gradeLabel || l.stageName || l.status) + '</span>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                } else {
+                    h += '<div style="text-align:center;font-size:13px;color:var(--muted);">' +
+                        'এই গ্রাহক প্রথমবার লোন নিচ্ছেন</div>';
+                }
+
+                h += '</div>';
+
+                q("l_sel").innerHTML = h;
+
+                q("l_clear").addEventListener("click", function () {
+                    q("l_c").value = "";
+                    q("l_sel").style.display = "none";
+                    q("l_sel").innerHTML = "";
                 });
 
-                q("l_c").innerHTML = o;
-            }).catch(function () {});
+            }).catch(function (e) {
+                q("l_sel").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
 
+        q("l_q").addEventListener("input", function () {
+            clearTimeout(lTimer);
+            lTimer = setTimeout(drawHits, 250);
+        });
+        function loadLoan() {
+            /* গ্রাহকের তালিকা — সার্চের জন্য */
+            NK.GET("/api/customers?page=0&size=300").then(function (r) {
+                ALLC = NK.rows(r);
+            }).catch(function () {});
             /* আমার অনুরোধ */
             NK.GET("/api/loan-requests/mine").then(function (list) {
                 var rows = NK.rows(list);
