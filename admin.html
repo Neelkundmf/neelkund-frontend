@@ -1361,7 +1361,7 @@
 
                     html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
                     html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
-                    html += '<div class="mid"><b>' + NK.esc(u.fullName) + '</b>' +
+                    html += '<div class="mid" data-agent="' + u.id + '"><b>' + NK.esc(u.fullName) + '</b>' +
                         '<span>' + NK.esc(u.phone) +
                         (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
                     html += '<div class="end"><span class="b n">' +
@@ -1372,6 +1372,11 @@
                 html += '</div>';
 
                 q("tmList").innerHTML = html;
+                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-agent]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openAgent(el.getAttribute("data-agent"));
+                    });
+                });
                 /* চালু / বন্ধ */
                 Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-en]"), function (b) {
                     b.addEventListener("click", function () {
@@ -2617,6 +2622,134 @@
         q("dl_od").addEventListener("click", function () {
             download("/api/export/od-customers", "od-customers.csv");
         });
+        /* =====================================================================
+   * এজেন্টের প্রোফাইল
+   * ===================================================================== */
+        function openAgent(id) {
+            q("prof").classList.add("on");
+            q("pTitle").textContent = "কর্মী";
+            q("pBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            window.scrollTo(0, 0);
+
+            NK.GET("/api/manager/users/" + id + "/profile").then(function (p) {
+                var a = p.agent;
+                var h = "";
+
+                /* ---- মাথা ---- */
+                h += '<div class="phead">';
+                h += '<div class="pic" id="aPic">' + NK.esc((a.fullName || "?").charAt(0)) + '</div>';
+                h += '<h2>' + NK.esc(a.fullName) + '</h2>';
+                h += '<div class="sub">' + NK.esc(a.staffCode || "") + ' · ' +
+                    NK.esc(a.phone) + '</div>';
+                h += '<div class="rate" style="background:' +
+                    (a.enabled ? 'var(--green)' : 'var(--red)') + ';">' +
+                    (a.enabled ? '✓ চালু' : '✗ বন্ধ') + '</div>';
+                h += '</div>';
+
+                /* ---- এখনকার হিসাব ---- */
+                h += '<div class="stats">';
+                h += st("চলমান লোন", p.activeLoans);
+                h += st("গ্রাহক", p.activeCustomers);
+                h += st("মার্কেটে পড়ে", NK.inrShort(p.outstanding), "r");
+                h += st("আজ ওঠার কথা", NK.inrShort(p.todayDue));
+                h += '</div>';
+
+                /* ---- এই মাসে (কমিশন) ---- */
+                h += '<div class="card">';
+                h += '<h2 style="margin-bottom:12px;">এই মাসে (কমিশনের হিসাব)</h2>';
+                h += '<div class="stats" style="margin:0;">';
+                h += st("লোন দিয়েছে", p.monthLoans + "টি", "g");
+                h += st("মোট টাকা", NK.inrShort(p.monthDisbursed), "g");
+                h += st("আদায় করেছে", NK.inrShort(p.monthCollected), "g");
+                h += st("আজ উঠল", NK.inrShort(p.todayCollected), "g");
+                h += '</div></div>';
+
+                /* ---- অবস্থা ---- */
+                h += '<div class="stats">';
+                h += st("চলমান", p.runningCount);
+                h += st("দেরি", p.lateCount, "a");
+                h += st("OD", p.odCount, "r");
+                h += st("শোধ হয়েছে", p.completedCount, "g");
+                h += '</div>';
+
+                if (p.odCount > 0) {
+                    h += '<div class="od-box">';
+                    h += '<div class="t">⛔ OD-তে আটকে</div>';
+                    h += '<div class="n">' + p.odCount + ' জন</div>';
+                    h += '<div class="a">' + NK.inr(p.odAmount) + '</div>';
+                    h += '</div>';
+                }
+
+                /* ---- অঙ্ক অনুযায়ী ---- */
+                h += '<h3 style="margin:16px 0 10px;">অঙ্ক অনুযায়ী</h3>';
+                h += '<div class="blocks">';
+
+                p.byAmount.forEach(function (x) {
+                    h += '<div class="blk">';
+                    h += '<div class="amt">' + NK.inr(x.amount) + '</div>';
+                    h += '<div class="row k"><span>চলছে</span><b>' + x.count + '</b></div>';
+                    h += '<div class="out">বাকি <b>' + NK.inrShort(x.outstanding) + '</b></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+
+                /* ---- মার্কেট অনুযায়ী ---- */
+                if (p.markets && p.markets.length) {
+                    h += '<h3 style="margin:16px 0 10px;">মার্কেট অনুযায়ী</h3>';
+                    h += '<div class="list">';
+
+                    p.markets.forEach(function (m) {
+                        h += '<div class="item">';
+                        h += '<div class="av">🏬</div>';
+                        h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
+                            '<span>' + m.customers + ' গ্রাহক' +
+                            (m.odCount ? ' · ' + m.odCount + ' OD' : '') + '</span></div>';
+                        h += '<div class="end"><b>' + NK.inrShort(m.outstanding) + '</b>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">আজ ' +
+                            NK.inrShort(m.todayDue) + '</span></div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                }
+
+                /* ---- তথ্য ---- */
+                h += '<h3 style="margin:16px 0 10px;">তথ্য</h3>';
+                h += '<div class="pinfo">';
+                h += row("পদ", ROLE_BN2[a.role] || a.role);
+                h += row("এলাকা", a.area);
+                h += row("বাবা / স্বামী", a.fatherOrHusband);
+                h += row("জন্মতারিখ", a.dateOfBirth ? NK.dt(a.dateOfBirth) : null);
+                h += row("লিঙ্গ", GEN_BN[a.gender] || a.gender);
+                h += row("রক্তের গ্রুপ", a.bloodGroup);
+                h += row("আধার", a.aadhaarMasked);
+                h += row("প্যান", a.panMasked);
+                h += row("স্থায়ী ঠিকানা", a.permanentAddress);
+                h += row("বর্তমান ঠিকানা", a.currentAddress);
+                h += row("জরুরি যোগাযোগ", a.emergencyName);
+                h += row("জরুরি ফোন", a.emergencyPhone);
+                h += row("জয়েনিং", a.joinedDate ? NK.dt(a.joinedDate) : null);
+                h += row("মাসিক বেতন", a.monthlySalary ? NK.inr(a.monthlySalary) : null);
+                h += '</div>';
+
+                q("pBody").innerHTML = h;
+
+                /* ছবি */
+                if (a.photoUrl) {
+                    NK.GET("/api/admin/users/" + id + "/photo").then(function (blob) {
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        q("aPic").innerHTML = "";
+                        q("aPic").appendChild(img);
+                    }).catch(function () {});
+                }
+
+            }).catch(function (e) {
+                q("pBody").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
         /* ---------------- নোটিফিকেশন ---------------- */
         function loadNotif() {
             NK.GET("/api/notifications").then(function (n) {
