@@ -197,7 +197,6 @@
 
 <div id="toast"></div>
 <input type="file" id="picFile" accept="image/*" capture="environment" style="display:none;">
-<input type="file" id="picFile" accept="image/*" capture="environment" style="display:none;">
 
 <div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
@@ -843,7 +842,7 @@
         var cTab = "ACTIVE";
         var cTimer = null;
         var MYC = [];
-
+        var cShow = 50;
         function loadCust() {
             var s = q("cq").value.trim();
             var path = "/api/customers/list?tab=" + cTab +
@@ -860,34 +859,53 @@
                     return;
                 }
 
-                var h = '<div class="list">';
-
-                rows.slice(0, 80).forEach(function (c) {
-                    var closed = c.status === "CLOSED";
-
-                    h += '<div class="item"' +
-                        (closed ? '' : ' data-pay="' + c.loanId +
-                            '" data-name="' + NK.esc(c.fullName) + '" data-amt=""') + '>';
-                    h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                    h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
-                        '<span>' + NK.esc(c.phone || "—") + ' · ' +
-                        NK.esc(c.daysLabel || "") + '</span></div>';
-                    h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                        (closed ? '<span class="b g">শোধ</span>'
-                            : '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span>') +
-                        '</div>';
-                    h += '</div>';
-                });
-
-                h += '</div>';
-                q("cList").innerHTML = h;
-                bindPay(q("cList"));
+                drawCust();
 
             }).catch(function (e) {
                 q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+        function drawCust() {
+            var rows = MYC;
 
+            var h = '<div class="list">';
+
+            rows.slice(0, cShow).forEach(function (c) {
+                var closed = c.status === "CLOSED";
+
+                h += '<div class="item"' +
+                    (closed ? '' : ' data-pay="' + c.loanId +
+                        '" data-name="' + NK.esc(c.fullName) + '" data-amt=""') + '>';
+                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
+                    '<span>' + NK.esc(c.phone || "—") + ' · ' +
+                    NK.esc(c.daysLabel || "") + '</span></div>';
+                h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
+                    (closed ? '<span class="b g">শোধ</span>'
+                        : '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span>') +
+                    '</div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+
+            if (rows.length > cShow) {
+                h += '<button class="btn ghost block" id="cMore" ' +
+                    'style="margin-top:12px;">আরও দেখুন (' +
+                    (rows.length - cShow) + ' জন বাকি)</button>';
+            }
+
+            q("cList").innerHTML = h;
+
+            if (q("cMore")) {
+                q("cMore").addEventListener("click", function () {
+                    cShow += 50;
+                    drawCust();
+                });
+            }
+
+            bindPay(q("cList"));
+        }
         Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
             b.addEventListener("click", function () {
                 Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
@@ -895,12 +913,14 @@
                 });
                 b.classList.add("on");
                 cTab = b.getAttribute("data-t");
+                cShow = 50;
                 loadCust();
             });
         });
 
         q("cq").addEventListener("input", function () {
             clearTimeout(cTimer);
+            cShow = 50;
             cTimer = setTimeout(loadCust, 400);
         });
 
