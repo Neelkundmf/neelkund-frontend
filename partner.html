@@ -783,6 +783,13 @@
                     h += '</div>';
                 }
 
+                /* ---- বাড়ি কোথায় (GPS) ---- */
+                if (c.mapsUrl) {
+                    h += '<a href="' + NK.esc(c.mapsUrl) + '" target="_blank" rel="noopener" ' +
+                        'class="btn ghost block" style="margin:16px 0 0;text-decoration:none;">' +
+                        '📍 বাড়ি দেখুন (Google Maps)</a>';
+                }
+
                 h += '<h3 style="margin:16px 0 10px;">তথ্য</h3>';
                 h += '<div class="pinfo">';
                 h += row("ফোন", c.phone);
