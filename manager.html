@@ -4,18 +4,146 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0F2942">
-    <title>NEELKUND</title>
+    <title>NEELKUND — ম্যানেজার</title>
 
     <link rel="icon" href="assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/nk.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+
+    <style>
+        /* ---- লোনের অনুরোধ ---- */
+        .req {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--amber);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .req .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .req .top b { font-size: 15.5px; }
+        .req .amt {
+            font-family: 'Manrope', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .req .info {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.9;
+            padding: 10px 12px;
+            background: var(--paper);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .req .info b { color: var(--ink); }
+
+        .req .warn {
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .req .warn.ok   { background: var(--green-soft); color: var(--green); }
+        .req .warn.mid  { background: var(--amber-soft); color: var(--amber); }
+        .req .warn.bad  { background: var(--red-soft);   color: var(--red); }
+
+        .req .acts { display: flex; gap: 8px; }
+        .req .acts button { flex: 1; }
+
+        /* ---- কাগজ ---- */
+        @media print {
+            .topbar, .tabs, .noprint { display: none !important; }
+            body { background: #fff; }
+            .body { padding: 0; }
+            .sheet { box-shadow: none; border: 0; }
+            .sheet table { font-size: 11px; }
+        }
+
+        .sheet {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .sheet .hd {
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--navy);
+            margin-bottom: 14px;
+        }
+        .sheet .hd h2 { font-size: 17px; margin-bottom: 4px; }
+        .sheet .hd p  { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+        .sheet table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+        .sheet th {
+            text-align: left;
+            padding: 7px 6px;
+            border-bottom: 1.5px solid var(--line);
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+        .sheet td {
+            padding: 8px 6px;
+            border-bottom: 1px solid var(--line);
+        }
+        .sheet td.r, .sheet th.r { text-align: right; }
+
+        .sheet .mkt {
+            margin: 16px 0 8px;
+            padding: 7px 10px;
+            background: var(--paper);
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sheet .tot {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 2px solid var(--navy);
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .sheet .sign {
+            display: flex;
+            gap: 30px;
+            margin-top: 34px;
+            padding-top: 10px;
+        }
+        .sheet .sign div {
+            flex: 1;
+            border-top: 1px solid var(--ink);
+            padding-top: 5px;
+            font-size: 11.5px;
+            text-align: center;
+            color: var(--muted);
+        }
+    </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- লগইন করা নেই -->
-<div id="gate" style="display:none;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;">
+<div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
         <h2>লগইন করা নেই</h2>
         <p style="color:var(--muted);font-size:14px;">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
@@ -23,33 +151,639 @@
     </div>
 </div>
 
-<!-- আসল পাতা -->
-<div id="app" style="display:none;padding:20px;">
-    <div class="card">
-        <h1 id="hi">—</h1>
-        <p style="color:var(--muted);font-size:14px;" id="sub">—</p>
-        <button class="btn ghost sm" id="out">লগ আউট</button>
+
+<div id="app" style="display:none;">
+
+    <div class="topbar">
+        <div class="logo"><img src="assets/logo.png" alt=""></div>
+        <div class="ttl">
+            <b id="ttl">ড্যাশবোর্ড</b>
+            <span id="who">—</span>
+        </div>
+        <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
     </div>
+
+    <div class="body">
+
+        <!-- ---------------- ড্যাশবোর্ড ---------------- -->
+        <div class="view on" id="v-dash">
+            <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- লোনের অনুরোধ ---------------- -->
+        <div class="view" id="v-req">
+            <div id="reqList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- কাগজ ---------------- -->
+        <div class="view" id="v-sheet">
+
+            <div class="card noprint">
+                <div class="fld">
+                    <label>এজেন্ট</label>
+                    <select id="sh_ag"><option value="">— বাছুন —</option></select>
+                </div>
+
+                <div class="fld">
+                    <label>তারিখ</label>
+                    <input id="sh_d" type="date">
+                </div>
+
+                <div class="chips" id="shtabs" style="margin-bottom:0;">
+                    <button class="on" data-t="MORNING">🌅 সকাল</button>
+                    <button data-t="EVENING">🌆 সন্ধ্যা</button>
+                </div>
+            </div>
+
+            <div id="shBox"><div class="empty">উপরে এজেন্ট বাছুন</div></div>
+
+            <button class="btn block noprint" id="sh_print" style="display:none;">🖨️ প্রিন্ট করুন</button>
+        </div>
+
+
+        <!-- ---------------- গ্রাহক ---------------- -->
+        <div class="view" id="v-cust">
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="cq" type="search" placeholder="নাম / ফোন / আইডি">
+            </div>
+
+            <div class="chips" id="ctabs">
+                <button class="on" data-t="ACTIVE">চলমান</button>
+                <button data-t="OVERDUE">পিছিয়ে</button>
+                <button data-t="COMPLETED">শোধ</button>
+            </div>
+
+            <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- OD ---------------- -->
+        <div class="view" id="v-od">
+            <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+    </div>
+
+    <div class="tabs">
+        <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
+        <button data-v="req"><i>📝</i>অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
+        <button data-v="sheet"><i>📄</i>কাগজ</button>
+        <button data-v="cust"><i>👤</i>গ্রাহক</button>
+        <button data-v="od"><i>🚨</i>OD</button>
+    </div>
+
 </div>
+
 
 <script src="assets/js/nk.js"></script>
 <script>
     (function () {
         "use strict";
 
-        /* ⚠️ প্রতিটা ফাইলে এই লাইনটা আলাদা */
-        var PAGE_ROLE = "MANAGER";
-
         var q = function (id) { return document.getElementById(id); };
 
-        var ROLE_BN = {
-            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
-            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
-        };
+        function toast(m, kind) {
+            var t = document.createElement("div");
+            t.className = "tst " + (kind || "in");
+            t.textContent = m;
+            q("toast").appendChild(t);
+            setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3600);
+        }
 
+        function st(l, v, tone) {
+            return '<div class="stat"><div class="l">' + NK.esc(l) +
+                '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
+        }
+
+        var TITLES = {
+            dash: "ড্যাশবোর্ড", req: "লোনের অনুরোধ", sheet: "কাগজ",
+            cust: "গ্রাহক", od: "OD তালিকা"
+        };
+        var loaded = {};
+
+        function show(key) {
+            Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
+                v.classList.remove("on");
+            });
+            q("v-" + key).classList.add("on");
+
+            Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function (b) {
+                b.classList.toggle("on", b.getAttribute("data-v") === key);
+            });
+
+            q("ttl").textContent = TITLES[key];
+            window.scrollTo(0, 0);
+
+            if (!loaded[key]) {
+                loaded[key] = true;
+                if (key === "dash")  loadDash();
+                if (key === "req")   loadReq();
+                if (key === "sheet") loadSheet();
+                if (key === "cust")  loadCust();
+                if (key === "od")    loadOd();
+            }
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
+            b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
+        });
+
+
+        /* =====================================================================
+         * ড্যাশবোর্ড
+         * ===================================================================== */
+        function loadDash() {
+            q("dash").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard").then(function (d) {
+                var h = "";
+
+                h += '<div class="stats">';
+                h += st("আজ ওঠার কথা", NK.inrShort(d.todayDue));
+                h += st("আজ উঠেছে", NK.inrShort(d.todayCollected), "g");
+                h += st("চলমান গ্রাহক", d.runningCustomers);
+                h += st("শোধ হয়েছে", d.completedCustomers, "g");
+                h += '</div>';
+
+                h += '<div class="card"><h2 style="margin-bottom:12px;">এই মাস</h2>';
+                h += '<div class="stats" style="margin:0;">';
+                h += st("বিতরণ", NK.inrShort(d.monthDisbursed));
+                h += st("আদায়", NK.inrShort(d.monthCollected), "g");
+                h += '</div></div>';
+
+                h += '<h2 style="margin:18px 0 12px;">অঙ্ক অনুযায়ী</h2>';
+                h += '<div class="blocks">';
+
+                (d.blocks || []).forEach(function (x) {
+                    h += '<div class="blk">';
+                    h += '<div class="amt">' + NK.inr(x.amount) + '</div>';
+                    h += '<div class="row k"><span>চলমান</span><b>' + x.running + '</b></div>';
+                    h += '<div class="row a"><span>দেরি</span><b>' + x.late + '</b></div>';
+                    h += '<div class="row r"><span>OD</span><b>' + x.od + '</b></div>';
+                    h += '<div class="out">বাকি <b>' + NK.inrShort(x.outstandingAmount) + '</b></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+
+                h += '<div class="od-box">';
+                h += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন</div>';
+                h += '<div class="n">' + d.totalOdCustomers + ' জন</div>';
+                h += '<div class="a">' + NK.inr(d.totalOdAmount) + '</div>';
+                h += '</div>';
+
+                q("dash").innerHTML = h;
+
+            }).catch(function (e) {
+                q("dash").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * লোনের অনুরোধ
+         * ===================================================================== */
+        function loadReq() {
+            q("reqList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/loan-requests/pending").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("reqList").innerHTML = '<div class="card"><div class="empty">✓ কোনো অনুরোধ নেই</div></div>';
+                    q("rdot").style.display = "none";
+                    return;
+                }
+
+                q("rdot").textContent = rows.length;
+                q("rdot").style.display = "flex";
+
+                var h = "";
+
+                rows.forEach(function (r) {
+                    var wc = "ok";
+                    if (r.warning && r.warning.indexOf("⛔") !== -1) wc = "bad";
+                    else if (r.warning && r.warning.indexOf("🔴") !== -1) wc = "bad";
+                    else if (r.warning && r.warning.indexOf("🟡") !== -1) wc = "mid";
+
+                    h += '<div class="req">';
+
+                    h += '<div class="top">';
+                    h += '<div><b>' + NK.esc(r.customerName) + '</b><br>' +
+                        '<span style="font-size:12px;color:var(--muted);">' +
+                        NK.esc(r.customerPhone) + '</span></div>';
+                    h += '<div class="amt">' + NK.inr(r.principal) + '</div>';
+                    h += '</div>';
+
+                    if (r.warning) {
+                        h += '<div class="warn ' + wc + '">' + NK.esc(r.warning) + '</div>';
+                    }
+
+                    h += '<div class="info">';
+                    h += 'এজেন্ট: <b>' + NK.esc(r.agentName) + '</b><br>';
+                    h += 'মোট প্রাপ্য: <b>' + NK.inr(r.totalRepayable) + '</b> · দৈনিক <b>' +
+                        NK.inr(r.dailyEmi) + '</b><br>';
+                    h += 'আগের লোন: <b>' + r.previousLoans + '</b>টি · শোধ <b>' +
+                        r.closedLoans + '</b>টি<br>';
+
+                    if (Number(r.outstandingAmount) > 0) {
+                        h += 'এখনও বাকি: <b style="color:var(--red);">' +
+                            NK.inr(r.outstandingAmount) + '</b><br>';
+                    }
+
+                    if (r.address) {
+                        h += 'স্থান: <b>' + NK.esc(r.address) + '</b><br>';
+                    }
+
+                    h += 'সময়: <b>' + NK.dtTime(r.requestedAt) + '</b>';
+                    h += '</div>';
+
+                    h += '<div class="acts">';
+                    h += '<button class="btn success" data-ap="' + r.id + '">✓ অনুমোদন</button>';
+                    h += '<button class="btn danger" data-rj="' + r.id + '">✗ নাকচ</button>';
+                    h += '</div>';
+
+                    h += '</div>';
+                });
+
+                q("reqList").innerHTML = h;
+
+                /* অনুমোদন */
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
+                    b.addEventListener("click", function () {
+                        if (!confirm("লোন অনুমোদন করবেন?")) return;
+
+                        b.disabled = true;
+                        b.innerHTML = '<span class="spin"></span>';
+
+                        NK.POST("/api/loan-requests/" + b.getAttribute("data-ap") + "/approve")
+                            .then(function () {
+                                toast("লোন অনুমোদিত ✓ এজেন্ট টাকা দিতে পারবেন", "ok");
+                                loadReq();
+                                loadNotif();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "✓ অনুমোদন";
+                            });
+                    });
+                });
+
+                /* নাকচ */
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-rj]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var reason = prompt("নাকচের কারণ লিখুন (বাধ্যতামূলক):");
+                        if (!reason || !reason.trim()) {
+                            toast("কারণ লিখতেই হবে", "er");
+                            return;
+                        }
+
+                        b.disabled = true;
+                        b.innerHTML = '<span class="spin"></span>';
+
+                        NK.POST("/api/loan-requests/" + b.getAttribute("data-rj") + "/reject",
+                            { reason: reason.trim() })
+                            .then(function () {
+                                toast("নাকচ করা হল", "ok");
+                                loadReq();
+                                loadNotif();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "✗ নাকচ";
+                            });
+                    });
+                });
+
+            }).catch(function (e) {
+                q("reqList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * কাগজ
+         * ===================================================================== */
+        var shType = "MORNING";
+
+        function loadSheet() {
+            if (!q("sh_d").value) {
+                q("sh_d").value = new Date().toISOString().slice(0, 10);
+            }
+
+            NK.GET("/api/manager/users?role=AGENT").then(function (list) {
+                var o = '<option value="">— বাছুন —</option>';
+                NK.rows(list).forEach(function (a) {
+                    o += '<option value="' + NK.esc(a.id) + '">' + NK.esc(a.fullName) + '</option>';
+                });
+                q("sh_ag").innerHTML = o;
+            }).catch(function () {});
+        }
+
+        function showSheet() {
+            var id = q("sh_ag").value;
+            var d = q("sh_d").value;
+
+            if (!id) {
+                q("shBox").innerHTML = '<div class="empty">উপরে এজেন্ট বাছুন</div>';
+                q("sh_print").style.display = "none";
+                return;
+            }
+
+            q("shBox").innerHTML = '<div class="loading">তৈরি হচ্ছে...</div>';
+
+            var url = "/api/agent/" + id + "/sheet/" +
+                (shType === "EVENING" ? "evening" : "morning") +
+                (d ? "?date=" + d : "");
+
+            NK.GET(url).then(function (s) {
+                var eve = s.sheetType === "EVENING";
+
+                var h = '<div class="sheet">';
+
+                /* মাথা */
+                h += '<div class="hd">';
+                h += '<h2>' + (eve ? "🌆 সন্ধ্যার হিসাব" : "🌅 সকালের কাগজ") + '</h2>';
+                h += '<p>' + NK.esc(s.agentName) + ' · ' + NK.esc(s.branchName) +
+                    ' · ' + NK.dt(s.date) + '</p>';
+                h += '</div>';
+
+                /* মার্কেট অনুযায়ী */
+                (s.markets || []).forEach(function (m) {
+                    h += '<div class="mkt">🏬 ' + NK.esc(m.marketName) +
+                        ' (' + m.customerCount + ' জন)</div>';
+
+                    h += '<table>';
+                    h += '<thead><tr>';
+                    h += '<th>#</th><th>নাম</th>';
+                    h += '<th class="r">বকেয়া</th>';
+                    h += '<th class="r">আজ</th>';
+                    h += '<th class="r">নিতে হবে</th>';
+                    if (eve) h += '<th class="r">উঠল</th>';
+                    h += '</tr></thead><tbody>';
+
+                    (m.rows || []).forEach(function (r) {
+                        h += '<tr>';
+                        h += '<td>' + r.serial + '</td>';
+                        h += '<td>' + NK.esc(r.customerName) + '<br>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">' +
+                            NK.esc(r.customerPhone || "") + '</span></td>';
+                        h += '<td class="r">' + NK.inr(r.arrears) + '</td>';
+                        h += '<td class="r">' + NK.inr(r.todayDue) + '</td>';
+                        h += '<td class="r"><b>' + NK.inr(r.netToCollect) + '</b></td>';
+
+                        if (eve) {
+                            h += '<td class="r" style="color:' +
+                                (r.paid ? 'var(--green)' : 'var(--red)') + ';font-weight:700;">' +
+                                (r.paid ? NK.inr(r.collectedAmount) : "—") + '</td>';
+                        }
+
+                        h += '</tr>';
+                    });
+
+                    h += '</tbody></table>';
+
+                    h += '<div style="text-align:right;font-size:12.5px;padding:8px 6px;' +
+                        'color:var(--muted);">মার্কেট মোট: <b style="color:var(--ink);">' +
+                        NK.inr(m.marketDue) + '</b>' +
+                        (eve ? ' · উঠল <b style="color:var(--green);">' +
+                            NK.inr(m.marketCollected) + '</b>' : '') + '</div>';
+                });
+
+                /* OD */
+                if (s.odCustomers && s.odCustomers.length) {
+                    h += '<div class="mkt" style="background:#1F2937;color:#fff;">⛔ OD (' +
+                        s.odCustomers.length + ' জন)</div>';
+
+                    h += '<table><thead><tr>';
+                    h += '<th>নাম</th><th class="r">কত দিন</th><th class="r">বাকি</th>';
+                    h += '</tr></thead><tbody>';
+
+                    s.odCustomers.forEach(function (o) {
+                        h += '<tr>';
+                        h += '<td>' + NK.esc(o.customerName) + '<br>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">' +
+                            NK.esc(o.customerPhone || "") + '</span></td>';
+                        h += '<td class="r">' + o.daysOverdue + '</td>';
+                        h += '<td class="r"><b style="color:var(--red);">' +
+                            NK.inr(o.outstanding) + '</b></td>';
+                        h += '</tr>';
+                    });
+
+                    h += '</tbody></table>';
+                }
+
+                /* মোট */
+                h += '<div class="tot">';
+                h += '<span>মোট নিতে হবে</span>';
+                h += '<span>' + NK.inr(s.totalDue) + '</span>';
+                h += '</div>';
+
+                if (eve) {
+                    h += '<div class="tot" style="border-top:1px solid var(--line);' +
+                        'color:var(--green);">';
+                    h += '<span>মোট উঠল</span>';
+                    h += '<span>' + NK.inr(s.totalCollected) + '</span>';
+                    h += '</div>';
+
+                    if (Number(s.shortfall) > 0) {
+                        h += '<div class="tot" style="border-top:1px solid var(--line);' +
+                            'color:var(--red);">';
+                        h += '<span>কম পড়ল</span>';
+                        h += '<span>' + NK.inr(s.shortfall) + '</span>';
+                        h += '</div>';
+                    }
+                }
+
+                /* সই */
+                h += '<div class="sign">';
+                h += '<div>এজেন্টের সই</div>';
+                h += '<div>ম্যানেজারের সই</div>';
+                h += '</div>';
+
+                h += '</div>';
+
+                q("shBox").innerHTML = h;
+                q("sh_print").style.display = "flex";
+
+            }).catch(function (e) {
+                q("shBox").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("sh_print").style.display = "none";
+            });
+        }
+
+        q("sh_ag").addEventListener("change", showSheet);
+        q("sh_d").addEventListener("change", showSheet);
+
+        Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                shType = b.getAttribute("data-t");
+                showSheet();
+            });
+        });
+
+        q("sh_print").addEventListener("click", function () {
+            window.print();
+        });
+
+
+        /* =====================================================================
+         * গ্রাহক
+         * ===================================================================== */
+        var cTab = "ACTIVE";
+        var cTimer = null;
+
+        function loadCust() {
+            var s = q("cq").value.trim();
+            var path = "/api/customers/list?tab=" + cTab +
+                (s ? "&search=" + encodeURIComponent(s) : "");
+
+            q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET(path).then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                    return;
+                }
+
+                var h = '<div class="list">';
+
+                rows.slice(0, 100).forEach(function (c) {
+                    h += '<div class="item">';
+                    h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                    h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
+                        '<span>' + NK.esc(c.customerCode || "") + ' · ' +
+                        NK.esc(c.phone || "—") + '</span></div>';
+                    h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
+                        '<span style="font-size:11px;color:var(--muted);">' +
+                        NK.esc(c.daysLabel || "") + '</span></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+                q("cList").innerHTML = h;
+
+            }).catch(function (e) {
+                q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                cTab = b.getAttribute("data-t");
+                loadCust();
+            });
+        });
+
+        q("cq").addEventListener("input", function () {
+            clearTimeout(cTimer);
+            cTimer = setTimeout(loadCust, 400);
+        });
+
+
+        /* =====================================================================
+         * OD
+         * ===================================================================== */
+        function loadOd() {
+            q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard/od-customers").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("odList").innerHTML = '<div class="card"><div class="empty">✓ কেউ OD-তে নেই</div></div>';
+                    return;
+                }
+
+                var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
+
+                var h = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
+                    '<div class="n">' + rows.length + ' জন</div>' +
+                    '<div class="a">' + NK.inr(total) + '</div></div>';
+
+                h += '<div class="list" style="margin-top:14px;">';
+
+                rows.slice(0, 150).forEach(function (x) {
+                    h += '<div class="item">';
+                    h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
+                        x.daysOverdue + 'দি</div>';
+                    h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                        '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
+                        NK.esc(x.agentName || "") + '</span></div>';
+                    h += '<div class="end"><b style="color:var(--red);">' +
+                        NK.inrShort(x.outstanding) + '</b></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+                q("odList").innerHTML = h;
+
+            }).catch(function (e) {
+                q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * নোটিফিকেশন
+         * ===================================================================== */
+        function loadNotif() {
+            NK.GET("/api/notifications").then(function (n) {
+                var c = n.totalCount || 0;
+                var d = q("dot");
+                d.textContent = c > 99 ? "99+" : c;
+                d.className = c > 0 ? "dot on" : "dot";
+            }).catch(function () {});
+
+            NK.GET("/api/loan-requests/pending/count").then(function (r) {
+                var c = r.pending || 0;
+                var d = q("rdot");
+                if (c > 0) {
+                    d.textContent = c;
+                    d.style.cssText = "display:flex;position:absolute;top:6px;right:14px;" +
+                        "min-width:16px;height:16px;background:var(--red);color:#fff;" +
+                        "border-radius:8px;font-size:10px;align-items:center;" +
+                        "justify-content:center;font-weight:700;";
+                } else {
+                    d.style.display = "none";
+                }
+            }).catch(function () {});
+        }
+
+        q("bell").addEventListener("click", function () {
+            NK.GET("/api/notifications").then(function (n) {
+                if (!n.items || !n.items.length) {
+                    toast("নতুন কোনো খবর নেই", "in");
+                    return;
+                }
+                n.items.forEach(function (it) {
+                    toast(it.title + " — " + it.message,
+                        it.severity === "URGENT" ? "er" : "in");
+                });
+            });
+        });
+
+
+        /* =====================================================================
+         * শুরু
+         * ===================================================================== */
         NK.boot().then(function (r) {
 
-            /* লগইন করা নেই — নিজে থেকে redirect করব না */
             if (!r.ok || !r.me) {
                 q("gate").style.display = "flex";
                 q("app").remove();
@@ -58,26 +792,26 @@
 
             var u = r.me;
 
-            /* পাসওয়ার্ড বদলাতে হবে */
             if (u.mustChangePassword) {
                 window.location.replace("change-password.html");
                 return;
             }
 
-            /* ভুল পাতায় এসেছে — নিজের পাতায় পাঠাই */
-            if (u.role !== PAGE_ROLE) {
+            if (u.role !== "MANAGER") {
                 window.location.replace(NK.homeFor(u.role));
                 return;
             }
+
             q("gate").remove();
             q("app").style.display = "block";
-            q("hi").textContent = "নমস্কার, " + u.fullName;
-            q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
-        });
+            q("who").textContent = u.fullName + " · ম্যানেজার";
 
-        q("out").addEventListener("click", function () {
-            NK.logout();
-            window.location.replace("login.html");
+            /* অনুরোধের ট্যাবে জায়গা করি */
+            var rt = document.querySelector('.tabs button[data-v="req"]');
+            if (rt) rt.style.position = "relative";
+
+            loadDash();
+            loadNotif();
         });
 
     })();
