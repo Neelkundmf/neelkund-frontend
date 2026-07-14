@@ -4,101 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0F2942">
-    <title>NEELKUND</title>
+    <title>NEELKUND — অ্যাডমিন</title>
 
     <link rel="icon" href="assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/nk.css">
+    <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- লগইন করা নেই -->
-<div id="gate" style="display:none;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;">
-    <div class="card" style="max-width:340px;text-align:center;">
-        <h2>লগইন করা নেই</h2>
-        <p style="color:var(--muted);font-size:14px;">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
-        <a href="login.html" class="btn block">লগইন পাতায় যান</a>
-    </div>
-</div>
-
-<!-- আসল পাতা -->
-<div id="app" style="display:none;padding:20px;">
-    <div class="card">
-        <h1 id="hi">—</h1>
-        <p style="color:var(--muted);font-size:14px;" id="sub">—</p>
-        <button class="btn ghost sm" id="out">লগ আউট</button>
-    </div>
-</div>
-
-<script src="assets/js/nk.js"></script>
-<script>
-    (function () {
-        "use strict";
-
-        /* ⚠️ প্রতিটা ফাইলে এই লাইনটা আলাদা */
-        var PAGE_ROLE = "ADMIN";
-
-        var q = function (id) { return document.getElementById(id); };
-
-        var ROLE_BN = {
-            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
-            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
-        };
-
-        NK.boot().then(function (r) {
-
-            /* লগইন করা নেই — নিজে থেকে redirect করব না */
-            if (!r.ok || !r.me) {
-                q("gate").style.display = "flex";
-                return;
-            }
-
-            var u = r.me;
-
-            /* পাসওয়ার্ড বদলাতে হবে */
-            if (u.mustChangePassword) {
-                window.location.replace("change-password.html");
-                return;
-            }
-
-            /* ভুল পাতায় এসেছে — নিজের পাতায় পাঠাই */
-            if (u.role !== PAGE_ROLE) {
-                window.location.replace(NK.homeFor(u.role));
-                return;
-            }
-
-            q("app").style.display = "block";
-            q("hi").textContent = "নমস্কার, " + u.fullName;
-            q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
-        });
-
-        q("out").addEventListener("click", function () {
-            NK.logout();
-            window.location.replace("login.html");
-        });
-
-    })();
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0F2942">
-    <title>NEELKUND</title>
-
-    <link rel="icon" href="assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/nk.css">
-</head>
-<body>
-
-<div id="toast"></div>
-
-<!-- লগইন করা নেই -->
+<!-- ================= লগইন করা নেই ================= -->
 <div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
         <h2>লগইন করা নেই</h2>
@@ -107,33 +24,287 @@
     </div>
 </div>
 
-<!-- আসল পাতা -->
-<div id="app" style="display:none;padding:20px;">
-    <div class="card">
-        <h1 id="hi">—</h1>
-        <p style="color:var(--muted);font-size:14px;" id="sub">—</p>
-        <button class="btn ghost sm" id="out">লগ আউট</button>
+
+<!-- ================= আসল পাতা ================= -->
+<div id="app" style="display:none;">
+
+    <!-- উপরের বার -->
+    <div class="topbar">
+        <div class="logo"><img src="assets/logo.png" alt=""></div>
+        <div class="ttl">
+            <b id="ttl">ড্যাশবোর্ড</b>
+            <span id="who">—</span>
+        </div>
+        <button class="bell" id="bell">
+            🔔<span class="dot" id="dot">0</span>
+        </button>
+    </div>
+
+    <div class="body">
+
+        <!-- ---------------- ড্যাশবোর্ড ---------------- -->
+        <div class="view on" id="v-dash">
+
+            <!-- ব্রাঞ্চ বাছাই -->
+            <div class="fld" style="margin-bottom:14px;">
+                <select id="br">
+                    <option value="">সব ব্রাঞ্চ</option>
+                </select>
+            </div>
+
+            <div id="dash">
+                <div class="loading">লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+
+        <!-- ---------------- বাকি পাতা (পরে) ---------------- -->
+        <div class="view" id="v-cust">
+            <div class="card"><div class="empty">গ্রাহক — শীঘ্রই</div></div>
+        </div>
+
+        <div class="view" id="v-loan">
+            <div class="card"><div class="empty">লোন — শীঘ্রই</div></div>
+        </div>
+
+        <div class="view" id="v-coll">
+            <div class="card"><div class="empty">কালেকশন — শীঘ্রই</div></div>
+        </div>
+
+        <div class="view" id="v-more">
+            <div class="card"><div class="empty">আরও — নিচের মেনু থেকে বাছুন</div></div>
+        </div>
+
+    </div>
+
+    <!-- নিচের মেনু -->
+    <div class="tabs">
+        <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
+        <button data-v="cust"><i>👤</i>গ্রাহক</button>
+        <button data-v="loan"><i>💳</i>লোন</button>
+        <button data-v="coll"><i>🗓️</i>কালেকশন</button>
+        <button id="moreBtn"><i>⋯</i>আরও</button>
+    </div>
+
+</div>
+
+
+<!-- ================= আরও মেনু ================= -->
+<div id="sheet">
+    <div class="bg" id="sheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>আরও</h3>
+
+        <div class="menu-grid">
+            <button data-go="branch"><i>🏢</i>ব্রাঞ্চ</button>
+            <button data-go="market"><i>🏬</i>মার্কেট</button>
+            <button data-go="team"><i>👥</i>টিম</button>
+            <button data-go="money"><i>🏦</i>ফান্ড</button>
+            <button data-go="expense"><i>💸</i>খরচ</button>
+            <button data-go="salary"><i>💰</i>বেতন</button>
+            <button data-go="od"><i>🚨</i>OD তালিকা</button>
+            <button data-go="stages"><i>🎨</i>ধাপ</button>
+            <button data-go="settings"><i>⚙️</i>সেটিংস</button>
+            <button data-go="perm"><i>🔐</i>পারমিশন</button>
+            <button data-go="access"><i>⏰</i>অ্যাক্সেস</button>
+            <button data-go="import"><i>📥</i>ইম্পোর্ট</button>
+            <button data-go="report"><i>📋</i>রিপোর্ট</button>
+            <button data-go="log"><i>🔑</i>লগইন লগ</button>
+            <button data-go="logout"><i>🚪</i>লগ আউট</button>
+        </div>
     </div>
 </div>
+
 
 <script src="assets/js/nk.js"></script>
 <script>
     (function () {
         "use strict";
 
-        /* ⚠️ প্রতিটা ফাইলে এই লাইনটা আলাদা */
-        var PAGE_ROLE = "ADMIN";
-
         var q = function (id) { return document.getElementById(id); };
 
-        var ROLE_BN = {
-            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
-            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
+        /* ---------------- টোস্ট ---------------- */
+        function toast(m, kind) {
+            var t = document.createElement("div");
+            t.className = "tst " + (kind || "in");
+            t.textContent = m;
+            q("toast").appendChild(t);
+            setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3600);
+        }
+
+        /* ---------------- পাতা বদল ---------------- */
+        var TITLES = {
+            dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন",
+            coll: "কালেকশন", more: "আরও"
         };
 
+        var loaded = {};
+
+        function show(key) {
+            Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
+                v.classList.remove("on");
+            });
+            var v = q("v-" + key);
+            if (v) v.classList.add("on");
+
+            Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function (b) {
+                b.classList.toggle("on", b.getAttribute("data-v") === key);
+            });
+
+            q("ttl").textContent = TITLES[key] || key;
+            window.scrollTo(0, 0);
+
+            if (!loaded[key]) {
+                loaded[key] = true;
+                if (key === "dash") loadDash();
+            }
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
+            b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
+        });
+
+        /* ---------------- আরও মেনু ---------------- */
+        q("moreBtn").addEventListener("click", function () {
+            q("sheet").classList.add("on");
+        });
+        q("sheetBg").addEventListener("click", function () {
+            q("sheet").classList.remove("on");
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) {
+            b.addEventListener("click", function () {
+                var go = b.getAttribute("data-go");
+                q("sheet").classList.remove("on");
+
+                if (go === "logout") {
+                    NK.logout();
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                toast("শীঘ্রই আসছে: " + b.textContent.trim(), "in");
+            });
+        });
+
+        /* ---------------- ড্যাশবোর্ড ---------------- */
+        function st(l, v, tone) {
+            return '<div class="stat"><div class="l">' + NK.esc(l) +
+                '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
+        }
+
+        function loadDash() {
+            var branchId = q("br").value;
+            var path = "/api/dashboard" + (branchId ? "?branchId=" + branchId : "");
+
+            q("dash").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET(path).then(function (d) {
+
+                var html = "";
+
+                /* ---- উপরের সংখ্যা ---- */
+                html += '<div class="stats">';
+                html += st("আজ ওঠার কথা", NK.inrShort(d.todayDue));
+                html += st("আজ উঠেছে", NK.inrShort(d.todayCollected), "g");
+                html += st("চলমান গ্রাহক", d.runningCustomers);
+                html += st("শোধ হয়েছে", d.completedCustomers, "g");
+                html += "</div>";
+
+                /* ---- এই মাস ---- */
+                html += '<div class="card">';
+                html += '<h2 style="margin-bottom:12px;">এই মাস</h2>';
+                html += '<div class="stats" style="margin:0;">';
+                html += st("বিতরণ", NK.inrShort(d.monthDisbursed));
+                html += st("আদায়", NK.inrShort(d.monthCollected), "g");
+                html += st("খরচ", NK.inrShort(d.monthExpenses), "r");
+                html += st("নিট লাভ", NK.inrShort(d.monthNetProfit),
+                    Number(d.monthNetProfit) >= 0 ? "g" : "r");
+                html += "</div></div>";
+
+                /* ---- বিনিয়োগ ---- */
+                if (Number(d.totalCapital) > 0) {
+                    html += '<div class="card">';
+                    html += '<h2 style="margin-bottom:12px;">বিনিয়োগ</h2>';
+                    html += '<div class="stats" style="margin:0;">';
+                    html += st("পার্টনার", NK.inrShort(d.partnerCapital));
+                    html += st("বাইরের", NK.inrShort(d.investorCapital));
+                    html += "</div></div>";
+                }
+
+                /* ---- ৫টা ব্লক ---- */
+                html += '<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>';
+                html += '<div class="blocks">';
+
+                (d.blocks || []).forEach(function (b) {
+                    html += '<div class="blk">';
+                    html += '<div class="amt">' + NK.inr(b.amount) + '</div>';
+                    html += '<div class="row k"><span>চলমান</span><b>' + b.running + '</b></div>';
+                    html += '<div class="row a"><span>দেরি</span><b>' + b.late + '</b></div>';
+                    html += '<div class="row r"><span>OD</span><b>' + b.od + '</b></div>';
+                    html += '<div class="row g"><span>শোধ</span><b>' + b.completed + '</b></div>';
+                    html += '<div class="out">বাকি <b>' + NK.inrShort(b.outstandingAmount) + '</b></div>';
+                    html += "</div>";
+                });
+
+                html += "</div>";
+
+                /* ---- OD বাক্স ---- */
+                html += '<div class="od-box">';
+                html += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন দেয়নি</div>';
+                html += '<div class="n">' + d.totalOdCustomers + ' জন</div>';
+                html += '<div class="a">' + NK.inr(d.totalOdAmount) + ' আটকে আছে</div>';
+                html += "</div>";
+
+                q("dash").innerHTML = html;
+
+            }).catch(function (e) {
+                q("dash").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("br").addEventListener("change", loadDash);
+
+        /* ---------------- ব্রাঞ্চের তালিকা ---------------- */
+        function loadBranches() {
+            NK.GET("/api/branches").then(function (list) {
+                var opts = '<option value="">সব ব্রাঞ্চ</option>';
+                NK.rows(list).forEach(function (b) {
+                    opts += '<option value="' + NK.esc(b.id) + '">' +
+                        NK.esc(b.name) + '</option>';
+                });
+                q("br").innerHTML = opts;
+            }).catch(function () {});
+        }
+
+        /* ---------------- নোটিফিকেশন ---------------- */
+        function loadNotif() {
+            NK.GET("/api/notifications").then(function (n) {
+                var c = n.totalCount || 0;
+                var dot = q("dot");
+                dot.textContent = c > 99 ? "99+" : c;
+                dot.className = c > 0 ? "dot on" : "dot";
+            }).catch(function () {});
+        }
+
+        q("bell").addEventListener("click", function () {
+            NK.GET("/api/notifications").then(function (n) {
+                if (!n.items || !n.items.length) {
+                    toast("নতুন কোনো খবর নেই", "in");
+                    return;
+                }
+                n.items.forEach(function (it) {
+                    toast(it.title + " — " + it.message,
+                        it.severity === "URGENT" ? "er" : "in");
+                });
+            });
+        });
+
+        /* ---------------- শুরু ---------------- */
         NK.boot().then(function (r) {
 
-            /* লগইন করা নেই — নিজে থেকে redirect করব না */
             if (!r.ok || !r.me) {
                 q("gate").style.display = "flex";
                 q("app").remove();
@@ -142,26 +313,23 @@
 
             var u = r.me;
 
-            /* পাসওয়ার্ড বদলাতে হবে */
             if (u.mustChangePassword) {
                 window.location.replace("change-password.html");
                 return;
             }
 
-            /* ভুল পাতায় এসেছে — নিজের পাতায় পাঠাই */
-            if (u.role !== PAGE_ROLE) {
+            if (u.role !== "ADMIN") {
                 window.location.replace(NK.homeFor(u.role));
                 return;
             }
+
             q("gate").remove();
             q("app").style.display = "block";
-            q("hi").textContent = "নমস্কার, " + u.fullName;
-            q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
-        });
+            q("who").textContent = u.fullName + " · অ্যাডমিন";
 
-        q("out").addEventListener("click", function () {
-            NK.logout();
-            window.location.replace("login.html");
+            loadDash();
+            loadBranches();
+            loadNotif();
         });
 
     })();
