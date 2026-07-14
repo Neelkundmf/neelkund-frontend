@@ -258,7 +258,11 @@
                     <span>গ্রাহকের ছবি</span>
                 </div>
                 <div class="msg" id="nMsg"></div>
-
+                <div class="pic-row">
+                    <div class="fld"><label>গ্রাহকের কোড</label><input id="n_code" maxlength="40" placeholder="[অটো] টিপুন"></div>
+                    <button type="button" class="pic-btn" id="n_auto" style="width:auto;padding:0 14px;font-size:13px;font-weight:700;">অটো</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">খালি রাখলে সিস্টেম নিজে বসাবে</div>
                 <div class="fld"><label>পুরো নাম *</label><input id="n_name"></div>
                 <div class="fld"><label>ফোন নম্বর *</label><input id="n_phone" type="tel" inputmode="numeric" maxlength="10"></div>
                 <div class="pic-row">
@@ -275,6 +279,12 @@
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
                 <div class="fld"><label>ঠিকানা</label><input id="n_addr"></div>
+                <div class="fld"><label>ঠিকানা</label><input id="n_addr"></div>
+                <div class="fld">
+                    <label>গ্রাহকের বাড়ি কোথায় (GPS)</label>
+                    <button class="btn ghost block" id="n_gps" type="button">📍 লোকেশন নিন</button>
+                    <div class="hint" id="n_loc">গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন</div>
+                </div>
                 <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="n_fh"></div>
 
                 <div class="fld"><label>জন্মতারিখ</label><input id="n_dob" type="date"></div>
@@ -934,6 +944,67 @@
         q("n_aad").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
+        q("n_aad").addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
+        });
+
+        /* ---- [অটো] বোতাম — পরের কোড এনে বসাই ---- */
+        q("n_auto").addEventListener("click", function () {
+            var b = q("n_auto");
+            b.disabled = true;
+            b.textContent = "...";
+
+            NK.GET("/api/customers/next-code")
+                .then(function (r) {
+                    q("n_code").value = r.customerCode || "";
+                    toast("কোড বসানো হল ✓", "ok");
+                })
+                .catch(function (e) {
+                    toast(e.message, "er");
+                })
+                .then(function () {
+                    b.disabled = false;
+                    b.textContent = "অটো";
+                });
+        });
+
+        /* ---- নতুন গ্রাহকের GPS ---- */
+        var NGPS = null;
+
+        q("n_gps").addEventListener("click", function () {
+            if (!navigator.geolocation) {
+                toast("এই ফোনে GPS নেই", "er");
+                return;
+            }
+
+            var b = q("n_gps");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> খুঁজছি...';
+
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    NGPS = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        acc: pos.coords.accuracy
+                    };
+
+                    q("n_loc").innerHTML = '✓ নেওয়া হয়েছে (' +
+                        NGPS.acc.toFixed(0) + ' মিটার নিখুঁত)';
+                    q("n_loc").style.color = "var(--green)";
+
+                    b.disabled = false;
+                    b.textContent = "📍 আবার নিন";
+                    toast("লোকেশন নেওয়া হল ✓", "ok");
+                },
+                function () {
+                    toast("লোকেশন পাওয়া গেল না — অনুমতি দিন", "er");
+                    b.disabled = false;
+                    b.textContent = "📍 লোকেশন নিন";
+                },
+                { enableHighAccuracy: true, timeout: 12000 }
+            );
+        });
         /* ---- গ্রাহকের ছবি ---- */
         var CPICS = {};
         var picTarget = null;
@@ -1032,6 +1103,9 @@
                 guarantorAddress: q("n_gad").value.trim() || null,
 
                 photoUrl: null,
+                customerCode: q("n_code").value.trim() || null,
+                latitude: NGPS ? NGPS.lat : null,
+                longitude: NGPS ? NGPS.lng : null,
                 agentId: me.userId
             })
                 .then(function (c) {
@@ -1043,11 +1117,15 @@
                     toast("গ্রাহক যোগ হয়েছে", "ok");
 
                     ["n_name","n_phone","n_aad","n_pan","n_addr","n_guar",
-                        "n_fh","n_dob","n_gen","n_perm","n_bad","n_btype","n_gph","n_gad"]
+                        "n_fh","n_dob","n_gen","n_perm","n_bad","n_btype","n_gph","n_gad",
+                        "n_code"]
                         .forEach(function (id) { q(id).value = ""; });
 
-                    resetCPics();
+                    NGPS = null;
+                    q("n_loc").textContent = "গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন";
+                    q("n_loc").style.color = "";
 
+                    resetCPics();
                     loaded.cust = false;
                     loaded.loan = false;
                 })
