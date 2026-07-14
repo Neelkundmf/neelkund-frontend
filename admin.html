@@ -475,7 +475,11 @@
             </div>
 
             <div id="rpBox"><div class="loading">লোড হচ্ছে...</div></div>
-
+            <div class="card">
+                <h2 style="margin-bottom:14px;">মাসিক ডিসবার্সমেন্ট (কমিশন)</h2>
+                <div id="dsBox"><div class="loading">লোড হচ্ছে...</div></div>
+                <button class="btn ghost block" id="dl_disb" style="margin-top:12px;">📥 ডিসবার্সমেন্ট (CSV)</button>
+            </div>
             <div class="card">
                 <h2 style="margin-bottom:14px;">ডাউনলোড</h2>
                 <button class="btn ghost block" id="dl_cust" style="margin-bottom:10px;">📥 সব গ্রাহক (CSV)</button>
@@ -2576,7 +2580,7 @@
         function showReport() {
             var m = q("rp_m").value;
             q("rpBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
-
+            showDisb(m);
             NK.GET("/api/manager/reports/pnl?month=" + m).then(function (d) {
                 var html = '<div class="stats">';
                 html += st("বিতরণ", NK.inrShort(d.disbursed));
@@ -2600,7 +2604,71 @@
         }
 
         q("rp_m").addEventListener("change", showReport);
+        /* ---------------- মাসিক ডিসবার্সমেন্ট (কমিশন) ---------------- */
+        var DISB = null;
 
+        function showDisb(m) {
+            DISB = null;
+            q("dsBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/manager/reports/disbursement?month=" + m).then(function (d) {
+                DISB = d;
+                var list = d.byAgent || [];
+
+                var h = '<div class="stats" style="margin:0 0 12px;">';
+                h += st("মোট বিতরণ", NK.inrShort(d.totalDisbursed));
+                h += st("মোট লোন", (d.totalLoans || 0) + "টি");
+                h += '</div>';
+
+                if (!list.length) {
+                    h += '<div class="empty">এই মাসে কেউ লোন দেয়নি।</div>';
+                    q("dsBox").innerHTML = h;
+                    return;
+                }
+
+                h += '<div class="list">';
+                list.forEach(function (a) {
+                    h += '<div class="item">';
+                    h += '<div class="av">👤</div>';
+                    h += '<div class="mid"><b>' + NK.esc(a.agentName || "—") + '</b>' +
+                        '<span>' + (a.loanCount || 0) + 'টি লোন</span></div>';
+                    h += '<div class="end"><b>' + NK.inrShort(a.totalDisbursed) + '</b></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+
+                q("dsBox").innerHTML = h;
+
+            }).catch(function (e) {
+                q("dsBox").innerHTML = '<div class="empty">' + NK.esc(e.message) + '</div>';
+            });
+        }
+
+        q("dl_disb").addEventListener("click", function () {
+            if (!DISB || !DISB.byAgent || !DISB.byAgent.length) {
+                toast("এই মাসে নামানোর মতো কিছু নেই।", "er");
+                return;
+            }
+
+            var lines = [["এজেন্ট", "লোন সংখ্যা", "মোট বিতরণ"]];
+            DISB.byAgent.forEach(function (a) {
+                lines.push([a.agentName || "", a.loanCount || 0, a.totalDisbursed || 0]);
+            });
+            lines.push(["মোট", DISB.totalLoans || 0, DISB.totalDisbursed || 0]);
+
+            var csv = lines.map(function (r) {
+                return r.map(function (c) {
+                    return '"' + String(c).replace(/"/g, '""') + '"';
+                }).join(",");
+            }).join("\n");
+
+            var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "disbursement-" + (DISB.month || q("rp_m").value) + ".csv";
+            a.click();
+            toast("নামানো হয়েছে ✓", "ok");
+        });
         function download(path, name) {
             toast("নামানো হচ্ছে...", "in");
 
