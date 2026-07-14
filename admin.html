@@ -182,7 +182,10 @@
                 <div class="fld"><label>ব্রাঞ্চ</label><select id="tm_br"><option value="">— নেই —</option></select></div>
                 <div class="fld"><label>এলাকা</label><input id="tm_area"></div>
                 <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
-
+                <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন</div></div>
+                <div class="fld"><label>আধার নম্বর</label><input id="tm_aad" inputmode="numeric" maxlength="12"></div>
+                <div class="fld"><label>প্যান নম্বর</label><input id="tm_pan" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div>
                 <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
             </div>
 
@@ -1305,7 +1308,9 @@
         q("tm_phone").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
-
+        q("tm_aad").addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
+        });
         q("tm_go").addEventListener("click", function () {
             hide("tmMsg");
             var b = q("tm_go");
@@ -1323,9 +1328,9 @@
                 branchId: br ? Number(br) : null,
                 area: q("tm_area").value.trim() || null,
                 monthlySalary: sal ? Number(sal) : null,
-                aadhaar: null,
-                pan: null,
-                joinedDate: null,
+                aadhaar: q("tm_aad").value.trim() || null,
+                pan: q("tm_pan").value.trim().toUpperCase() || null,
+                joinedDate: q("tm_join").value || null,
                 reportsToId: null
             }).then(function () {
                 say("tmMsg", "কর্মী তৈরি হয়েছে ✓ প্রথম লগইনে সে নিজে পাসওয়ার্ড বদলাবে।", true);
@@ -1335,6 +1340,9 @@
                 q("tm_pass").value = "";
                 q("tm_area").value = "";
                 q("tm_sal").value = "";
+                q("tm_code").value = "";
+                q("tm_aad").value = "";
+                q("tm_pan").value = "";
                 loadTeam();
             }).catch(function (e) {
                 say("tmMsg", e.message, false);
@@ -1935,7 +1943,33 @@
                 NK.esc(u.joinedDate || "") + '"></div>';
             html += '<div class="fld"><label>মাসিক বেতন</label><input id="pf_sal" type="number" value="' +
                 NK.esc(u.monthlySalary || "") + '"></div>';
+            html += '<div class="fld"><label>কর্মীর কোড</label><input id="pf_code" maxlength="30" value="' +
+                NK.esc(u.staffCode || "") + '" placeholder="যেমন EMP-001/A"></div>';
 
+            /* KYC ছবি */
+            html += '<div style="margin:18px 0;">';
+            html += '<div style="font-size:13.5px;font-weight:600;margin-bottom:10px;">KYC ছবি</div>';
+            html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">';
+
+            var SD = [
+                ["AADHAAR", "আধার সামনে", u.aadhaarPhotoUrl],
+                ["AADHAAR_BACK", "আধার পিছন", u.aadhaarBackPhotoUrl],
+                ["PAN", "প্যান সামনে", u.panPhotoUrl],
+                ["PAN_BACK", "প্যান পিছন", u.panBackPhotoUrl]
+            ];
+
+            SD.forEach(function (d) {
+                var has = !!d[2];
+                html += '<button data-sdoc="' + d[0] + '" ' +
+                    'style="min-height:64px;padding:8px 4px;border-radius:10px;' +
+                    'border:1.5px solid ' + (has ? 'var(--green)' : 'var(--line)') + ';' +
+                    'background:' + (has ? 'var(--green-soft)' : '#fff') + ';' +
+                    'font-family:inherit;font-size:10px;font-weight:600;' +
+                    'color:' + (has ? 'var(--green)' : 'var(--muted)') + ';cursor:pointer;">' +
+                    (has ? '✓' : '📷') + '<br>' + d[1] + '</button>';
+            });
+
+            html += '</div></div>';
             html += '<button class="btn block" id="pf_save">সংরক্ষণ করুন</button>';
             html += '</div>';
 
@@ -1991,7 +2025,16 @@
                     })
                     .catch(function (e) { toast(e.message, "er"); });
             });
-
+            /* KYC ছবি তোলা */
+            Array.prototype.forEach.call(q("pfBox").querySelectorAll("[data-sdoc]"), function (b) {
+                b.addEventListener("click", function () {
+                    kFor = id;
+                    kType = b.getAttribute("data-sdoc");
+                    kIsStaff = true;
+                    q("kycFile").value = "";
+                    q("kycFile").click();
+                });
+            });
             /* সংরক্ষণ */
             q("pf_save").addEventListener("click", function () {
                 var b = q("pf_save");
@@ -2005,6 +2048,7 @@
                     pan: q("pf_pan").value.trim().toUpperCase() || null,
                     joinedDate: q("pf_join").value || null,
                     monthlySalary: q("pf_sal").value ? Number(q("pf_sal").value) : null,
+                    staffCode: q("pf_code").value.trim() || null,
                     reportsToId: null,
                     branchId: null
                 };
@@ -2054,7 +2098,7 @@
         var kTimer = null;
         var kFor = null;
         var kType = null;
-
+        var kIsStaff = false;
         var DOCS = [
             ["SELFIE", "গ্রাহকের ছবি", "photoUrl"],
             ["AADHAAR", "আধার (সামনে)", "aadhaarPhotoUrl"],
@@ -2404,10 +2448,21 @@
             var fd = new FormData();
             fd.append("file", f);
 
-            NK.UPLOAD("/api/customers/" + kFor + "/document?type=" + kType, fd)
+            var url = kIsStaff
+                ? "/api/admin/users/" + kFor + "/document?type=" + kType
+                : "/api/customers/" + kFor + "/document?type=" + kType;
+
+            NK.UPLOAD(url, fd)
                 .then(function () {
                     toast("ছবি সংরক্ষিত ✓", "ok");
-                    loadKyc();
+                    if (kIsStaff) {
+                        fetchTeam().then(function () {
+                            q("pf_u").dispatchEvent(new Event("change"));
+                        });
+                    } else {
+                        loadKyc();
+                    }
+                    kIsStaff = false;
                 })
                 .catch(function (e) {
                     toast(e.message, "er");
