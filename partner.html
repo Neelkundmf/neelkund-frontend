@@ -4,18 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0F2942">
-    <title>NEELKUND</title>
+    <title>NEELKUND — পার্টনার</title>
 
     <link rel="icon" href="assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/nk.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+
+    <style>
+        /* ---- Growth কার্ড ---- */
+        .gr {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .gr .h {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .gr .h b { font-size: 14px; }
+        .gr .h .pct {
+            font-family: 'Manrope', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        .gr .h .pct.up   { background: var(--green-soft); color: var(--green); }
+        .gr .h .pct.down { background: var(--red-soft);   color: var(--red); }
+        .gr .h .pct.same { background: #EEF2F6;           color: var(--muted); }
+
+        .gr .now {
+            font-family: 'Manrope', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 6px;
+        }
+        .gr .cmp {
+            font-size: 12.5px;
+            color: var(--muted);
+        }
+        .gr .cmp b { color: var(--ink); }
+
+        /* ---- সব মিলিয়ে ---- */
+        .overall {
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 14px;
+            text-align: center;
+            color: #fff;
+        }
+        .overall.GROWTH   { background: linear-gradient(135deg, #16A34A, #0F7A38); }
+        .overall.DEGROWTH { background: linear-gradient(135deg, #E12A1F, #A31A12); }
+        .overall.STABLE   { background: linear-gradient(135deg, #475569, #334155); }
+
+        .overall .lbl { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .overall .sub { font-size: 13px; opacity: .8; }
+
+        /* ---- চার্ট ---- */
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 130px;
+            padding: 10px 0;
+        }
+        .chart .col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .chart .bar {
+            width: 100%;
+            max-width: 30px;
+            border-radius: 5px 5px 0 0;
+            min-height: 3px;
+            transition: height .3s;
+        }
+        .chart .lb {
+            font-size: 9.5px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 11.5px;
+            color: var(--muted);
+        }
+        .legend i {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 3px;
+            margin-right: 4px;
+        }
+    </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- লগইন করা নেই -->
-<div id="gate" style="display:none;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;">
+<div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
         <h2>লগইন করা নেই</h2>
         <p style="color:var(--muted);font-size:14px;">এই পাতা দেখতে হলে আগে লগইন করতে হবে।</p>
@@ -23,33 +125,468 @@
     </div>
 </div>
 
-<!-- আসল পাতা -->
-<div id="app" style="display:none;padding:20px;">
-    <div class="card">
-        <h1 id="hi">—</h1>
-        <p style="color:var(--muted);font-size:14px;" id="sub">—</p>
-        <button class="btn ghost sm" id="out">লগ আউট</button>
+
+<div id="app" style="display:none;">
+
+    <div class="topbar">
+        <div class="logo"><img src="assets/logo.png" alt=""></div>
+        <div class="ttl">
+            <b id="ttl">ড্যাশবোর্ড</b>
+            <span id="who">—</span>
+        </div>
+        <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
     </div>
+
+    <div class="body">
+
+        <!-- ---------------- ড্যাশবোর্ড ---------------- -->
+        <div class="view on" id="v-dash">
+            <div class="fld" style="margin-bottom:14px;">
+                <select id="br"><option value="">সব ব্রাঞ্চ</option></select>
+            </div>
+            <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- অগ্রগতি ---------------- -->
+        <div class="view" id="v-growth">
+
+            <div class="card" style="padding:14px;">
+                <div style="display:flex;gap:8px;">
+                    <div class="fld" style="flex:1;margin:0;">
+                        <label style="font-size:12px;">তারিখ</label>
+                        <input id="g_date" type="date">
+                    </div>
+                    <div class="fld" style="flex:1;margin:0;">
+                        <label style="font-size:12px;">ব্রাঞ্চ</label>
+                        <select id="g_br"><option value="">সব</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chips" id="gtabs">
+                <button data-m="3">৩ মাস</button>
+                <button class="on" data-m="6">৬ মাস</button>
+                <button data-m="12">১২ মাস</button>
+            </div>
+
+            <div id="growth"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- বিনিয়োগ ---------------- -->
+        <div class="view" id="v-money">
+            <div id="fdList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- OD ---------------- -->
+        <div class="view" id="v-od">
+            <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+    </div>
+
+    <div class="tabs">
+        <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
+        <button data-v="growth"><i>📈</i>অগ্রগতি</button>
+        <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
+        <button data-v="od"><i>🚨</i>OD</button>
+        <button id="outBtn"><i>🚪</i>লগ আউট</button>
+    </div>
+
 </div>
+
 
 <script src="assets/js/nk.js"></script>
 <script>
     (function () {
         "use strict";
 
-        /* ⚠️ প্রতিটা ফাইলে এই লাইনটা আলাদা */
-        var PAGE_ROLE = "PARTNER";
-
         var q = function (id) { return document.getElementById(id); };
 
-        var ROLE_BN = {
-            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
-            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
-        };
+        function toast(m, kind) {
+            var t = document.createElement("div");
+            t.className = "tst " + (kind || "in");
+            t.textContent = m;
+            q("toast").appendChild(t);
+            setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3600);
+        }
 
+        function st(l, v, tone) {
+            return '<div class="stat"><div class="l">' + NK.esc(l) +
+                '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
+        }
+
+        var TITLES = { dash: "ড্যাশবোর্ড", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var loaded = {};
+
+        function show(key) {
+            Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
+                v.classList.remove("on");
+            });
+            q("v-" + key).classList.add("on");
+
+            Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function (b) {
+                b.classList.toggle("on", b.getAttribute("data-v") === key);
+            });
+
+            q("ttl").textContent = TITLES[key];
+            window.scrollTo(0, 0);
+
+            if (!loaded[key]) {
+                loaded[key] = true;
+                if (key === "dash")   loadDash();
+                if (key === "growth") loadGrowth();
+                if (key === "money")  loadMoney();
+                if (key === "od")     loadOd();
+            }
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
+            b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
+        });
+
+        q("outBtn").addEventListener("click", function () {
+            NK.logout();
+            window.location.replace("login.html");
+        });
+
+
+        /* =====================================================================
+         * ড্যাশবোর্ড
+         * ===================================================================== */
+        function loadDash() {
+            var b = q("br").value;
+            q("dash").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard" + (b ? "?branchId=" + b : "")).then(function (d) {
+                var h = "";
+
+                h += '<div class="stats">';
+                h += st("আজ ওঠার কথা", NK.inrShort(d.todayDue));
+                h += st("আজ উঠেছে", NK.inrShort(d.todayCollected), "g");
+                h += st("চলমান গ্রাহক", d.runningCustomers);
+                h += st("শোধ হয়েছে", d.completedCustomers, "g");
+                h += '</div>';
+
+                h += '<div class="card"><h2 style="margin-bottom:12px;">এই মাস</h2>';
+                h += '<div class="stats" style="margin:0;">';
+                h += st("বিতরণ", NK.inrShort(d.monthDisbursed));
+                h += st("আদায়", NK.inrShort(d.monthCollected), "g");
+                h += st("খরচ", NK.inrShort(d.monthExpenses), "r");
+                h += st("নিট লাভ", NK.inrShort(d.monthNetProfit),
+                    Number(d.monthNetProfit) >= 0 ? "g" : "r");
+                h += '</div></div>';
+
+                h += '<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>';
+                h += '<div class="blocks">';
+
+                (d.blocks || []).forEach(function (x) {
+                    h += '<div class="blk">';
+                    h += '<div class="amt">' + NK.inr(x.amount) + '</div>';
+                    h += '<div class="row k"><span>চলমান</span><b>' + x.running + '</b></div>';
+                    h += '<div class="row a"><span>দেরি</span><b>' + x.late + '</b></div>';
+                    h += '<div class="row r"><span>OD</span><b>' + x.od + '</b></div>';
+                    h += '<div class="row g"><span>শোধ</span><b>' + x.completed + '</b></div>';
+                    h += '<div class="out">বাকি <b>' + NK.inrShort(x.outstandingAmount) + '</b></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+
+                h += '<div class="od-box">';
+                h += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন দেয়নি</div>';
+                h += '<div class="n">' + d.totalOdCustomers + ' জন</div>';
+                h += '<div class="a">' + NK.inr(d.totalOdAmount) + ' আটকে আছে</div>';
+                h += '</div>';
+
+                q("dash").innerHTML = h;
+
+            }).catch(function (e) {
+                q("dash").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("br").addEventListener("change", loadDash);
+
+
+        /* =====================================================================
+         * অগ্রগতি
+         * ===================================================================== */
+        var gMonths = 6;
+
+        function pctBox(m) {
+            var dir = m.direction;
+            var cls = dir === "UP" ? "up" : dir === "DOWN" ? "down" : "same";
+            var arw = dir === "UP" ? "↑" : dir === "DOWN" ? "↓" : "→";
+
+            /* ভালো না খারাপ — রঙ ঠিক করি */
+            if (!m.isGood && dir !== "SAME") cls = (dir === "UP") ? "down" : "up";
+            if (m.isGood && dir !== "SAME")  cls = "up";
+
+            return '<span class="pct ' + cls + '">' + arw + ' ' +
+                Math.abs(Number(m.changePercent)).toFixed(1) + '%</span>';
+        }
+
+        function metricCard(title, m, isMoney) {
+            var fmt = isMoney ? NK.inrShort : function (x) { return x; };
+
+            var h = '<div class="gr">';
+            h += '<div class="h"><b>' + title + '</b>' + pctBox(m) + '</div>';
+            h += '<div class="now">' + fmt(m.current) + '</div>';
+            h += '<div class="cmp">গত মাসের একই দিনে <b>' + fmt(m.previous) + '</b> · ' +
+                (Number(m.changeAmount) >= 0 ? '+' : '') + fmt(m.changeAmount) + '</div>';
+            h += '</div>';
+
+            return h;
+        }
+
+        function loadGrowth() {
+            var d = q("g_date").value;
+            var b = q("g_br").value;
+
+            var path = "/api/dashboard/growth?months=" + gMonths +
+                (d ? "&date=" + d : "") +
+                (b ? "&branchId=" + b : "");
+
+            q("growth").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET(path).then(function (g) {
+                var h = "";
+
+                /* সব মিলিয়ে */
+                h += '<div class="overall ' + g.overall + '">';
+                h += '<div class="lbl">' + NK.esc(g.overallLabel) + '</div>';
+                h += '<div class="sub">' + g.dayOfMonth + ' তারিখ পর্যন্ত · গত মাসের সঙ্গে তুলনা</div>';
+                h += '</div>';
+
+                /* সূচক */
+                h += metricCard("💰 কালেকশন", g.collection, true);
+                h += metricCard("💳 ডিসবার্সমেন্ট", g.disbursement, true);
+                h += metricCard("📊 নিট লাভ", g.netProfit, true);
+
+                /* OD — আলাদা */
+                var od = g.od;
+                var odCls = od.changeCount > 0 ? "down" : od.changeCount < 0 ? "up" : "same";
+                var odArw = od.changeCount > 0 ? "↑" : od.changeCount < 0 ? "↓" : "→";
+
+                h += '<div class="gr">';
+                h += '<div class="h"><b>⛔ OD</b><span class="pct ' + odCls + '">' +
+                    odArw + ' ' + Math.abs(od.changeCount) + ' জন</span></div>';
+                h += '<div class="now">' + od.currentCount + ' জন</div>';
+                h += '<div class="cmp">গত মাসে <b>' + od.previousCount + ' জন</b> · ' +
+                    NK.inrShort(od.currentAmount) + ' আটকে</div>';
+
+                h += '<div style="display:flex;gap:10px;margin-top:12px;padding-top:12px;' +
+                    'border-top:1px solid var(--line);">';
+                h += '<div style="flex:1;"><div style="font-size:11.5px;color:var(--muted);">নতুন OD</div>' +
+                    '<b style="color:var(--red);font-size:16px;">+' + od.newOd + '</b></div>';
+                h += '<div style="flex:1;"><div style="font-size:11.5px;color:var(--muted);">বেরিয়ে এল</div>' +
+                    '<b style="color:var(--green);font-size:16px;">−' + od.recovered + '</b></div>';
+                h += '</div>';
+
+                h += '</div>';
+
+                /* চার্ট */
+                var t = g.trend || [];
+
+                if (t.length) {
+                    var maxC = Math.max.apply(null, t.map(function (x) { return Number(x.collected); }));
+                    var maxD = Math.max.apply(null, t.map(function (x) { return Number(x.disbursed); }));
+                    var mx = Math.max(maxC, maxD, 1);
+
+                    h += '<div class="card">';
+                    h += '<h2 style="margin-bottom:8px;">কালেকশন vs ডিসবার্স</h2>';
+                    h += '<div class="chart">';
+
+                    t.forEach(function (p) {
+                        var hc = (Number(p.collected) / mx * 100).toFixed(0);
+                        var hd = (Number(p.disbursed) / mx * 100).toFixed(0);
+
+                        h += '<div class="col">';
+                        h += '<div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:100%;">';
+                        h += '<div class="bar" style="height:' + hc + '%;background:var(--green);"></div>';
+                        h += '<div class="bar" style="height:' + hd + '%;background:var(--blue);"></div>';
+                        h += '</div>';
+                        h += '<div class="lb">' + NK.esc(p.label) + '</div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                    h += '<div class="legend">';
+                    h += '<span><i style="background:var(--green);"></i>কালেকশন</span>';
+                    h += '<span><i style="background:var(--blue);"></i>ডিসবার্স</span>';
+                    h += '</div>';
+                    h += '</div>';
+
+                    /* OD চার্ট */
+                    var maxOd = Math.max.apply(null, t.map(function (x) { return x.odCustomers; }));
+                    maxOd = Math.max(maxOd, 1);
+
+                    h += '<div class="card">';
+                    h += '<h2 style="margin-bottom:8px;">OD গ্রাহক</h2>';
+                    h += '<div class="chart">';
+
+                    t.forEach(function (p) {
+                        var ho = (p.odCustomers / maxOd * 100).toFixed(0);
+
+                        h += '<div class="col">';
+                        h += '<div class="bar" style="height:' + ho + '%;background:#1F2937;"></div>';
+                        h += '<div class="lb">' + NK.esc(p.label) + '</div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div></div>';
+                }
+
+                q("growth").innerHTML = h;
+
+            }).catch(function (e) {
+                q("growth").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#gtabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#gtabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                gMonths = Number(b.getAttribute("data-m"));
+                loadGrowth();
+            });
+        });
+
+        q("g_date").addEventListener("change", loadGrowth);
+        q("g_br").addEventListener("change", loadGrowth);
+
+
+        /* =====================================================================
+         * বিনিয়োগ
+         * ===================================================================== */
+        function loadMoney() {
+            q("fdList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/funds/branches").then(function (d) {
+                var h = '<div class="stats">';
+                h += st("পার্টনার", NK.inrShort(d.totalPartnerCapital));
+                h += st("বাইরের", NK.inrShort(d.totalInvestorCapital));
+                h += st("তোলা", NK.inrShort(d.totalWithdrawn), "r");
+                h += st("নিট পুঁজি", NK.inrShort(d.netCapital), "g");
+                h += '</div>';
+
+                if (d.branches && d.branches.length) {
+                    h += '<h2 style="margin:16px 0 10px;">ব্রাঞ্চ অনুযায়ী</h2>';
+                    h += '<div class="list">';
+
+                    d.branches.forEach(function (b) {
+                        h += '<div class="item">';
+                        h += '<div class="av">' + NK.esc(b.branchCode || "?") + '</div>';
+                        h += '<div class="mid"><b>' + NK.esc(b.branchName) + '</b>' +
+                            '<span>এল ' + NK.inrShort(b.received) +
+                            ' · লোনে ' + NK.inrShort(b.disbursed) + '</span></div>';
+                        h += '<div class="end"><b>' + NK.inrShort(b.cashInHand) + '</b>' +
+                            '<span style="font-size:11px;color:var(--muted);">হাতে</span></div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                }
+
+                q("fdList").innerHTML = h;
+
+            }).catch(function (e) {
+                q("fdList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * OD
+         * ===================================================================== */
+        function loadOd() {
+            q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard/od-customers").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("odList").innerHTML = '<div class="card"><div class="empty">✓ কেউ OD-তে নেই</div></div>';
+                    return;
+                }
+
+                var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
+
+                var h = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
+                    '<div class="n">' + rows.length + ' জন</div>' +
+                    '<div class="a">' + NK.inr(total) + '</div></div>';
+
+                h += '<div class="list" style="margin-top:14px;">';
+
+                rows.slice(0, 150).forEach(function (x) {
+                    h += '<div class="item">';
+                    h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
+                        x.daysOverdue + 'দি</div>';
+                    h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                        '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
+                        NK.esc(x.agentName || "") + '</span></div>';
+                    h += '<div class="end"><b style="color:var(--red);">' +
+                        NK.inrShort(x.outstanding) + '</b></div>';
+                    h += '</div>';
+                });
+
+                h += '</div>';
+                q("odList").innerHTML = h;
+
+            }).catch(function (e) {
+                q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * ব্রাঞ্চ ও নোটিফিকেশন
+         * ===================================================================== */
+        function loadBranches() {
+            NK.GET("/api/branches").then(function (list) {
+                var o = '<option value="">সব ব্রাঞ্চ</option>';
+                NK.rows(list).forEach(function (b) {
+                    o += '<option value="' + NK.esc(b.id) + '">' + NK.esc(b.name) + '</option>';
+                });
+                q("br").innerHTML = o;
+                q("g_br").innerHTML = o;
+            }).catch(function () {});
+        }
+
+        function loadNotif() {
+            NK.GET("/api/notifications").then(function (n) {
+                var c = n.totalCount || 0;
+                var d = q("dot");
+                d.textContent = c > 99 ? "99+" : c;
+                d.className = c > 0 ? "dot on" : "dot";
+            }).catch(function () {});
+        }
+
+        q("bell").addEventListener("click", function () {
+            NK.GET("/api/notifications").then(function (n) {
+                if (!n.items || !n.items.length) {
+                    toast("নতুন কোনো খবর নেই", "in");
+                    return;
+                }
+                n.items.forEach(function (it) {
+                    toast(it.title + " — " + it.message,
+                        it.severity === "URGENT" ? "er" : "in");
+                });
+            });
+        });
+
+
+        /* =====================================================================
+         * শুরু
+         * ===================================================================== */
         NK.boot().then(function (r) {
 
-            /* লগইন করা নেই — নিজে থেকে redirect করব না */
             if (!r.ok || !r.me) {
                 q("gate").style.display = "flex";
                 q("app").remove();
@@ -58,27 +595,31 @@
 
             var u = r.me;
 
-            /* পাসওয়ার্ড বদলাতে হবে */
             if (u.mustChangePassword) {
                 window.location.replace("change-password.html");
                 return;
             }
 
-            /* ভুল পাতায় এসেছে — নিজের পাতায় পাঠাই */
-            if (u.role !== PAGE_ROLE) {
+            if (u.role !== "PARTNER") {
                 window.location.replace(NK.homeFor(u.role));
                 return;
             }
+
             q("gate").remove();
             q("app").style.display = "block";
-            q("hi").textContent = "নমস্কার, " + u.fullName;
-            q("sub").textContent = ROLE_BN[u.role] + " · এই পাতা শীঘ্রই তৈরি হবে";
+            q("who").textContent = u.fullName + " · পার্টনার";
+
+            loadDash();
+            loadBranches();
+            loadNotif();
         });
 
-        q("out").addEventListener("click", function () {
+        /* ---- ১ ঘন্টা পর নিজে থেকেই লগআউট ---- */
+        setTimeout(function () {
             NK.logout();
+            alert("১ ঘন্টা হয়ে গেছে — আবার লগইন করুন");
             window.location.replace("login.html");
-        });
+        }, 60 * 60 * 1000);
 
     })();
 </script>
