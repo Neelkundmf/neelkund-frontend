@@ -294,7 +294,41 @@
         if (Array.isArray(r)) return r;
         return r.content || r.items || [];
     }
+    /* ---------------- ব্যাকগ্রাউন্ডে গেলে ঝাপসা ---------------- */
 
+    function initPrivacy() {
+        if (document.getElementById("nk-privacy")) return;
+
+        var d = document.createElement("div");
+        d.id = "nk-privacy";
+        d.style.cssText =
+            "position:fixed;inset:0;z-index:99999;display:none;" +
+            "align-items:center;justify-content:center;flex-direction:column;gap:12px;" +
+            "background:rgba(15,41,66,.6);" +
+            "backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);" +
+            "color:#fff;font-family:'Hind Siliguri',sans-serif;" +
+            "font-size:15px;font-weight:600;letter-spacing:.5px;";
+        d.innerHTML = '<div style="font-size:38px;">🔒</div><div>NEELKUND</div>';
+
+        document.body.appendChild(d);
+
+        function showIt() { d.style.display = "flex"; }
+        function hideIt() { d.style.display = "none"; }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") showIt();
+            else hideIt();
+        });
+
+        window.addEventListener("pagehide", showIt);
+        window.addEventListener("pageshow", hideIt);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initPrivacy);
+    } else {
+        initPrivacy();
+    }
     /* ---------------- বাইরে যা দেব ---------------- */
 
     window.NK = {
