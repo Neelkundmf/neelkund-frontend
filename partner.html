@@ -606,6 +606,49 @@
         /* =====================================================================
          * OD
          * ===================================================================== */
+        var odShow = 50;
+        var ODR = [];
+        function drawOd() {
+            var rows = ODR;
+            var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
+
+            var h = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
+                '<div class="n">' + rows.length + ' জন</div>' +
+                '<div class="a">' + NK.inr(total) + '</div></div>';
+
+            h += '<div class="list" style="margin-top:14px;">';
+
+            rows.slice(0, odShow).forEach(function (x) {
+                h += '<div class="item" data-cust="' + NK.esc(x.customerId) + '">';
+                h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
+                    x.daysOverdue + 'দি</div>';
+                h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                    '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
+                    NK.esc(x.agentName || "") + '</span></div>';
+                h += '<div class="end"><b style="color:var(--red);">' +
+                    NK.inrShort(x.outstanding) + '</b></div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+
+            if (rows.length > odShow) {
+                h += '<button class="btn ghost block" id="odMore" ' +
+                    'style="margin-top:12px;">আরও দেখুন (' +
+                    (rows.length - odShow) + ' জন বাকি)</button>';
+            }
+
+            q("odList").innerHTML = h;
+
+            if (q("odMore")) {
+                q("odMore").addEventListener("click", function () {
+                    odShow += 50;
+                    drawOd();
+                });
+            }
+
+            bindCust();
+        }
         function loadOd() {
             q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
@@ -619,27 +662,9 @@
 
                 var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
 
-                var h = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
-                    '<div class="n">' + rows.length + ' জন</div>' +
-                    '<div class="a">' + NK.inr(total) + '</div></div>';
-
-                h += '<div class="list" style="margin-top:14px;">';
-
-                rows.slice(0, 150).forEach(function (x) {
-                    h += '<div class="item" data-cust="' + NK.esc(x.customerId) + '">';
-                    h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
-                        x.daysOverdue + 'দি</div>';
-                    h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                        '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
-                        NK.esc(x.agentName || "") + '</span></div>';
-                    h += '<div class="end"><b style="color:var(--red);">' +
-                        NK.inrShort(x.outstanding) + '</b></div>';
-                    h += '</div>';
-                });
-
-                h += '</div>';
-                q("odList").innerHTML = h;
-                bindCust();
+                ODR = rows;
+                odShow = 50;
+                drawOd();
             }).catch(function (e) {
                 q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });

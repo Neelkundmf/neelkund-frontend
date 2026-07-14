@@ -653,6 +653,8 @@
          * গ্রাহক
          * ===================================================================== */
         var cTab = "ACTIVE";
+        var cShow = 50;
+        var MYC = [];
         var cTimer = null;
 
         function loadCust() {
@@ -670,28 +672,48 @@
                     return;
                 }
 
-                var h = '<div class="list">';
-
-                rows.slice(0, 100).forEach(function (c) {
-                    h += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
-                    h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                    h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
-                        '<span>' + NK.esc(c.customerCode || "") + ' · ' +
-                        NK.esc(c.phone || "—") + '</span></div>';
-                    h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                        '<span style="font-size:11px;color:var(--muted);">' +
-                        NK.esc(c.daysLabel || "") + '</span></div>';
-                    h += '</div>';
-                });
-
-                h += '</div>';
-                q("cList").innerHTML = h;
-                bindCust();
+                MYC = rows;
+                drawCust();
             }).catch(function (e) {
                 q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+        function drawCust() {
+            var rows = MYC;
 
+            var h = '<div class="list">';
+
+            rows.slice(0, cShow).forEach(function (c) {
+                h += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
+                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
+                    '<span>' + NK.esc(c.customerCode || "") + ' · ' +
+                    NK.esc(c.phone || "—") + '</span></div>';
+                h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
+                    '<span style="font-size:11px;color:var(--muted);">' +
+                    NK.esc(c.daysLabel || "") + '</span></div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+
+            if (rows.length > cShow) {
+                h += '<button class="btn ghost block" id="cMore" ' +
+                    'style="margin-top:12px;">আরও দেখুন (' +
+                    (rows.length - cShow) + ' জন বাকি)</button>';
+            }
+
+            q("cList").innerHTML = h;
+
+            if (q("cMore")) {
+                q("cMore").addEventListener("click", function () {
+                    cShow += 50;
+                    drawCust();
+                });
+            }
+
+            bindCust();
+        }
         Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
             b.addEventListener("click", function () {
                 Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
@@ -699,12 +721,14 @@
                 });
                 b.classList.add("on");
                 cTab = b.getAttribute("data-t");
+                cShow = 50;
                 loadCust();
             });
         });
 
         q("cq").addEventListener("input", function () {
             clearTimeout(cTimer);
+            cShow = 50;
             cTimer = setTimeout(loadCust, 400);
         });
 
