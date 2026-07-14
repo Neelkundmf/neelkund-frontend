@@ -477,3 +477,133 @@ body {
     .body { padding: 24px; }
     .menu-grid { grid-template-columns: repeat(6, 1fr); }
 }
+/* =========================================================================
+   ফান্ডের জীবন্ত বাক্স
+   ========================================================================= */
+
+.fund {
+    background: linear-gradient(135deg, #0F2942, #1B3B5C);
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+}
+
+.fund .t {
+    font-size: 12.5px;
+    color: rgba(255,255,255,.6);
+    margin-bottom: 4px;
+}
+
+.fund .big {
+    font-family: 'Manrope', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+}
+
+.fund .tick {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 8px;
+    background: #22C55E;
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+    vertical-align: middle;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .35; transform: scale(.8); }
+}
+
+.fund .split {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,.14);
+}
+.fund .split > div { flex: 1; }
+.fund .split .l {
+    font-size: 11.5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 3px;
+}
+.fund .split .v {
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+.fund .split .v.g { color: #4ADE80; }
+.fund .split .v.r { color: #FCA5A5; }
+
+/* ---- সব ফেরত এলে — বার ---- */
+.proj {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.proj .hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+.proj .hd b { font-size: 14px; }
+.proj .hd .n {
+    font-family: 'Manrope', sans-serif;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--green);
+}
+
+.proj .bar {
+    height: 24px;
+    background: var(--paper);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 10px;
+}
+.proj .bar i {
+    display: block;
+    height: 100%;
+    transition: width .5s;
+}
+.proj .bar .cash { background: #16A34A; }
+.proj .bar .good { background: #60A5FA; }
+.proj .bar .od   { background: #1F2937; }
+
+.proj .lg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 11.5px;
+    color: var(--muted);
+}
+.proj .lg span i {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    margin-right: 4px;
+}
+
+.proj .gain {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+.proj .gain b {
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--green);
+}
