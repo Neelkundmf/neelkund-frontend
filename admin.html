@@ -841,6 +841,7 @@
            * ===================================================================== */
 
         var cTab = "ACTIVE";
+        var cShow = 50;
         var cTimer = null;
 
         var FLAG_BN = {
@@ -865,7 +866,9 @@
 
                 var html = '<div class="list">';
 
-                rows.slice(0, 100).forEach(function (c) {
+                CUST_ROWS = rows;
+
+                rows.slice(0, cShow).forEach(function (c) {
                     var f = FLAG_BN[c.flag] || ["—", "n"];
 
                     html += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
@@ -887,13 +890,19 @@
 
                 html += '</div>';
 
-                if (rows.length > 100) {
-                    html += '<div class="empty">মোট ' + rows.length +
-                        ' জন · প্রথম ১০০ দেখানো হচ্ছে</div>';
+                if (rows.length > cShow) {
+                    html += '<button class="btn ghost block" id="cMore" ' +
+                        'style="margin-top:12px;">আরও দেখুন (' +
+                        (rows.length - cShow) + ' জন বাকি)</button>';
                 }
 
                 q("cList").innerHTML = html;
-
+                if (q("cMore")) {
+                    q("cMore").addEventListener("click", function () {
+                        cShow += 50;
+                        drawCust();
+                    });
+                }
                 Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
                     el.addEventListener("click", function () {
                         openCustomer(el.getAttribute("data-cust"));
@@ -913,12 +922,63 @@
                 });
                 b.classList.add("on");
                 cTab = b.getAttribute("data-t");
+                cShow = 50;
                 loadCust();
             });
         });
+        var CUST_ROWS = [];
 
+        function drawCust() {
+            var rows = CUST_ROWS;
+
+            var html = '<div class="list">';
+
+            rows.slice(0, cShow).forEach(function (c) {
+                var f = FLAG_BN[c.flag] || ["—", "n"];
+
+                html += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
+                html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+
+                html += '<div class="mid">';
+                html += '<b>' + NK.esc(c.fullName) + '</b>';
+                html += '<span>' + NK.esc(c.customerCode || "") + ' · ' +
+                    NK.esc(c.phone || "—") + '</span>';
+                html += '</div>';
+
+                html += '<div class="end">';
+                html += '<b>' + NK.inrShort(c.outstanding) + '</b>';
+                html += '<span class="b ' + f[1] + '">' + NK.esc(c.daysLabel || f[0]) + '</span>';
+                html += '</div>';
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+
+            if (rows.length > cShow) {
+                html += '<button class="btn ghost block" id="cMore" ' +
+                    'style="margin-top:12px;">আরও দেখুন (' +
+                    (rows.length - cShow) + ' জন বাকি)</button>';
+            }
+
+            q("cList").innerHTML = html;
+
+            if (q("cMore")) {
+                q("cMore").addEventListener("click", function () {
+                    cShow += 50;
+                    drawCust();
+                });
+            }
+
+            Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
+                el.addEventListener("click", function () {
+                    openCustomer(el.getAttribute("data-cust"));
+                });
+            });
+        }
         q("cq").addEventListener("input", function () {
             clearTimeout(cTimer);
+            cShow = 50;
             cTimer = setTimeout(loadCust, 400);
         });
 
