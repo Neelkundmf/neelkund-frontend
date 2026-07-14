@@ -197,6 +197,7 @@
 
 <div id="toast"></div>
 <input type="file" id="picFile" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="picFile" accept="image/*" capture="environment" style="display:none;">
 
 <div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
@@ -253,14 +254,54 @@
         <div class="view" id="v-new">
             <div class="card">
                 <h2 style="margin-bottom:14px;">নতুন গ্রাহক</h2>
+                <div class="avatar-pick">
+                    <div class="av" id="np_selfie">👤</div>
+                    <span>গ্রাহকের ছবি</span>
+                </div>
                 <div class="msg" id="nMsg"></div>
 
                 <div class="fld"><label>পুরো নাম *</label><input id="n_name"></div>
                 <div class="fld"><label>ফোন নম্বর *</label><input id="n_phone" type="tel" inputmode="numeric" maxlength="10"></div>
-                <div class="fld"><label>আধার নম্বর *</label><input id="n_aad" inputmode="numeric" maxlength="12"></div>
-                <div class="fld"><label>প্যান নম্বর</label><input id="n_pan" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="pic-row">
+                    <div class="fld"><label>আধার নম্বর *</label><input id="n_aad" inputmode="numeric" maxlength="12"></div>
+                    <button type="button" class="pic-btn req" id="np_aad">📷</button>
+                    <button type="button" class="pic-btn req" id="np_aadb">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">আধারের ছবি — সামনে ও পিছন</div>
+
+                <div class="pic-row">
+                    <div class="fld"><label>প্যান নম্বর</label><input id="n_pan" maxlength="10" style="text-transform:uppercase"></div>
+                    <button type="button" class="pic-btn" id="np_pan">📷</button>
+                    <button type="button" class="pic-btn" id="np_panb">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
                 <div class="fld"><label>ঠিকানা</label><input id="n_addr"></div>
-                <div class="fld"><label>জামিনদারের নাম</label><input id="n_guar"></div>
+                <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="n_fh"></div>
+
+                <div class="fld"><label>জন্মতারিখ</label><input id="n_dob" type="date"></div>
+
+                <div class="fld"><label>লিঙ্গ</label>
+                    <select id="n_gen">
+                        <option value="">— বাছুন —</option>
+                        <option value="MALE">পুরুষ</option>
+                        <option value="FEMALE">মহিলা</option>
+                        <option value="OTHER">অন্য</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>স্থায়ী ঠিকানা</label><input id="n_perm"></div>
+                <div class="fld"><label>ব্যবসার ঠিকানা</label><input id="n_bad"></div>
+                <div class="fld"><label>ব্যবসার ধরন</label><input id="n_btype" placeholder="যেমন সবজি বিক্রি"></div>
+
+                <h3 style="margin:18px 0 12px;">জামিনদার</h3>
+
+                <div class="pic-row">
+                    <div class="fld"><label>নাম</label><input id="n_guar"></div>
+                    <button type="button" class="pic-btn" id="np_guar">📷</button>
+                </div>
+
+                <div class="fld"><label>ফোন</label><input id="n_gph" type="tel" inputmode="numeric" maxlength="10"></div>
+                <div class="fld"><label>ঠিকানা</label><input id="n_gad"></div>
 
                 <button class="btn block" id="n_go">গ্রাহক যোগ করুন</button>
             </div>
@@ -769,7 +810,76 @@
         q("n_aad").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
+        /* ---- গ্রাহকের ছবি ---- */
+        var CPICS = {};
+        var picTarget = null;
 
+        function bindPic(btnId, type) {
+            q(btnId).addEventListener("click", function () {
+                picTarget = { btn: btnId, type: type };
+                q("picFile").value = "";
+                q("picFile").click();
+            });
+        }
+
+        bindPic("np_selfie", "SELFIE");
+        bindPic("np_aad",    "AADHAAR");
+        bindPic("np_aadb",   "AADHAAR_BACK");
+        bindPic("np_pan",    "PAN");
+        bindPic("np_panb",   "PAN_BACK");
+        bindPic("np_guar",   "GUARANTOR");
+
+        q("picFile").addEventListener("change", function () {
+            var f = this.files[0];
+            if (!f || !picTarget) return;
+
+            if (f.size > 5 * 1024 * 1024) {
+                toast("ছবি ৫MB-র কম হতে হবে", "er");
+                return;
+            }
+
+            CPICS[picTarget.type] = f;
+
+            var el = q(picTarget.btn);
+            var img = document.createElement("img");
+            img.src = URL.createObjectURL(f);
+
+            el.innerHTML = "";
+            el.appendChild(img);
+            el.classList.add("has");
+            el.classList.remove("req");
+        });
+
+        function uploadCustPics(custId) {
+            var types = Object.keys(CPICS);
+            if (!types.length) return Promise.resolve();
+
+            var jobs = types.map(function (t) {
+                var fd = new FormData();
+                fd.append("file", CPICS[t]);
+                return NK.UPLOAD("/api/customers/" + custId + "/document?type=" + t, fd);
+            });
+
+            return Promise.all(jobs);
+        }
+
+        function resetCPics() {
+            CPICS = {};
+
+            ["np_selfie", "np_aad", "np_aadb", "np_pan", "np_panb", "np_guar"]
+                .forEach(function (id) {
+                    var el = q(id);
+                    el.innerHTML = (id === "np_selfie") ? "👤" : "📷";
+                    el.classList.remove("has");
+                });
+
+            q("np_aad").classList.add("req");
+            q("np_aadb").classList.add("req");
+        }
+
+        q("n_gph").addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+        });
         q("n_go").addEventListener("click", function () {
             hide("nMsg");
 
@@ -778,6 +888,8 @@
             b.disabled = true;
             b.innerHTML = '<span class="spin"></span> যোগ হচ্ছে...';
 
+            var newId = null;
+
             NK.POST("/api/customers", {
                 fullName: q("n_name").value.trim(),
                 phone: q("n_phone").value.trim(),
@@ -785,19 +897,32 @@
                 pan: q("n_pan").value.trim().toUpperCase() || null,
                 address: q("n_addr").value.trim() || null,
                 guarantorName: q("n_guar").value.trim() || null,
+
+                fatherOrHusband: q("n_fh").value.trim() || null,
+                dateOfBirth: q("n_dob").value || null,
+                gender: q("n_gen").value || null,
+                permanentAddress: q("n_perm").value.trim() || null,
+                businessAddress: q("n_bad").value.trim() || null,
+                businessType: q("n_btype").value.trim() || null,
+                guarantorPhone: q("n_gph").value.trim() || null,
+                guarantorAddress: q("n_gad").value.trim() || null,
+
                 photoUrl: null,
                 agentId: me.userId
             })
                 .then(function (c) {
-                    say("nMsg", "গ্রাহক যোগ হয়েছে ✓ আইডি: " + (c.customerCode || c.id), true);
+                    newId = c.customerCode || c.id;
+                    return uploadCustPics(c.id);
+                })
+                .then(function () {
+                    say("nMsg", "গ্রাহক যোগ হয়েছে ✓ আইডি: " + newId, true);
                     toast("গ্রাহক যোগ হয়েছে", "ok");
 
-                    q("n_name").value = "";
-                    q("n_phone").value = "";
-                    q("n_aad").value = "";
-                    q("n_pan").value = "";
-                    q("n_addr").value = "";
-                    q("n_guar").value = "";
+                    ["n_name","n_phone","n_aad","n_pan","n_addr","n_guar",
+                        "n_fh","n_dob","n_gen","n_perm","n_bad","n_btype","n_gph","n_gad"]
+                        .forEach(function (id) { q(id).value = ""; });
+
+                    resetCPics();
 
                     loaded.cust = false;
                     loaded.loan = false;
