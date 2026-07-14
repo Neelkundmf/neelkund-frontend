@@ -201,7 +201,40 @@
                     <button type="button" class="pic-btn" id="tp_panb">📷</button>
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
-                <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div>
+                <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div><div class="fld"><label>বাবা / স্বামীর নাম</label><input id="tm_fh"></div>
+
+                <div class="fld"><label>জন্মতারিখ</label><input id="tm_dob" type="date"></div>
+
+                <div class="fld"><label>লিঙ্গ</label>
+                    <select id="tm_gen">
+                        <option value="">— বাছুন —</option>
+                        <option value="MALE">পুরুষ</option>
+                        <option value="FEMALE">মহিলা</option>
+                        <option value="OTHER">অন্য</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>রক্তের গ্রুপ</label>
+                    <select id="tm_bg">
+                        <option value="">— বাছুন —</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A−</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B−</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB−</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O−</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>স্থায়ী ঠিকানা</label><input id="tm_perm"></div>
+                <div class="fld"><label>বর্তমান ঠিকানা</label><input id="tm_curr"></div>
+
+                <h3 style="margin:18px 0 12px;">জরুরি যোগাযোগ</h3>
+                <div class="fld"><label>নাম</label><input id="tm_en"></div>
+                <div class="fld"><label>ফোন</label><input id="tm_ep" type="tel" inputmode="numeric" maxlength="10"></div>
+
                 <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
             </div>
 
@@ -1377,6 +1410,9 @@
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
         q("tm_aad").addEventListener("input", function () {
+            q("tm_ep").addEventListener("input", function () {
+                this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+            });
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
         /* ---- ফর্মে ছবি ধরে রাখা (এখনো সার্ভারে যায়নি) ---- */
@@ -1465,7 +1501,16 @@
                 aadhaar: q("tm_aad").value.trim() || null,
                 pan: q("tm_pan").value.trim().toUpperCase() || null,
                 joinedDate: q("tm_join").value || null,
-                reportsToId: null
+                reportsToId: null,
+
+                fatherOrHusband: q("tm_fh").value.trim() || null,
+                dateOfBirth: q("tm_dob").value || null,
+                gender: q("tm_gen").value || null,
+                permanentAddress: q("tm_perm").value.trim() || null,
+                currentAddress: q("tm_curr").value.trim() || null,
+                emergencyName: q("tm_en").value.trim() || null,
+                emergencyPhone: q("tm_ep").value.trim() || null,
+                bloodGroup: q("tm_bg").value || null
             }).then(function () {
                 /* কর্মী তৈরি হল — এখন তার আইডি খুঁজে ছবি পাঠাই */
                 return fetchTeam().then(function () {
@@ -1488,6 +1533,8 @@
                 q("tm_aad").value = "";
                 q("tm_pan").value = "";
                 q("tm_join").value = "";
+                ["tm_fh","tm_dob","tm_gen","tm_perm","tm_curr","tm_en","tm_ep","tm_bg"]
+                    .forEach(function (id) { q(id).value = ""; });
                 resetPics();
                 loadTeam();
             }).catch(function (e) {
