@@ -150,6 +150,7 @@
             <div class="fld" style="margin-bottom:14px;">
                 <select id="br"><option value="">সব ব্রাঞ্চ</option></select>
             </div>
+            <div id="fund"></div>
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
@@ -316,7 +317,94 @@
 
         q("br").addEventListener("change", loadDash);
 
+        /* =====================================================================
+           * ফান্ডের জীবন্ত হিসাব
+           * ===================================================================== */
+        var FUND = null;
+        var fundTimer = null;
 
+        function loadFund() {
+            var b = q("br").value;
+
+            NK.GET("/api/funds/live" + (b ? "?branchId=" + b : ""))
+                .then(function (d) {
+                    FUND = d;
+                    drawFund();
+                })
+                .catch(function () {});
+        }
+
+        function drawFund() {
+            if (!FUND) return;
+
+            var d = FUND;
+
+            var cash = Number(d.cashInHand);
+            var good = Number(d.receivableGood);
+            var od   = Number(d.receivableOd);
+            var proj = Number(d.projectedFund);
+
+            var total = cash + good + od;
+            if (total <= 0) total = 1;
+
+            var pc = (cash / total * 100).toFixed(1);
+            var pg = (good / total * 100).toFixed(1);
+            var po = (od   / total * 100).toFixed(1);
+
+            var h = "";
+
+            h += '<div class="fund">';
+            h += '<div class="t">💰 এখন হাতে আছে<span class="tick"></span></div>';
+            h += '<div class="big">' + NK.inr(cash) + '</div>';
+
+            h += '<div class="split">';
+            h += '<div><div class="l">মোট বিনিয়োগ</div>' +
+                '<div class="v">' + NK.inrShort(d.totalInvested) + '</div></div>';
+            h += '<div><div class="l">লোনে গেছে</div>' +
+                '<div class="v">' + NK.inrShort(d.disbursed) + '</div></div>';
+            h += '<div><div class="l">ফেরত এসেছে</div>' +
+                '<div class="v g">' + NK.inrShort(d.collected) + '</div></div>';
+            h += '</div>';
+
+            h += '</div>';
+
+            h += '<div class="proj">';
+
+            h += '<div class="hd">';
+            h += '<b>📈 সব ফেরত এলে</b>';
+            h += '<span class="n">' + NK.inr(proj) + '</span>';
+            h += '</div>';
+
+            h += '<div class="bar">';
+            h += '<i class="cash" style="width:' + pc + '%;"></i>';
+            h += '<i class="good" style="width:' + pg + '%;"></i>';
+            h += '<i class="od" style="width:' + po + '%;"></i>';
+            h += '</div>';
+
+            h += '<div class="lg">';
+            h += '<span><i style="background:#16A34A;"></i>হাতে ' + NK.inrShort(cash) + '</span>';
+            h += '<span><i style="background:#60A5FA;"></i>আসবে ' + NK.inrShort(good) + '</span>';
+            h += '<span><i style="background:#1F2937;"></i>OD ' + NK.inrShort(od) + '</span>';
+            h += '</div>';
+
+            h += '<div class="gain">';
+            h += '<span>মোট লাভ</span>';
+            h += '<b>' + (Number(d.profitProjected) >= 0 ? '+' : '') +
+                NK.inr(d.profitProjected) + ' (' +
+                (Number(d.growthPercent) >= 0 ? '+' : '') +
+                Number(d.growthPercent).toFixed(1) + '%)</b>';
+            h += '</div>';
+
+            h += '</div>';
+
+            q("fund").innerHTML = h;
+        }
+
+        function startFund() {
+            loadFund();
+            clearInterval(fundTimer);
+            fundTimer = setInterval(loadFund, 30000);
+        }
         /* =====================================================================
          * অগ্রগতি
          * ===================================================================== */
@@ -618,6 +706,7 @@
             loadDash();
             loadBranches();
             loadNotif();
+            startFund();
         });
 
         /* ---- ১ ঘন্টা পর নিজে থেকেই লগআউট ---- */
