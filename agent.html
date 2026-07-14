@@ -229,9 +229,9 @@
 
         <!-- ---------------- আজকের কাজ ---------------- -->
         <div class="view on" id="v-today">
+            <div id="mkt"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
-
 
         <!-- ---------------- গ্রাহক ---------------- -->
         <div class="view" id="v-cust">
@@ -621,6 +621,100 @@
         /* =====================================================================
          * আজকের কাজ
          * ===================================================================== */
+        /* =====================================================================
+   * আমার মার্কেট
+   * ===================================================================== */
+        var MKT = null;
+        var mktPick = null;   // null = সব মার্কেট
+
+        function loadMkt() {
+            NK.GET("/api/agent/my-markets").then(function (d) {
+                MKT = d;
+                drawMkt();
+            }).catch(function () {});
+        }
+
+        function drawMkt() {
+            if (!MKT) return;
+
+            var h = "";
+
+            /* ---- মোট ---- */
+            h += '<div class="target" style="margin-bottom:10px;">';
+            h += '<div class="t">💰 আমার মার্কেটে পড়ে আছে</div>';
+            h += '<div class="n">' + NK.inr(MKT.totalOutstanding) + '</div>';
+
+            h += '<div class="sub" style="margin-top:8px;">';
+            h += '<span>' + MKT.activeCustomers + ' গ্রাহক</span>';
+            h += '<span>OD ' + MKT.odCustomers + ' জন · ' +
+                NK.inrShort(MKT.odOutstanding) + '</span>';
+            h += '</div>';
+            h += '</div>';
+
+            /* ---- একাধিক মার্কেট হলে ট্যাব ---- */
+            if (MKT.markets && MKT.markets.length > 1) {
+
+                h += '<div class="chips" id="mtabs">';
+                h += '<button class="' + (mktPick === null ? 'on' : '') +
+                    '" data-m="">সব</button>';
+
+                MKT.markets.forEach(function (m) {
+                    h += '<button class="' + (String(mktPick) === String(m.marketId) ? 'on' : '') +
+                        '" data-m="' + (m.marketId || "") + '">' +
+                        NK.esc(m.marketName) + '</button>';
+                });
+
+                h += '</div>';
+
+                /* বাছা মার্কেটের হিসাব */
+                var sel = null;
+                if (mktPick !== null) {
+                    sel = MKT.markets.filter(function (m) {
+                        return String(m.marketId) === String(mktPick);
+                    })[0];
+                }
+
+                if (sel) {
+                    h += '<div class="stats">';
+                    h += st("গ্রাহক", sel.activeCustomers);
+                    h += st("পড়ে আছে", NK.inrShort(sel.outstanding), "r");
+                    h += st("আজ ওঠার কথা", NK.inrShort(sel.todayDue));
+                    h += st("আজ উঠল", NK.inrShort(sel.todayCollected), "g");
+                    h += '</div>';
+                } else {
+                    /* সব মার্কেটের তালিকা */
+                    h += '<div class="list" style="margin-bottom:14px;">';
+
+                    MKT.markets.forEach(function (m) {
+                        h += '<div class="item">';
+                        h += '<div class="av">🏬</div>';
+                        h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
+                            '<span>' + m.activeCustomers + ' গ্রাহক' +
+                            (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span></div>';
+                        h += '<div class="end"><b>' + NK.inrShort(m.outstanding) + '</b>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">আজ ' +
+                            NK.inrShort(m.todayDue) + '</span></div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                }
+            }
+
+            q("mkt").innerHTML = h;
+
+            /* ট্যাবে ক্লিক */
+            var tabs = q("mkt").querySelector("#mtabs");
+            if (tabs) {
+                Array.prototype.forEach.call(tabs.querySelectorAll("[data-m]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var v = b.getAttribute("data-m");
+                        mktPick = v ? v : null;
+                        drawMkt();
+                    });
+                });
+            }
+        }
         function loadToday() {
             q("today").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
@@ -1183,6 +1277,7 @@
 
             net();
             drawPend();
+            loadMkt();
             loadToday();
             loadNotif();
 
