@@ -21,6 +21,7 @@
 
 <div id="toast"></div>
 <input type="file" id="kycFile" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="picFile" accept="image/*" capture="environment" style="display:none;">
 <!-- ================= লগইন করা নেই ================= -->
 <div id="gate" style="display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px;">
     <div class="card" style="max-width:340px;text-align:center;">
@@ -164,6 +165,10 @@
         <div class="view" id="v-team">
             <div class="card">
                 <h2 style="margin-bottom:14px;">নতুন কর্মী</h2>
+                <div class="avatar-pick">
+                    <div class="av" id="tp_selfie">👤</div>
+                    <span>প্রোফাইল ছবি</span>
+                </div>
                 <div class="msg" id="tmMsg"></div>
 
                 <div class="fld"><label>নাম *</label><input id="tm_name"></div>
@@ -183,8 +188,19 @@
                 <div class="fld"><label>এলাকা</label><input id="tm_area"></div>
                 <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
                 <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন</div></div>
-                <div class="fld"><label>আধার নম্বর</label><input id="tm_aad" inputmode="numeric" maxlength="12"></div>
-                <div class="fld"><label>প্যান নম্বর</label><input id="tm_pan" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="pic-row">
+                    <div class="fld"><label>আধার নম্বর *</label><input id="tm_aad" inputmode="numeric" maxlength="12"></div>
+                    <button type="button" class="pic-btn req" id="tp_aad">📷</button>
+                    <button type="button" class="pic-btn req" id="tp_aadb">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">আধারের ছবি — সামনে ও পিছন (বাধ্যতামূলক)</div>
+
+                <div class="pic-row">
+                    <div class="fld"><label>প্যান নম্বর</label><input id="tm_pan" maxlength="10" style="text-transform:uppercase"></div>
+                    <button type="button" class="pic-btn" id="tp_pan">📷</button>
+                    <button type="button" class="pic-btn" id="tp_panb">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
                 <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div>
                 <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
             </div>
@@ -1227,7 +1243,15 @@
                         '<span>' + NK.esc(m.branchName) + ' · ' +
                         m.customerCount + ' গ্রাহক</span></div>';
                     html += '<div class="end"><span class="b n">' +
-                        (m.agentIds ? m.agentIds.length : 0) + ' এজেন্ট</span></div>';
+                        (ROLE_BN2[u.role] || u.role) + '</span>';
+                    html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+                    html += '<button class="btn sm ' + (off ? 'success' : 'ghost') +
+                        '" data-en="' + u.id + '" data-v="' + (off ? 'true' : 'false') +
+                        '" style="padding:0 8px;font-size:11px;">' +
+                        (off ? 'চালু' : 'বন্ধ') + '</button>';
+                    html += '<button class="btn sm danger" data-del="' + u.id +
+                        '" style="padding:0 8px;font-size:11px;">মুছুন</button>';
+                    html += '</div></div>';
                     html += '</div>';
                 });
                 html += '</div>';
@@ -1302,6 +1326,50 @@
                 html += '</div>';
 
                 q("tmList").innerHTML = html;
+                /* চালু / বন্ধ */
+                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-en]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var id = b.getAttribute("data-en");
+                        var v = b.getAttribute("data-v");
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.PATCH("/api/admin/users/" + id + "/enabled?enabled=" + v)
+                            .then(function () {
+                                toast(v === "true" ? "চালু করা হল" : "বন্ধ করা হল", "ok");
+                                loadTeam();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = (v === "true") ? "চালু" : "বন্ধ";
+                            });
+                    });
+                });
+
+                /* মুছুন */
+                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-del]"), function (b) {
+                    b.addEventListener("click", function () {
+                        if (!confirm("সত্যিই মুছে ফেলবেন? ফেরত পাওয়া যাবে না।")) return;
+
+                        var id = b.getAttribute("data-del");
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.DELETE("/api/admin/users/" + id)
+                            .then(function () {
+                                toast("মুছে ফেলা হল", "ok");
+                                loadTeam();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "মুছুন";
+                            });
+                    });
+                });
             });
         }
 
@@ -1311,6 +1379,72 @@
         q("tm_aad").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
+        /* ---- ফর্মে ছবি ধরে রাখা (এখনো সার্ভারে যায়নি) ---- */
+        var TPICS = {};   // { SELFIE: File, AADHAAR: File, ... }
+
+        function bindPicker(btnId, type, isAvatar) {
+            q(btnId).addEventListener("click", function () {
+                picTarget = { btn: btnId, type: type, avatar: isAvatar };
+                q("picFile").value = "";
+                q("picFile").click();
+            });
+        }
+
+        var picTarget = null;
+
+        bindPicker("tp_selfie", "SELFIE", true);
+        bindPicker("tp_aad",    "AADHAAR", false);
+        bindPicker("tp_aadb",   "AADHAAR_BACK", false);
+        bindPicker("tp_pan",    "PAN", false);
+        bindPicker("tp_panb",   "PAN_BACK", false);
+
+        q("picFile").addEventListener("change", function () {
+            var f = this.files[0];
+            if (!f || !picTarget) return;
+
+            if (f.size > 5 * 1024 * 1024) {
+                toast("ছবি ৫MB-র কম হতে হবে", "er");
+                return;
+            }
+
+            TPICS[picTarget.type] = f;
+
+            var el = q(picTarget.btn);
+            var img = document.createElement("img");
+            img.src = URL.createObjectURL(f);
+
+            el.innerHTML = "";
+            el.appendChild(img);
+            el.classList.add("has");
+            el.classList.remove("req");
+        });
+
+        /* ---- সব ছবি সার্ভারে পাঠাই ---- */
+        function uploadStaffPics(userId) {
+            var types = Object.keys(TPICS);
+            if (!types.length) return Promise.resolve();
+
+            var jobs = types.map(function (t) {
+                var fd = new FormData();
+                fd.append("file", TPICS[t]);
+                return NK.UPLOAD("/api/admin/users/" + userId + "/document?type=" + t, fd);
+            });
+
+            return Promise.all(jobs);
+        }
+
+        function resetPics() {
+            TPICS = {};
+
+            ["tp_selfie", "tp_aad", "tp_aadb", "tp_pan", "tp_panb"].forEach(function (id) {
+                var el = q(id);
+                el.innerHTML = (id === "tp_selfie") ? "👤" : "📷";
+                el.classList.remove("has");
+            });
+
+            q("tp_aad").classList.add("req");
+            q("tp_aadb").classList.add("req");
+        }
         q("tm_go").addEventListener("click", function () {
             hide("tmMsg");
             var b = q("tm_go");
@@ -1333,6 +1467,16 @@
                 joinedDate: q("tm_join").value || null,
                 reportsToId: null
             }).then(function () {
+                /* কর্মী তৈরি হল — এখন তার আইডি খুঁজে ছবি পাঠাই */
+                return fetchTeam().then(function () {
+                    var phone = q("tm_phone").value.trim();
+                    var made = TEAM.filter(function (u) { return u.phone === phone; })[0];
+
+                    if (made && Object.keys(TPICS).length) {
+                        return uploadStaffPics(made.id);
+                    }
+                });
+            }).then(function () {
                 say("tmMsg", "কর্মী তৈরি হয়েছে ✓ প্রথম লগইনে সে নিজে পাসওয়ার্ড বদলাবে।", true);
                 toast("কর্মী তৈরি হয়েছে", "ok");
                 q("tm_name").value = "";
@@ -1343,6 +1487,8 @@
                 q("tm_code").value = "";
                 q("tm_aad").value = "";
                 q("tm_pan").value = "";
+                q("tm_join").value = "";
+                resetPics();
                 loadTeam();
             }).catch(function (e) {
                 say("tmMsg", e.message, false);

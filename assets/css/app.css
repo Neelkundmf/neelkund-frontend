@@ -607,3 +607,86 @@ body {
     font-weight: 800;
     color: var(--green);
 }
+/* =========================================================================
+   ফর্মের ভেতরে ছবি তোলা
+   ========================================================================= */
+
+.pic-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.pic-row .fld {
+    flex: 1;
+    margin: 0;
+}
+
+.pic-btn {
+    flex-shrink: 0;
+    width: 56px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff;
+    border: 1.5px dashed var(--line);
+    border-radius: 10px;
+
+    font-size: 19px;
+    color: var(--muted);
+    cursor: pointer;
+    overflow: hidden;
+    padding: 0;
+}
+.pic-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.pic-btn.has {
+    border-style: solid;
+    border-color: var(--green);
+}
+.pic-btn.req {
+    border-color: var(--red);
+}
+
+/* বড় প্রোফাইল ছবি */
+.avatar-pick {
+    text-align: center;
+    margin-bottom: 18px;
+}
+.avatar-pick .av {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--paper);
+    border: 2px dashed var(--line);
+    border-radius: 22px;
+
+    font-size: 32px;
+    color: var(--muted);
+    cursor: pointer;
+    overflow: hidden;
+}
+.avatar-pick .av img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.avatar-pick .av.has {
+    border-style: solid;
+    border-color: var(--green);
+}
+.avatar-pick span {
+    font-size: 12px;
+    color: var(--muted);
+}
