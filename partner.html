@@ -204,7 +204,14 @@
 
 </div>
 
-
+<!-- ================= প্রোফাইল ================= -->
+<div id="prof">
+    <div class="bar">
+        <button id="pClose">←</button>
+        <b id="pTitle">প্রোফাইল</b>
+    </div>
+    <div class="in" id="pBody"></div>
+</div>
 <script src="assets/js/nk.js"></script>
 <script>
     (function () {
@@ -619,7 +626,7 @@
                 h += '<div class="list" style="margin-top:14px;">';
 
                 rows.slice(0, 150).forEach(function (x) {
-                    h += '<div class="item">';
+                    h += '<div class="item" data-cust="' + NK.esc(x.customerId) + '">';
                     h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
                         x.daysOverdue + 'দি</div>';
                     h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
@@ -632,7 +639,7 @@
 
                 h += '</div>';
                 q("odList").innerHTML = h;
-
+                bindCust();
             }).catch(function (e) {
                 q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
@@ -652,7 +659,127 @@
                 q("g_br").innerHTML = o;
             }).catch(function () {});
         }
+        /* =====================================================================
+                 * গ্রাহকের প্রোফাইল
+                 * ===================================================================== */
+        var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
 
+        function row(label, value) {
+            if (value === null || value === undefined || value === "") return "";
+            return '<div style="display:flex;justify-content:space-between;gap:12px;' +
+                'padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px;">' +
+                '<span style="color:var(--muted);">' + NK.esc(label) + '</span>' +
+                '<b style="text-align:right;">' + NK.esc(String(value)) + '</b></div>';
+        }
+
+        q("pClose").addEventListener("click", function () {
+            q("prof").classList.remove("on");
+        });
+
+        function bindCust() {
+            Array.prototype.forEach.call(q("odList").querySelectorAll("[data-cust]"), function (el) {
+                el.addEventListener("click", function () {
+                    openCustomer(el.getAttribute("data-cust"));
+                });
+            });
+        }
+
+        function openCustomer(id) {
+            q("prof").classList.add("on");
+            q("pTitle").textContent = "গ্রাহক";
+            q("pBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            window.scrollTo(0, 0);
+
+            NK.GET("/api/customers/" + id + "/profile").then(function (p) {
+                var c = p.customer || {};
+                var h = "";
+
+                h += '<div class="phead">';
+                h += '<div class="pic">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<h2>' + NK.esc(c.fullName) + '</h2>';
+                h += '<div class="sub">' + NK.esc(c.customerCode || "") + ' · ' +
+                    NK.esc(c.phone || "") + '</div>';
+                h += '<div class="rate" style="background:' +
+                    NK.esc(p.ratingColor || "#5B6B75") + ';">' +
+                    NK.esc(p.ratingLabel || p.rating || "") + '</div>';
+                h += '</div>';
+
+                if (p.canTakeNewLoan === false) {
+                    h += '<div class="od-box">';
+                    h += '<div class="t">⛔ নতুন লোন দেওয়া যাবে না</div>';
+                    h += '<div class="a">' + NK.esc(p.blockReason || "") + '</div>';
+                    h += '</div>';
+                }
+
+                h += '<div class="stats">';
+                h += st("মোট লোন", (p.totalLoans || 0) + "টি");
+                h += st("শোধ হয়েছে", (p.closedLoans || 0) + "টি", "g");
+                h += st("চলছে", (p.activeLoans || 0) + "টি");
+                h += st("এখনও বাকি", NK.inrShort(p.outstanding), "r");
+                h += '</div>';
+
+                h += '<div class="card">';
+                h += '<h2 style="margin-bottom:12px;">শোধের অভ্যাস</h2>';
+                h += '<div class="stats" style="margin:0;">';
+                h += st("মোট নিয়েছে", NK.inrShort(p.totalBorrowed));
+                h += st("মোট শোধ", NK.inrShort(p.totalRepaid), "g");
+                h += st("সময়ে দিয়েছে", (p.onTimeCount || 0) + " বার", "g");
+                h += st("দেরি করেছে", (p.lateCount || 0) + " বার", p.lateCount ? "r" : "");
+                h += '</div>';
+
+                if (p.avgDaysToClose) {
+                    h += '<div style="margin-top:12px;font-size:13px;color:var(--muted);">' +
+                        'গড়ে <b>' + p.avgDaysToClose + ' দিনে</b> শোধ করেন</div>';
+                }
+                h += '</div>';
+
+                h += '<h3 style="margin:16px 0 10px;">লোনের ইতিহাস</h3>';
+
+                var loans = p.loans || [];
+
+                if (!loans.length) {
+                    h += '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
+                } else {
+                    h += '<div class="list">';
+                    loans.forEach(function (l) {
+                        h += '<div class="item">';
+                        h += '<div class="av">' + NK.esc(l.cycle) + '</div>';
+                        h += '<div class="mid"><b>' + NK.inr(l.principal) + '</b>' +
+                            '<span>' + (l.startDate ? NK.dt(l.startDate) : "—") +
+                            (l.closedOnDay ? ' · ' + l.closedOnDay + ' দিনে শোধ' : '') +
+                            (l.agentName ? ' · ' + NK.esc(l.agentName) : '') + '</span></div>';
+                        h += '<div class="end"><b>' + NK.inrShort(l.remaining) + '</b>' +
+                            '<span class="b" style="background:' +
+                            NK.esc(l.gradeColor || l.stageColor || "#5B6B75") +
+                            ';color:#fff;">' +
+                            NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span></div>';
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+
+                h += '<h3 style="margin:16px 0 10px;">তথ্য</h3>';
+                h += '<div class="pinfo">';
+                h += row("ফোন", c.phone);
+                h += row("বাবা / স্বামী", c.fatherOrHusband);
+                h += row("জন্মতারিখ", c.dateOfBirth ? NK.dt(c.dateOfBirth) : null);
+                h += row("লিঙ্গ", GEN_BN[c.gender] || c.gender);
+                h += row("ঠিকানা", c.address);
+                h += row("ব্যবসার ঠিকানা", c.businessAddress);
+                h += row("আধার", c.aadhaarMasked);
+                h += row("প্যান", c.panMasked);
+                h += row("জামিনদার", c.guarantorName);
+                h += row("জামিনদারের ফোন", c.guarantorPhone);
+                h += row("মার্কেট", c.marketName);
+                h += '</div>';
+
+                q("pBody").innerHTML = h;
+
+            }).catch(function (e) {
+                q("pBody").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
         function loadNotif() {
             NK.GET("/api/notifications").then(function (n) {
                 var c = n.totalCount || 0;
