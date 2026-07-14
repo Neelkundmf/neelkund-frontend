@@ -497,6 +497,14 @@
 
 
 <!-- ================= আরও মেনু ================= -->
+<!-- ================= প্রোফাইল ================= -->
+<div id="prof">
+    <div class="bar">
+        <button id="pClose">←</button>
+        <b id="pTitle">প্রোফাইল</b>
+    </div>
+    <div class="in" id="pBody"></div>
+</div>
 <div id="sheet">
     <div class="bg" id="sheetBg"></div>
     <div class="panel">
@@ -856,7 +864,7 @@
                 rows.slice(0, 100).forEach(function (c) {
                     var f = FLAG_BN[c.flag] || ["—", "n"];
 
-                    html += '<div class="item">';
+                    html += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
                     html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
 
                     html += '<div class="mid">';
@@ -881,6 +889,12 @@
                 }
 
                 q("cList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openCustomer(el.getAttribute("data-cust"));
+                    });
+                });
 
             }).catch(function (e) {
                 q("cList").innerHTML = '<div class="card"><div class="empty">' +

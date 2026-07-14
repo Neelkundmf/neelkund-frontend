@@ -690,3 +690,179 @@ body {
     font-size: 12px;
     color: var(--muted);
 }
+/* =========================================================================
+   প্রোফাইল (গ্রাহক / এজেন্ট)
+   ========================================================================= */
+
+#prof {
+    position: fixed;
+    inset: 0;
+    z-index: 280;
+    display: none;
+    background: var(--paper);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+#prof.on { display: block; }
+
+#prof .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+
+    background: var(--navy);
+    color: #fff;
+}
+#prof .bar button {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,.12);
+    border: 0;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+}
+#prof .bar b { flex: 1; font-size: 16px; }
+
+#prof .in {
+    padding: 16px;
+    padding-bottom: 40px;
+}
+
+/* ---- মাথা ---- */
+.phead {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+.phead .pic {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--paper);
+    border-radius: 22px;
+    overflow: hidden;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy);
+}
+.phead .pic img { width: 100%; height: 100%; object-fit: cover; }
+
+.phead h2 { font-size: 19px; margin-bottom: 4px; }
+.phead .sub { font-size: 13px; color: var(--muted); }
+
+.phead .rate {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* ---- তথ্যের সারি ---- */
+.pinfo {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px 16px;
+    margin-bottom: 12px;
+}
+.pinfo .r {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+}
+.pinfo .r:last-child { border-bottom: 0; }
+.pinfo .r span { color: var(--muted); flex-shrink: 0; }
+.pinfo .r b { text-align: right; font-weight: 600; }
+
+/* ---- লোনের ইতিহাস ---- */
+.lcard {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 8px;
+}
+.lcard .t {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.lcard .t b {
+    font-family: 'Manrope', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+}
+.lcard .t .cy {
+    font-size: 11.5px;
+    color: var(--muted);
+    background: var(--paper);
+    padding: 3px 9px;
+    border-radius: 12px;
+}
+.lcard .g {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+.lcard .d {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.8;
+}
+.lcard .d b { color: var(--ink); }
+
+/* ---- ছবি সারি ---- */
+.pdocs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.pdocs .d {
+    aspect-ratio: 4/3;
+    background: var(--paper);
+    border: 1.5px dashed var(--line);
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    font-size: 10.5px;
+    color: var(--muted);
+    cursor: pointer;
+    overflow: hidden;
+}
+.pdocs .d img { width: 100%; height: 100%; object-fit: cover; }
+.pdocs .d.has { border-style: solid; border-color: var(--green); }
