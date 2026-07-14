@@ -112,8 +112,211 @@
             <div id="collBox"><div class="empty">উপরে এজেন্ট বাছুন</div></div>
         </div>
 
-        <div class="view" id="v-more">
-            <div class="card"><div class="empty">আরও — নিচের মেনু থেকে বাছুন</div></div>
+        <!-- ---------------- OD তালিকা ---------------- -->
+        <div class="view" id="v-od">
+            <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- ব্রাঞ্চ ---------------- -->
+        <div class="view" id="v-branch">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">নতুন ব্রাঞ্চ</h2>
+                <div class="msg" id="brMsg"></div>
+
+                <div class="fld"><label>নাম *</label><input id="br_name"></div>
+                <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"></div>
+                <div class="fld"><label>ঠিকানা</label><input id="br_addr"></div>
+
+                <button class="btn block" id="br_go">ব্রাঞ্চ তৈরি করুন</button>
+            </div>
+
+            <div id="brList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- মার্কেট ---------------- -->
+        <div class="view" id="v-market">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">নতুন মার্কেট</h2>
+                <div class="msg" id="mkMsg"></div>
+
+                <div class="fld"><label>নাম *</label><input id="mk_name"></div>
+                <div class="fld"><label>কোড</label><input id="mk_code" maxlength="10" style="text-transform:uppercase"></div>
+                <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select></div>
+                <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
+
+                <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
+            </div>
+
+            <div id="mkList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- টিম ---------------- -->
+        <div class="view" id="v-team">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">নতুন কর্মী</h2>
+                <div class="msg" id="tmMsg"></div>
+
+                <div class="fld"><label>নাম *</label><input id="tm_name"></div>
+                <div class="fld"><label>ফোন *</label><input id="tm_phone" type="tel" inputmode="numeric" maxlength="10"></div>
+                <div class="fld"><label>পাসওয়ার্ড *</label><input id="tm_pass" type="text"><div class="hint">কমপক্ষে ৮ অক্ষর · প্রথম লগইনে সে নিজে বদলাবে</div></div>
+
+                <div class="fld"><label>পদ *</label>
+                    <select id="tm_role">
+                        <option value="AGENT">এজেন্ট</option>
+                        <option value="MANAGER">ম্যানেজার</option>
+                        <option value="PARTNER">পার্টনার</option>
+                        <option value="ADMIN">অ্যাডমিন</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>ব্রাঞ্চ</label><select id="tm_br"><option value="">— নেই —</option></select></div>
+                <div class="fld"><label>এলাকা</label><input id="tm_area"></div>
+                <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
+
+                <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
+            </div>
+
+            <div id="tmList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- ফান্ড ---------------- -->
+        <div class="view" id="v-money">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">টাকা যোগ / তোলা</h2>
+                <div class="msg" id="fdMsg"></div>
+
+                <div class="fld"><label>ধরন *</label>
+                    <select id="fd_type">
+                        <option value="DEPOSIT">জমা</option>
+                        <option value="WITHDRAWAL">তোলা</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>কে দিল *</label>
+                    <select id="fd_src">
+                        <option value="PARTNER">পার্টনার</option>
+                        <option value="INVESTOR">বাইরের বিনিয়োগকারী</option>
+                        <option value="INTERNAL">ব্যবসার নিজের টাকা</option>
+                    </select>
+                </div>
+
+                <div class="fld" id="fd_pbox"><label>কোন পার্টনার</label><select id="fd_p"></select></div>
+                <div class="fld" id="fd_ibox" style="display:none;"><label>বিনিয়োগকারীর নাম</label><input id="fd_iname"></div>
+
+                <div class="fld"><label>ব্রাঞ্চ</label><select id="fd_br"><option value="">সব ব্রাঞ্চ</option></select></div>
+                <div class="fld"><label>অঙ্ক *</label><input id="fd_amt" type="number" inputmode="numeric"></div>
+                <div class="fld"><label>তারিখ *</label><input id="fd_date" type="date"></div>
+                <div class="fld"><label>নোট</label><input id="fd_note"></div>
+
+                <button class="btn block" id="fd_go">সংরক্ষণ করুন</button>
+            </div>
+
+            <div id="fdList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- খরচ ---------------- -->
+        <div class="view" id="v-expense">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">খরচ যোগ করুন</h2>
+                <div class="msg" id="exMsg"></div>
+
+                <div class="fld"><label>খাত *</label>
+                    <select id="ex_cat">
+                        <option value="RENT">ভাড়া</option>
+                        <option value="TRANSPORT">যাতায়াত</option>
+                        <option value="UTILITIES">বিদ্যুৎ / জল</option>
+                        <option value="OFFICE_SUPPLIES">অফিস সামগ্রী</option>
+                        <option value="MARKETING">বিজ্ঞাপন</option>
+                        <option value="INCENTIVE">ইনসেনটিভ</option>
+                        <option value="SALARY">বেতন</option>
+                        <option value="MISCELLANEOUS">বিবিধ</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>ব্রাঞ্চ</label><select id="ex_br"><option value="">সব ব্রাঞ্চ</option></select></div>
+                <div class="fld"><label>অঙ্ক *</label><input id="ex_amt" type="number" inputmode="numeric"></div>
+                <div class="fld"><label>তারিখ *</label><input id="ex_date" type="date"></div>
+                <div class="fld"><label>বিবরণ</label><input id="ex_desc"></div>
+
+                <button class="btn block" id="ex_go">খরচ যোগ করুন</button>
+            </div>
+
+            <div id="exList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- ধাপ ---------------- -->
+        <div class="view" id="v-stages">
+            <div class="card">
+                <h2 style="margin-bottom:6px;">গ্রাহকের ধাপ</h2>
+                <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">
+                    প্রথম EMI-র তারিখ থেকে কত দিন হলে কোন ধাপ
+                </p>
+                <button class="btn ghost block sm" id="stRefresh">এখনই সব হিসাব করুন</button>
+            </div>
+
+            <div id="stList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- সেটিংস ---------------- -->
+        <div class="view" id="v-settings">
+            <div id="setList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- পারমিশন ---------------- -->
+        <div class="view" id="v-perm">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">কে কী দেখবে</h2>
+                <div class="msg" id="pmMsg"></div>
+
+                <div class="fld"><label>পদ</label>
+                    <select id="pm_role">
+                        <option value="PARTNER">পার্টনার</option>
+                        <option value="MANAGER">ম্যানেজার</option>
+                        <option value="AGENT">এজেন্ট</option>
+                    </select>
+                </div>
+
+                <button class="btn block" id="pm_save">সংরক্ষণ করুন</button>
+            </div>
+
+            <div id="pmList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+
+        <!-- ---------------- ইম্পোর্ট ---------------- -->
+        <div class="view" id="v-import">
+            <div class="card">
+                <h2 style="margin-bottom:6px;">পুরনো Excel তোলা</h2>
+                <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">
+                    ফাইলের নামে DISBURSE বা COLLECTION থাকতে হবে
+                </p>
+
+                <div class="msg" id="imMsg"></div>
+
+                <div class="fld">
+                    <label>Excel ফাইল বাছুন</label>
+                    <input id="im_f" type="file" accept=".xlsx,.xls" multiple>
+                </div>
+
+                <button class="btn block" id="im_go">তুলুন</button>
+            </div>
+
+            <div id="imList"></div>
+        </div>
+
+
+        <!-- ---------------- লগইন লগ ---------------- -->
+        <div class="view" id="v-log">
+            <div id="logList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
     </div>
@@ -228,7 +431,45 @@
                     return;
                 }
 
-                toast("শীঘ্রই আসছে: " + b.textContent.trim(), "in");
+                if (go === "logout") {
+                    NK.logout();
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                var LOADERS = {
+                    od: loadOd,
+                    branch: loadBranch,
+                    market: loadMarket,
+                    team: loadTeam,
+                    money: loadMoney,
+                    expense: loadExpense,
+                    stages: loadStages,
+                    settings: loadSettings,
+                    perm: loadPerm,
+                    log: loadLog
+                };
+
+                var v = q("v-" + go);
+                if (!v) {
+                    toast("শীঘ্রই আসছে", "in");
+                    return;
+                }
+
+                Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
+                    x.classList.remove("on");
+                });
+                v.classList.add("on");
+
+                Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+
+                q("ttl").textContent = b.textContent.trim();
+                window.scrollTo(0, 0);
+
+                var f = LOADERS[go];
+                if (f) f();
             });
         });
 
@@ -606,6 +847,717 @@
 
         q("ag").addEventListener("change", showColl);
         q("cd").addEventListener("change", showColl);
+        /* =====================================================================
+   * সাহায্যকারী
+   * ===================================================================== */
+
+        var BRANCHES = [];
+        var TEAM = [];
+
+        function say(id, m, ok) {
+            var e = q(id);
+            e.textContent = m;
+            e.className = "msg " + (ok ? "ok" : "er");
+        }
+        function hide(id) { q(id).className = "msg"; }
+
+        function today() { return new Date().toISOString().slice(0, 10); }
+
+        function brOpts(withAll) {
+            var o = withAll ? '<option value="">সব ব্রাঞ্চ</option>' : "";
+            BRANCHES.forEach(function (b) {
+                o += '<option value="' + NK.esc(b.id) + '">' + NK.esc(b.name) + '</option>';
+            });
+            return o;
+        }
+
+        function fetchBranches() {
+            return NK.GET("/api/branches").then(function (r) {
+                BRANCHES = NK.rows(r);
+                return BRANCHES;
+            }).catch(function () { return []; });
+        }
+
+        function fetchTeam() {
+            return NK.GET("/api/manager/users").then(function (r) {
+                TEAM = NK.rows(r);
+                return TEAM;
+            }).catch(function () { return []; });
+        }
+
+
+        /* =====================================================================
+         * OD তালিকা
+         * ===================================================================== */
+        function loadOd() {
+            q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard/od-customers").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("odList").innerHTML = '<div class="card"><div class="empty">✓ কেউ OD-তে নেই</div></div>';
+                    return;
+                }
+
+                var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
+
+                var html = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
+                    '<div class="n">' + rows.length + ' জন</div>' +
+                    '<div class="a">' + NK.inr(total) + '</div></div>';
+
+                html += '<div class="list" style="margin-top:14px;">';
+
+                rows.slice(0, 150).forEach(function (x) {
+                    html += '<div class="item">';
+                    html += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
+                        x.daysOverdue + 'দি</div>';
+                    html += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                        '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
+                        NK.esc(x.agentName || "") + '</span></div>';
+                    html += '<div class="end"><b style="color:var(--red);">' +
+                        NK.inrShort(x.outstanding) + '</b></div>';
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                q("odList").innerHTML = html;
+
+            }).catch(function (e) {
+                q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * ব্রাঞ্চ
+         * ===================================================================== */
+        function loadBranch() {
+            fetchBranches().then(function () {
+                if (!BRANCHES.length) {
+                    q("brList").innerHTML = '<div class="card"><div class="empty">কোনো ব্রাঞ্চ নেই</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+                BRANCHES.forEach(function (b) {
+                    html += '<div class="item">';
+                    html += '<div class="av">' + NK.esc(b.code || "?") + '</div>';
+                    html += '<div class="mid"><b>' + NK.esc(b.name) + '</b>' +
+                        '<span>' + b.customerCount + ' গ্রাহক · ' +
+                        b.marketCount + ' মার্কেট</span></div>';
+                    html += '<div class="end"><b>#' + b.nextCustomerNumber + '</b></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                q("brList").innerHTML = html;
+            });
+        }
+
+        q("br_go").addEventListener("click", function () {
+            hide("brMsg");
+            var b = q("br_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> তৈরি হচ্ছে...';
+
+            NK.POST("/api/branches", {
+                name: q("br_name").value.trim(),
+                code: q("br_code").value.trim().toUpperCase(),
+                startNumber: Number(q("br_start").value || 1),
+                address: q("br_addr").value.trim() || null
+            }).then(function () {
+                say("brMsg", "ব্রাঞ্চ তৈরি হয়েছে ✓", true);
+                toast("ব্রাঞ্চ তৈরি হয়েছে", "ok");
+                q("br_name").value = "";
+                q("br_code").value = "";
+                q("br_addr").value = "";
+                loadBranch();
+                loadBranches();
+            }).catch(function (e) {
+                say("brMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "ব্রাঞ্চ তৈরি করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * মার্কেট
+         * ===================================================================== */
+        function loadMarket() {
+            Promise.all([fetchBranches(), fetchTeam()]).then(function () {
+                q("mk_br").innerHTML = brOpts(false);
+
+                var mgs = TEAM.filter(function (u) { return u.role === "MANAGER"; });
+                var o = '<option value="">— নেই —</option>';
+                mgs.forEach(function (m) {
+                    o += '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.fullName) + '</option>';
+                });
+                q("mk_mg").innerHTML = o;
+
+                return NK.GET("/api/markets");
+            }).then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("mkList").innerHTML = '<div class="card"><div class="empty">কোনো মার্কেট নেই</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+                rows.forEach(function (m) {
+                    html += '<div class="item">';
+                    html += '<div class="av">🏬</div>';
+                    html += '<div class="mid"><b>' + NK.esc(m.name) + '</b>' +
+                        '<span>' + NK.esc(m.branchName) + ' · ' +
+                        m.customerCount + ' গ্রাহক</span></div>';
+                    html += '<div class="end"><span class="b n">' +
+                        (m.agentIds ? m.agentIds.length : 0) + ' এজেন্ট</span></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                q("mkList").innerHTML = html;
+            }).catch(function (e) {
+                q("mkList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("mk_go").addEventListener("click", function () {
+            hide("mkMsg");
+            var b = q("mk_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> তৈরি হচ্ছে...';
+
+            var mg = q("mk_mg").value;
+
+            NK.POST("/api/markets", {
+                name: q("mk_name").value.trim(),
+                code: q("mk_code").value.trim().toUpperCase() || null,
+                branchId: Number(q("mk_br").value),
+                managerId: mg ? Number(mg) : null,
+                description: null
+            }).then(function () {
+                say("mkMsg", "মার্কেট তৈরি হয়েছে ✓", true);
+                toast("মার্কেট তৈরি হয়েছে", "ok");
+                q("mk_name").value = "";
+                q("mk_code").value = "";
+                loadMarket();
+            }).catch(function (e) {
+                say("mkMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "মার্কেট তৈরি করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * টিম
+         * ===================================================================== */
+        var ROLE_BN2 = {
+            ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
+            MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
+        };
+
+        function loadTeam() {
+            fetchBranches().then(function () {
+                q("tm_br").innerHTML = '<option value="">— নেই —</option>' + brOpts(false);
+                return fetchTeam();
+            }).then(function () {
+                if (!TEAM.length) {
+                    q("tmList").innerHTML = '<div class="card"><div class="empty">কোনো কর্মী নেই</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+                TEAM.forEach(function (u) {
+                    var off = !u.enabled;
+
+                    html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
+                    html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
+                    html += '<div class="mid"><b>' + NK.esc(u.fullName) + '</b>' +
+                        '<span>' + NK.esc(u.phone) +
+                        (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
+                    html += '<div class="end"><span class="b n">' +
+                        (ROLE_BN2[u.role] || u.role) + '</span>' +
+                        (off ? '<br><span class="b r">বন্ধ</span>' : '') + '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                q("tmList").innerHTML = html;
+            });
+        }
+
+        q("tm_phone").addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+        });
+
+        q("tm_go").addEventListener("click", function () {
+            hide("tmMsg");
+            var b = q("tm_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> তৈরি হচ্ছে...';
+
+            var br = q("tm_br").value;
+            var sal = q("tm_sal").value;
+
+            NK.POST("/api/admin/users", {
+                fullName: q("tm_name").value.trim(),
+                phone: q("tm_phone").value.trim(),
+                password: q("tm_pass").value,
+                role: q("tm_role").value,
+                branchId: br ? Number(br) : null,
+                area: q("tm_area").value.trim() || null,
+                monthlySalary: sal ? Number(sal) : null,
+                aadhaar: null,
+                pan: null,
+                joinedDate: null,
+                reportsToId: null
+            }).then(function () {
+                say("tmMsg", "কর্মী তৈরি হয়েছে ✓ প্রথম লগইনে সে নিজে পাসওয়ার্ড বদলাবে।", true);
+                toast("কর্মী তৈরি হয়েছে", "ok");
+                q("tm_name").value = "";
+                q("tm_phone").value = "";
+                q("tm_pass").value = "";
+                q("tm_area").value = "";
+                q("tm_sal").value = "";
+                loadTeam();
+            }).catch(function (e) {
+                say("tmMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "কর্মী তৈরি করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * ফান্ড
+         * ===================================================================== */
+        function loadMoney() {
+            if (!q("fd_date").value) q("fd_date").value = today();
+
+            Promise.all([fetchBranches(), fetchTeam()]).then(function () {
+                q("fd_br").innerHTML = brOpts(true);
+
+                var ps = TEAM.filter(function (u) {
+                    return u.role === "PARTNER" || u.role === "ADMIN";
+                });
+                var o = "";
+                ps.forEach(function (p) {
+                    o += '<option value="' + NK.esc(p.id) + '">' + NK.esc(p.fullName) + '</option>';
+                });
+                q("fd_p").innerHTML = o;
+
+                return NK.GET("/api/funds/branches");
+            }).then(function (d) {
+                var html = '<div class="stats">';
+                html += st("পার্টনার", NK.inrShort(d.totalPartnerCapital));
+                html += st("বাইরের", NK.inrShort(d.totalInvestorCapital));
+                html += st("তোলা হয়েছে", NK.inrShort(d.totalWithdrawn), "r");
+                html += st("নিট পুঁজি", NK.inrShort(d.netCapital), "g");
+                html += '</div>';
+
+                if (d.branches && d.branches.length) {
+                    html += '<h2 style="margin:16px 0 10px;">ব্রাঞ্চ অনুযায়ী</h2>';
+                    html += '<div class="list">';
+
+                    d.branches.forEach(function (b) {
+                        html += '<div class="item">';
+                        html += '<div class="av">' + NK.esc(b.branchCode || "?") + '</div>';
+                        html += '<div class="mid"><b>' + NK.esc(b.branchName) + '</b>' +
+                            '<span>এল ' + NK.inrShort(b.received) +
+                            ' · লোনে ' + NK.inrShort(b.disbursed) + '</span></div>';
+                        html += '<div class="end"><b>' + NK.inrShort(b.cashInHand) + '</b>' +
+                            '<span style="font-size:11px;color:var(--muted);">হাতে</span></div>';
+                        html += '</div>';
+                    });
+
+                    html += '</div>';
+                }
+
+                q("fdList").innerHTML = html;
+            }).catch(function (e) {
+                q("fdList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("fd_src").addEventListener("change", function () {
+            var v = this.value;
+            q("fd_pbox").style.display = (v === "PARTNER") ? "block" : "none";
+            q("fd_ibox").style.display = (v === "INVESTOR") ? "block" : "none";
+        });
+
+        q("fd_go").addEventListener("click", function () {
+            hide("fdMsg");
+            var b = q("fd_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> সংরক্ষণ হচ্ছে...';
+
+            var src = q("fd_src").value;
+            var br = q("fd_br").value;
+
+            NK.POST("/api/funds", {
+                type: q("fd_type").value,
+                sourceType: src,
+                partnerId: (src === "PARTNER") ? Number(q("fd_p").value) : null,
+                investorName: (src === "INVESTOR") ? q("fd_iname").value.trim() : null,
+                branchId: br ? Number(br) : null,
+                amount: Number(q("fd_amt").value),
+                transactionDate: q("fd_date").value,
+                description: q("fd_note").value.trim() || null
+            }).then(function () {
+                say("fdMsg", "সংরক্ষিত হয়েছে ✓", true);
+                toast("ফান্ড হালনাগাদ", "ok");
+                q("fd_amt").value = "";
+                q("fd_note").value = "";
+                loadMoney();
+            }).catch(function (e) {
+                say("fdMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "সংরক্ষণ করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * খরচ
+         * ===================================================================== */
+        var EXP_BN = {
+            RENT: "ভাড়া", TRANSPORT: "যাতায়াত", UTILITIES: "বিদ্যুৎ/জল",
+            OFFICE_SUPPLIES: "অফিস", MARKETING: "বিজ্ঞাপন",
+            INCENTIVE: "ইনসেনটিভ", SALARY: "বেতন", MISCELLANEOUS: "বিবিধ"
+        };
+
+        function loadExpense() {
+            if (!q("ex_date").value) q("ex_date").value = today();
+
+            fetchBranches().then(function () {
+                q("ex_br").innerHTML = brOpts(true);
+                return NK.GET("/api/expenses?page=0&size=50");
+            }).then(function (r) {
+                var rows = NK.rows(r);
+
+                if (!rows.length) {
+                    q("exList").innerHTML = '<div class="card"><div class="empty">কোনো খরচ নেই</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+                rows.forEach(function (x) {
+                    html += '<div class="item">';
+                    html += '<div class="av">💸</div>';
+                    html += '<div class="mid"><b>' + (EXP_BN[x.category] || x.category) + '</b>' +
+                        '<span>' + NK.dt(x.expenseDate) +
+                        (x.description ? ' · ' + NK.esc(x.description) : '') + '</span></div>';
+                    html += '<div class="end"><b style="color:var(--red);">' +
+                        NK.inr(x.amount) + '</b></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                q("exList").innerHTML = html;
+            }).catch(function (e) {
+                q("exList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("ex_go").addEventListener("click", function () {
+            hide("exMsg");
+            var b = q("ex_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> যোগ হচ্ছে...';
+
+            var br = q("ex_br").value;
+
+            NK.POST("/api/expenses", {
+                category: q("ex_cat").value,
+                branchId: br ? Number(br) : null,
+                amount: Number(q("ex_amt").value),
+                expenseDate: q("ex_date").value,
+                description: q("ex_desc").value.trim() || null
+            }).then(function () {
+                say("exMsg", "খরচ যোগ হয়েছে ✓", true);
+                toast("খরচ যোগ হয়েছে", "ok");
+                q("ex_amt").value = "";
+                q("ex_desc").value = "";
+                loadExpense();
+            }).catch(function (e) {
+                say("exMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "খরচ যোগ করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * ধাপ
+         * ===================================================================== */
+        function loadStages() {
+            q("stList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/admin/stages").then(function (list) {
+                var rows = NK.rows(list);
+
+                var html = '<div class="list">';
+
+                rows.forEach(function (s) {
+                    html += '<div class="item">';
+                    html += '<div class="av" style="background:' + NK.esc(s.color) +
+                        ';color:#fff;font-size:12px;">' + s.dayFrom + '</div>';
+
+                    html += '<div class="mid"><b>' + NK.esc(s.name) + '</b>' +
+                        '<span>' + s.dayFrom + '–' + s.dayTo + ' দিন' +
+                        (s.blockNewLoan ? ' · ⛔ লোন বন্ধ' : '') + '</span></div>';
+
+                    html += '<div class="end"><b>' + s.customerCount + '</b>' +
+                        '<span style="font-size:11px;color:var(--muted);">' +
+                        NK.inrShort(s.outstandingAmount) + '</span></div>';
+
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                q("stList").innerHTML = html;
+
+            }).catch(function (e) {
+                q("stList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("stRefresh").addEventListener("click", function () {
+            var b = q("stRefresh");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> হিসাব হচ্ছে...';
+
+            NK.POST("/api/admin/stages/refresh").then(function (r) {
+                toast(r.changed + "টি লোনের ধাপ বদলেছে", "ok");
+                loadStages();
+            }).catch(function (e) {
+                toast(e.message, "er");
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "এখনই সব হিসাব করুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * সেটিংস
+         * ===================================================================== */
+        function loadSettings() {
+            q("setList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/admin/settings").then(function (list) {
+                var rows = NK.rows(list);
+                var html = "";
+
+                rows.forEach(function (s) {
+                    html += '<div class="card" style="padding:14px;">';
+                    html += '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">' +
+                        NK.esc(s.label || s.key) + '</div>';
+
+                    html += '<div style="display:flex;gap:8px;align-items:center;">';
+                    html += '<input type="number" value="' + NK.esc(s.value) +
+                        '" data-k="' + NK.esc(s.key) + '" ' +
+                        'style="flex:1;min-height:44px;padding:10px 12px;border:1.5px solid var(--line);' +
+                        'border-radius:10px;font-size:16px;">';
+                    html += '<span style="color:var(--muted);font-size:13px;min-width:40px;">' +
+                        NK.esc(s.unit || "") + '</span>';
+                    html += '<button class="btn sm" data-save="' + NK.esc(s.key) + '">সেভ</button>';
+                    html += '</div>';
+
+                    html += '</div>';
+                });
+
+                q("setList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("setList").querySelectorAll("[data-save]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var key = b.getAttribute("data-save");
+                        var inp = q("setList").querySelector('[data-k="' + key + '"]');
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.PUT("/api/admin/settings/" + key, { value: inp.value })
+                            .then(function () {
+                                toast("সংরক্ষিত ✓", "ok");
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                            })
+                            .then(function () {
+                                b.disabled = false;
+                                b.textContent = "সেভ";
+                            });
+                    });
+                });
+
+            }).catch(function (e) {
+                q("setList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+
+        /* =====================================================================
+         * পারমিশন
+         * ===================================================================== */
+        function loadPerm() {
+            var role = q("pm_role").value;
+            q("pmList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/permissions/" + role).then(function (list) {
+                var rows = NK.rows(list);
+                var html = '<div class="card">';
+
+                rows.forEach(function (p) {
+                    html += '<label style="display:flex;align-items:center;gap:10px;' +
+                        'padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;">';
+                    html += '<input type="checkbox" data-p="' + NK.esc(p.permissionKey) + '"' +
+                        (p.enabled ? ' checked' : '') +
+                        ' style="width:20px;height:20px;flex-shrink:0;">';
+                    html += '<span style="font-size:14px;">' + NK.esc(p.label) + '</span>';
+                    html += '</label>';
+                });
+
+                html += '</div>';
+                q("pmList").innerHTML = html;
+
+            }).catch(function (e) {
+                q("pmList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("pm_role").addEventListener("change", loadPerm);
+
+        q("pm_save").addEventListener("click", function () {
+            var role = q("pm_role").value;
+            var picked = [];
+
+            Array.prototype.forEach.call(q("pmList").querySelectorAll("[data-p]"), function (c) {
+                if (c.checked) picked.push(c.getAttribute("data-p"));
+            });
+
+            var b = q("pm_save");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> সংরক্ষণ হচ্ছে...';
+            hide("pmMsg");
+
+            NK.POST("/api/permissions", { role: role, permissions: picked })
+                .then(function () {
+                    say("pmMsg", "সংরক্ষিত হয়েছে ✓ (" + picked.length + "টি অনুমতি)", true);
+                    toast("পারমিশন সংরক্ষিত", "ok");
+                })
+                .catch(function (e) {
+                    say("pmMsg", e.message, false);
+                })
+                .then(function () {
+                    b.disabled = false;
+                    b.textContent = "সংরক্ষণ করুন";
+                });
+        });
+
+
+        /* =====================================================================
+         * ইম্পোর্ট
+         * ===================================================================== */
+        q("im_go").addEventListener("click", function () {
+            hide("imMsg");
+
+            var files = q("im_f").files;
+            if (!files || !files.length) {
+                say("imMsg", "ফাইল বাছুন", false);
+                return;
+            }
+
+            var fd = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                fd.append("files", files[i]);
+            }
+
+            var b = q("im_go");
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> তোলা হচ্ছে... (কয়েক মিনিট)';
+
+            q("imList").innerHTML = '<div class="loading">অপেক্ষা করুন — ৫-১০ মিনিট লাগতে পারে</div>';
+
+            NK.UPLOAD("/api/admin/import", fd).then(function (list) {
+                say("imMsg", "হয়ে গেছে ✓", true);
+                toast("ইম্পোর্ট শেষ", "ok");
+
+                var html = "";
+                (list || []).forEach(function (r) {
+                    html += '<div class="card">';
+                    html += '<b style="font-size:14px;">' + NK.esc(r.fileName) + '</b>';
+                    html += '<div style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.8;">';
+                    if (r.customersCreated) html += 'গ্রাহক: ' + r.customersCreated + '<br>';
+                    if (r.loansCreated)     html += 'লোন: ' + r.loansCreated + '<br>';
+                    if (r.paymentsCreated)  html += 'টাকা: ' + r.paymentsCreated + '<br>';
+                    if (r.skipped)          html += 'বাদ: ' + r.skipped + '<br>';
+                    if (r.errors)           html += '<span style="color:var(--red);">ভুল: ' + r.errors + '</span>';
+                    html += '</div></div>';
+                });
+
+                q("imList").innerHTML = html;
+
+            }).catch(function (e) {
+                say("imMsg", e.message, false);
+                q("imList").innerHTML = "";
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = "তুলুন";
+            });
+        });
+
+
+        /* =====================================================================
+         * লগইন লগ
+         * ===================================================================== */
+        function loadLog() {
+            q("logList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/admin/audit-logs/logins?page=0&size=60").then(function (r) {
+                var rows = NK.rows(r);
+
+                if (!rows.length) {
+                    q("logList").innerHTML = '<div class="card"><div class="empty">কোনো লগ নেই</div></div>';
+                    return;
+                }
+
+                var LBL = {
+                    LOGIN_SUCCESS: ["সফল", "g"],
+                    LOGIN_FAILED: ["ব্যর্থ", "r"],
+                    LOGIN_RATE_LIMITED: ["বেশি চেষ্টা", "a"],
+                    LOGIN_BLOCKED_ACCESS: ["সময়ের বাইরে", "a"]
+                };
+
+                var html = '<div class="list">';
+
+                rows.forEach(function (a) {
+                    var l = LBL[a.action] || [a.action, "n"];
+
+                    html += '<div class="item">';
+                    html += '<div class="av">🔑</div>';
+                    html += '<div class="mid"><b>' + NK.esc(a.userPhone || "—") + '</b>' +
+                        '<span>' + NK.dtTime(a.timestamp) + '</span></div>';
+                    html += '<div class="end"><span class="b ' + l[1] + '">' + l[0] + '</span></div>';
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                q("logList").innerHTML = html;
+
+            }).catch(function (e) {
+                q("logList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
         /* ---------------- নোটিফিকেশন ---------------- */
         function loadNotif() {
             NK.GET("/api/notifications").then(function (n) {
