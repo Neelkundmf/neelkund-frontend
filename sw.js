@@ -1,11 +1,12 @@
 /* =========================================================================
    NEELKUND — Service Worker
-   অ্যাপের ফাইলগুলো ফোনে জমা রাখে, তাই দ্রুত খোলে ও অফলাইনে চলে।
+   অ্যাপের ফাইল ফোনে জমা থাকে (অফলাইনে চলে), কিন্তু অনলাইনে থাকলে
+   সবসময় টাটকা ফাইল আসে — তাই নতুন আপডেট সঙ্গে সঙ্গে দেখা যায়।
 
-   ⚠️ API-র উত্তর কখনও জমা রাখা হয় না — টাকার হিসাব সবসময় তাজা থাকবে।
+   ⚠️ API-র উত্তর কখনও জমা রাখা হয় না — টাকার হিসাব সবসময় তাজা।
    ========================================================================= */
 
-var VER = "nk-v1";
+var VER = "nk-v2";
 
 var SHELL = [
     "/login.html",
@@ -25,9 +26,7 @@ var SHELL = [
 self.addEventListener("install", function (e) {
     e.waitUntil(
         caches.open(VER).then(function (c) {
-            return c.addAll(SHELL).catch(function () {
-                /* কোনো ফাইল না পেলেও আটকাবে না */
-            });
+            return c.addAll(SHELL).catch(function () {});
         }).then(function () {
             return self.skipWaiting();
         })
@@ -57,42 +56,28 @@ self.addEventListener("fetch", function (e) {
     var url = new URL(req.url);
 
     /* ⚠️ ব্যাকএন্ডের ডাটা কখনও ক্যাশ করব না */
-    if (url.hostname.indexOf("onrender.com") !== -1 &&
-        url.pathname.indexOf("/api/") === 0) {
-        return;
-    }
-    if (url.pathname.indexOf("/api/") === 0) {
+    if (url.pathname.indexOf("/api/") === 0 ||
+        url.hostname.indexOf("onrender.com") !== -1) {
         return;
     }
 
-    /* অন্য সাইটের জিনিস (ফন্ট ইত্যাদি) — নেটওয়ার্ক আগে */
+    /* অন্য সাইটের জিনিস (ফন্ট ইত্যাদি) — হাত দেব না */
     if (url.origin !== self.location.origin) {
         return;
     }
 
-    /* নিজেদের ফাইল — ক্যাশ আগে, তারপর নেট */
+    /* নিজেদের ফাইল — নেট আগে, নেট না থাকলে জমানোটা।
+       এতে অনলাইনে সবসময় টাটকা ফাইল আসে, নতুন আপডেট আটকায় না। */
     e.respondWith(
-        caches.match(req).then(function (hit) {
-            if (hit) {
-                /* পিছনে নতুন করে নামিয়ে রাখি */
-                fetch(req).then(function (res) {
-                    if (res && res.ok) {
-                        caches.open(VER).then(function (c) { c.put(req, res); });
-                    }
-                }).catch(function () {});
-
-                return hit;
+        fetch(req).then(function (res) {
+            if (res && res.ok) {
+                var copy = res.clone();
+                caches.open(VER).then(function (c) { c.put(req, copy); });
             }
-
-            return fetch(req).then(function (res) {
-                if (res && res.ok) {
-                    var copy = res.clone();
-                    caches.open(VER).then(function (c) { c.put(req, copy); });
-                }
-                return res;
-            }).catch(function () {
-                /* নেট নেই, ক্যাশেও নেই */
-                return caches.match("/login.html");
+            return res;
+        }).catch(function () {
+            return caches.match(req).then(function (hit) {
+                return hit || caches.match("/login.html");
             });
         })
     );
