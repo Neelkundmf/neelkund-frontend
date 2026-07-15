@@ -873,6 +873,7 @@
             if (!BR_ID) return;
 
             NK.GET("/api/dashboard?branchId=" + BR_ID).then(function (d) {
+                console.log("BRANCH DATA:", JSON.stringify(d, null, 2));
                 var h = "";
 
                 /* live হেডার — blink সহ */
