@@ -1356,17 +1356,8 @@
                     html += '<div class="av">🏬</div>';
                     html += '<div class="mid"><b>' + NK.esc(m.name) + '</b>' +
                         '<span>' + NK.esc(m.branchName) + ' · ' +
-                        m.customerCount + ' গ্রাহক</span></div>';
-                    html += '<div class="end"><span class="b n">' +
-                        (ROLE_BN2[u.role] || u.role) + '</span>';
-                    html += '<div style="display:flex;gap:4px;margin-top:6px;">';
-                    html += '<button class="btn sm ' + (off ? 'success' : 'ghost') +
-                        '" data-en="' + u.id + '" data-v="' + (off ? 'true' : 'false') +
-                        '" style="padding:0 8px;font-size:11px;">' +
-                        (off ? 'চালু' : 'বন্ধ') + '</button>';
-                    html += '<button class="btn sm danger" data-del="' + u.id +
-                        '" style="padding:0 8px;font-size:11px;">মুছুন</button>';
-                    html += '</div></div>';
+                        m.customerCount + ' গ্রাহক' +
+                        (m.managerName ? ' · ' + NK.esc(m.managerName) : '') + '</span></div>';
                     html += '</div>';
                 });
                 html += '</div>';
