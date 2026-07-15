@@ -1561,6 +1561,31 @@
         }
         q("tm_go").addEventListener("click", function () {
             hide("tmMsg");
+
+            /* ---- ঘর ধরে ধরে যাচাই ---- */
+            function bad(id, msg) {
+                var el = q(id);
+                el.style.borderColor = "var(--red)";
+                el.focus();
+                say("tmMsg", msg, false);
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            function ok(id) { q(id).style.borderColor = ""; }
+
+            ["tm_name","tm_phone","tm_pass","tm_aad","tm_ep"].forEach(ok);
+
+            var name  = q("tm_name").value.trim();
+            var phone = q("tm_phone").value.trim();
+            var pass  = q("tm_pass").value;
+            var aad   = q("tm_aad").value.trim();
+            var ep    = q("tm_ep").value.trim();
+
+            if (!name)                 return bad("tm_name", "নাম দিন");
+            if (phone.length !== 10)   return bad("tm_phone", "ফোন ঠিক ১০ সংখ্যার হতে হবে");
+            if (pass.length < 8)       return bad("tm_pass", "পাসওয়ার্ড কমপক্ষে ৮ অক্ষর");
+            if (aad && aad.length !== 12) return bad("tm_aad", "আধার ঠিক ১২ সংখ্যার হতে হবে, নয়তো খালি রাখুন");
+            if (ep && ep.length !== 10)   return bad("tm_ep", "জরুরি ফোন ঠিক ১০ সংখ্যার হতে হবে, নয়তো খালি রাখুন");
+
             var b = q("tm_go");
             b.disabled = true;
             b.innerHTML = '<span class="spin"></span> তৈরি হচ্ছে...';
@@ -1569,32 +1594,28 @@
             var sal = q("tm_sal").value;
 
             NK.POST("/api/admin/users", {
-                fullName: q("tm_name").value.trim(),
-                phone: q("tm_phone").value.trim(),
-                password: q("tm_pass").value,
+                fullName: name,
+                phone: phone,
+                password: pass,
                 role: q("tm_role").value,
                 branchId: br ? Number(br) : null,
                 area: q("tm_area").value.trim() || null,
                 monthlySalary: sal ? Number(sal) : null,
-                aadhaar: q("tm_aad").value.trim() || null,
+                aadhaar: aad || null,
                 pan: q("tm_pan").value.trim().toUpperCase() || null,
                 joinedDate: q("tm_join").value || null,
                 reportsToId: null,
-
                 fatherOrHusband: q("tm_fh").value.trim() || null,
                 dateOfBirth: q("tm_dob").value || null,
                 gender: q("tm_gen").value || null,
                 permanentAddress: q("tm_perm").value.trim() || null,
                 currentAddress: q("tm_curr").value.trim() || null,
                 emergencyName: q("tm_en").value.trim() || null,
-                emergencyPhone: q("tm_ep").value.trim() || null,
+                emergencyPhone: ep || null,
                 bloodGroup: q("tm_bg").value || null
             }).then(function () {
-                /* কর্মী তৈরি হল — এখন তার আইডি খুঁজে ছবি পাঠাই */
                 return fetchTeam().then(function () {
-                    var phone = q("tm_phone").value.trim();
                     var made = TEAM.filter(function (u) { return u.phone === phone; })[0];
-
                     if (made && Object.keys(TPICS).length) {
                         return uploadStaffPics(made.id);
                     }
@@ -1622,7 +1643,6 @@
                 b.textContent = "কর্মী তৈরি করুন";
             });
         });
-
 
         /* =====================================================================
          * ফান্ড
