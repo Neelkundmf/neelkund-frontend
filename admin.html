@@ -188,6 +188,7 @@
 
                 <div class="fld"><label>ব্রাঞ্চ</label><select id="tm_br"><option value="">— নেই —</option></select></div>
                 <div class="fld"><label>এলাকা</label><input id="tm_area"></div>
+                <div class="fld"><label>মার্কেট</label><select id="tm_mk"><option value="">— নেই —</option></select></div>
                 <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
                 <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন</div></div>
                 <div class="pic-row">
@@ -1211,7 +1212,23 @@
             });
             return o;
         }
+        var MARKETS = [];
 
+        function mkOpts() {
+            var o = "";
+            MARKETS.forEach(function (m) {
+                o += '<option value="' + NK.esc(m.id) + '">' +
+                    NK.esc(m.name) + (m.branchName ? ' · ' + NK.esc(m.branchName) : '') + '</option>';
+            });
+            return o;
+        }
+
+        function fetchMarkets() {
+            return NK.GET("/api/markets").then(function (r) {
+                MARKETS = NK.rows(r);
+                return MARKETS;
+            }).catch(function () { return []; });
+        }
         function fetchBranches() {
             return NK.GET("/api/branches").then(function (r) {
                 BRANCHES = NK.rows(r);
@@ -1406,8 +1423,9 @@
         };
 
         function loadTeam() {
-            fetchBranches().then(function () {
+            Promise.all([fetchBranches(), fetchMarkets()]).then(function () {
                 q("tm_br").innerHTML = '<option value="">— নেই —</option>' + brOpts(false);
+                q("tm_mk").innerHTML = '<option value="">— নেই —</option>' + mkOpts();
                 return fetchTeam();
             }).then(function () {
                 if (!TEAM.length) {
@@ -1599,6 +1617,7 @@
                 password: pass,
                 role: q("tm_role").value,
                 branchId: br ? Number(br) : null,
+                marketId: q("tm_mk").value ? Number(q("tm_mk").value) : null,
                 area: q("tm_area").value.trim() || null,
                 monthlySalary: sal ? Number(sal) : null,
                 aadhaar: aad || null,
