@@ -149,7 +149,11 @@ body {
     line-height: 1;
 }
 .tabs button.on { color: var(--navy); }
-.tabs button:active { background: #F4F7FA; }
+.tabs button { transition: transform .14s, background .14s; }
+.tabs button:active {
+    background: #F4F7FA;
+    transform: translateY(-4px);
+}
 
 
 /* ---------------- আরও মেনু (নিচ থেকে ওঠে) ---------------- */
