@@ -48,7 +48,9 @@
     </div>
 
     <div class="body">
-
+        <div class="backbar" id="backbar">
+            <button id="backBtn">← পিছনে (ড্যাশবোর্ড)</button>
+        </div>
         <!-- ---------------- ড্যাশবোর্ড ---------------- -->
         <div class="view on" id="v-dash">
 
@@ -577,6 +579,7 @@
             });
 
             q("ttl").textContent = TITLES[key] || key;
+            q("backbar").classList.remove("on");
             window.scrollTo(0, 0);
 
             if (!loaded[key]) {
@@ -651,6 +654,7 @@
                 });
 
                 q("ttl").textContent = b.textContent.trim();
+                q("backbar").classList.add("on");
                 window.scrollTo(0, 0);
 
                 var f = LOADERS[go];
@@ -810,36 +814,49 @@
                     NK.esc(e.message) + '</div></div>';
             });
         }
-        /* ---------------- প্রতিটা ব্রাঞ্চ আলাদা বাক্সে ---------------- */
+        /* ---------------- প্রতিটা ব্রাঞ্চ live floating বাক্সে ---------------- */
+        var BBOX_TIMER = null;
+
         function loadBranchBoxes() {
+            drawBranchBoxes();
+            clearInterval(BBOX_TIMER);
+            BBOX_TIMER = setInterval(drawBranchBoxes, 30000);
+        }
+
+        function drawBranchBoxes() {
             NK.GET("/api/dashboard/branch-summary").then(function (d) {
                 if (!d || !d.branches || !d.branches.length) {
                     q("branchBoxes").innerHTML = "";
                     return;
                 }
 
-                var h = '<h2 style="margin:18px 0 12px;">ব্রাঞ্চ অনুযায়ী</h2>';
-                h += '<div class="blocks">';
+                var h = '<h2 style="margin:18px 0 12px;">ব্রাঞ্চ অনুযায়ী <span style="font-size:12px;color:var(--muted);font-weight:400;">· লাইভ</span></h2>';
+                h += '<div class="brgrid">';
 
                 d.branches.forEach(function (b) {
-                    h += '<div class="blk" data-br="' + NK.esc(b.branchId) +
-                        '" data-name="' + NK.esc(b.branchName) +
-                        '" style="cursor:pointer;">';
-                    h += '<div class="amt">' + NK.esc(b.branchName) + '</div>';
-                    h += '<div class="row k"><span>আজ ওঠার</span><b>' +
-                        NK.inrShort(b.todayDue) + '</b></div>';
-                    h += '<div class="row g"><span>আজ উঠল</span><b>' +
-                        NK.inrShort(b.todayCollected) + '</b></div>';
-                    h += '<div class="row k"><span>চলমান</span><b>' + b.runningCustomers + '</b></div>';
-                    h += '<div class="row r"><span>OD</span><b>' + b.odCustomers + '</b></div>';
-                    h += '<div class="out">বাকি <b>' + NK.inrShort(b.outstanding) + '</b></div>';
+                    h += '<div class="brbox" data-br="' + NK.esc(b.branchId) +
+                        '" data-name="' + NK.esc(b.branchName) + '">';
+
+                    h += '<div class="bh"><b>' + NK.esc(b.branchName) + '</b>' +
+                        '<span class="live"><i></i>লাইভ</span></div>';
+
+                    h += '<div class="big">' + NK.inr(b.todayCollected) + '</div>';
+                    h += '<div class="cap">আজ উঠেছে · ওঠার কথা ' +
+                        NK.inrShort(b.todayDue) + '</div>';
+
+                    h += '<div class="brrow"><span>চলমান</span><b>' +
+                        b.runningCustomers + '</b></div>';
+                    h += '<div class="brrow od"><span>OD</span><b>' +
+                        b.odCustomers + '</b></div>';
+                    h += '<div class="brrow"><span>বাকি</span><b>' +
+                        NK.inrShort(b.outstanding) + '</b></div>';
+
                     h += '</div>';
                 });
 
                 h += '</div>';
                 q("branchBoxes").innerHTML = h;
 
-                /* বাক্সে ক্লিক করলে ওই ব্রাঞ্চ আলাদা পাতায় খুলবে */
                 Array.prototype.forEach.call(
                     q("branchBoxes").querySelectorAll("[data-br]"), function (el) {
                         el.addEventListener("click", function () {
@@ -851,6 +868,16 @@
                 q("branchBoxes").innerHTML = "";
             });
         }
+
+        /* ---------------- সব "আরও"-পাতায় পিছনে বোতাম ---------------- */
+        var MENU_KEYS = ["dash", "cust", "loan", "coll"];
+
+        function backToDash() {
+            show("dash");
+            q("backbar").classList.remove("on");
+        }
+
+        q("backBtn").addEventListener("click", backToDash);
         /* =====================================================================
            * ফান্ডের জীবন্ত হিসাব — প্রতি সেকেন্ডে
            * ===================================================================== */

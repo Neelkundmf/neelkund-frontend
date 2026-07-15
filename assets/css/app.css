@@ -866,3 +866,119 @@ body {
 }
 .pdocs .d img { width: 100%; height: 100%; object-fit: cover; }
 .pdocs .d.has { border-style: solid; border-color: var(--green); }
+/* =========================================================================
+   ব্রাঞ্চ অনুযায়ী — live floating বাক্স
+   ========================================================================= */
+
+.brgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.brbox {
+    position: relative;
+    background: linear-gradient(150deg, #12324F, #0C2236);
+    color: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(12,34,54,.28);
+    transition: transform .18s;
+    animation: brFloat 5s ease-in-out infinite;
+}
+.brbox:active { transform: scale(.98); }
+.brbox:nth-child(2n) { animation-delay: -1.6s; }
+.brbox:nth-child(3n) { animation-delay: -3.1s; }
+
+@keyframes brFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+}
+
+.brbox .bh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.brbox .bh b {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.brbox .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #86EFAC;
+    flex-shrink: 0;
+}
+.brbox .live i {
+    width: 7px;
+    height: 7px;
+    background: #22C55E;
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+}
+
+.brbox .big {
+    font-family: 'Manrope', sans-serif;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+}
+.brbox .cap {
+    font-size: 11px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 12px;
+}
+
+.brbox .brrow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-top: 1px solid rgba(255,255,255,.12);
+}
+.brbox .brrow span { color: rgba(255,255,255,.6); }
+.brbox .brrow b { font-weight: 700; }
+.brbox .brrow.od b { color: #FCA5A5; }
+
+/* =========================================================================
+   পিছনে বার — "আরও"-র পাতায়
+   ========================================================================= */
+
+.backbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.backbar.on { display: flex; }
+
+.backbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    min-height: 40px;
+    padding: 0 16px;
+
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.backbar button:active { background: var(--paper); }
