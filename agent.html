@@ -1054,7 +1054,7 @@
             q("mapWrap").style.display = "none";
         });
 
-        /* ---- "লোকেশন নিন" টিপলে — আগে GPS, তারপর ম্যাপ ---- */
+        /* ---- "লোকেশন নিন" টিপলে — GPS ধরে সোজা ঠিকানা বসাই (ম্যাপ ছাড়া) ---- */
         q("n_gps").addEventListener("click", function () {
             if (!navigator.geolocation) {
                 toast("এই ফোনে GPS নেই", "er");
@@ -1063,25 +1063,40 @@
 
             var b = q("n_gps");
             b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> খুঁজছি...';
+            b.innerHTML = '<span class="spin"></span> লোকেশন নিচ্ছি...';
 
             navigator.geolocation.getCurrentPosition(
                 function (pos) {
+                    var lat = pos.coords.latitude;
+                    var lng = pos.coords.longitude;
+
+                    NGPS = { lat: lat, lng: lng, acc: pos.coords.accuracy };
+
+                    q("n_loc").innerHTML = '✓ লোকেশন নেওয়া হয়েছে (' +
+                        pos.coords.accuracy.toFixed(0) + ' মিটার) — ঠিকানা আনছি...';
+                    q("n_loc").style.color = "var(--green)";
+
                     b.disabled = false;
                     b.textContent = "📍 আবার নিন";
 
-                    openMap(pos.coords.latitude, pos.coords.longitude,
-                        function (lat, lng, addr) {
-                            NGPS = { lat: lat, lng: lng, acc: pos.coords.accuracy };
-
-                            q("n_loc").innerHTML = '✓ জায়গা বসানো হয়েছে';
-                            q("n_loc").style.color = "var(--green)";
-
-                            /* ঠিকানা পেলে ঘরে বসাই (খালি থাকলে) */
-                            if (addr && !q("n_addr").value.trim()) {
+                    /* ওই জায়গার ঠিকানা এনে বক্সে বসাই */
+                    fetch("https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+                        lat + "&lon=" + lng + "&accept-language=bn")
+                        .then(function (r) { return r.json(); })
+                        .then(function (d) {
+                            var addr = (d && d.display_name) ? d.display_name : "";
+                            if (addr) {
                                 q("n_addr").value = addr;
+                                q("n_loc").innerHTML = '✓ লোকেশন ও ঠিকানা বসানো হয়েছে';
+                            } else {
+                                q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)';
                             }
-
+                            q("n_loc").style.color = "var(--green)";
+                            toast("লোকেশন বসানো হল ✓", "ok");
+                        })
+                        .catch(function () {
+                            q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা আনা গেল না)';
+                            q("n_loc").style.color = "var(--green)";
                             toast("লোকেশন বসানো হল ✓", "ok");
                         });
                 },
