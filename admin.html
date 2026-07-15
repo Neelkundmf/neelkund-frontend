@@ -1222,7 +1222,30 @@
             });
             return o;
         }
+        function fillMarketsForBranch() {
+            var role = q("tm_role").value;
+            var brId = q("tm_br").value;
 
+            // ম্যানেজার/অ্যাডমিন/পার্টনার হলে মার্কেট লাগবে না — লুকাই
+            var mkBox = q("tm_mk").closest(".fld");
+            if (role !== "AGENT") {
+                if (mkBox) mkBox.style.display = "none";
+                q("tm_mk").innerHTML = '<option value="">— নেই —</option>';
+                return;
+            }
+            if (mkBox) mkBox.style.display = "";
+
+            var opts = '<option value="">— নেই —</option>';
+            MARKETS.forEach(function (m) {
+                if (!brId || String(m.branchId) === String(brId)) {
+                    opts += '<option value="' + NK.esc(m.id) +
+                        '" data-mgr="' + NK.esc(m.managerId || "") + '">' +
+                        NK.esc(m.name) +
+                        (m.managerName ? ' · ' + NK.esc(m.managerName) : '') + '</option>';
+                }
+            });
+            q("tm_mk").innerHTML = opts;
+        }
         function fetchMarkets() {
             return NK.GET("/api/markets").then(function (r) {
                 MARKETS = NK.rows(r);
@@ -1417,6 +1440,7 @@
         /* =====================================================================
          * টিম
          * ===================================================================== */
+        var TM_MANAGER_ID = null;
         var ROLE_BN2 = {
             ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার",
             MANAGER: "ম্যানেজার", AGENT: "এজেন্ট"
@@ -1425,7 +1449,7 @@
         function loadTeam() {
             Promise.all([fetchBranches(), fetchMarkets()]).then(function () {
                 q("tm_br").innerHTML = '<option value="">— নেই —</option>' + brOpts(false);
-                q("tm_mk").innerHTML = '<option value="">— নেই —</option>' + mkOpts();
+                fillMarketsForBranch();
                 return fetchTeam();
             }).then(function () {
                 if (!TEAM.length) {
@@ -1501,7 +1525,15 @@
                 });
             });
         }
+        q("tm_br").addEventListener("change", fillMarketsForBranch);
+        q("tm_role").addEventListener("change", fillMarketsForBranch);
 
+        q("tm_mk").addEventListener("change", function () {
+            var opt = this.options[this.selectedIndex];
+            var mgr = opt ? opt.getAttribute("data-mgr") : "";
+            // মার্কেট বাছলে তার ম্যানেজার নিজে থেকে "কার অধীনে"-তে বসে
+            TM_MANAGER_ID = mgr ? Number(mgr) : null;
+        });
         q("tm_phone").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
@@ -1623,7 +1655,7 @@
                 aadhaar: aad || null,
                 pan: q("tm_pan").value.trim().toUpperCase() || null,
                 joinedDate: q("tm_join").value || null,
-                reportsToId: null,
+                reportsToId: (q("tm_role").value === "AGENT" && TM_MANAGER_ID) ? TM_MANAGER_ID : null,
                 fatherOrHusband: q("tm_fh").value.trim() || null,
                 dateOfBirth: q("tm_dob").value || null,
                 gender: q("tm_gen").value || null,
