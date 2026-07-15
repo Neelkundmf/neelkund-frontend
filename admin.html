@@ -51,6 +51,9 @@
         <div class="backbar" id="backbar">
             <button id="backBtn">← পিছনে (ড্যাশবোর্ড)</button>
         </div>
+        <div class="backbar" id="backbar">
+            <button id="backBtn">← পিছনে (ড্যাশবোর্ড)</button>
+        </div>
         <!-- ---------------- ড্যাশবোর্ড ---------------- -->
         <div class="view on" id="v-dash">
 
@@ -869,15 +872,22 @@
             });
         }
 
-        /* ---------------- সব "আরও"-পাতায় পিছনে বোতাম ---------------- */
-        var MENU_KEYS = ["dash", "cust", "loan", "coll"];
-
+        /* ---------------- সব জায়গায় পিছনে বোতাম ---------------- */
         function backToDash() {
+            /* কোনো প্রোফাইল/ব্রাঞ্চ পাতা খোলা থাকলে বন্ধ করি */
+            q("prof").classList.remove("on");
+            clearInterval(BR_TIMER);
+            BR_ID = null;
+
             show("dash");
             q("backbar").classList.remove("on");
         }
 
         q("backBtn").addEventListener("click", backToDash);
+
+        /* নিচের মেনুর ৪টে বাদে যেকোনো কিছু খুললেই back দেখাই */
+        function showBack() { q("backbar").classList.add("on"); }
+        function hideBack() { q("backbar").classList.remove("on"); }
         /* =====================================================================
            * ফান্ডের জীবন্ত হিসাব — প্রতি সেকেন্ডে
            * ===================================================================== */
