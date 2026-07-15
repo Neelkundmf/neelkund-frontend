@@ -982,3 +982,90 @@ body {
     cursor: pointer;
 }
 .backbar button:active { background: var(--paper); }
+/* =========================================================================
+   অঙ্কের ব্লক — clickable, professional
+   ========================================================================= */
+
+.amtgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.amtbox {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(12,34,54,.06);
+    transition: transform .16s, box-shadow .16s;
+}
+.amtbox:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(12,34,54,.14);
+}
+.amtbox:active { transform: scale(.98); }
+
+.amtbox::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2563EB, #22C55E);
+}
+
+.amtbox .amthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-top: 4px;
+}
+.amtbox .amthead .a {
+    font-family: 'Manrope', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.amtbox .amthead .go {
+    font-size: 16px;
+    color: var(--muted);
+}
+
+.amtbox .mini {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.amtbox .mini .m {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 10px;
+    background: var(--paper);
+}
+.amtbox .mini .m .n {
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+}
+.amtbox .mini .m .k {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+.amtbox .mini .m.run .n { color: var(--navy); }
+.amtbox .mini .m.od  .n { color: var(--red); }
+.amtbox .mini .m.done .n { color: var(--green); }
+
+.amtbox .amtout {
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+}
+.amtbox .amtout b { color: var(--red); font-size: 14px; }

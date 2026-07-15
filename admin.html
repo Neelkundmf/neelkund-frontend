@@ -709,24 +709,32 @@
                     html += st("বাইরের", NK.inrShort(d.investorCapital));
                     html += "</div></div>";
                 }
-
-                /* ---- ৫টা ব্লক ---- */
+                /* ---- ৫টা ব্লক (clickable) ---- */
                 html += '<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>';
-                html += '<div class="blocks">';
+                html += '<div class="amtgrid">';
 
                 (d.blocks || []).forEach(function (b) {
-                    html += '<div class="blk">';
-                    html += '<div class="amt">' + NK.inr(b.amount) + '</div>';
-                    html += '<div class="row k"><span>চলমান</span><b>' + b.running + '</b></div>';
-                    html += '<div class="row a"><span>দেরি</span><b>' + b.late + '</b></div>';
-                    html += '<div class="row r"><span>OD</span><b>' + b.od + '</b></div>';
-                    html += '<div class="row g"><span>শোধ</span><b>' + b.completed + '</b></div>';
-                    html += '<div class="out">বাকি <b>' + NK.inrShort(b.outstandingAmount) + '</b></div>';
-                    html += "</div>";
+                    html += '<div class="amtbox" data-amt="' + NK.esc(b.amount) + '">';
+
+                    html += '<div class="amthead"><div class="a">' + NK.inr(b.amount) +
+                        '</div><div class="go">›</div></div>';
+
+                    html += '<div class="mini">';
+                    html += '<div class="m run"><div class="n">' + b.running +
+                        '</div><div class="k">চলমান</div></div>';
+                    html += '<div class="m od"><div class="n">' + b.od +
+                        '</div><div class="k">OD</div></div>';
+                    html += '<div class="m done"><div class="n">' + b.completed +
+                        '</div><div class="k">শোধ</div></div>';
+                    html += '</div>';
+
+                    html += '<div class="amtout">বাকি <b>' +
+                        NK.inrShort(b.outstandingAmount) + '</b></div>';
+
+                    html += '</div>';
                 });
 
-                html += "</div>";
-
+                html += '</div>';
                 /* ---- OD বাক্স ---- */
                 html += '<div class="od-box">';
                 html += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন দেয়নি</div>';
@@ -736,10 +744,114 @@
 
                 q("dash").innerHTML = html;
 
+                /* ব্লকে ক্লিক → ওই অঙ্কের গ্রাহক তালিকা */
+                Array.prototype.forEach.call(
+                    q("dash").querySelectorAll("[data-amt]"), function (el) {
+                        el.addEventListener("click", function () {
+                            openAmount(Number(el.getAttribute("data-amt")));
+                        });
+                    });
+
             }).catch(function (e) {
                 q("dash").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        /* ---------------- অঙ্ক ধরে গ্রাহক তালিকা (আলাদা পাতা) ---------------- */
+        var AMT_VAL = null;
+        var AMT_TAB = "ACTIVE";
+        var AMT_LOANS = [];
+
+        function openAmount(amt) {
+            AMT_VAL = amt;
+            AMT_TAB = "ACTIVE";
+
+            q("prof").classList.add("on");
+            q("pTitle").textContent = NK.inr(amt) + " লোন";
+            q("pBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            window.scrollTo(0, 0);
+
+            NK.GET("/api/loans?page=0&size=1000").then(function (r) {
+                AMT_LOANS = NK.rows(r).filter(function (l) {
+                    return Number(l.principal) === AMT_VAL;
+                });
+                drawAmount();
+            }).catch(function (e) {
+                q("pBody").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawAmount() {
+            var list = AMT_LOANS.filter(function (l) {
+                if (AMT_TAB === "ACTIVE")    return l.status === "ACTIVE";
+                if (AMT_TAB === "CLOSED")    return l.status === "CLOSED";
+                if (AMT_TAB === "DEFAULTED") return l.status === "DEFAULTED";
+                return true;
+            });
+
+            var run = AMT_LOANS.filter(function (l) { return l.status === "ACTIVE"; }).length;
+            var done = AMT_LOANS.filter(function (l) { return l.status === "CLOSED"; }).length;
+            var od = AMT_LOANS.filter(function (l) { return l.status === "DEFAULTED"; }).length;
+
+            var h = '';
+
+            /* ট্যাব */
+            h += '<div class="chips" style="margin-bottom:14px;">';
+            h += tabBtn("ACTIVE", "চলমান (" + run + ")");
+            h += tabBtn("CLOSED", "শোধ হয়েছে (" + done + ")");
+            h += tabBtn("DEFAULTED", "OD (" + od + ")");
+            h += '</div>';
+
+            if (!list.length) {
+                h += '<div class="card"><div class="empty">এই তালিকায় কেউ নেই</div></div>';
+                q("pBody").innerHTML = h;
+                bindAmtTabs();
+                return;
+            }
+
+            h += '<div class="list">';
+            list.forEach(function (l) {
+                var due = Number(l.totalRepayable || 0) - Number(l.totalPaid || 0);
+                h += '<div class="item" data-cust="' + NK.esc(l.customerId) + '">';
+                h += '<div class="av">' +
+                    NK.esc((l.customerName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' +
+                    NK.esc(l.customerName || ("গ্রাহক " + l.customerId)) + '</b>' +
+                    '<span>#' + NK.esc(l.id) + ' · জমা ' +
+                    NK.inrShort(l.totalPaid) + '</span></div>';
+                h += '<div class="end"><b>' + NK.inrShort(due) + '</b>' +
+                    '<span style="font-size:11px;color:var(--muted);">বাকি</span></div>';
+                h += '</div>';
+            });
+            h += '</div>';
+
+            q("pBody").innerHTML = h;
+            bindAmtTabs();
+
+            /* একজনে ক্লিক → তার বিস্তারিত */
+            Array.prototype.forEach.call(
+                q("pBody").querySelectorAll("[data-cust]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openCustomer(el.getAttribute("data-cust"));
+                    });
+                });
+        }
+
+        function tabBtn(key, label) {
+            return '<button data-atab="' + key + '"' +
+                (AMT_TAB === key ? ' class="on"' : '') + '>' + label + '</button>';
+        }
+
+        function bindAmtTabs() {
+            Array.prototype.forEach.call(
+                q("pBody").querySelectorAll("[data-atab]"), function (b) {
+                    b.addEventListener("click", function () {
+                        AMT_TAB = b.getAttribute("data-atab");
+                        drawAmount();
+                    });
+                });
         }
 
         q("br").addEventListener("change", loadDash);
