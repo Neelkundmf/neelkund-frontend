@@ -899,21 +899,26 @@
                     Number(d.monthNetProfit) >= 0 ? "g" : "r");
                 h += '</div>';
 
-                /* ৫টা ব্লক */
+                /* ৫টা ব্লক — সুন্দর floating, clickable */
                 h += '<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>';
-                h += '<div class="blocks">';
+                h += '<div class="amtgrid">';
                 (d.blocks || []).forEach(function (b) {
-                    h += '<div class="blk">';
-                    h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
-                    h += '<div class="row k"><span>চলমান</span><b>' + b.running + '</b></div>';
-                    h += '<div class="row a"><span>দেরি</span><b>' + b.late + '</b></div>';
-                    h += '<div class="row r"><span>OD</span><b>' + b.od + '</b></div>';
-                    h += '<div class="row g"><span>শোধ</span><b>' + b.completed + '</b></div>';
-                    h += '<div class="out">বাকি <b>' + NK.inrShort(b.outstandingAmount) + '</b></div>';
+                    h += '<div class="amtbox" data-bramt="' + NK.esc(b.amount) + '">';
+                    h += '<div class="amthead"><div class="a">' + NK.inr(b.amount) +
+                        '</div><div class="go">›</div></div>';
+                    h += '<div class="mini">';
+                    h += '<div class="m run"><div class="n">' + b.running +
+                        '</div><div class="k">চলমান</div></div>';
+                    h += '<div class="m od"><div class="n">' + b.od +
+                        '</div><div class="k">OD</div></div>';
+                    h += '<div class="m done"><div class="n">' + b.completed +
+                        '</div><div class="k">শোধ</div></div>';
+                    h += '</div>';
+                    h += '<div class="amtout">বাকি <b>' +
+                        NK.inrShort(b.outstandingAmount) + '</b></div>';
                     h += '</div>';
                 });
                 h += '</div>';
-
                 /* OD বাক্স */
                 h += '<div class="od-box">';
                 h += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন দেয়নি</div>';
