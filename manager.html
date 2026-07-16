@@ -537,6 +537,62 @@
             font-size: 12.5px; padding: 3px 0; opacity: .96;
         }
         .bc-box .r b { font-family: 'Manrope', sans-serif; font-weight: 800; }
+        /* ---- ব্ল্যাকলিস্ট তালিকা ---- */
+        .bl-top {
+            background: linear-gradient(135deg, #7F1D1D, #B91C1C);
+            border-radius: 16px;
+            padding: 16px;
+            color: #fff;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .bl-top .n {
+            font-family: 'Manrope', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .bl-top .l { font-size: 12.5px; opacity: .9; margin-top: 2px; }
+
+        .bl-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-left: 4px solid #B91C1C;
+            border-radius: 13px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform .12s;
+        }
+        .bl-card:active { transform: scale(.99); }
+        .bl-card .av {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: #1F2937;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800;
+            flex-shrink: 0;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+        .bl-card .av .d { font-size: 13px; }
+        .bl-card .av .u { font-size: 8px; opacity: .8; }
+        .bl-card .mid { flex: 1; min-width: 0; }
+        .bl-card .nm { font-size: 15px; font-weight: 700; }
+        .bl-card .sub {
+            font-size: 12px; color: var(--muted); margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .bl-card .end { text-align: right; flex-shrink: 0; }
+        .bl-card .end .ov {
+            font-family: 'Manrope', sans-serif;
+            font-size: 15px; font-weight: 800; color: var(--red);
+        }
+        .bl-card .end .paid { font-size: 11px; color: #16A34A; margin-top: 2px; }
+        .bl-card .end .lid { font-size: 10px; color: var(--muted); margin-top: 2px; }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -659,7 +715,7 @@
         <button data-v="report"><i>📄</i>রিপোর্ট</button>
         <button data-v="req"><i>📝</i>অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
         <button data-v="cust"><i>🧑‍🤝‍🧑</i>গ্রাহক</button>
-        <button data-v="od"><i>🚨</i>OD</button>
+        <button data-v="od"><i>⛔</i>ব্ল্যাকলিস্ট</button>
     </div>
 </div>
 
@@ -693,7 +749,8 @@
 
         var TITLES = {
             dash: "ড্যাশবোর্ড", agent: "এজেন্ট", report: "আজকের রিপোর্ট",
-            req: "লোনের অনুরোধ", sheet: "কাগজ", cust: "গ্রাহক", od: "OD তালিকা"
+            req: "লোনের অনুরোধ", sheet: "কাগজ", cust: "গ্রাহক",
+            od: "ব্ল্যাকলিস্ট (১২০+ দিন)"
         };
         var loaded = {};
 
@@ -1141,7 +1198,6 @@
                 });
 
                 q("reqList").innerHTML = h;
-                q("reqList").innerHTML = h;
 
                 /* সারিতে টাচ → কাস্টমার প্রোফাইল (পরে বানানো হবে) */
                 Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-prof]"), function (el) {
@@ -1151,8 +1207,7 @@
                     });
                 });
 
-                /* অনুমোদন */
-                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
+
                 /* অনুমোদন */
                 Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
                     b.addEventListener("click", function () {
@@ -1488,45 +1543,101 @@
         /* =====================================================================
          * OD
          * ===================================================================== */
+        /* =====================================================================
+            * ব্ল্যাকলিস্ট — ১২০+ দিন (odDays এর বেশি)
+            * ===================================================================== */
+        var BL_ALL = [];
+        var blTimer = null;
+
         function loadOd() {
             q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
             NK.GET("/api/dashboard/od-customers").then(function (list) {
-                var rows = NK.rows(list);
-
-                if (!rows.length) {
-                    q("odList").innerHTML = '<div class="card"><div class="empty">✓ কেউ OD-তে নেই</div></div>';
-                    return;
-                }
-
-                var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
-
-                var h = '<div class="od-box"><div class="t">⛔ মোট OD</div>' +
-                    '<div class="n">' + rows.length + ' জন</div>' +
-                    '<div class="a">' + NK.inr(total) + '</div></div>';
-
-                h += '<div class="list" style="margin-top:14px;">';
-
-                rows.slice(0, 150).forEach(function (x) {
-                    h += '<div class="item">';
-                    h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
-                        x.daysOverdue + 'দি</div>';
-                    h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                        '<span>' + NK.esc(x.customerPhone || "—") + ' · ' +
-                        NK.esc(x.agentName || "") + '</span></div>';
-                    h += '<div class="end"><b style="color:var(--red);">' +
-                        NK.inrShort(x.outstanding) + '</b></div>';
-                    h += '</div>';
-                });
-
-                h += '</div>';
-                q("odList").innerHTML = h;
-
+                BL_ALL = NK.rows(list);
+                drawBlList();
             }).catch(function (e) {
-                q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("odList").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
+        function drawBlList() {
+            var s = (q("blq") ? q("blq").value.trim().toLowerCase() : "");
+
+            var list = BL_ALL.filter(function (c) {
+                if (!s) return true;
+                return (c.customerName || "").toLowerCase().indexOf(s) !== -1
+                    || (c.customerCode || "").toLowerCase().indexOf(s) !== -1
+                    || (c.customerPhone || "").indexOf(s) !== -1;
+            });
+
+            var total = BL_ALL.reduce(function (a, x) {
+                return a + Number(x.outstanding || 0);
+            }, 0);
+
+            var h = "";
+
+            h += '<div class="bl-top">';
+            h += '<div class="n">' + BL_ALL.length + ' জন</div>';
+            h += '<div class="l">ব্ল্যাকলিস্টে · মোট বাকি ' + NK.inr(total) + '</div>';
+            h += '</div>';
+
+            h += '<div class="search"><span class="ic">🔍</span>' +
+                '<input id="blq" type="search" placeholder="নাম / আইডি / ফোন খুঁজুন" value="' +
+                (s ? NK.esc(q("blq").value) : "") + '"></div>';
+
+            if (!list.length) {
+                h += '<div class="card"><div class="empty">কেউ নেই</div></div>';
+            } else {
+                list.slice(0, 200).forEach(function (x) {
+                    h += '<div class="bl-card" data-prof="' + x.customerId + '">';
+
+                    h += '<div class="av"><span class="d">' + x.daysOverdue +
+                        '</span><span class="u">দিন</span></div>';
+
+                    h += '<div class="mid">';
+                    h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
+                    h += '<div class="sub">' + NK.esc(x.customerPhone || "—") +
+                        ' · এজেন্ট ' + NK.esc(x.agentName || "—") +
+                        (x.marketName ? ' · ' + NK.esc(x.marketName) : '') + '</div>';
+                    h += '<div class="sub">লোন ₹' + NK.inr(x.principal) +
+                        ' · #' + x.loanId + '</div>';
+                    h += '</div>';
+
+                    h += '<div class="end">';
+                    h += '<div class="ov">' + NK.inrShort(x.outstanding) + '</div>';
+                    h += '<div class="paid">শোধ ' + NK.inrShort(x.totalPaid) + '</div>';
+                    h += '</div>';
+
+                    h += '</div>';
+                });
+
+                if (list.length > 200) {
+                    h += '<div class="hint" style="text-align:center;margin-top:8px;">' +
+                        'প্রথম ২০০ জন — খুঁজে বের করুন</div>';
+                }
+            }
+
+            q("odList").innerHTML = h;
+
+            if (q("blq")) {
+                q("blq").addEventListener("input", function () {
+                    clearTimeout(blTimer);
+                    blTimer = setTimeout(drawBlList, 300);
+                });
+                if (s) {
+                    var el = q("blq");
+                    el.focus();
+                    el.setSelectionRange(el.value.length, el.value.length);
+                }
+            }
+
+            Array.prototype.forEach.call(q("odList").querySelectorAll("[data-prof]"), function (el) {
+                el.addEventListener("click", function () {
+                    openCustomerProfile(el.getAttribute("data-prof"));
+                });
+            });
+        }
 
         /* =====================================================================
          * নোটিফিকেশন
