@@ -137,6 +137,110 @@
             text-align: center;
             color: var(--muted);
         }
+        /* ---- ম্যানেজার ড্যাশবোর্ড — স্বাগত ব্যানার ---- */
+        .mgr-hello {
+            background: linear-gradient(135deg, #0F766E, #2563EB);
+            border-radius: 18px;
+            padding: 18px 20px;
+            color: #fff;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 22px rgba(37,99,235,.18);
+        }
+        .mgr-hello .br {
+            font-size: 12.5px;
+            opacity: .9;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .mgr-hello .wel {
+            font-size: 21px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* ---- উপরের ৪ বক্স ---- */
+        .mgr-top {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .mgr-stat {
+            border-radius: 16px;
+            padding: 15px;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(15,41,66,.12);
+        }
+        .mgr-stat .l { font-size: 12px; opacity: .92; }
+        .mgr-stat .v {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+        .mgr-stat .sub {
+            font-size: 11px;
+            opacity: .9;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .mgr-stat.s0 { background: linear-gradient(135deg, #DC2626, #F87171); }
+        .mgr-stat.s1 { background: linear-gradient(135deg, #16A34A, #4ADE80); }
+        .mgr-stat.s2 { background: linear-gradient(135deg, #2563EB, #60A5FA); }
+        .mgr-stat.s3 { background: linear-gradient(135deg, #7C3AED, #A78BFA); }
+
+        /* ---- মার্কেট সারি ---- */
+        .mgr-mkt-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy);
+            margin: 4px 0 12px;
+            text-align: center;
+        }
+        .mgr-mkt-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .mgr-mkt {
+            border-radius: 16px;
+            padding: 15px;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16,185,129,.18);
+            transition: transform .15s;
+            background: linear-gradient(135deg, #0EA5A4, #22C55E);
+        }
+        .mgr-mkt:nth-child(even) {
+            background: linear-gradient(135deg, #2563EB, #38BDF8);
+            box-shadow: 0 8px 20px rgba(37,99,235,.18);
+        }
+        .mgr-mkt:active { transform: scale(.97); }
+        .mgr-mkt .nm {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .mgr-mkt .rows > div {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 3px 0;
+            opacity: .95;
+        }
+        .mgr-mkt .rows b {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+        }
+        .mgr-mkt .od {
+            margin-top: 8px;
+            background: rgba(0,0,0,.18);
+            border-radius: 9px;
+            padding: 5px 10px;
+            font-size: 12px;
+            text-align: center;
+            font-weight: 700;
+        }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -235,9 +339,9 @@
 
     <div class="tabs">
         <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
-        <button data-v="req"><i>📝</i>অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
-        <button data-v="sheet"><i>📄</i>কাগজ</button>
-        <button data-v="cust"><i>👤</i>গ্রাহক</button>
+        <button data-v="agent"><i>👥</i>এজেন্ট</button>
+        <button data-v="report"><i>📄</i>আজকের রিপোর্ট</button>
+        <button data-v="req"><i>📝</i>লোন অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
         <button data-v="od"><i>🚨</i>OD</button>
     </div>
 
@@ -311,47 +415,70 @@
         function loadDash() {
             q("dash").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
-            NK.GET("/api/dashboard").then(function (d) {
+            var me = NK.me();
+            var mgrName = (me && me.fullName) ? me.fullName : "ম্যানেজার";
+
+            /* দুটো একসাথে আনি — মূল হিসাব + মার্কেট সারি */
+            Promise.all([
+                NK.GET("/api/dashboard"),
+                NK.GET("/api/dashboard/manager-markets")
+            ]).then(function (res) {
+                var d = res[0];
+                var m = res[1];
+
                 var h = "";
 
-                h += '<div class="stats">';
-                h += st("আজ ওঠার কথা", NK.inrShort(d.todayDue));
-                h += st("আজ উঠেছে", NK.inrShort(d.todayCollected), "g");
-                h += st("চলমান গ্রাহক", d.runningCustomers);
-                h += st("শোধ হয়েছে", d.completedCustomers, "g");
+                /* ---- স্বাগত ব্যানার ---- */
+                h += '<div class="mgr-hello">';
+                h += '<div class="br">🏬 ' + NK.esc(d.branchName || "ব্রাঞ্চ") + '</div>';
+                h += '<div class="wel">স্বাগতম, ' + NK.esc(mgrName) + '</div>';
                 h += '</div>';
 
-                h += '<div class="card"><h2 style="margin-bottom:12px;">এই মাস</h2>';
-                h += '<div class="stats" style="margin:0;">';
-                h += st("বিতরণ", NK.inrShort(d.monthDisbursed));
-                h += st("আদায়", NK.inrShort(d.monthCollected), "g");
-                h += '</div></div>';
+                /* ---- উপরের ৪ বক্স ---- */
+                h += '<div class="mgr-top">';
 
-                h += '<h2 style="margin:18px 0 12px;">অঙ্ক অনুযায়ী</h2>';
-                h += '<div class="blocks">';
+                h += '<div class="mgr-stat s0"><div class="l">আজ ওঠার কথা</div>' +
+                    '<div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
 
-                (d.blocks || []).forEach(function (x) {
-                    h += '<div class="blk">';
-                    h += '<div class="amt">' + NK.inr(x.amount) + '</div>';
-                    h += '<div class="row k"><span>চলমান</span><b>' + x.running + '</b></div>';
-                    h += '<div class="row a"><span>দেরি</span><b>' + x.late + '</b></div>';
-                    h += '<div class="row r"><span>OD</span><b>' + x.od + '</b></div>';
-                    h += '<div class="out">বাকি <b>' + NK.inrShort(x.outstandingAmount) + '</b></div>';
+                h += '<div class="mgr-stat s1"><div class="l">আজ উঠেছে</div>' +
+                    '<div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
+
+                h += '<div class="mgr-stat s2"><div class="l">চলমান গ্রাহক</div>' +
+                    '<div class="v">' + d.runningCustomers + '</div></div>';
+
+                h += '<div class="mgr-stat s3"><div class="l">এই মাসের রিপোর্ট</div>' +
+                    '<div class="sub">বিতরণ ' + NK.inrShort(d.monthDisbursed) + '<br>' +
+                    'আদায় ' + NK.inrShort(d.monthCollected) + '</div></div>';
+
+                h += '</div>';
+
+                /* ---- মার্কেট সারি ---- */
+                h += '<div class="mgr-mkt-title">মার্কেট</div>';
+
+                var mkts = (m && m.markets) ? m.markets : [];
+                if (!mkts.length) {
+                    h += '<div class="card"><div class="empty">এই ব্রাঞ্চে কোনো মার্কেট নেই</div></div>';
+                } else {
+                    h += '<div class="mgr-mkt-grid">';
+                    mkts.forEach(function (x) {
+                        h += '<div class="mgr-mkt">';
+                        h += '<div class="nm">' + NK.esc(x.marketName) + '</div>';
+                        h += '<div class="rows">';
+                        h += '<div><span>আজ ওঠার</span><b>' + NK.inrShort(x.todayDue) + '</b></div>';
+                        h += '<div><span>আজ উঠল</span><b>' + NK.inrShort(x.todayCollected) + '</b></div>';
+                        h += '<div><span>চলমান</span><b>' + x.runningCustomers + '</b></div>';
+                        h += '</div>';
+                        h += '<div class="od">OD ' + x.odCustomers + ' জন</div>';
+                        h += '</div>';
+                    });
                     h += '</div>';
-                });
-
-                h += '</div>';
-
-                h += '<div class="od-box">';
-                h += '<div class="t">⛔ ' + d.odDaysThreshold + '+ দিন</div>';
-                h += '<div class="n">' + d.totalOdCustomers + ' জন</div>';
-                h += '<div class="a">' + NK.inr(d.totalOdAmount) + '</div>';
-                h += '</div>';
+                }
 
                 q("dash").innerHTML = h;
 
             }).catch(function (e) {
-                q("dash").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("dash").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
