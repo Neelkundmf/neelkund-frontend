@@ -688,7 +688,7 @@
         <div class="view" id="v-cust">
             <div class="search">
                 <span class="ic">🔍</span>
-                <input id="cq" type="search" placeholder="নাম / ফোন খুঁজুন">
+                <input id="cq" type="search" placeholder="নাম / ফোন / CUST ID খুঁজুন">
             </div>
 
             <div class="chips" id="ctabs">
@@ -1950,16 +1950,23 @@
         var cShow = 50;
         function loadCust() {
             var s = q("cq").value.trim();
-            var path = "/api/customers/list?tab=" + cTab +
-                (s ? "&search=" + encodeURIComponent(s) : "");
+            var path = "/api/dashboard/agent-customers" +
+                (s ? "?search=" + encodeURIComponent(s) : "");
 
             q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
             NK.GET(path).then(function (list) {
-                var rows = NK.rows(list);
-                MYC = rows;
+                var all = NK.rows(list);
 
-                if (!rows.length) {
+                // ট্যাব অনুযায়ী ছাঁকা (চলমান / পিছিয়ে / শোধ)
+                MYC = all.filter(function (c) {
+                    if (cTab === "ACTIVE")    return c.status === "ACTIVE";
+                    if (cTab === "COMPLETED") return c.status === "CLOSED";
+                    if (cTab === "OVERDUE")   return Number(c.daysOverdue || 0) > 0;
+                    return true;
+                });
+
+                if (!MYC.length) {
                     q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
                     return;
                 }
@@ -1970,25 +1977,57 @@
                 q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
         function drawCust() {
             var rows = MYC;
 
             var h = '<div class="list">';
 
-            rows.slice(0, cShow).forEach(function (c) {
+            rows.slice(0, cShow).forEach(function (c, i) {
                 var closed = c.status === "CLOSED";
+                var initial = NK.esc((c.fullName || "?").charAt(0));
+
+                // New / Repeat ব্যাজ
+                var nrBadge = c.isRepeat
+                    ? '<span class="b a" style="font-size:9.5px;">রিপিট</span>'
+                    : '<span class="b g" style="font-size:9.5px;">নতুন</span>';
+
+                // Remaining Days লেখা
+                var remTxt = "";
+                if (!closed && c.remainingDays !== null && c.remainingDays !== undefined) {
+                    if (c.remainingDays >= 0) {
+                        remTxt = c.remainingDays + " দিন বাকি";
+                    } else {
+                        remTxt = Math.abs(c.remainingDays) + " দিন পার";
+                    }
+                }
+
+                // পিছিয়ে থাকলে লাল
+                var odTxt = Number(c.daysOverdue || 0) > 0
+                    ? '<span style="color:var(--red);font-weight:600;">' + c.daysOverdue + ' দিন পিছিয়ে</span>'
+                    : "";
 
                 h += '<div class="item"' +
                     (closed ? '' : ' data-pay="' + c.loanId +
                         '" data-name="' + NK.esc(c.fullName) + '" data-amt=""') + '>';
-                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
-                    '<span>' + NK.esc(c.phone || "—") + ' · ' +
-                    NK.esc(c.daysLabel || "") + '</span></div>';
+
+                // গোল আইকন — ছবি থাকলে পরে বসবে, আইডি দিয়ে চিনব
+                h += '<div class="av" id="cav' + c.customerId + '"' +
+                    (c.hasPhoto ? ' data-photo="' + c.customerId + '"' : '') + '>' +
+                    initial + '</div>';
+
+                h += '<div class="mid"><b>' + NK.esc(c.fullName) + ' ' + nrBadge + '</b>' +
+                    '<span>' + NK.esc(c.customerCode || "—") + ' · ' + NK.esc(c.phone || "—") + '</span>' +
+                    '<span>' + NK.inr(c.principal) + ' · ' + NK.esc(c.marketName || "—") +
+                    (remTxt ? ' · ' + remTxt : '') + '</span>' +
+                    (odTxt ? '<span>' + odTxt + '</span>' : '') +
+                    '</div>';
+
                 h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
                     (closed ? '<span class="b g">শোধ</span>'
                         : '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span>') +
                     '</div>';
+
                 h += '</div>';
             });
 
@@ -2010,6 +2049,28 @@
             }
 
             bindPay(q("cList"));
+
+            // যাদের ছবি আছে — পেছনে একটা একটা করে লোড করি
+            loadRowPhotos();
+        }
+
+        // গোল আইকনে ছবি বসানো (টোকেন সহ, blob দিয়ে)
+        function loadRowPhotos() {
+            var avs = document.querySelectorAll("#cList [data-photo]");
+            Array.prototype.forEach.call(avs, function (el) {
+                var id = el.getAttribute("data-photo");
+                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
+                    if (!blob) return;
+                    var url = URL.createObjectURL(blob);
+                    el.style.backgroundImage = "url(" + url + ")";
+                    el.style.backgroundSize = "cover";
+                    el.style.backgroundPosition = "center";
+                    el.textContent = "";   // অক্ষর সরাই, ছবি থাকল
+                }).catch(function () {
+                    // ছবি না এলে অক্ষরই থাকবে — কিছু করার নেই
+                });
+            });
+        }
         }
         Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
             b.addEventListener("click", function () {
