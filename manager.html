@@ -333,6 +333,139 @@
         }
         .agm-stat .row .v.g { color: #16A34A; }
         .agm-stat .row .v.r { color: var(--red); }
+        /* ---- আজকের রিপোর্ট ---- */
+        .rep-sec {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy);
+            margin: 20px 0 12px;
+            padding-left: 10px;
+            border-left: 4px solid #2563EB;
+        }
+
+        /* এজেন্ট বক্স সারি */
+        .rep-ag-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .rep-ag {
+            border-radius: 15px;
+            padding: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #2563EB, #0EA5A4);
+            box-shadow: 0 6px 16px rgba(37,99,235,.16);
+        }
+        .rep-ag:nth-child(even) {
+            background: linear-gradient(135deg, #0F766E, #22C55E);
+        }
+        .rep-ag .nm {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rep-ag .r {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            padding: 2px 0;
+            opacity: .95;
+        }
+        .rep-ag .r b { font-family: 'Manrope', sans-serif; font-weight: 800; }
+
+        /* ব্রাঞ্চ মোট — বড় লাইন */
+        .rep-branch {
+            background: #fff;
+            border-radius: 16px;
+            padding: 6px 16px;
+            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+        }
+        .rep-branch .line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .rep-branch .line:last-child { border-bottom: 0; }
+        .rep-branch .line .l { font-size: 13.5px; color: var(--ink); }
+        .rep-branch .line .v {
+            font-family: 'Manrope', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+        }
+        .rep-branch .line .v.g { color: #16A34A; }
+        .rep-branch .line .v.r { color: var(--red); }
+
+        /* DB হিসাব */
+        .rep-db {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .rep-db .cell {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            padding: 13px;
+            text-align: center;
+        }
+        .rep-db .cell .l { font-size: 12px; color: var(--muted); }
+        .rep-db .cell .v {
+            font-family: 'Manrope', sans-serif;
+            font-size: 21px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* Disbursement টেবিল */
+        .rep-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .rep-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .rep-tbl th, .rep-tbl td {
+            padding: 9px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+        .rep-tbl th {
+            background: var(--navy);
+            color: #fff;
+            font-weight: 700;
+            font-size: 11.5px;
+        }
+        .rep-tbl td.nm { text-align: left; font-weight: 600; }
+        .rep-tbl tr:last-child td {
+            font-weight: 800;
+            background: #F0F5FF;
+            border-bottom: 0;
+        }
+        .rep-tbl .tot-col { font-weight: 800; color: var(--navy); }
+
+        /* ডাউনলোড */
+        .rep-dl {
+            width: 100%;
+            min-height: 52px;
+            border: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #16A34A, #22C55E);
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 18px;
+        }
+        .rep-dl:active { transform: scale(.98); }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -512,12 +645,13 @@
 
             if (!loaded[key]) {
                 loaded[key] = true;
-                if (key === "dash")  loadDash();
-                if (key === "agent") loadAgents();
-                if (key === "req")   loadReq();
-                if (key === "sheet") loadSheet();
-                if (key === "cust")  loadCust();
-                if (key === "od")    loadOd();
+                if (key === "dash")   loadDash();
+                if (key === "agent")  loadAgents();
+                if (key === "report") loadReport();
+                if (key === "req")    loadReq();
+                if (key === "sheet")  loadSheet();
+                if (key === "cust")   loadCust();
+                if (key === "od")     loadOd();
             }
         }
 
@@ -679,6 +813,110 @@
 
             q("agExcel").addEventListener("click", function () {
                 toast("Excel রিপোর্ট শীঘ্রই আসছে", "in");
+            });
+        }
+        /* =====================================================================
+         * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB · Disbursement টেবিল
+         * ===================================================================== */
+        function loadReport() {
+            q("reportBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            Promise.all([
+                NK.GET("/api/dashboard/agent-today-report"),
+                NK.GET("/api/dashboard/branch-today-report"),
+                NK.GET("/api/dashboard/today-db-report"),
+                NK.GET("/api/dashboard/disbursement-table")
+            ]).then(function (res) {
+                var ag = res[0];
+                var br = res[1];
+                var db = res[2];
+                var ds = res[3];
+
+                var h = "";
+
+                h += '<div class="rep-sec">👥 এজেন্ট অনুযায়ী</div>';
+                var agents = (ag && ag.agents) ? ag.agents : [];
+                if (!agents.length) {
+                    h += '<div class="card"><div class="empty">আজ কোনো এজেন্টের হিসাব নেই</div></div>';
+                } else {
+                    h += '<div class="rep-ag-grid">';
+                    agents.forEach(function (a) {
+                        h += '<div class="rep-ag">';
+                        h += '<div class="nm">' + NK.esc(a.agentName) + '</div>';
+                        h += '<div class="r"><span>আজ ওঠার</span><b>' + NK.inrShort(a.todayDue) + '</b></div>';
+                        h += '<div class="r"><span>আজ উঠল</span><b>' + NK.inrShort(a.todayCollected) + '</b></div>';
+                        h += '<div class="r"><span>OD উঠল</span><b>' + NK.inrShort(a.odCollected) + '</b></div>';
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+
+                h += '<div class="rep-sec">🏦 ব্রাঞ্চের মোট হিসাব</div>';
+                h += '<div class="rep-branch">';
+                h += '<div class="line"><span class="l">আজ ওঠার কথা</span><span class="v">' +
+                    NK.inr(br.todayCollection) + '</span></div>';
+                h += '<div class="line"><span class="l">আজ উঠল</span><span class="v g">' +
+                    NK.inr(br.todayCollected) + '</span></div>';
+                h += '<div class="line"><span class="l">আজ OD উঠল</span><span class="v">' +
+                    NK.inr(br.todayOdCollected) + '</span></div>';
+                h += '<div class="line"><span class="l">ব্ল্যাকলিস্ট OD উঠল</span><span class="v">' +
+                    NK.inr(br.todayBlacklistCollected) + '</span></div>';
+                h += '<div class="line"><span class="l">ব্রাঞ্চ OD গ্রাহক</span><span class="v r">' +
+                    br.branchOdCustomers + ' জন · ' + NK.inrShort(br.branchOdAmount) + '</span></div>';
+                h += '</div>';
+
+                h += '<div class="rep-sec">📦 আজকের বিতরণ (DB)</div>';
+                h += '<div class="rep-db">';
+                h += '<div class="cell"><div class="l">নতুন গ্রাহক</div><div class="v">' + db.todayNewDb + '</div></div>';
+                h += '<div class="cell"><div class="l">পুরনো (আবার)</div><div class="v">' + db.todayRepeatDb + '</div></div>';
+                h += '<div class="cell"><div class="l">মোট DB</div><div class="v">' + db.totalDb + '</div></div>';
+                h += '<div class="cell"><div class="l">আজ বিতরণ</div><div class="v">' + NK.inrShort(db.todayAmount) + '</div></div>';
+                h += '</div>';
+
+                h += '<div class="rep-sec">📊 এই মাসের বিতরণ (এজেন্ট অনুযায়ী)</div>';
+                h += '<div class="rep-tbl-wrap"><table class="rep-tbl">';
+                h += '<tr><th>এজেন্ট</th><th>ID</th><th>2k</th><th>4k</th><th>6k</th>' +
+                    '<th>8k</th><th>10k</th><th>মোট</th></tr>';
+
+                var drows = (ds && ds.rows) ? ds.rows : [];
+                if (!drows.length) {
+                    h += '<tr><td colspan="8">এই মাসে বিতরণ নেই</td></tr>';
+                } else {
+                    drows.forEach(function (r) {
+                        h += '<tr>';
+                        h += '<td class="nm">' + NK.esc(r.agentName) + '</td>';
+                        h += '<td>' + r.agentId + '</td>';
+                        h += '<td>' + r.c2000 + '</td>';
+                        h += '<td>' + r.c4000 + '</td>';
+                        h += '<td>' + r.c6000 + '</td>';
+                        h += '<td>' + r.c8000 + '</td>';
+                        h += '<td>' + r.c10000 + '</td>';
+                        h += '<td class="tot-col">' + r.totalNo + '</td>';
+                        h += '</tr>';
+                    });
+                    h += '<tr>';
+                    h += '<td class="nm">মোট</td><td>—</td>';
+                    h += '<td>' + ds.total2000 + '</td>';
+                    h += '<td>' + ds.total4000 + '</td>';
+                    h += '<td>' + ds.total6000 + '</td>';
+                    h += '<td>' + ds.total8000 + '</td>';
+                    h += '<td>' + ds.total10000 + '</td>';
+                    h += '<td>' + ds.grandTotal + '</td>';
+                    h += '</tr>';
+                }
+                h += '</table></div>';
+
+                h += '<button class="rep-dl" id="repDl">⬇️ রিপোর্ট ডাউনলোড</button>';
+
+                q("reportBox").innerHTML = h;
+
+                q("repDl").addEventListener("click", function () {
+                    toast("রিপোর্ট ডাউনলোড শীঘ্রই আসছে", "in");
+                });
+
+            }).catch(function (e) {
+                q("reportBox").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
         function loadDash() {
