@@ -363,13 +363,12 @@
     </div>
 
     <div class="body">
-
         <!-- ---------------- আজকের কাজ ---------------- -->
         <div class="view on" id="v-today">
             <div id="mkt"></div>
+            <div id="amtDash"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
-
         <!-- ---------------- গ্রাহক ---------------- -->
         <div class="view" id="v-cust">
             <div class="search">
@@ -1083,6 +1082,100 @@
         q("amtClose").addEventListener("click", function () {
             q("amtPage").classList.remove("on");
         });
+        /* =====================================================================
+         * এজেন্ট ড্যাশবোর্ড — অঙ্ক অনুযায়ী বক্স (২০০০...১০০০০)
+         * ===================================================================== */
+        function loadAmtDash() {
+            NK.GET("/api/agent/my-amount-dashboard").then(function (d) {
+                drawAmtDash(d);
+            }).catch(function () {
+                q("amtDash").innerHTML = "";
+            });
+        }
+
+        function drawAmtDash(d) {
+            var h = "";
+
+            /* উপরে মোট — Due / Collected */
+            h += '<div class="target" style="margin-bottom:14px;">';
+            h += '<div class="t">📊 অঙ্ক অনুযায়ী হিসাব</div>';
+            h += '<div class="sub" style="margin-top:10px;">';
+            h += '<span>মোট বাকি ' + NK.inr(d.totalDue) + '</span>';
+            h += '<span>আজ উঠল ' + NK.inr(d.totalCollectedToday) + '</span>';
+            h += '</div>';
+            h += '</div>';
+
+            /* ৫টা রঙিন floating বক্স */
+            (d.boxes || []).forEach(function (b, i) {
+                h += '<div class="amtcard c' + (i % 5) + '">';
+
+                h += '<div class="ah">';
+                h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
+                h += '</div>';
+
+                h += '<div class="amini">';
+                h += '<div><div class="n">' + b.totalCustomers + '</div><div class="k">গ্রাহক</div></div>';
+                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollection) +
+                    '</div><div class="k">আজ ওঠার</div></div>';
+                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollected) +
+                    '</div><div class="k">আজ উঠল</div></div>';
+                h += '</div>';
+
+                h += '<div class="aout"><span>মোট বাকি</span><b>' +
+                    NK.inrShort(b.totalDue) + '</b></div>';
+
+                h += '</div>';
+            });
+
+            q("amtDash").innerHTML = h;
+        }
+        /* =====================================================================
+         * এজেন্ট ড্যাশবোর্ড — অঙ্ক অনুযায়ী বক্স (২০০০...১০০০০)
+         * ===================================================================== */
+        function loadAmtDash() {
+            NK.GET("/api/agent/my-amount-dashboard").then(function (d) {
+                drawAmtDash(d);
+            }).catch(function () {
+                q("amtDash").innerHTML = "";
+            });
+        }
+
+        function drawAmtDash(d) {
+            var h = "";
+
+            /* উপরে মোট — Due / Collected */
+            h += '<div class="target" style="margin-bottom:14px;">';
+            h += '<div class="t">📊 অঙ্ক অনুযায়ী হিসাব</div>';
+            h += '<div class="sub" style="margin-top:10px;">';
+            h += '<span>মোট বাকি ' + NK.inr(d.totalDue) + '</span>';
+            h += '<span>আজ উঠল ' + NK.inr(d.totalCollectedToday) + '</span>';
+            h += '</div>';
+            h += '</div>';
+
+            /* ৫টা রঙিন floating বক্স */
+            (d.boxes || []).forEach(function (b, i) {
+                h += '<div class="amtcard c' + (i % 5) + '">';
+
+                h += '<div class="ah">';
+                h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
+                h += '</div>';
+
+                h += '<div class="amini">';
+                h += '<div><div class="n">' + b.totalCustomers + '</div><div class="k">গ্রাহক</div></div>';
+                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollection) +
+                    '</div><div class="k">আজ ওঠার</div></div>';
+                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollected) +
+                    '</div><div class="k">আজ উঠল</div></div>';
+                h += '</div>';
+
+                h += '<div class="aout"><span>মোট বাকি</span><b>' +
+                    NK.inrShort(b.totalDue) + '</b></div>';
+
+                h += '</div>';
+            });
+
+            q("amtDash").innerHTML = h;
+        }
         function loadToday() {
             q("today").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
@@ -2122,10 +2215,10 @@
             q("gate").remove();
             q("app").style.display = "block";
             q("who").textContent = u.fullName + " · এজেন্ট";
-
             net();
             drawPend();
             loadMkt();
+            loadAmtDash();
             loadToday();
             loadNotif();
 
