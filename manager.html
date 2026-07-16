@@ -466,6 +466,77 @@
             margin-top: 18px;
         }
         .rep-dl:active { transform: scale(.98); }
+        /* ---- গ্রাহক তালিকা (টোটাল কাস্টমার আন্ডার ব্রাঞ্চ) ---- */
+        .bc-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-left: 4px solid #2563EB;
+            border-radius: 13px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform .12s;
+        }
+        .bc-card:active { transform: scale(.99); }
+        .bc-card .av {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #0EA5A4);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800;
+            flex-shrink: 0;
+        }
+        .bc-card .mid { flex: 1; min-width: 0; }
+        .bc-card .nm { font-size: 15px; font-weight: 700; }
+        .bc-card .sub {
+            font-size: 12px; color: var(--muted); margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .bc-card .end { text-align: right; flex-shrink: 0; }
+        .bc-card .end .out {
+            font-family: 'Manrope', sans-serif;
+            font-size: 15px; font-weight: 800; color: var(--navy);
+        }
+        .bc-card .end .lid { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+        .bc-card .end .od {
+            font-size: 10.5px; font-weight: 700; margin-top: 2px;
+        }
+        .bc-card .end .od.r { color: var(--red); }
+
+        /* অঙ্ক-বক্স : Running / OD / Blacklist */
+        .bc-boxes-title {
+            font-size: 14px; font-weight: 800; color: var(--navy);
+            margin: 20px 0 12px; text-align: center;
+        }
+        .bc-boxes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .bc-box {
+            border-radius: 15px;
+            padding: 15px;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(15,41,66,.14);
+        }
+        .bc-box.b0 { background: linear-gradient(135deg, #2563EB, #38BDF8); }
+        .bc-box.b1 { background: linear-gradient(135deg, #7C3AED, #A855F7); }
+        .bc-box.b2 { background: linear-gradient(135deg, #0EA5A4, #22C55E); }
+        .bc-box.b3 { background: linear-gradient(135deg, #EA580C, #F97316); }
+        .bc-box.b4 { background: linear-gradient(135deg, #DB2777, #EC4899); }
+        .bc-box .amt {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px; font-weight: 800; margin-bottom: 10px;
+        }
+        .bc-box .r {
+            display: flex; justify-content: space-between;
+            font-size: 12.5px; padding: 3px 0; opacity: .96;
+        }
+        .bc-box .r b { font-family: 'Manrope', sans-serif; font-weight: 800; }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -561,21 +632,17 @@
             <button class="btn block noprint" id="sh_print" style="display:none;">🖨️ প্রিন্ট করুন</button>
         </div>
 
-
-        <!-- ---------------- গ্রাহক ---------------- -->
+        <!-- ---------------- গ্রাহক (টোটাল কাস্টমার আন্ডার ব্রাঞ্চ) ---------------- -->
         <div class="view" id="v-cust">
             <div class="search">
                 <span class="ic">🔍</span>
-                <input id="cq" type="search" placeholder="নাম / ফোন / আইডি">
+                <input id="bcq" type="search" placeholder="নাম / আইডি / ফোন খুঁজুন">
             </div>
 
-            <div class="chips" id="ctabs">
-                <button class="on" data-t="ACTIVE">চলমান</button>
-                <button data-t="OVERDUE">পিছিয়ে</button>
-                <button data-t="COMPLETED">শোধ</button>
-            </div>
+            <div id="bcList"><div class="loading">লোড হচ্ছে...</div></div>
 
-            <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
+            <div class="bc-boxes-title">অঙ্ক অনুযায়ী</div>
+            <div id="bcBoxes"></div>
         </div>
 
 
@@ -587,13 +654,13 @@
     </div>
 
     <div class="tabs">
-        <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
+        <button class="on" data-v="dash"><i>📊</i>হোম</button>
         <button data-v="agent"><i>👥</i>এজেন্ট</button>
-        <button data-v="report"><i>📄</i>আজকের রিপোর্ট</button>
-        <button data-v="req"><i>📝</i>লোন অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
+        <button data-v="report"><i>📄</i>রিপোর্ট</button>
+        <button data-v="req"><i>📝</i>অনুরোধ<span class="dot" id="rdot" style="display:none;"></span></button>
+        <button data-v="cust"><i>🧑‍🤝‍🧑</i>গ্রাহক</button>
         <button data-v="od"><i>🚨</i>OD</button>
     </div>
-
 </div>
 
 <!-- ================= প্রোফাইল ================= -->
@@ -1319,80 +1386,103 @@
         var MYC = [];
         var cTimer = null;
 
-        function loadCust() {
-            var s = q("cq").value.trim();
-            var path = "/api/customers/list?tab=" + cTab +
-                (s ? "&search=" + encodeURIComponent(s) : "");
+            /* =====================================================================
+                 * গ্রাহক — টোটাল কাস্টমার আন্ডার ব্রাঞ্চ
+                 * ===================================================================== */
+            var BC_ALL = [];
+            var bcTimer = null;
 
-            q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            function loadCust() {
+                q("bcList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+                q("bcBoxes").innerHTML = "";
 
-            NK.GET(path).then(function (list) {
-                var rows = NK.rows(list);
+                NK.GET("/api/dashboard/branch-customers").then(function (d) {
+                    BC_ALL = d.customers || [];
+                    drawBcBoxes(d.boxes || []);
+                    drawBcList();
+                }).catch(function (e) {
+                    q("bcList").innerHTML =
+                        '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                });
+            }
 
-                if (!rows.length) {
-                    q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+            function drawBcBoxes(boxes) {
+                var h = '<div class="bc-boxes">';
+                boxes.forEach(function (b, i) {
+                    h += '<div class="bc-box b' + (i % 5) + '">';
+                    h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
+                    h += '<div class="r"><span>চলমান</span><b>' + b.runningNo + '</b></div>';
+                    h += '<div class="r"><span>OD</span><b>' + b.odNo + '</b></div>';
+                    h += '<div class="r"><span>১২০+ ব্ল্যাক</span><b>' + b.blacklistNo + '</b></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+                q("bcBoxes").innerHTML = h;
+            }
+
+            function drawBcList() {
+                var s = q("bcq").value.trim().toLowerCase();
+
+                var list = BC_ALL.filter(function (c) {
+                    if (!s) return true;
+                    return (c.customerName || "").toLowerCase().indexOf(s) !== -1
+                        || (c.customerCode || "").toLowerCase().indexOf(s) !== -1
+                        || (c.customerPhone || "").indexOf(s) !== -1;
+                });
+
+                if (!list.length) {
+                    q("bcList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
                     return;
                 }
 
-                MYC = rows;
-                drawCust();
-            }).catch(function (e) {
-                q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
-            });
-        }
-        function drawCust() {
-            var rows = MYC;
+                var h = "";
+                list.slice(0, 200).forEach(function (c) {
+                    var closed = c.status === "CLOSED";
+                    h += '<div class="bc-card" data-prof="' + c.customerId + '">';
+                    h += '<div class="av">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
 
-            var h = '<div class="list">';
+                    h += '<div class="mid">';
+                    h += '<div class="nm">' + NK.esc(c.customerName) + '</div>';
+                    h += '<div class="sub">' + NK.esc(c.customerCode || "") +
+                        ' · এজেন্ট ' + NK.esc(c.agentName || "—") +
+                        (c.marketName ? ' · ' + NK.esc(c.marketName) : '') + '</div>';
+                    if (c.address) {
+                        h += '<div class="sub">📍 ' + NK.esc(c.address) + '</div>';
+                    }
+                    h += '</div>';
 
-            rows.slice(0, cShow).forEach(function (c) {
-                h += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
-                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
-                    '<span>' + NK.esc(c.customerCode || "") + ' · ' +
-                    NK.esc(c.phone || "—") + '</span></div>';
-                h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                    '<span style="font-size:11px;color:var(--muted);">' +
-                    NK.esc(c.daysLabel || "") + '</span></div>';
-                h += '</div>';
-            });
+                    h += '<div class="end">';
+                    h += '<div class="out">' + NK.inrShort(c.currentOutstanding) + '</div>';
+                    h += '<div class="lid">লোন #' + c.loanId + '</div>';
+                    if (closed) {
+                        h += '<div class="od" style="color:#16A34A;">শোধ</div>';
+                    } else if (c.daysOverdue > 0) {
+                        h += '<div class="od r">' + c.daysOverdue + ' দিন</div>';
+                    }
+                    h += '</div>';
 
-            h += '</div>';
+                    h += '</div>';
+                });
 
-            if (rows.length > cShow) {
-                h += '<button class="btn ghost block" id="cMore" ' +
-                    'style="margin-top:12px;">আরও দেখুন (' +
-                    (rows.length - cShow) + ' জন বাকি)</button>';
-            }
+                if (list.length > 200) {
+                    h += '<div class="hint" style="text-align:center;margin-top:8px;">' +
+                        'প্রথম ২০০ জন দেখানো হচ্ছে — খুঁজে বের করুন</div>';
+                }
 
-            q("cList").innerHTML = h;
+                q("bcList").innerHTML = h;
 
-            if (q("cMore")) {
-                q("cMore").addEventListener("click", function () {
-                    cShow += 50;
-                    drawCust();
+                /* কাস্টমারে টাচ → প্রোফাইল (পরে বানানো হবে) */
+                Array.prototype.forEach.call(q("bcList").querySelectorAll("[data-prof]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openCustomerProfile(el.getAttribute("data-prof"));
+                    });
                 });
             }
 
-            bindCust();
-        }
-        Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
-            b.addEventListener("click", function () {
-                Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
-                    x.classList.remove("on");
-                });
-                b.classList.add("on");
-                cTab = b.getAttribute("data-t");
-                cShow = 50;
-                loadCust();
+            q("bcq").addEventListener("input", function () {
+                clearTimeout(bcTimer);
+                bcTimer = setTimeout(drawBcList, 300);
             });
-        });
-
-        q("cq").addEventListener("input", function () {
-            clearTimeout(cTimer);
-            cShow = 50;
-            cTimer = setTimeout(loadCust, 400);
-        });
 
 
         /* =====================================================================
