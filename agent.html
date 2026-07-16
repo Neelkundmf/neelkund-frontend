@@ -2559,9 +2559,17 @@
             var total = Math.round(p * 1.15);
             var emi = (total / 46).toFixed(2);
 
+            var start = new Date();
+            var end = new Date();
+            end.setDate(end.getDate() + 45);
+            function fmt(d) {
+                return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+            }
             q("l_calc").innerHTML =
-                'আসল <b>' + NK.inr(p) + '</b> · মোট ফেরত <b>' + NK.inr(total) +
-                '</b> · দৈনিক <b>₹' + emi + '</b>';
+                'আসল <b>' + NK.inr(p) + '</b> · মোট ফেরত <b>' + NK.inr(total) + '</b><br>' +
+                'দৈনিক EMI <b>₹' + emi + '</b> · ৪৬ দিন<br>' +
+                'EMI শুরু <b>' + fmt(start) + '</b><br>' +
+                'EMI শেষ <b>' + fmt(end) + '</b>';
         }
 
         q("l_amt").addEventListener("change", calc);
