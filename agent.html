@@ -833,6 +833,10 @@
         <div class="view" id="v-od">
             <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
+        <!-- ---------------- ব্ল্যাকলিস্ট ---------------- -->
+        <div class="view" id="v-black">
+            <div id="blackList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
 
     </div>
 
@@ -842,6 +846,7 @@
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
         <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="od"><i>🚨</i>OD</button>
+        <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
     </div>
 </div>
 
@@ -1010,7 +1015,7 @@
          * ===================================================================== */
         var TITLES = {
             today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", new: "নতুন গ্রাহক",
-            loan: "লোন", od: "OD তালিকা"
+            loan: "লোন", od: "OD তালিকা", black: "ব্ল্যাকলিস্ট"
         };
         var loaded = {};
 
@@ -1034,6 +1039,7 @@
                 if (key === "cust")  loadCust();
                 if (key === "loan")  loadLoan();
                 if (key === "od")    loadOd();
+                if (key === "black") loadBlack();
             }
         }
 
@@ -2768,46 +2774,75 @@
         /* =====================================================================
          * OD
          * ===================================================================== */
-        function loadOd() {
-            q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+        /* =====================================================================
+                * OD + ব্ল্যাকলিস্ট — একই endpoint, দিন গুনে ভাগ
+                * OD = ১ থেকে odDays দিন · ব্ল্যাকলিস্ট = odDays-এর বেশি
+                * (ম্যানেজারের নিয়মেই মিলবে)
+                * ===================================================================== */
+        var OD_LIMIT = 120;   // odDays — ম্যানেজারের সেটিংসের সাথে মিলিয়ে রাখা
 
-            NK.GET("/api/dashboard/od-customers").then(function (list) {
+        function loadOverdue() {
+            q("odList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("blackList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/dashboard/agent-overdue-customers").then(function (list) {
                 var rows = NK.rows(list);
 
-                if (!rows.length) {
-                    q("odList").innerHTML = '<div class="card"><div class="empty">✓ কেউ OD-তে নেই</div></div>';
-                    return;
-                }
-
-                var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
-
-                var h = '<div class="od-box"><div class="t">⛔ আমার OD</div>' +
-                    '<div class="n">' + rows.length + ' জন</div>' +
-                    '<div class="a">' + NK.inr(total) + '</div></div>';
-
-                h += '<div class="list" style="margin-top:14px;">';
-
-                rows.forEach(function (x) {
-                    h += '<div class="item" data-pay="' + x.loanId +
-                        '" data-name="' + NK.esc(x.customerName) + '" data-amt="">';
-                    h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
-                        x.daysOverdue + 'দি</div>';
-                    h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                        '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
-                    h += '<div class="end"><b style="color:var(--red);">' +
-                        NK.inrShort(x.outstanding) + '</b>' +
-                        '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span></div>';
-                    h += '</div>';
+                var odRows = rows.filter(function (x) {
+                    return Number(x.daysOverdue || 0) <= OD_LIMIT;
+                });
+                var blackRows = rows.filter(function (x) {
+                    return Number(x.daysOverdue || 0) > OD_LIMIT;
                 });
 
-                h += '</div>';
-                q("odList").innerHTML = h;
-                bindPay(q("odList"));
+                paintOverdue(q("odList"), odRows, "od");
+                paintOverdue(q("blackList"), blackRows, "black");
 
             }).catch(function (e) {
                 q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("blackList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        function paintOverdue(box, rows, kind) {
+            if (!rows.length) {
+                var emptyMsg = kind === "black" ? "✓ কেউ ব্ল্যাকলিস্টে নেই" : "✓ কেউ OD-তে নেই";
+                box.innerHTML = '<div class="card"><div class="empty">' + emptyMsg + '</div></div>';
+                return;
+            }
+
+            var total = rows.reduce(function (a, x) { return a + Number(x.outstanding || 0); }, 0);
+
+            var boxCls = kind === "black" ? "od-box" : "od-box";
+            var boxTitle = kind === "black" ? "🚫 আমার ব্ল্যাকলিস্ট" : "⛔ আমার OD";
+
+            var h = '<div class="' + boxCls + '"><div class="t">' + boxTitle + '</div>' +
+                '<div class="n">' + rows.length + ' জন</div>' +
+                '<div class="a">' + NK.inr(total) + '</div></div>';
+
+            h += '<div class="list" style="margin-top:14px;">';
+
+            rows.forEach(function (x) {
+                var avBg = kind === "black" ? "#B91C1C" : "#1F2937";
+                h += '<div class="item" data-pay="' + x.loanId +
+                    '" data-name="' + NK.esc(x.customerName) + '" data-amt="">';
+                h += '<div class="av" style="background:' + avBg + ';color:#fff;font-size:12px;">' +
+                    x.daysOverdue + 'দি</div>';
+                h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                    '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
+                h += '<div class="end"><b style="color:var(--red);">' +
+                    NK.inrShort(x.outstanding) + '</b>' +
+                    '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span></div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+            box.innerHTML = h;
+            bindPay(box);
+        }
+
+        function loadOd()    { loadOverdue(); }
+        function loadBlack() { loadOverdue(); }
 
 
         /* =====================================================================
