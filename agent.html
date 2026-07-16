@@ -369,6 +369,10 @@
             <div id="amtDash"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
+        <!-- ---------------- কালেকশন ---------------- -->
+        <div class="view" id="v-coll">
+            <div id="collBox"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
         <!-- ---------------- গ্রাহক ---------------- -->
         <div class="view" id="v-cust">
             <div class="search">
@@ -523,6 +527,7 @@
 
     <div class="tabs">
         <button class="on" data-v="today"><i>📋</i>আজ</button>
+        <button data-v="coll"><i>💰</i>কালেকশন</button>
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
         <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -683,7 +688,7 @@
          * পাতা বদল
          * ===================================================================== */
         var TITLES = {
-            today: "আজকের কাজ", cust: "গ্রাহক", new: "নতুন গ্রাহক",
+            today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", new: "নতুন গ্রাহক",
             loan: "লোন", od: "OD তালিকা"
         };
         var loaded = {};
@@ -704,6 +709,7 @@
             if (!loaded[key]) {
                 loaded[key] = true;
                 if (key === "today") loadToday();
+                if (key === "coll")  loadColl();
                 if (key === "cust")  loadCust();
                 if (key === "loan")  loadLoan();
                 if (key === "od")    loadOd();
@@ -1175,6 +1181,13 @@
             });
 
             q("amtDash").innerHTML = h;
+        }
+        /* =====================================================================
+         * কালেকশন (এখন খালি — প্ল্যান অনুযায়ী পরে ভরা হবে)
+         * ===================================================================== */
+        function loadColl() {
+            q("collBox").innerHTML =
+                '<div class="card"><div class="empty">কালেকশন সিস্টেম শীঘ্রই আসছে</div></div>';
         }
         function loadToday() {
             q("today").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
