@@ -993,6 +993,16 @@
         /* =====================================================================
          * লোনের অনুরোধ
          * ===================================================================== */
+        /* =====================================================================
+         * কাস্টমার প্রোফাইল — এখন শুধু জায়গা।
+         * পরে আসল প্রোফাইল বানিয়ে এখানে লিংক করা হবে।
+         * ===================================================================== */
+        var PROFILE_CUST = null;
+
+        function openCustomerProfile(customerId) {
+            PROFILE_CUST = customerId;
+            toast("কাস্টমার প্রোফাইল শীঘ্রই আসছে", "in");
+        }
         function loadReq() {
             q("reqList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
@@ -1018,10 +1028,17 @@
 
                     h += '<div class="req">';
 
-                    h += '<div class="top">';
+                    h += '<div class="top" data-prof="' + r.customerId + '" style="cursor:pointer;">';
+                    h += '<div style="display:flex;align-items:center;gap:11px;">';
+                    h += '<div style="width:42px;height:42px;border-radius:50%;flex-shrink:0;' +
+                        'background:linear-gradient(135deg,#2563EB,#0EA5A4);color:#fff;' +
+                        'display:flex;align-items:center;justify-content:center;' +
+                        'font-size:17px;font-weight:800;">' +
+                        NK.esc((r.customerName || "?").charAt(0)) + '</div>';
                     h += '<div><b>' + NK.esc(r.customerName) + '</b><br>' +
                         '<span style="font-size:12px;color:var(--muted);">' +
                         NK.esc(r.customerPhone) + '</span></div>';
+                    h += '</div>';
                     h += '<div class="amt">' + NK.inr(r.principal) + '</div>';
                     h += '</div>';
 
@@ -1057,7 +1074,18 @@
                 });
 
                 q("reqList").innerHTML = h;
+                q("reqList").innerHTML = h;
 
+                /* সারিতে টাচ → কাস্টমার প্রোফাইল (পরে বানানো হবে) */
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-prof]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var custId = el.getAttribute("data-prof");
+                        openCustomerProfile(custId);
+                    });
+                });
+
+                /* অনুমোদন */
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
                 /* অনুমোদন */
                 Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
                     b.addEventListener("click", function () {
