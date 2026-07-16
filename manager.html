@@ -241,6 +241,98 @@
             text-align: center;
             font-weight: 700;
         }
+        /* ---- এজেন্ট ট্যাব ---- */
+        .ag-list .ag-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-left: 4px solid #2563EB;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform .12s;
+        }
+        .ag-list .ag-item:active { transform: scale(.99); }
+        .ag-list .ag-av {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #0EA5A4);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800;
+            flex-shrink: 0;
+        }
+        .ag-list .ag-nm { font-size: 15px; font-weight: 700; }
+        .ag-list .ag-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .ag-list .ag-arrow { margin-left: auto; color: var(--muted); font-size: 20px; }
+
+        /* এজেন্টের মার্কেট */
+        .agm-head {
+            background: linear-gradient(135deg, #0F766E, #2563EB);
+            border-radius: 16px;
+            padding: 16px;
+            color: #fff;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .agm-head .ph {
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 800;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .agm-head .ph img { width: 100%; height: 100%; object-fit: cover; }
+        .agm-head .nm { font-size: 18px; font-weight: 800; }
+        .agm-head .sub { font-size: 12px; opacity: .9; margin-top: 2px; }
+
+        .agm-mkt {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-left: 4px solid #22C55E;
+            border-radius: 13px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: transform .12s;
+        }
+        .agm-mkt:active { transform: scale(.99); }
+        .agm-mkt .nm { font-size: 15px; font-weight: 700; }
+        .agm-mkt .ar { margin-left: auto; color: var(--muted); font-size: 20px; }
+
+        /* মার্কেটের আজকের হিসাব */
+        .agm-stat {
+            background: #fff;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+        }
+        .agm-stat .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .agm-stat .row:last-child { border-bottom: 0; }
+        .agm-stat .row .l { font-size: 14px; color: var(--muted); }
+        .agm-stat .row .v {
+            font-family: 'Manrope', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .agm-stat .row .v.g { color: #16A34A; }
+        .agm-stat .row .v.r { color: var(--red); }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -279,7 +371,31 @@
         <div class="view on" id="v-dash">
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
+        <!-- ---------------- এজেন্ট ---------------- -->
+        <div class="view" id="v-agent">
+            <!-- এজেন্ট তালিকা -->
+            <div id="agListWrap">
+                <div id="agList"><div class="loading">লোড হচ্ছে...</div></div>
+            </div>
 
+            <!-- এজেন্টের মার্কেট -->
+            <div id="agMktWrap" style="display:none;">
+                <button class="btn ghost block" id="agBack" style="margin-bottom:14px;">← এজেন্ট তালিকা</button>
+                <div id="agMktHead"></div>
+                <div id="agMktList"></div>
+            </div>
+
+            <!-- মার্কেটের আজকের হিসাব -->
+            <div id="agDetWrap" style="display:none;">
+                <button class="btn ghost block" id="agDetBack" style="margin-bottom:14px;">← মার্কেট তালিকা</button>
+                <div id="agDetBody"></div>
+            </div>
+        </div>
+
+        <!-- ---------------- আজকের রিপোর্ট ---------------- -->
+        <div class="view" id="v-report">
+            <div id="reportBox"><div class="empty">শীঘ্রই আসছে</div></div>
+        </div>
 
         <!-- ---------------- লোনের অনুরোধ ---------------- -->
         <div class="view" id="v-req">
@@ -376,8 +492,8 @@
         }
 
         var TITLES = {
-            dash: "ড্যাশবোর্ড", req: "লোনের অনুরোধ", sheet: "কাগজ",
-            cust: "গ্রাহক", od: "OD তালিকা"
+            dash: "ড্যাশবোর্ড", agent: "এজেন্ট", report: "আজকের রিপোর্ট",
+            req: "লোনের অনুরোধ", sheet: "কাগজ", cust: "গ্রাহক", od: "OD তালিকা"
         };
         var loaded = {};
 
@@ -397,6 +513,7 @@
             if (!loaded[key]) {
                 loaded[key] = true;
                 if (key === "dash")  loadDash();
+                if (key === "agent") loadAgents();
                 if (key === "req")   loadReq();
                 if (key === "sheet") loadSheet();
                 if (key === "cust")  loadCust();
@@ -412,6 +529,158 @@
         /* =====================================================================
          * ড্যাশবোর্ড
          * ===================================================================== */
+
+        /* =====================================================================
+          * এজেন্ট ট্যাব — তালিকা → মার্কেট → আজকের হিসাব
+          * ===================================================================== */
+        var AG_ID = null;
+        var AG_NAME = "";
+
+        function loadAgents() {
+            q("agListWrap").style.display = "block";
+            q("agMktWrap").style.display = "none";
+            q("agDetWrap").style.display = "none";
+
+            q("agList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/manager/users?role=AGENT").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("agList").innerHTML =
+                        '<div class="card"><div class="empty">এই ব্রাঞ্চে কোনো এজেন্ট নেই</div></div>';
+                    return;
+                }
+
+                var h = '<div class="ag-list">';
+                rows.forEach(function (a) {
+                    var first = (a.fullName || "?").charAt(0);
+                    h += '<div class="ag-item" data-id="' + a.id +
+                        '" data-name="' + NK.esc(a.fullName) + '">';
+                    h += '<div class="ag-av">' + NK.esc(first) + '</div>';
+                    h += '<div><div class="ag-nm">' + NK.esc(a.fullName) + '</div>' +
+                        '<div class="ag-sub">' + NK.esc(a.phone || "") + '</div></div>';
+                    h += '<div class="ag-arrow">›</div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+
+                q("agList").innerHTML = h;
+
+                Array.prototype.forEach.call(q("agList").querySelectorAll("[data-id]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openAgentMarkets(el.getAttribute("data-id"), el.getAttribute("data-name"));
+                    });
+                });
+            }).catch(function (e) {
+                q("agList").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("agBack").addEventListener("click", function () {
+            q("agMktWrap").style.display = "none";
+            q("agListWrap").style.display = "block";
+        });
+
+        q("agDetBack").addEventListener("click", function () {
+            q("agDetWrap").style.display = "none";
+            q("agMktWrap").style.display = "block";
+        });
+        function openAgentMarkets(agentId, agentName) {
+            AG_ID = agentId;
+            AG_NAME = agentName || "এজেন্ট";
+
+            q("agListWrap").style.display = "none";
+            q("agDetWrap").style.display = "none";
+            q("agMktWrap").style.display = "block";
+            window.scrollTo(0, 0);
+
+            var first = AG_NAME.charAt(0);
+            q("agMktHead").innerHTML =
+                '<div class="agm-head">' +
+                '<div class="ph">' + NK.esc(first) + '</div>' +
+                '<div><div class="nm">' + NK.esc(AG_NAME) + '</div>' +
+                '<div class="sub">মার্কেট বাছুন</div></div>' +
+                '</div>';
+
+            q("agMktList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/agent/" + agentId + "/markets").then(function (d) {
+                var mkts = (d && d.markets) ? d.markets : [];
+
+                if (!mkts.length) {
+                    q("agMktList").innerHTML =
+                        '<div class="card"><div class="empty">এই এজেন্টের কোনো মার্কেট নেই</div></div>';
+                    return;
+                }
+
+                var h = "";
+                mkts.forEach(function (m) {
+                    h += '<div class="agm-mkt" data-mkt="' + (m.marketId || "") +
+                        '" data-mname="' + NK.esc(m.marketName) + '">';
+                    h += '<div class="nm">🏬 ' + NK.esc(m.marketName) + '</div>';
+                    h += '<div class="ar">›</div>';
+                    h += '</div>';
+                });
+
+                q("agMktList").innerHTML = h;
+
+                Array.prototype.forEach.call(q("agMktList").querySelectorAll("[data-mkt]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openAgentMarketDetail(el.getAttribute("data-mkt"), el.getAttribute("data-mname"), m);
+                    });
+                });
+
+                /* মার্কেট ডেটা ধরে রাখি হিসাবের জন্য */
+                AG_MKTS = mkts;
+            }).catch(function (e) {
+                q("agMktList").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        var AG_MKTS = [];
+
+        function openAgentMarketDetail(marketId, marketName) {
+            q("agMktWrap").style.display = "none";
+            q("agDetWrap").style.display = "block";
+            window.scrollTo(0, 0);
+
+            /* ধরে রাখা মার্কেট ডেটা থেকে হিসাব */
+            var m = AG_MKTS.filter(function (x) {
+                return String(x.marketId) === String(marketId);
+            })[0] || {};
+
+            var h = "";
+
+            h += '<div class="agm-head">';
+            h += '<div class="ph">' + NK.esc(AG_NAME.charAt(0)) + '</div>';
+            h += '<div><div class="nm">🏬 ' + NK.esc(marketName) + '</div>' +
+                '<div class="sub">' + NK.esc(AG_NAME) + '</div></div>';
+            h += '</div>';
+
+            h += '<div class="agm-stat">';
+            h += '<div class="row"><span class="l">আজ ওঠার কথা</span><span class="v">' +
+                NK.inr(m.todayDue || 0) + '</span></div>';
+            h += '<div class="row"><span class="l">আজ উঠেছে</span><span class="v g">' +
+                NK.inr(m.todayCollected || 0) + '</span></div>';
+            h += '<div class="row"><span class="l">OD গ্রাহক</span><span class="v r">' +
+                (m.odCustomers || 0) + ' জন</span></div>';
+            h += '<div class="row"><span class="l">চলমান গ্রাহক</span><span class="v">' +
+                (m.activeCustomers || 0) + ' জন</span></div>';
+            h += '</div>';
+
+            /* Excel বোতাম — এখন শুধু জায়গা */
+            h += '<button class="btn block" id="agExcel" style="background:#16A34A;">' +
+                '⬇️ Excel রিপোর্ট ডাউনলোড</button>';
+
+            q("agDetBody").innerHTML = h;
+
+            q("agExcel").addEventListener("click", function () {
+                toast("Excel রিপোর্ট শীঘ্রই আসছে", "in");
+            });
+        }
         function loadDash() {
             q("dash").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
