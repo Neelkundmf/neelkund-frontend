@@ -16,6 +16,108 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NEELKUND">
     <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        /* ===== নতুন কাস্টমার প্রোফাইল পাতা ===== */
+        #profX {
+            position: fixed; inset: 0; z-index: 400;
+            background: var(--bg, #F4F6F8);
+            display: none; flex-direction: column;
+        }
+        #profX.on { display: flex; }
+        #profX .pbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy, #102A40); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #profX .pbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #profX .pbar .cid { font-size: 12px; opacity: .8; }
+        #profX .pbar b { font-size: 15px; }
+        #profX .pin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+        }
+        .pf-head { display: flex; gap: 14px; margin-bottom: 14px; }
+        .pf-photo {
+            width: 92px; height: 92px; flex-shrink: 0;
+            border-radius: 14px;
+            background: #1F2937; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 34px; font-weight: 800;
+            background-size: cover; background-position: center; overflow: hidden;
+        }
+        .pf-info { flex: 1; min-width: 0; }
+        .pf-info .nm { font-size: 18px; font-weight: 800; color: var(--navy, #102A40); }
+        .pf-info .li {
+            font-size: 12.5px; color: var(--muted, #5B6B75); margin-top: 3px;
+            display: flex; gap: 5px;
+        }
+        .pf-info .li b { color: var(--navy, #102A40); font-weight: 700; }
+        .pf-green {
+            background: #ECFDF5; border: 1px solid #A7F3D0;
+            border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+        }
+        .pf-green .r {
+            display: flex; justify-content: space-between; gap: 10px;
+            font-size: 12.5px; padding: 4px 0;
+        }
+        .pf-green .r span { color: #047857; }
+        .pf-green .r b { color: var(--navy, #102A40); font-weight: 700; text-align: right; }
+        .pf-remark {
+            border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+            border: 1px solid var(--line, #E2E7EB);
+        }
+        .pf-remark .rl {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .5px; margin-bottom: 4px; opacity: .7;
+        }
+        .pf-remark .rt { font-size: 13.5px; font-weight: 600; }
+        .pf-remark.g { background: #ECFDF5; border-color: #A7F3D0; }
+        .pf-remark.g .rl, .pf-remark.g .rt { color: #047857; }
+        .pf-remark.a { background: #FEF9E7; border-color: #FDE68A; }
+        .pf-remark.a .rl, .pf-remark.a .rt { color: #B45309; }
+        .pf-remark.r { background: #FEF2F2; border-color: #FCA5A5; }
+        .pf-remark.r .rl, .pf-remark.r .rt { color: #B91C1C; }
+        .pf-loans-title {
+            font-size: 14px; font-weight: 800; color: var(--navy, #102A40); margin: 4px 0 10px;
+        }
+        .pf-loans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .pf-loan {
+            border-radius: 13px; padding: 12px; color: #fff; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(15,41,66,.12); transition: transform .1s;
+        }
+        .pf-loan:active { transform: scale(.98); }
+        .pf-loan .amt { font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800; }
+        .pf-loan .cyc { font-size: 10.5px; opacity: .85; margin-bottom: 6px; }
+        .pf-loan .d { font-size: 11px; opacity: .95; padding: 1px 0; }
+        .pf-loan .st {
+            display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 700;
+            background: rgba(255,255,255,.22); padding: 2px 8px; border-radius: 20px;
+        }
+        .pf-remark-edit {
+            background: #fff; border: 1px solid var(--line, #E2E7EB);
+            border-radius: 12px; padding: 14px; margin-bottom: 14px;
+        }
+        .pf-remark-edit .h { font-size: 13px; font-weight: 800; color: var(--navy, #102A40); margin-bottom: 10px; }
+        .pf-colors { display: flex; gap: 8px; margin-bottom: 10px; }
+        .pf-colors button {
+            flex: 1; padding: 8px; border-radius: 8px; border: 2px solid transparent;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .pf-colors button.gsel { background: #ECFDF5; color: #047857; }
+        .pf-colors button.asel { background: #FEF9E7; color: #B45309; }
+        .pf-colors button.rsel { background: #FEF2F2; color: #B91C1C; }
+        .pf-colors button.on { border-color: var(--navy, #102A40); }
+        .pf-remark-edit textarea {
+            width: 100%; border: 1.5px solid var(--line, #E2E7EB); border-radius: 8px;
+            padding: 10px; font-size: 13.5px; font-family: 'Hind Siliguri', sans-serif;
+            resize: vertical; min-height: 60px; margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -514,6 +616,20 @@
         <b id="pTitle">প্রোফাইল</b>
     </div>
     <div class="in" id="pBody"></div>
+</div>
+
+<!-- ================= নতুন কাস্টমার প্রোফাইল ================= -->
+<div id="profX">
+    <div class="pbar">
+        <button id="pxClose">←</button>
+        <div style="flex:1;">
+            <div class="cid" id="pxCid">CUST ID</div>
+            <b>কাস্টমার প্রোফাইল</b>
+        </div>
+    </div>
+    <div class="pin" id="pxBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
 </div>
 <div id="sheet">
     <div class="bg" id="sheetBg"></div>
@@ -3234,122 +3350,153 @@
         /* =====================================================================
          * গ্রাহকের প্রোফাইল
          * ===================================================================== */
+        q("pxClose").addEventListener("click", function () {
+            q("profX").classList.remove("on");
+        });
+
         function openCustomer(id) {
-            q("prof").classList.add("on");
-            q("pTitle").textContent = "গ্রাহক";
-            q("pBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
-            window.scrollTo(0, 0);
+            q("profX").classList.add("on");
+            q("pxCid").textContent = "লোড হচ্ছে...";
+            q("pxBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
 
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
                 var c = p.customer || {};
-                var h = "";
-
-                /* ---- মাথা ---- */
-                h += '<div class="phead">';
-                h += '<div class="pic">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                h += '<h2>' + NK.esc(c.fullName) + '</h2>';
-                h += '<div class="sub">' + NK.esc(c.customerCode || "") + ' · ' +
-                    NK.esc(c.phone || "") + '</div>';
-                h += '<div class="rate" style="background:' +
-                    NK.esc(p.ratingColor || "#5B6B75") + ';">' +
-                    NK.esc(p.ratingLabel || p.rating || "") + '</div>';
-                h += '</div>';
-
-                /* ---- নতুন লোন আটকানো থাকলে ---- */
-                if (p.canTakeNewLoan === false) {
-                    h += '<div class="od-box">';
-                    h += '<div class="t">⛔ নতুন লোন দেওয়া যাবে না</div>';
-                    h += '<div class="a">' + NK.esc(p.blockReason || "") + '</div>';
-                    h += '</div>';
-                }
-
-                /* ---- এক নজরে ---- */
-                h += '<div class="stats">';
-                h += st("মোট লোন", (p.totalLoans || 0) + "টি");
-                h += st("শোধ হয়েছে", (p.closedLoans || 0) + "টি", "g");
-                h += st("চলছে", (p.activeLoans || 0) + "টি");
-                h += st("এখনও বাকি", NK.inrShort(p.outstanding), "r");
-                h += '</div>';
-
-                /* ---- শোধের অভ্যাস ---- */
-                h += '<div class="card">';
-                h += '<h2 style="margin-bottom:12px;">শোধের অভ্যাস</h2>';
-                h += '<div class="stats" style="margin:0;">';
-                h += st("মোট নিয়েছে", NK.inrShort(p.totalBorrowed));
-                h += st("মোট শোধ", NK.inrShort(p.totalRepaid), "g");
-                h += st("সময়ে দিয়েছে", (p.onTimeCount || 0) + " বার", "g");
-                h += st("দেরি করেছে", (p.lateCount || 0) + " বার", p.lateCount ? "r" : "");
-                h += '</div>';
-
-                if (p.avgDaysToClose) {
-                    h += '<div style="margin-top:12px;font-size:13px;color:var(--muted);">' +
-                        'গড়ে <b>' + p.avgDaysToClose + ' দিনে</b> শোধ করেন</div>';
-                }
-                h += '</div>';
-
-                /* ---- লোনের ইতিহাস ---- */
-                h += '<h3 style="margin:16px 0 10px;">লোনের ইতিহাস</h3>';
-
                 var loans = p.loans || [];
 
-                if (!loans.length) {
-                    h += '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
-                } else {
-                    h += '<div class="list">';
+                q("pxCid").textContent = c.customerCode || "—";
 
-                    loans.forEach(function (l) {
-                        h += '<div class="item">';
-                        h += '<div class="av">' + NK.esc(l.cycle) + '</div>';
+                var initial = NK.esc((c.fullName || "?").charAt(0));
+                var h = "";
 
-                        h += '<div class="mid"><b>' + NK.inr(l.principal) + '</b>' +
-                            '<span>' + (l.startDate ? NK.dt(l.startDate) : "—") +
-                            (l.closedOnDay ? ' · ' + l.closedOnDay + ' দিনে শোধ' : '') +
-                            (l.agentName ? ' · ' + NK.esc(l.agentName) : '') + '</span></div>';
+                h += '<div class="pf-head">';
+                h += '<div class="pf-photo" id="pxPhoto"' +
+                    (c.photoUrl ? ' data-photo="' + id + '"' : '') + '>' + initial + '</div>';
+                h += '<div class="pf-info">';
+                h += '<div class="nm">' + NK.esc(c.fullName || "—") + '</div>';
+                h += '<div class="li"><span>📞</span><b>' + NK.esc(c.phone || "—") + '</b></div>';
+                if (c.fatherOrHusband)
+                    h += '<div class="li"><span>👤</span><b>' + NK.esc(c.fatherOrHusband) + '</b></div>';
+                if (c.address)
+                    h += '<div class="li"><span>🏠</span><b>' + NK.esc(c.address) + '</b></div>';
+                h += '</div></div>';
 
-                        h += '<div class="end"><b>' + NK.inrShort(l.remaining) + '</b>' +
-                            '<span class="b" style="background:' +
-                            NK.esc(l.gradeColor || l.stageColor || "#5B6B75") +
-                            ';color:#fff;">' +
-                            NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span></div>';
-
-                        h += '</div>';
-                    });
-
-                    h += '</div>';
-                }
-
-                /* ---- বাড়ি কোথায় (GPS) ---- */
                 if (c.mapsUrl) {
                     h += '<a href="' + NK.esc(c.mapsUrl) + '" target="_blank" rel="noopener" ' +
-                        'class="btn ghost block" style="margin:16px 0 0;text-decoration:none;">' +
+                        'class="btn ghost block" style="margin-bottom:14px;text-decoration:none;">' +
                         '📍 বাড়ি দেখুন (Google Maps)</a>';
                 }
 
-                /* ---- তথ্য ---- */
-                h += '<h3 style="margin:16px 0 10px;">তথ্য</h3>';
-                h += '<div class="pinfo">';
-                h += row("ফোন", c.phone);
-                h += row("বাবা / স্বামী", c.fatherOrHusband);
-                h += row("জন্মতারিখ", c.dateOfBirth ? NK.dt(c.dateOfBirth) : null);
-                h += row("লিঙ্গ", GEN_BN[c.gender] || c.gender);
-                h += row("ঠিকানা", c.address);
-                h += row("স্থায়ী ঠিকানা", c.permanentAddress);
-                h += row("ব্যবসার ঠিকানা", c.businessAddress);
-                h += row("ব্যবসার ধরন", c.businessType);
-                h += row("আধার", c.aadhaarMasked);
-                h += row("প্যান", c.panMasked);
-                h += row("জামিনদার", c.guarantorName);
-                h += row("জামিনদারের ফোন", c.guarantorPhone);
-                h += row("জামিনদারের ঠিকানা", c.guarantorAddress);
-                h += row("মার্কেট", c.marketName);
+                var flagCls = { GREEN: "g", YELLOW: "a", RED: "r" }[c.flag] || "";
+                if (c.flagReason || (c.flag && c.flag !== "GREEN")) {
+                    var flagTxt = { GREEN: "ভালো", YELLOW: "সাবধান", RED: "খারাপ" }[c.flag] || "";
+                    h += '<div class="pf-remark ' + flagCls + '">';
+                    h += '<div class="rl">Remark</div>';
+                    h += '<div class="rt">' + NK.esc(c.flagReason || flagTxt) + '</div>';
+                    h += '</div>';
+                }
+
+                h += '<div class="pf-remark-edit">';
+                h += '<div class="h">Remark সেট করুন</div>';
+                h += '<div class="pf-colors" id="pxColors">';
+                h += '<button data-f="GREEN" class="gsel' + (c.flag === "GREEN" ? " on" : "") + '">সবুজ</button>';
+                h += '<button data-f="YELLOW" class="asel' + (c.flag === "YELLOW" ? " on" : "") + '">হলুদ</button>';
+                h += '<button data-f="RED" class="rsel' + (c.flag === "RED" ? " on" : "") + '">লাল</button>';
+                h += '</div>';
+                h += '<textarea id="pxReason" placeholder="নোট লিখুন (যেমন: দেরি করে, সাবধান)">' +
+                    NK.esc(c.flagReason || "") + '</textarea>';
+                h += '<button class="btn block" id="pxSave">Remark সংরক্ষণ করুন</button>';
                 h += '</div>';
 
-                q("pBody").innerHTML = h;
+                var lastLoan = loans.length ? loans[0] : null;
+                h += '<div class="pf-green">';
+                h += pfRow("সাইকেল", (p.totalLoans || 0) + " নম্বর লোন");
+                if (c.marketName) h += pfRow("মার্কেট", c.marketName);
+                if (lastLoan) {
+                    h += pfRow("লাস্ট লোন ডেট", lastLoan.startDate ? NK.dt(lastLoan.startDate) : "—");
+                    h += pfRow("লাস্ট লোন অঙ্ক", NK.inr(lastLoan.principal));
+                    h += pfRow("লাস্ট লোন এজেন্ট", lastLoan.agentName || "—");
+                }
+                h += '</div>';
+
+                h += '<div class="stats" style="margin-bottom:14px;">';
+                h += st("মোট লোন", (p.totalLoans || 0) + "টি");
+                h += st("শোধ", (p.closedLoans || 0) + "টি", "g");
+                h += st("চলছে", (p.activeLoans || 0) + "টি");
+                h += st("বাকি", NK.inrShort(p.outstanding), "r");
+                h += '</div>';
+
+                h += '<div class="pf-loans-title">লোনের ইতিহাস (টিপে বিস্তারিত)</div>';
+                if (!loans.length) {
+                    h += '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
+                } else {
+                    h += '<div class="pf-loans">';
+                    loans.forEach(function (l) {
+                        var bg = l.gradeColor || l.stageColor || "#64748B";
+                        h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
+                        h += '<div class="cyc">' + l.cycle + ' নম্বর লোন</div>';
+                        h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
+                        h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
+                        h += '<div class="d">ক্লোজ: ' + (l.closedDate ? NK.dt(l.closedDate) : "চলছে") + '</div>';
+                        h += '<span class="st">' +
+                            NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+
+                q("pxBody").innerHTML = h;
+
+                var pe = q("pxPhoto");
+                if (pe && pe.getAttribute("data-photo")) {
+                    NK.GET("/api/customers/" + pe.getAttribute("data-photo") + "/photo").then(function (blob) {
+                        if (!blob) return;
+                        pe.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                        pe.textContent = "";
+                    }).catch(function () {});
+                }
+
+                var pickedFlag = c.flag || "GREEN";
+                Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (btn) {
+                    btn.addEventListener("click", function () {
+                        pickedFlag = btn.getAttribute("data-f");
+                        Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (x) {
+                            x.classList.remove("on");
+                        });
+                        btn.classList.add("on");
+                    });
+                });
+
+                q("pxSave").addEventListener("click", function () {
+                    var btn = q("pxSave");
+                    btn.disabled = true; btn.textContent = "সংরক্ষণ হচ্ছে...";
+                    NK.PATCH("/api/customers/" + id + "/flag", {
+                        flag: pickedFlag,
+                        reason: q("pxReason").value.trim()
+                    }).then(function () {
+                        toast("Remark সংরক্ষিত হয়েছে ✓", "ok");
+                        openCustomer(id);
+                    }).catch(function (e) {
+                        toast(e.message, "er");
+                        btn.disabled = false; btn.textContent = "Remark সংরক্ষণ করুন";
+                    });
+                });
+
+                Array.prototype.forEach.call(q("pxBody").querySelectorAll("[data-loan]"), function (el) {
+                    el.addEventListener("click", function () {
+                        toast("লোন #" + el.getAttribute("data-loan") + " — বিস্তারিত শীঘ্রই আসছে", "in");
+                    });
+                });
 
             }).catch(function (e) {
-                q("pBody").innerHTML = '<div class="card"><div class="empty">' +
+                q("pxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        function pfRow(label, value) {
+            if (value === null || value === undefined || value === "") return "";
+            return '<div class="r"><span>' + NK.esc(label) + '</span><b>' +
+                NK.esc(String(value)) + '</b></div>';
         }
         /* ---------------- নোটিফিকেশন ---------------- */
         function loadNotif() {
