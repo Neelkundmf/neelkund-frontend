@@ -859,6 +859,79 @@
             setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3600);
         }
 
+        /* ---------- CSV ডাউনলোড হেল্পার (Excel-এ খোলে, বাংলা ঠিক দেখায়) ---------- */
+        function csvCell(v) {
+            var s = (v === null || v === undefined) ? "" : String(v);
+            s = s.replace(/"/g, '""');
+            return '"' + s + '"';
+        }
+
+        function csvDownload(fileName, rows) {
+            try {
+                var body = rows.map(function (r) {
+                    return r.map(csvCell).join(",");
+                }).join("\r\n");
+
+                /* BOM না দিলে Excel-এ বাংলা ভেঙে যায় */
+                var blob = new Blob(["\uFEFF" + body], { type: "text/csv;charset=utf-8;" });
+                var url = URL.createObjectURL(blob);
+
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+
+                toast("ফাইল ডাউনলোড হয়েছে ✓", "ok");
+            } catch (e) {
+                toast("ডাউনলোড করা গেল না: " + e.message, "er");
+            }
+        }
+
+        function todayStamp() {
+            var d = new Date();
+            return d.getFullYear() + "-" +
+                String(d.getMonth() + 1).padStart(2, "0") + "-" +
+                String(d.getDate()).padStart(2, "0");
+        }
+        /* ---------- CSV ডাউনলোড হেল্পার ---------- */
+        function csvCell(v) {
+            var s = (v === null || v === undefined) ? "" : String(v);
+            s = s.replace(/"/g, '""');
+            return '"' + s + '"';
+        }
+
+        function csvDownload(fileName, rows) {
+            try {
+                var body = rows.map(function (r) {
+                    return r.map(csvCell).join(",");
+                }).join("\r\n");
+
+                var blob = new Blob(["\uFEFF" + body], { type: "text/csv;charset=utf-8;" });
+                var url = URL.createObjectURL(blob);
+
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+
+                toast("ফাইল ডাউনলোড হয়েছে ✓", "ok");
+            } catch (e) {
+                toast("ডাউনলোড করা গেল না: " + e.message, "er");
+            }
+        }
+
+        function todayStamp() {
+            var d = new Date();
+            return d.getFullYear() + "-" +
+                String(d.getMonth() + 1).padStart(2, "0") + "-" +
+                String(d.getDate()).padStart(2, "0");
+        }
         function st(l, v, tone) {
             return '<div class="stat"><div class="l">' + NK.esc(l) +
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
@@ -1053,7 +1126,30 @@
             q("agDetBody").innerHTML = h;
 
             q("agExcel").addEventListener("click", function () {
-                toast("Excel রিপোর্ট শীঘ্রই আসছে", "in");
+                var rows = [];
+                rows.push(["NEELKUND — এজেন্টের মার্কেট রিপোর্ট"]);
+                rows.push(["এজেন্ট", AG_NAME]);
+                rows.push(["তারিখ", todayStamp()]);
+                rows.push([]);
+                rows.push(["মার্কেট", "আজ ওঠার কথা", "আজ উঠেছে", "OD গ্রাহক", "চলমান গ্রাহক"]);
+
+                var tDue = 0, tCol = 0, tOd = 0, tAct = 0;
+                (AG_MKTS || []).forEach(function (x) {
+                    rows.push([
+                        x.marketName || "",
+                        Number(x.todayDue || 0),
+                        Number(x.todayCollected || 0),
+                        Number(x.odCustomers || 0),
+                        Number(x.activeCustomers || 0)
+                    ]);
+                    tDue += Number(x.todayDue || 0);
+                    tCol += Number(x.todayCollected || 0);
+                    tOd  += Number(x.odCustomers || 0);
+                    tAct += Number(x.activeCustomers || 0);
+                });
+                rows.push(["মোট", tDue, tCol, tOd, tAct]);
+
+                csvDownload("NEELKUND-এজেন্ট-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
             });
         }
         /* =====================================================================
@@ -1152,7 +1248,62 @@
                 q("reportBox").innerHTML = h;
 
                 q("repDl").addEventListener("click", function () {
-                    toast("রিপোর্ট ডাউনলোড শীঘ্রই আসছে", "in");
+                    var rows = [];
+                    rows.push(["NEELKUND — আজকের রিপোর্ট"]);
+                    rows.push(["তারিখ", todayStamp()]);
+                    rows.push([]);
+
+                    rows.push(["এজেন্ট অনুযায়ী"]);
+                    rows.push(["এজেন্ট", "আজ ওঠার কথা", "আজ উঠল", "OD উঠল"]);
+                    if (!agents.length) {
+                        rows.push(["আজ কোনো এজেন্টের হিসাব নেই"]);
+                    } else {
+                        agents.forEach(function (a) {
+                            rows.push([
+                                a.agentName || "",
+                                Number(a.todayDue || 0),
+                                Number(a.todayCollected || 0),
+                                Number(a.odCollected || 0)
+                            ]);
+                        });
+                    }
+                    rows.push([]);
+
+                    rows.push(["ব্রাঞ্চের মোট হিসাব"]);
+                    rows.push(["আজ ওঠার কথা", Number(br.todayCollection || 0)]);
+                    rows.push(["আজ উঠল", Number(br.todayCollected || 0)]);
+                    rows.push(["আজ OD উঠল", Number(br.todayOdCollected || 0)]);
+                    rows.push(["ব্ল্যাকলিস্ট OD উঠল", Number(br.todayBlacklistCollected || 0)]);
+                    rows.push(["ব্রাঞ্চ OD গ্রাহক (জন)", Number(br.branchOdCustomers || 0)]);
+                    rows.push(["ব্রাঞ্চ OD টাকা", Number(br.branchOdAmount || 0)]);
+                    rows.push([]);
+
+                    rows.push(["আজকের বিতরণ (DB)"]);
+                    rows.push(["নতুন গ্রাহক", Number(db.todayNewDb || 0)]);
+                    rows.push(["পুরনো (আবার)", Number(db.todayRepeatDb || 0)]);
+                    rows.push(["মোট DB", Number(db.totalDb || 0)]);
+                    rows.push(["আজ বিতরণ", Number(db.todayAmount || 0)]);
+                    rows.push([]);
+
+                    rows.push(["এই মাসের বিতরণ (এজেন্ট অনুযায়ী)"]);
+                    rows.push(["এজেন্ট", "ID", "2k", "4k", "6k", "8k", "10k", "মোট"]);
+                    if (!drows.length) {
+                        rows.push(["এই মাসে বিতরণ নেই"]);
+                    } else {
+                        drows.forEach(function (r) {
+                            rows.push([
+                                r.agentName || "", r.agentId,
+                                r.c2000, r.c4000, r.c6000, r.c8000, r.c10000, r.totalNo
+                            ]);
+                        });
+                        rows.push([
+                            "মোট", "—",
+                            ds.total2000, ds.total4000, ds.total6000,
+                            ds.total8000, ds.total10000, ds.grandTotal
+                        ]);
+                    }
+
+                    csvDownload("NEELKUND-আজকের-রিপোর্ট-" + todayStamp() + ".csv", rows);
                 });
 
             }).catch(function (e) {
