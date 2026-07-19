@@ -645,6 +645,7 @@
             <button data-go="expense"><i>💸</i>খরচ</button>
             <button data-go="salary"><i>💰</i>বেতন</button>
             <button data-go="profile"><i>🪪</i>কর্মীর ডিটেলস</button>
+            <button data-go="kyc"><i>📷</i>KYC ছবি</button>
             <button data-go="od"><i>🚨</i>OD তালিকা</button>
             <button data-go="stages"><i>🎨</i>ধাপ</button>
             <button data-go="settings"><i>⚙️</i>সেটিংস</button>
@@ -723,12 +724,6 @@
             b.addEventListener("click", function () {
                 var go = b.getAttribute("data-go");
                 q("sheet").classList.remove("on");
-
-                if (go === "logout") {
-                    NK.logout();
-                    window.location.replace("login.html");
-                    return;
-                }
 
                 if (go === "logout") {
                     NK.logout();
@@ -3556,29 +3551,6 @@
                 });
         });
         /* ---------------- শুরু ---------------- */
-        q("kycFile").addEventListener("change", function () {
-            var f = this.files[0];
-            if (!f || !kFor || !kType) return;
-
-            if (f.size > 5 * 1024 * 1024) {
-                toast("ছবি ৫MB-র কম হতে হবে", "er");
-                return;
-            }
-
-            toast("ছবি পাঠানো হচ্ছে...", "in");
-
-            var fd = new FormData();
-            fd.append("file", f);
-
-            NK.UPLOAD("/api/customers/" + kFor + "/document?type=" + kType, fd)
-                .then(function () {
-                    toast("ছবি সংরক্ষিত ✓", "ok");
-                    loadKyc();
-                })
-                .catch(function (e) {
-                    toast(e.message, "er");
-                });
-        });
         NK.boot().then(function (r) {
 
             if (!r.ok || !r.me) {
