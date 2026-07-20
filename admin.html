@@ -117,6 +117,96 @@
             padding: 10px; font-size: 13.5px; font-family: 'Hind Siliguri', sans-serif;
             resize: vertical; min-height: 60px; margin-bottom: 10px;
         }
+        /* ===== লোন ডিটেইল পাতা ===== */
+        #loanX {
+            position: fixed; inset: 0; z-index: 500;
+            background: #F4F6F8;
+            display: none; flex-direction: column;
+        }
+        #loanX.on { display: flex; }
+        #loanX .lbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #loanX .lbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #loanX .lbar .sm { font-size: 12px; opacity: .8; }
+        #loanX .lbar b { font-size: 15px; }
+        #loanX .lin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+        .ld-hero {
+            border-radius: 16px; padding: 16px; color: #fff; margin-bottom: 14px;
+            background: linear-gradient(135deg, #0F766E, #2563EB);
+        }
+        .ld-hero .amt {
+            font-family: 'Manrope', sans-serif; font-size: 30px; font-weight: 800;
+        }
+        .ld-hero .sub { font-size: 12.5px; opacity: .92; margin-top: 2px; }
+        .ld-bars { display: flex; gap: 10px; margin-top: 14px; }
+        .ld-bars > div {
+            flex: 1; background: rgba(0,0,0,.18); border-radius: 10px;
+            padding: 8px 10px; text-align: center;
+        }
+        .ld-bars .l { font-size: 10.5px; opacity: .9; }
+        .ld-bars .v {
+            font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; margin-top: 2px;
+        }
+        .ld-box {
+            background: #fff; border-radius: 14px; padding: 4px 16px; margin-bottom: 14px;
+        }
+        .ld-box .r {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13.5px;
+        }
+        .ld-box .r:last-child { border-bottom: 0; }
+        .ld-box .r span { color: var(--muted); }
+        .ld-box .r b { text-align: right; font-weight: 700; }
+        .ld-box .r b.g { color: #16A34A; }
+        .ld-box .r b.r { color: var(--red); }
+        .ld-title {
+            font-size: 14px; font-weight: 800; color: var(--navy);
+            margin: 18px 0 12px; padding-left: 10px; border-left: 4px solid #2563EB;
+        }
+        .ld-legend {
+            display: flex; flex-wrap: wrap; gap: 12px;
+            font-size: 11.5px; color: var(--muted); margin-bottom: 12px;
+        }
+        .ld-legend i {
+            display: inline-block; width: 11px; height: 11px;
+            border-radius: 3px; margin-right: 4px; vertical-align: -1px;
+        }
+        .ld-month {
+            background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px;
+        }
+        .ld-month .mh {
+            font-size: 13.5px; font-weight: 800; color: var(--navy);
+            text-align: center; margin-bottom: 10px;
+        }
+        .ld-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .ld-grid .dw {
+            font-size: 10px; color: var(--muted); text-align: center;
+            font-weight: 700; padding-bottom: 3px;
+        }
+        .ld-cell {
+            aspect-ratio: 1; border-radius: 7px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-size: 11.5px; font-weight: 700;
+            background: #F1F5F9; color: #94A3B8;
+        }
+        .ld-cell.blank { background: transparent; }
+        .ld-cell.due   { background: #FEF9E7; color: #B45309; }
+        .ld-cell.paid  { background: #16A34A; color: #fff; }
+        .ld-cell.miss  { background: #FEE2E2; color: #B91C1C; }
+        .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
+        .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
     </style>
 </head>
 <body>
@@ -659,7 +749,19 @@
     </div>
 </div>
 
-
+<!-- ================= লোন ডিটেইল ================= -->
+<div id="loanX">
+    <div class="lbar">
+        <button id="lxClose">←</button>
+        <div style="flex:1;">
+            <div class="sm" id="lxSm">লোন</div>
+            <b id="lxTitle">লোনের বিস্তারিত</b>
+        </div>
+    </div>
+    <div class="lin" id="lxBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
 <script src="assets/js/nk.js?v=2"></script>
 <script>
     (function () {
@@ -3478,7 +3580,7 @@
 
                 Array.prototype.forEach.call(q("pxBody").querySelectorAll("[data-loan]"), function (el) {
                     el.addEventListener("click", function () {
-                        toast("লোন #" + el.getAttribute("data-loan") + " — বিস্তারিত শীঘ্রই আসছে", "in");
+                        openLoanDetail(el.getAttribute("data-loan"));
                     });
                 });
 
@@ -3487,7 +3589,173 @@
                     NK.esc(e.message) + '</div></div>';
             });
         }
+        /* =====================================================================
+                 * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
+                 * ===================================================================== */
+        q("lxClose").addEventListener("click", function () {
+            q("loanX").classList.remove("on");
+        });
 
+        var LD_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+            "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        var LD_WEEK = ["র", "সো", "ম", "বু", "বৃ", "শু", "শ"];
+
+        function ldKey(d) {
+            return d.getFullYear() + "-" +
+                String(d.getMonth() + 1).padStart(2, "0") + "-" +
+                String(d.getDate()).padStart(2, "0");
+        }
+
+        function ldRow(label, value, tone) {
+            if (value === null || value === undefined || value === "") return "";
+            return '<div class="r"><span>' + NK.esc(label) + '</span><b class="' +
+                (tone || "") + '">' + NK.esc(String(value)) + '</b></div>';
+        }
+
+        function openLoanDetail(loanId) {
+            q("loanX").classList.add("on");
+            q("lxSm").textContent = "লোন #" + loanId;
+            q("lxTitle").textContent = "লোড হচ্ছে...";
+            q("lxBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
+                q("lxTitle").textContent = NK.inr(d.principal) + " এর লোন";
+                q("lxSm").textContent = "লোন #" + d.loanId +
+                    (d.agentName ? " · " + d.agentName : "");
+
+                var h = "";
+
+                h += '<div class="ld-hero">';
+                h += '<div class="amt">' + NK.inr(d.principal) + '</div>';
+                h += '<div class="sub">মোট ফেরত ' + NK.inr(d.totalRepayable) +
+                    ' · দৈনিক ' + NK.inr(d.dailyEmiAmount) + '</div>';
+                h += '<div class="ld-bars">';
+                h += '<div><div class="l">জমা</div><div class="v">' +
+                    NK.inrShort(d.totalPaid) + '</div></div>';
+                h += '<div><div class="l">বাকি</div><div class="v">' +
+                    NK.inrShort(d.remaining) + '</div></div>';
+                h += '<div><div class="l">কিস্তি</div><div class="v">' +
+                    (d.paidCount || 0) + '/' + (d.totalCount || 0) + '</div></div>';
+                h += '</div>';
+                h += '</div>';
+
+                h += '<div class="ld-box">';
+                h += ldRow("DB ডেট", d.dbDate ? NK.dt(d.dbDate) : "—");
+                h += ldRow("EMI শুরু", d.emiStartDate ? NK.dt(d.emiStartDate) : "—");
+                h += ldRow("ক্লোজিং ডেট", d.emiEndDate ? NK.dt(d.emiEndDate) : "—");
+                h += ldRow("শোধ হয়েছে", d.closedDate ? NK.dt(d.closedDate) : "চলছে",
+                    d.closedDate ? "g" : "");
+                if (d.closedOnDay) h += ldRow("কত দিনে শোধ", d.closedOnDay + " দিনে", "g");
+                h += '</div>';
+
+                h += '<div class="ld-box">';
+                h += ldRow("ওভারডিউ ডেট", d.overdueDate ? NK.dt(d.overdueDate) : "নেই",
+                    d.overdueDate ? "r" : "g");
+                h += ldRow("ডিলে পেমেন্ট", (d.delayDays || 0) + " দিন",
+                    (d.delayDays > 0) ? "r" : "g");
+                h += ldRow("লাস্ট পেমেন্ট ডেট",
+                    d.lastPaymentDate ? NK.dt(d.lastPaymentDate) : "এখনও কিছু আসেনি");
+                if (d.lastPaymentAmount)
+                    h += ldRow("লাস্ট পেমেন্ট অঙ্ক", NK.inr(d.lastPaymentAmount), "g");
+                h += ldRow("এজেন্ট", d.agentName || "—");
+                h += '</div>';
+
+                h += '<div class="ld-title">📅 EMI ও পেমেন্ট ক্যালেন্ডার</div>';
+
+                h += '<div class="ld-legend">';
+                h += '<span><i style="background:#16A34A;"></i>টাকা এসেছে</span>';
+                h += '<span><i style="background:#FEE2E2;"></i>আসেনি</span>';
+                h += '<span><i style="background:#FEF9E7;"></i>দিন আসেনি</span>';
+                h += '<span><i style="background:#DBEAFE;"></i>বাড়তি জমা</span>';
+                h += '</div>';
+
+                var emis = d.emis || [];
+                var pays = d.payments || [];
+
+                if (!emis.length) {
+                    h += '<div class="card"><div class="empty">কিস্তির তালিকা তৈরি হয়নি</div></div>';
+                    q("lxBody").innerHTML = h;
+                    return;
+                }
+
+                var emiMap = {};
+                emis.forEach(function (e) { emiMap[e.dueDate] = e; });
+
+                var payMap = {};
+                pays.forEach(function (p) {
+                    payMap[p.paymentDate] = Number(p.amount || 0) + (payMap[p.paymentDate] || 0);
+                });
+
+                var allDates = [];
+                Object.keys(emiMap).forEach(function (k) { allDates.push(k); });
+                Object.keys(payMap).forEach(function (k) {
+                    if (allDates.indexOf(k) === -1) allDates.push(k);
+                });
+                allDates.sort();
+
+                var first = new Date(allDates[0] + "T00:00:00");
+                var last = new Date(allDates[allDates.length - 1] + "T00:00:00");
+                var todayK = ldKey(new Date());
+
+                var cur = new Date(first.getFullYear(), first.getMonth(), 1);
+                var stop = new Date(last.getFullYear(), last.getMonth(), 1);
+
+                while (cur <= stop) {
+                    var yy = cur.getFullYear();
+                    var mm = cur.getMonth();
+
+                    h += '<div class="ld-month">';
+                    h += '<div class="mh">' + LD_MONTHS[mm] + ' ' + yy + '</div>';
+                    h += '<div class="ld-grid">';
+
+                    LD_WEEK.forEach(function (w) {
+                        h += '<div class="dw">' + w + '</div>';
+                    });
+
+                    var startDow = new Date(yy, mm, 1).getDay();
+                    for (var b = 0; b < startDow; b++) {
+                        h += '<div class="ld-cell blank"></div>';
+                    }
+
+                    var daysInMonth = new Date(yy, mm + 1, 0).getDate();
+                    for (var dd = 1; dd <= daysInMonth; dd++) {
+                        var key = yy + "-" + String(mm + 1).padStart(2, "0") + "-" +
+                            String(dd).padStart(2, "0");
+
+                        var e = emiMap[key];
+                        var paid = payMap[key];
+
+                        var cls = "ld-cell";
+                        var note = "";
+
+                        if (paid) {
+                            cls += e ? " paid" : " extra";
+                            note = '<span class="pm">' + NK.inrShort(paid) + '</span>';
+                        } else if (e) {
+                            if (e.status === "PAID") {
+                                cls += " paid";
+                            } else if (key < todayK) {
+                                cls += " miss";
+                            } else {
+                                cls += " due";
+                            }
+                        }
+
+                        h += '<div class="' + cls + '">' + dd + note + '</div>';
+                    }
+
+                    h += '</div></div>';
+                    cur = new Date(yy, mm + 1, 1);
+                }
+
+                q("lxBody").innerHTML = h;
+
+            }).catch(function (e) {
+                q("lxTitle").textContent = "লোন #" + loanId;
+                q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
         function pfRow(label, value) {
             if (value === null || value === undefined || value === "") return "";
             return '<div class="r"><span>' + NK.esc(label) + '</span><b>' +
