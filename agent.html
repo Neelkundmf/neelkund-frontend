@@ -11,9 +11,8 @@
     <link rel="stylesheet" href="assets/css/nk.css">
     <link rel="stylesheet" href="assets/css/app.css">
 
-    <!-- ম্যাপ (Leaflet) — pin বসানোর জন্য -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ম্যাপ (Google Maps) — pin বসানোর জন্য -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCj•••••••••••••••••••••••••••••••&libraries=places&loading=async"></script>
     <style>
         /* ---- আজকের টার্গেট ---- */
         .target {
@@ -2517,24 +2516,28 @@
             var lat = startLat || 22.5726, lng = startLng || 88.3639;
 
             if (!_map) {
-                _map = L.map("mapBox").setView([lat, lng], 17);
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 19,
-                    attribution: "© OpenStreetMap"
-                }).addTo(_map);
+                _map = new google.maps.Map(q("mapBox"), {
+                    center: { lat: lat, lng: lng },
+                    zoom: 17
+                });
 
-                _marker = L.marker([lat, lng], { draggable: true }).addTo(_map);
+                _marker = new google.maps.Marker({
+                    position: { lat: lat, lng: lng },
+                    map: _map,
+                    draggable: true
+                });
 
-                _marker.on("dragend", function () {
-                    var p = _marker.getLatLng();
-                    fetchAddr(p.lat, p.lng);
+                _marker.addListener("dragend", function () {
+                    var p = _marker.getPosition();
+                    fetchAddr(p.lat(), p.lng());
                 });
             } else {
-                _map.setView([lat, lng], 17);
-                _marker.setLatLng([lat, lng]);
+                _map.setCenter({ lat: lat, lng: lng });
+                _map.setZoom(17);
+                _marker.setPosition({ lat: lat, lng: lng });
             }
 
-            setTimeout(function () { _map.invalidateSize(); }, 200);
+            setTimeout(function () { google.maps.event.trigger(_map, "resize"); }, 200);
 
             fetchAddr(lat, lng);
         }
@@ -2544,17 +2547,16 @@
             clearTimeout(_addrTimer);
 
             _addrTimer = setTimeout(function () {
-                fetch("https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
-                    lat + "&lon=" + lng + "&accept-language=bn")
-                    .then(function (r) { return r.json(); })
-                    .then(function (d) {
-                        _map._lastAddr = (d && d.display_name) ? d.display_name : "";
-                        q("mapAddr").textContent = _map._lastAddr || "ঠিকানা পাওয়া যায়নি — pin ঠিক আছে";
-                    })
-                    .catch(function () {
+                var geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
+                    if (status === "OK" && results[0]) {
+                        _map._lastAddr = results[0].formatted_address;
+                        q("mapAddr").textContent = _map._lastAddr;
+                    } else {
                         _map._lastAddr = "";
-                        q("mapAddr").textContent = "ঠিকানা আনা গেল না — pin ঠিক আছে";
-                    });
+                        q("mapAddr").textContent = "ঠিকানা পাওয়া যায়নি — pin ঠিক আছে";
+                    }
+                });
             }, 400);
         }
 
@@ -2564,8 +2566,8 @@
 
         q("mapOk").addEventListener("click", function () {
             if (_marker && _onOk) {
-                var p = _marker.getLatLng();
-                _onOk(p.lat, p.lng, _map._lastAddr || "");
+                var p = _marker.getPosition();
+                _onOk(p.lat(), p.lng(), _map._lastAddr || "");
             }
             q("mapWrap").style.display = "none";
         });
@@ -2595,25 +2597,17 @@
                     b.disabled = false;
                     b.textContent = "📍 আবার নিন";
 
-                    fetch("https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
-                        lat + "&lon=" + lng + "&accept-language=bn")
-                        .then(function (r) { return r.json(); })
-                        .then(function (d) {
-                            var addr = (d && d.display_name) ? d.display_name : "";
-                            if (addr) {
-                                q("n_addr").value = addr;
-                                q("n_loc").innerHTML = '✓ লোকেশন ও ঠিকানা বসানো হয়েছে';
-                            } else {
-                                q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)';
-                            }
-                            q("n_loc").style.color = "var(--green)";
-                            toast("লোকেশন বসানো হল ✓", "ok");
-                        })
-                        .catch(function () {
-                            q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা আনা গেল না)';
-                            q("n_loc").style.color = "var(--green)";
-                            toast("লোকেশন বসানো হল ✓", "ok");
-                        });
+                    var geocoder2 = new google.maps.Geocoder();
+                    geocoder2.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
+                        if (status === "OK" && results[0]) {
+                            q("n_addr").value = results[0].formatted_address;
+                            q("n_loc").innerHTML = '✓ লোকেশন ও ঠিকানা বসানো হয়েছে';
+                        } else {
+                            q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)';
+                        }
+                        q("n_loc").style.color = "var(--green)";
+                        toast("লোকেশন বসানো হল ✓", "ok");
+                    });
                 },
                 function () {
                     toast("লোকেশন পাওয়া গেল না — অনুমতি দিন", "er");
