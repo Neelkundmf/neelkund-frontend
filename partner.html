@@ -154,6 +154,20 @@
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- ---------------- গ্রাহক ---------------- -->
+        <div class="view" id="v-cust">
+            <div class="fld" style="margin-bottom:10px;">
+                <input id="cq" placeholder="নাম / ফোন / কোড দিয়ে খুঁজুন">
+            </div>
+            <div class="chips" id="ctabs">
+                <button class="on" data-t="ALL">সব</button>
+                <button data-t="GREEN">ভালো</button>
+                <button data-t="YELLOW">দেরি</button>
+                <button data-t="RED">OD</button>
+            </div>
+            <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
 
         <!-- ---------------- অগ্রগতি ---------------- -->
         <div class="view" id="v-growth">
@@ -196,6 +210,7 @@
 
     <div class="tabs">
         <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
+        <button data-v="cust"><i>👤</i>গ্রাহক</button>
         <button data-v="growth"><i>📈</i>অগ্রগতি</button>
         <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -232,7 +247,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -251,6 +266,7 @@
             if (!loaded[key]) {
                 loaded[key] = true;
                 if (key === "dash")   loadDash();
+                if (key === "cust")   loadCust();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
                 if (key === "od")     loadOd();
@@ -687,6 +703,93 @@
         /* =====================================================================
                  * গ্রাহকের প্রোফাইল
                  * ===================================================================== */
+        /* =====================================================================
+  * গ্রাহক
+  * ===================================================================== */
+        var FLAG_BN = { GREEN: ["ভালো", "g"], YELLOW: ["দেরি", "a"], RED: ["OD", "r"] };
+        var cTab = "ALL";
+        var cShow = 50;
+        var cqTimer = null;
+        var CUST_ROWS = [];
+
+        function loadCust() {
+            q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            NK.GET("/api/customers?page=0&size=500").then(function (r) {
+                CUST_ROWS = NK.rows(r);
+                cShow = 50;
+                drawCust();
+            }).catch(function (e) {
+                q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawCust() {
+            var s = q("cq").value.trim().toLowerCase();
+            var rows = CUST_ROWS.filter(function (c) {
+                if (cTab !== "ALL" && c.flag !== cTab) return false;
+                if (s) {
+                    return (c.fullName || "").toLowerCase().indexOf(s) !== -1 ||
+                        (c.phone || "").indexOf(s) !== -1 ||
+                        (c.customerCode || "").toLowerCase().indexOf(s) !== -1;
+                }
+                return true;
+            });
+
+            if (!rows.length) {
+                q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                return;
+            }
+
+            var h = '<div class="list">';
+            rows.slice(0, cShow).forEach(function (c) {
+                var f = FLAG_BN[c.flag] || ["—", "n"];
+                h += '<div class="item" data-cust="' + NK.esc(c.id) + '">';
+                h += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' + NK.esc(c.fullName) + '</b>' +
+                    '<span>' + NK.esc(c.customerCode || "") + ' · ' + NK.esc(c.phone || "—") + '</span></div>';
+                h += '<div class="end"><span class="b ' + f[1] + '">' + f[0] + '</span></div>';
+                h += '</div>';
+            });
+            h += '</div>';
+
+            if (rows.length > cShow) {
+                h += '<button class="btn ghost block" id="cMore" style="margin-top:12px;">আরও দেখুন (' +
+                    (rows.length - cShow) + ' জন বাকি)</button>';
+            }
+
+            q("cList").innerHTML = h;
+
+            if (q("cMore")) {
+                q("cMore").addEventListener("click", function () {
+                    cShow += 50;
+                    drawCust();
+                });
+            }
+
+            Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
+                el.addEventListener("click", function () {
+                    openCustomer(el.getAttribute("data-cust"));
+                });
+            });
+        }
+
+        q("cq").addEventListener("input", function () {
+            clearTimeout(cqTimer);
+            cqTimer = setTimeout(drawCust, 300);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                cTab = b.getAttribute("data-t");
+                cShow = 50;
+                drawCust();
+            });
+        });
+
         var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
 
         function row(label, value) {
