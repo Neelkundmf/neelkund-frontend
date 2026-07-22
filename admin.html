@@ -429,7 +429,7 @@
                 <div class="fld"><label>স্থায়ী ঠিকানা</label><input id="tm_perm"></div>
                 <div class="fld"><label>বর্তমান ঠিকানা</label><input id="tm_curr"></div>
 
-                <h3 style="margin:18px 0 12px;">জরুরি যোগাযোগ</h3>
+                <h3 style="margin:18px 0 12px;" id="tm_ech">জরুরি যোগাযোগ</h3>
                 <div class="fld"><label>নাম</label><input id="tm_en"></div>
                 <div class="fld"><label>ফোন</label><input id="tm_ep" type="tel" inputmode="numeric" maxlength="10"></div>
 
@@ -1713,6 +1713,18 @@
             } else {
                 if (brBox) brBox.style.display = "";
             }
+            var pFields = ["tm_area", "tm_code", "tm_join", "tm_curr"];
+            pFields.forEach(function (id) {
+                var box = q(id).closest(".fld");
+                if (box) box.style.display = (role === "PARTNER") ? "none" : "";
+            });
+            var enBox = q("tm_en").closest(".fld");
+            if (enBox) enBox.style.display = (role === "PARTNER") ? "none" : "";
+            var epBox = q("tm_ep").closest(".fld");
+            var epLabel = epBox ? epBox.querySelector("label") : null;
+            if (epLabel) epLabel.textContent = (role === "PARTNER") ? "অতিরিক্ত যোগাযোগ নম্বর" : "ফোন";
+            var ech = q("tm_ech");
+            if (ech) ech.style.display = (role === "PARTNER") ? "none" : "";
             // ম্যানেজার/অ্যাডমিন/পার্টনার হলে মার্কেট লাগবে না — লুকাই
             var mkBox = q("tm_mk").closest(".fld");
             if (role !== "AGENT") {
