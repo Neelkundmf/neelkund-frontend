@@ -1706,7 +1706,13 @@
         function fillMarketsForBranch() {
             var role = q("tm_role").value;
             var brId = q("tm_br").value;
-
+            var brBox = q("tm_br").closest(".fld");
+            if (role === "PARTNER") {
+                if (brBox) brBox.style.display = "none";
+                q("tm_br").value = "";
+            } else {
+                if (brBox) brBox.style.display = "";
+            }
             // ম্যানেজার/অ্যাডমিন/পার্টনার হলে মার্কেট লাগবে না — লুকাই
             var mkBox = q("tm_mk").closest(".fld");
             if (role !== "AGENT") {
@@ -2008,7 +2014,14 @@
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
         q("tm_role").addEventListener("change", fillMarketsForBranch);
-
+        q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+        q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+        q("tm_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+        q("tm_pan").addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+            var ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(this.value);
+            this.style.borderColor = this.value.length === 10 ? (ok ? "var(--green)" : "var(--red)") : "";
+        });
         q("tm_mk").addEventListener("change", function () {
             var opt = this.options[this.selectedIndex];
             var mgr = opt ? opt.getAttribute("data-mgr") : "";
@@ -2806,7 +2819,12 @@
             html += '</div>';
 
             q("pfBox").innerHTML = html;
-
+            q("pf_pan").addEventListener("input", function () {
+                this.value = this.value.toUpperCase();
+                var ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(this.value);
+                this.style.borderColor = this.value.length === 10 ? (ok ? "var(--green)" : "var(--red)") : "";
+            });
+            q("pf_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
             /* ছবি দেখাই */
             if (u.photoUrl) {
                 NK.GET("/api/admin/users/" + id + "/photo").then(function (blob) {

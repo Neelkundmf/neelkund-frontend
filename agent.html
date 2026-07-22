@@ -2430,6 +2430,14 @@
                 toast(e.message, "er");
             });
         }
+        q("n_pan").addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+            var ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(this.value);
+            this.style.borderColor = this.value.length === 10 ? (ok ? "var(--green)" : "var(--red)") : "";
+        });
+        q("n_code").addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+        });
 
         /* ---- পুরনো গ্রাহকের নামে সরাসরি লোন অনুরোধ ---- */
         function sendOldCustomerLoan(c) {
