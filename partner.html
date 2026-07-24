@@ -196,6 +196,22 @@
             <div id="tmList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- ---------------- খরচ ---------------- -->
+        <div class="view" id="v-expense">
+            <div id="exList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- ---------------- বেতন ---------------- -->
+        <div class="view" id="v-salary">
+            <div class="card">
+                <div class="fld" style="margin:0;">
+                    <label>মাস দেখুন</label>
+                    <input id="sl_f" type="month">
+                </div>
+            </div>
+            <div id="slList"><div class="empty">উপরে একটা মাস বাছুন</div></div>
+        </div>
+
 
 
         <!-- ---------------- অগ্রগতি ---------------- -->
@@ -244,6 +260,8 @@
         <button data-v="branch"><i>🏢</i>ব্রাঞ্চ</button>
         <button data-v="market"><i>🏬</i>মার্কেট</button>
         <button data-v="team"><i>👥</i>টিম</button>
+        <button data-v="expense"><i>💸</i>খরচ</button>
+        <button data-v="salary"><i>💰</i>বেতন</button>
         <button data-v="growth"><i>📈</i>অগ্রগতি</button>
         <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -280,7 +298,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -304,6 +322,8 @@
                 if (key === "branch") loadBranch();
                 if (key === "market") loadMarket();
                 if (key === "team")   loadTeam();
+                if (key === "expense") loadExpense();
+                if (key === "salary")  loadSalary();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
                 if (key === "od")     loadOd();
@@ -978,6 +998,90 @@
                 q("tmList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+        /* =====================================================================
+         * খরচ ও বেতন
+         * ===================================================================== */
+        var EXP_BN = {
+            RENT: "ভাড়া", TRANSPORT: "যাতায়াত", UTILITIES: "বিদ্যুৎ/জল",
+            OFFICE_SUPPLIES: "অফিস", MARKETING: "বিজ্ঞাপন",
+            INCENTIVE: "ইনসেনটিভ", SALARY: "বেতন", MISCELLANEOUS: "বিবিধ"
+        };
+
+        function loadExpense() {
+            NK.GET("/api/expenses?page=0&size=50").then(function (r) {
+                var rows = NK.rows(r);
+                if (!rows.length) {
+                    q("exList").innerHTML = '<div class="card"><div class="empty">কোনো খরচ নেই</div></div>';
+                    return;
+                }
+                var html = '<div class="list">';
+                rows.forEach(function (x) {
+                    html += '<div class="item">';
+                    html += '<div class="av">💸</div>';
+                    html += '<div class="mid"><b>' + (EXP_BN[x.category] || x.category) + '</b>' +
+                        '<span>' + NK.dt(x.expenseDate) + (x.description ? ' · ' + NK.esc(x.description) : '') + '</span></div>';
+                    html += '<div class="end"><b style="color:var(--red);">' + NK.inr(x.amount) + '</b></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                q("exList").innerHTML = html;
+            }).catch(function (e) {
+                q("exList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        var SAL_TEAM = [];
+
+        function thisMonth() {
+            var d = new Date();
+            return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+        }
+
+        function loadSalary() {
+            if (!q("sl_f").value) q("sl_f").value = thisMonth();
+
+            NK.GET("/api/manager/users").then(function (r) {
+                SAL_TEAM = NK.rows(r);
+                showSalary();
+            });
+        }
+
+        function showSalary() {
+            var m = q("sl_f").value;
+            if (!m) return;
+
+            q("slList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/manager/salary/month?month=" + m + "-01").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("slList").innerHTML = '<div class="card"><div class="empty">এই মাসে বেতন যোগ হয়নি</div></div>';
+                    return;
+                }
+
+                var html = '<div class="list">';
+                rows.forEach(function (s) {
+                    var paid = s.status === "PAID";
+                    var u = SAL_TEAM.filter(function (x) { return x.id === s.userId; })[0];
+
+                    html += '<div class="item">';
+                    html += '<div class="av">💰</div>';
+                    html += '<div class="mid"><b>' + NK.esc(u ? u.fullName : ("ID " + s.userId)) + '</b>' +
+                        '<span>' + NK.inr(s.baseSalary) +
+                        (Number(s.commissionAmount) ? ' + ' + NK.inr(s.commissionAmount) : '') + '</span></div>';
+                    html += '<div class="end"><b>' + NK.inr(s.totalAmount) + '</b>' +
+                        '<span class="b ' + (paid ? "g" : "a") + '">' + (paid ? "দেওয়া" : "বাকি") + '</span></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                q("slList").innerHTML = html;
+            }).catch(function (e) {
+                q("slList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("sl_f").addEventListener("change", showSalary);
 
         var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
 
