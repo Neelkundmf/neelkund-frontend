@@ -212,6 +212,36 @@
             <div id="slList"><div class="empty">উপরে একটা মাস বাছুন</div></div>
         </div>
 
+        <!-- ---------------- KYC ছবি ---------------- -->
+        <div class="view" id="v-kyc">
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="kq" type="search" placeholder="গ্রাহক খুঁজুন">
+            </div>
+            <div id="kList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- ---------------- রিপোর্ট ---------------- -->
+        <div class="view" id="v-report">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">মাসিক লাভ-ক্ষতি</h2>
+                <div class="fld" style="margin:0;">
+                    <input id="rp_m" type="month">
+                </div>
+            </div>
+            <div id="rpBox"><div class="loading">লোড হচ্ছে...</div></div>
+            <div class="card">
+                <h2 style="margin-bottom:14px;">মাসিক ডিসবার্সমেন্ট (কমিশন)</h2>
+                <div id="dsBox"><div class="loading">লোড হচ্ছে...</div></div>
+                <button class="btn ghost block" id="dl_disb" style="margin-top:12px;">📥 ডিসবার্সমেন্ট (CSV)</button>
+            </div>
+            <div class="card">
+                <h2 style="margin-bottom:14px;">ডাউনলোড</h2>
+                <button class="btn ghost block" id="dl_cust" style="margin-bottom:10px;">📥 সব গ্রাহক (CSV)</button>
+                <button class="btn ghost block" id="dl_od">📥 OD তালিকা (CSV)</button>
+            </div>
+        </div>
+
 
 
         <!-- ---------------- অগ্রগতি ---------------- -->
@@ -262,6 +292,8 @@
         <button data-v="team"><i>👥</i>টিম</button>
         <button data-v="expense"><i>💸</i>খরচ</button>
         <button data-v="salary"><i>💰</i>বেতন</button>
+        <button data-v="kyc"><i>📷</i>KYC ছবি</button>
+        <button data-v="report"><i>📋</i>রিপোর্ট</button>
         <button data-v="growth"><i>📈</i>অগ্রগতি</button>
         <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -298,7 +330,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", kyc: "KYC ছবি", report: "রিপোর্ট", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -324,6 +356,8 @@
                 if (key === "team")   loadTeam();
                 if (key === "expense") loadExpense();
                 if (key === "salary")  loadSalary();
+                if (key === "kyc")    loadKyc();
+                if (key === "report") loadReport();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
                 if (key === "od")     loadOd();
@@ -1082,6 +1116,208 @@
         }
 
         q("sl_f").addEventListener("change", showSalary);
+        /* =====================================================================
+         * KYC ছবি (শুধু দেখার জন্য)
+         * ===================================================================== */
+        var DOCS = [
+            ["SELFIE", "গ্রাহকের ছবি", "photoUrl"],
+            ["AADHAAR", "আধার (সামনে)", "aadhaarPhotoUrl"],
+            ["AADHAAR_BACK", "আধার (পিছন)", "aadhaarBackPhotoUrl"],
+            ["PAN", "প্যান (সামনে)", "panPhotoUrl"],
+            ["PAN_BACK", "প্যান (পিছন)", "panBackPhotoUrl"]
+        ];
+        var kTimer = null;
+
+        function loadKyc() {
+            var s = q("kq").value.trim();
+            q("kList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/customers?page=0&size=60").then(function (r) {
+                var rows = NK.rows(r);
+
+                if (s) {
+                    var sl = s.toLowerCase();
+                    rows = rows.filter(function (c) {
+                        return (c.fullName || "").toLowerCase().indexOf(sl) !== -1
+                            || (c.phone || "").indexOf(s) !== -1
+                            || (c.customerCode || "").toLowerCase().indexOf(sl) !== -1;
+                    });
+                }
+
+                if (!rows.length) {
+                    q("kList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                    return;
+                }
+
+                var html = "";
+
+                rows.slice(0, 40).forEach(function (c) {
+                    html += '<div class="card" style="padding:14px;">';
+                    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+                    html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
+                    html += '<div style="flex:1;min-width:0;">';
+                    html += '<b style="font-size:14.5px;">' + NK.esc(c.fullName) + '</b><br>';
+                    html += '<span style="font-size:12.5px;color:var(--muted);">' +
+                        NK.esc(c.customerCode || "") + ' · ' + NK.esc(c.phone || "—") + '</span>';
+                    html += '</div></div>';
+
+                    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">';
+
+                    DOCS.forEach(function (d) {
+                        var has = !!c[d[2]];
+                        html += '<button' + (has ? ' data-view="' + NK.esc(c.id) + '" data-type="' + d[0] + '"' : ' disabled') + ' ' +
+                            'style="min-height:64px;padding:8px 4px;border-radius:10px;' +
+                            'border:1.5px solid ' + (has ? 'var(--green)' : 'var(--line)') + ';' +
+                            'background:' + (has ? 'var(--green-soft)' : '#fff') + ';' +
+                            'font-family:inherit;font-size:10px;font-weight:600;' +
+                            'color:' + (has ? 'var(--green)' : 'var(--muted)') + ';' +
+                            (has ? 'cursor:pointer;' : 'cursor:default;opacity:.6;') + '">';
+                        html += (has ? '✓' : '—') + '<br>' + d[1];
+                        html += '</button>';
+                    });
+
+                    html += '</div></div>';
+                });
+
+                q("kList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("kList").querySelectorAll("[data-view]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var id = b.getAttribute("data-view");
+                        var type = b.getAttribute("data-type");
+                        var path = type === "SELFIE" ? "/api/customers/" + id + "/photo" :
+                            "/api/customers/" + id + "/document?type=" + type;
+                        NK.GET(path).then(function (blob) {
+                            window.open(URL.createObjectURL(blob), "_blank");
+                        }).catch(function () { toast("ছবি পাওয়া যায়নি", "er"); });
+                    });
+                });
+
+            }).catch(function (e) {
+                q("kList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("kq").addEventListener("input", function () {
+            clearTimeout(kTimer);
+            kTimer = setTimeout(loadKyc, 400);
+        });
+
+        /* =====================================================================
+         * রিপোর্ট
+         * ===================================================================== */
+        function loadReport() {
+            if (!q("rp_m").value) q("rp_m").value = thisMonth();
+            showReport();
+        }
+
+        function showReport() {
+            var m = q("rp_m").value;
+            q("rpBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            showDisb(m);
+            NK.GET("/api/manager/reports/pnl?month=" + m).then(function (d) {
+                var html = '<div class="stats">';
+                html += st("বিতরণ", NK.inrShort(d.disbursed));
+                html += st("আদায়", NK.inrShort(d.collected), "g");
+                html += st("খরচ", NK.inrShort(d.totalExpenses), "r");
+                html += st("নিট", NK.inrShort(d.netProfit), Number(d.netProfit) >= 0 ? "g" : "r");
+                html += '</div>';
+                html += '<div class="card"><div class="stats" style="margin:0;">';
+                html += st("লোন দেওয়া", d.loansIssued);
+                html += st("লোন শোধ", d.loansClosed, "g");
+                html += '</div></div>';
+                q("rpBox").innerHTML = html;
+            }).catch(function (e) {
+                q("rpBox").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        q("rp_m").addEventListener("change", showReport);
+
+        var DISB = null;
+
+        function showDisb(m) {
+            DISB = null;
+            q("dsBox").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/manager/reports/disbursement?month=" + m).then(function (d) {
+                DISB = d;
+                var list = d.byAgent || [];
+
+                var h = '<div class="stats" style="margin:0 0 12px;">';
+                h += st("মোট বিতরণ", NK.inrShort(d.totalDisbursed));
+                h += st("মোট লোন", (d.totalLoans || 0) + "টি");
+                h += '</div>';
+
+                if (!list.length) {
+                    h += '<div class="empty">এই মাসে কেউ লোন দেয়নি।</div>';
+                    q("dsBox").innerHTML = h;
+                    return;
+                }
+
+                h += '<div class="list">';
+                list.forEach(function (a) {
+                    h += '<div class="item">';
+                    h += '<div class="av">👤</div>';
+                    h += '<div class="mid"><b>' + NK.esc(a.agentName || "—") + '</b>' +
+                        '<span>' + (a.loanCount || 0) + 'টি লোন</span></div>';
+                    h += '<div class="end"><b>' + NK.inrShort(a.totalDisbursed) + '</b></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+
+                q("dsBox").innerHTML = h;
+            }).catch(function (e) {
+                q("dsBox").innerHTML = '<div class="empty">' + NK.esc(e.message) + '</div>';
+            });
+        }
+
+        q("dl_disb").addEventListener("click", function () {
+            if (!DISB || !DISB.byAgent || !DISB.byAgent.length) {
+                toast("এই মাসে নামানোর মতো কিছু নেই।", "er");
+                return;
+            }
+
+            var lines = [["এজেন্ট", "লোন সংখ্যা", "মোট বিতরণ"]];
+            DISB.byAgent.forEach(function (a) {
+                lines.push([a.agentName || "", a.loanCount || 0, a.totalDisbursed || 0]);
+            });
+            lines.push(["মোট", DISB.totalLoans || 0, DISB.totalDisbursed || 0]);
+
+            var csv = lines.map(function (r) {
+                return r.map(function (c) {
+                    return '"' + String(c).replace(/"/g, '""') + '"';
+                }).join(",");
+            }).join("\n");
+
+            var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "disbursement-" + (DISB.month || q("rp_m").value) + ".csv";
+            a.click();
+            toast("নামানো হয়েছে ✓", "ok");
+        });
+
+        function download(path, name) {
+            toast("নামানো হচ্ছে...", "in");
+            NK.GET(path).then(function (blob) {
+                var a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = name;
+                a.click();
+                toast("নামানো হয়েছে ✓", "ok");
+            }).catch(function (e) {
+                toast(e.message, "er");
+            });
+        }
+
+        q("dl_cust").addEventListener("click", function () {
+            download("/api/export/customers?tab=ALL", "customers.csv");
+        });
+
+        q("dl_od").addEventListener("click", function () {
+            download("/api/export/od-customers", "od-customers.csv");
+        });
 
         var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
 
