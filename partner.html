@@ -198,6 +198,17 @@
 
         <!-- ---------------- খরচ ---------------- -->
         <div class="view" id="v-expense">
+            <div class="chips" id="extabs" style="margin-bottom:10px;">
+                <button class="on" data-t="ALL">সব</button>
+                <button data-t="INCENTIVE">ইনসেনটিভ</button>
+                <button data-t="SALARY">বেতন</button>
+                <button data-t="RENT">ভাড়া</button>
+                <button data-t="TRANSPORT">যাতায়াত</button>
+                <button data-t="UTILITIES">বিদ্যুৎ/জল</button>
+                <button data-t="OFFICE_SUPPLIES">অফিস</button>
+                <button data-t="MARKETING">বিজ্ঞাপন</button>
+                <button data-t="MISCELLANEOUS">বিবিধ</button>
+            </div>
             <div id="exList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
@@ -1041,28 +1052,50 @@
             INCENTIVE: "ইনসেনটিভ", SALARY: "বেতন", MISCELLANEOUS: "বিবিধ"
         };
 
+        var EXP_ROWS = [];
+        var exTab = "ALL";
+
         function loadExpense() {
             NK.GET("/api/expenses?page=0&size=50").then(function (r) {
-                var rows = NK.rows(r);
-                if (!rows.length) {
-                    q("exList").innerHTML = '<div class="card"><div class="empty">কোনো খরচ নেই</div></div>';
-                    return;
-                }
-                var html = '<div class="list">';
-                rows.forEach(function (x) {
-                    html += '<div class="item">';
-                    html += '<div class="av">💸</div>';
-                    html += '<div class="mid"><b>' + (EXP_BN[x.category] || x.category) + '</b>' +
-                        '<span>' + NK.dt(x.expenseDate) + (x.description ? ' · ' + NK.esc(x.description) : '') + '</span></div>';
-                    html += '<div class="end"><b style="color:var(--red);">' + NK.inr(x.amount) + '</b></div>';
-                    html += '</div>';
-                });
-                html += '</div>';
-                q("exList").innerHTML = html;
+                EXP_ROWS = NK.rows(r);
+                drawExpense();
             }).catch(function (e) {
                 q("exList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        function drawExpense() {
+            var rows = exTab === "ALL" ? EXP_ROWS : EXP_ROWS.filter(function (x) { return x.category === exTab; });
+
+            if (!rows.length) {
+                q("exList").innerHTML = '<div class="card"><div class="empty">কোনো খরচ নেই</div></div>';
+                return;
+            }
+
+            var html = '<div class="list">';
+            rows.forEach(function (x) {
+                html += '<div class="item">';
+                html += '<div class="av">💸</div>';
+                html += '<div class="mid"><b>' + (EXP_BN[x.category] || x.category) + '</b>' +
+                    '<span>' + NK.dt(x.expenseDate) + (x.description ? ' · ' + NK.esc(x.description) : '') + '</span></div>';
+                html += '<div class="end"><b style="color:var(--red);">' + NK.inr(x.amount) + '</b></div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            q("exList").innerHTML = html;
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#extabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#extabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                exTab = b.getAttribute("data-t");
+                drawExpense();
+            });
+        });
 
         var SAL_TEAM = [];
 
