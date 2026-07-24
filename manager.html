@@ -1550,7 +1550,12 @@
                 h += st("চলছে", (p.activeLoans || 0) + "টি");
                 h += st("বাকি", NK.inrShort(p.outstanding), "r");
                 h += '</div>';
-
+                if (Number(p.advanceAmount) > 0) {
+                    h += '<div class="card" style="text-align:center;padding:12px;">';
+                    h += '<div style="font-size:12.5px;color:var(--muted);">অগ্রিম জমা আছে</div>';
+                    h += '<div style="font-size:20px;font-weight:800;color:var(--blue);">' + NK.inr(p.advanceAmount) + '</div>';
+                    h += '</div>';
+                }
                 /* লোন গ্রিড */
                 h += '<div class="pf-loans-title">লোনের ইতিহাস (টিপে বিস্তারিত)</div>';
                 if (!loans.length) {
@@ -2375,7 +2380,12 @@
                 h += st("চলছে", (p.activeLoans || 0) + "টি");
                 h += st("এখনও বাকি", NK.inrShort(p.outstanding), "r");
                 h += '</div>';
-
+                if (Number(p.advanceAmount) > 0) {
+                    h += '<div class="card" style="text-align:center;padding:12px;">';
+                    h += '<div style="font-size:12.5px;color:var(--muted);">অগ্রিম জমা আছে</div>';
+                    h += '<div style="font-size:20px;font-weight:800;color:var(--blue);">' + NK.inr(p.advanceAmount) + '</div>';
+                    h += '</div>';
+                }
                 h += '<div class="card">';
                 h += '<h2 style="margin-bottom:12px;">শোধের অভ্যাস</h2>';
                 h += '<div class="stats" style="margin:0;">';
