@@ -3480,6 +3480,9 @@
                         h += '<div class="av">₹</div>';
                         h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span></div>';
+                        if (Number(p.amount) > 0) {
+                            h += '<button class="btn ghost sm" data-reverse="' + p.id + '">✏️ ভুল?</button>';
+                        }
                         h += '</div>';
                     });
                     h += '</div>';
@@ -3487,6 +3490,26 @@
 
                 q("lxBody").innerHTML = h;
 
+                Array.prototype.forEach.call(q("lxBody").querySelectorAll("[data-reverse]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var reason = prompt("কেন বাতিল করছেন? (কারণ লিখুন)");
+                        if (!reason || !reason.trim()) return;
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.POST("/api/payments/" + b.getAttribute("data-reverse") + "/reverse", { reason: reason.trim() })
+                            .then(function () {
+                                toast("বাতিল হয়েছে ✓", "ok");
+                                openLoanDetail(loanId);
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "✏️ ভুল?";
+                            });
+                    });
+                });
             }).catch(function (e) {
                 q("lxTitle").textContent = "লোন #" + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
