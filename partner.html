@@ -167,6 +167,20 @@
             </div>
             <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
+        <!-- ---------------- লোন ---------------- -->
+        <div class="view" id="v-loan">
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="lq" type="search" placeholder="গ্রাহকের নাম খুঁজুন">
+            </div>
+            <div class="chips" id="ltabs">
+                <button class="on" data-t="ACTIVE">চলমান</button>
+                <button data-t="CLOSED">শোধ হয়েছে</button>
+                <button data-t="ALL">সব</button>
+            </div>
+            <div id="lList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
 
 
         <!-- ---------------- অগ্রগতি ---------------- -->
@@ -211,6 +225,7 @@
     <div class="tabs">
         <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
+        <button data-v="loan"><i>💳</i>লোন</button>
         <button data-v="growth"><i>📈</i>অগ্রগতি</button>
         <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -247,7 +262,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -267,6 +282,7 @@
                 loaded[key] = true;
                 if (key === "dash")   loadDash();
                 if (key === "cust")   loadCust();
+                if (key === "loan")   loadLoan();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
                 if (key === "od")     loadOd();
@@ -788,6 +804,84 @@
                 cShow = 50;
                 drawCust();
             });
+        });
+        /* =====================================================================
+         * লোন
+         * ===================================================================== */
+        var LOANS = [];
+        var lTab = "ACTIVE";
+        var LSTAT = {
+            ACTIVE: ["চলমান", "g"], CLOSED: ["শোধ", "n"], DEFAULTED: ["খেলাপি", "r"]
+        };
+
+        function loadLoan() {
+            q("lList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            NK.GET("/api/loans?page=0&size=300").then(function (r) {
+                LOANS = NK.rows(r);
+                drawLoans();
+            }).catch(function (e) {
+                q("lList").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawLoans() {
+            var s = q("lq").value.trim().toLowerCase();
+
+            var list = LOANS.filter(function (l) {
+                if (lTab === "ACTIVE" && l.status !== "ACTIVE") return false;
+                if (lTab === "CLOSED" && l.status !== "CLOSED") return false;
+                if (s) {
+                    var name = (l.customerName || "").toLowerCase();
+                    return name.indexOf(s) !== -1 || String(l.id).indexOf(s) !== -1;
+                }
+                return true;
+            });
+
+            if (!list.length) {
+                q("lList").innerHTML = '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
+                return;
+            }
+
+            var html = '<div class="list">';
+
+            list.slice(0, 100).forEach(function (l) {
+                var st = LSTAT[l.status] || ["—", "n"];
+                var due = Number(l.totalRepayable || 0) - Number(l.totalPaid || 0);
+
+                html += '<div class="item">';
+                html += '<div class="av">#' + NK.esc(l.id) + '</div>';
+                html += '<div class="mid"><b>' + NK.esc(l.customerName || ("গ্রাহক " + l.customerId)) + '</b>' +
+                    '<span>' + NK.inr(l.principal) + ' · EMI ' + NK.inr(l.dailyEmiAmount) + '</span></div>';
+                html += '<div class="end"><b>' + NK.inrShort(due) + '</b>' +
+                    '<span class="b ' + st[1] + '">' + st[0] + '</span></div>';
+                html += '</div>';
+            });
+
+            html += '</div>';
+
+            if (list.length > 100) {
+                html += '<div class="empty">মোট ' + list.length + 'টি · প্রথম ১০০ দেখানো হচ্ছে</div>';
+            }
+
+            q("lList").innerHTML = html;
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("#ltabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#ltabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                lTab = b.getAttribute("data-t");
+                drawLoans();
+            });
+        });
+
+        q("lq").addEventListener("input", function () {
+            clearTimeout(cqTimer);
+            cqTimer = setTimeout(drawLoans, 300);
         });
 
         var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
