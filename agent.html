@@ -3307,6 +3307,18 @@
                     h += '</div></div>';
                     cur = new Date(yy, mm + 1, 1);
                 }
+                if (d.paymentLog && d.paymentLog.length) {
+                    h += '<div class="ld-title">🕒 পেমেন্টের সময়</div>';
+                    h += '<div class="list">';
+                    d.paymentLog.forEach(function (p) {
+                        h += '<div class="item">';
+                        h += '<div class="av">₹</div>';
+                        h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
+                            '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span></div>';
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
 
                 q("lxBody").innerHTML = h;
 
