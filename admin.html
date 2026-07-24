@@ -927,7 +927,22 @@
                     html += '<div class="stats" style="margin:0;">';
                     html += st("পার্টনার", NK.inrShort(d.partnerCapital));
                     html += st("বাইরের", NK.inrShort(d.investorCapital));
-                    html += "</div></div>";
+
+                    var totCap = Number(d.partnerCapital) + Number(d.investorCapital);
+                    if (totCap <= 0) totCap = 1;
+                    var ppc = (Number(d.partnerCapital) / totCap * 100).toFixed(1);
+                    var pic = (Number(d.investorCapital) / totCap * 100).toFixed(1);
+
+                    html += '</div>';
+                    html += '<div class="bar" style="height:20px;border-radius:8px;overflow:hidden;display:flex;margin-top:12px;">';
+                    html += '<i style="width:' + ppc + '%;background:#16A34A;display:block;"></i>';
+                    html += '<i style="width:' + pic + '%;background:#60A5FA;display:block;"></i>';
+                    html += '</div>';
+                    html += '<div class="lg" style="margin-top:8px;">';
+                    html += '<span><i style="background:#16A34A;"></i>পার্টনার ' + ppc + '%</span>';
+                    html += '<span><i style="background:#60A5FA;"></i>বাইরের ' + pic + '%</span>';
+                    html += '</div>';
+                    html += '</div>';
                 }
                 /* ---- ৫টা ব্লক (clickable) ---- */
                 html += '<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>';

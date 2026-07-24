@@ -694,7 +694,20 @@
                 h += st("তোলা", NK.inrShort(d.totalWithdrawn), "r");
                 h += st("নিট পুঁজি", NK.inrShort(d.netCapital), "g");
                 h += '</div>';
+                var totCap = Number(d.totalPartnerCapital) + Number(d.totalInvestorCapital);
+                if (totCap <= 0) totCap = 1;
+                var ppc = (Number(d.totalPartnerCapital) / totCap * 100).toFixed(1);
+                var pic = (Number(d.totalInvestorCapital) / totCap * 100).toFixed(1);
 
+                h += '<div class="card"><h2 style="margin-bottom:12px;">বিনিয়োগের ভাগ</h2>';
+                h += '<div class="bar" style="height:20px;border-radius:8px;overflow:hidden;display:flex;">';
+                h += '<i style="width:' + ppc + '%;background:#16A34A;display:block;"></i>';
+                h += '<i style="width:' + pic + '%;background:#60A5FA;display:block;"></i>';
+                h += '</div>';
+                h += '<div class="lg" style="margin-top:8px;">';
+                h += '<span><i style="background:#16A34A;"></i>পার্টনার ' + ppc + '%</span>';
+                h += '<span><i style="background:#60A5FA;"></i>বাইরের ' + pic + '%</span>';
+                h += '</div></div>';
                 if (d.branches && d.branches.length) {
                     h += '<h2 style="margin:16px 0 10px;">ব্রাঞ্চ অনুযায়ী</h2>';
                     h += '<div class="list">';
