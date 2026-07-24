@@ -214,6 +214,16 @@
 
         <!-- ---------------- বেতন ---------------- -->
         <div class="view" id="v-salary">
+            <div class="card" id="slAddBox" style="display:none;">
+                <h2 style="margin-bottom:14px;">বেতন যোগ করুন</h2>
+                <div class="msg" id="slMsg"></div>
+                <div class="fld"><label>কর্মী *</label><select id="sl_u"></select></div>
+                <div class="fld"><label>মাস *</label><input id="sl_m" type="month"></div>
+                <div class="fld"><label>মূল বেতন *</label><input id="sl_base" type="number" inputmode="numeric"></div>
+                <div class="fld"><label>কমিশন</label><input id="sl_com" type="number" inputmode="numeric" value="0"></div>
+                <button class="btn block" id="sl_go">বেতন যোগ করুন</button>
+            </div>
+
             <div class="card">
                 <div class="fld" style="margin:0;">
                     <label>মাস দেখুন</label>
@@ -1120,9 +1130,48 @@
         function loadSalary() {
             if (!q("sl_f").value) q("sl_f").value = thisMonth();
 
+            var allowed = NK.me() && NK.me().canEditSalary;
+            if (allowed) {
+                q("slAddBox").style.display = "block";
+                if (!q("sl_m").value) q("sl_m").value = thisMonth();
+            }
+
             NK.GET("/api/manager/users").then(function (r) {
                 SAL_TEAM = NK.rows(r);
+                if (allowed) {
+                    var o = "";
+                    SAL_TEAM.forEach(function (u) {
+                        o += '<option value="' + NK.esc(u.id) + '">' + NK.esc(u.fullName) + '</option>';
+                    });
+                    q("sl_u").innerHTML = o;
+                }
                 showSalary();
+            });
+        }
+
+        if (q("sl_go")) {
+            q("sl_go").addEventListener("click", function () {
+                var b = q("sl_go");
+                b.disabled = true;
+                b.innerHTML = '<span class="spin"></span> যোগ হচ্ছে...';
+
+                NK.POST("/api/manager/salary", {
+                    userId: Number(q("sl_u").value),
+                    salaryMonth: q("sl_m").value + "-01",
+                    baseSalary: Number(q("sl_base").value),
+                    commissionAmount: Number(q("sl_com").value || 0)
+                }).then(function () {
+                    toast("বেতন যোগ হয়েছে ✓", "ok");
+                    q("sl_base").value = "";
+                    q("sl_com").value = "0";
+                    q("sl_f").value = q("sl_m").value;
+                    showSalary();
+                }).catch(function (e) {
+                    toast(e.message, "er");
+                }).then(function () {
+                    b.disabled = false;
+                    b.textContent = "বেতন যোগ করুন";
+                });
             });
         }
 
@@ -1151,16 +1200,34 @@
                         '<span>' + NK.inr(s.baseSalary) +
                         (Number(s.commissionAmount) ? ' + ' + NK.inr(s.commissionAmount) : '') + '</span></div>';
                     html += '<div class="end"><b>' + NK.inr(s.totalAmount) + '</b>' +
-                        '<span class="b ' + (paid ? "g" : "a") + '">' + (paid ? "দেওয়া" : "বাকি") + '</span></div>';
+                        (paid ? '<span class="b g">দেওয়া</span>'
+                            : (NK.me() && NK.me().canEditSalary
+                                ? '<button class="btn sm" data-pay="' + NK.esc(s.id) + '">দিন</button>'
+                                : '<span class="b a">বাকি</span>')) + '</div>';
                     html += '</div>';
                 });
                 html += '</div>';
                 q("slList").innerHTML = html;
+                Array.prototype.forEach.call(q("slList").querySelectorAll("[data-pay]"), function (b) {
+                    b.addEventListener("click", function () {
+                        b.disabled = true;
+                        b.textContent = "...";
+                        NK.POST("/api/manager/salary/" + b.getAttribute("data-pay") + "/mark-paid")
+                            .then(function () {
+                                toast("বেতন দেওয়া হয়েছে ✓", "ok");
+                                showSalary();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "দিন";
+                            });
+                    });
+                });
             }).catch(function (e) {
                 q("slList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
-
         q("sl_f").addEventListener("change", showSalary);
         /* =====================================================================
          * KYC ছবি (শুধু দেখার জন্য)

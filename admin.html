@@ -2822,7 +2822,14 @@
             html += '<button class="btn ghost sm" id="pf_pic">📷 ছবি তুলুন</button>';
             html += '<input type="file" id="pf_file" accept="image/*" capture="environment" style="display:none;">';
             html += '</div>';
-
+            if (u.role === "PARTNER") {
+                html += '<div class="card" style="text-align:center;padding:14px;margin-bottom:14px;">';
+                html += '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;">বেতন এডিট করার অনুমতি</div>';
+                html += '<button class="btn ' + (u.canEditSalary ? '' : 'ghost') + '" id="pf_salperm" data-v="' +
+                    (!u.canEditSalary) + '">' +
+                    (u.canEditSalary ? '✓ অনুমতি আছে (বন্ধ করতে টিপুন)' : 'অনুমতি দিন') + '</button>';
+                html += '</div>';
+            }
             html += '<div class="fld"><label>নাম</label><input id="pf_name" value="' +
                 NK.esc(u.fullName) + '"></div>';
             html += '<div class="fld"><label>এলাকা</label><input id="pf_area" value="' +
@@ -2875,6 +2882,22 @@
             html += '</div>';
 
             q("pfBox").innerHTML = html;
+            if (q("pf_salperm")) {
+                q("pf_salperm").addEventListener("click", function () {
+                    var v = this.getAttribute("data-v");
+                    this.disabled = true;
+                    NK.PATCH("/api/admin/users/" + id + "/salary-permission?allowed=" + v)
+                        .then(function () {
+                            toast("বদলানো হয়েছে ✓", "ok");
+                            loadProfile();
+                            q("pf_u").value = id;
+                            q("pf_u").dispatchEvent(new Event("change"));
+                        })
+                        .catch(function (e) {
+                            toast(e.message, "er");
+                        });
+                });
+            }
             q("pf_pan").addEventListener("input", function () {
                 this.value = this.value.toUpperCase();
                 var ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(this.value);

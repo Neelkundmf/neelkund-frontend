@@ -106,7 +106,8 @@
                     userId: d.userId,
                     fullName: d.fullName,
                     role: d.role,
-                    mustChangePassword: d.mustChangePassword
+                    mustChangePassword: d.mustChangePassword,
+                    canEditSalary: d.canEditSalary
                 });
                 refreshing = null;
                 return d.accessToken;
@@ -188,7 +189,8 @@
                     userId: d.userId,
                     fullName: d.fullName,
                     role: d.role,
-                    mustChangePassword: d.mustChangePassword
+                    mustChangePassword: d.mustChangePassword,
+                    canEditSalary: d.canEditSalary
                 });
                 return d;
             });
