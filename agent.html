@@ -1100,6 +1100,25 @@
 
 
         <!-- ---------------- ব্ল্যাকলিস্ট ---------------- -->
+        <!-- ---------------- কাগজ ---------------- -->
+        <div class="view" id="v-sheet">
+            <div class="card noprint">
+                <div class="fld" style="margin:0;">
+                    <label>তারিখ</label>
+                    <input id="sh_d" type="date">
+                </div>
+                <div class="chips" id="shtabs" style="margin-top:10px;margin-bottom:0;">
+                    <button class="on" data-t="MORNING">🌅 সকাল</button>
+                    <button data-t="EVENING">🌆 সন্ধ্যা</button>
+                </div>
+            </div>
+
+            <div id="shBox"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <button class="btn block noprint" id="sh_print" style="display:none;margin-top:12px;">🖨️ প্রিন্ট করুন</button>
+        </div>
+
+
         <div class="view" id="v-black">
             <div id="blackList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
@@ -1112,6 +1131,7 @@
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
         <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
+        <button data-v="sheet"><i>🖨️</i>কাগজ</button>
     </div>
 </div>
 
@@ -1307,7 +1327,7 @@
          * ===================================================================== */
         var TITLES = {
             today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", new: "নতুন গ্রাহক",
-            loan: "লোন", black: "ব্ল্যাকলিস্ট (১২০+ দিন)"
+            loan: "লোন", black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
         };
         var loaded = {};
 
@@ -1331,6 +1351,7 @@
                 if (key === "cust")  loadCust();
                 if (key === "loan")  loadLoan();
                 if (key === "black") loadBlack();
+                if (key === "sheet") loadSheet();
             }
         }
 
@@ -3055,6 +3076,150 @@
         var OD_LIMIT = 120;
         var BL_ALL = [];
         var blTimer = null;
+        /* =====================================================================
+         * কাগজ — নিজের সকাল/সন্ধ্যার হিসাব, প্রিন্ট
+         * ===================================================================== */
+        var shType = "MORNING";
+
+        function loadSheet() {
+            if (!q("sh_d").value) q("sh_d").value = new Date().toISOString().slice(0, 10);
+            showSheet();
+        }
+
+        function showSheet() {
+            var d = q("sh_d").value;
+
+            q("shBox").innerHTML = '<div class="loading">তৈরি হচ্ছে...</div>';
+
+            var url = "/api/agent/my-sheet?type=" + shType + (d ? "&date=" + d : "");
+
+            NK.GET(url).then(function (s) {
+                var eve = s.sheetType === "EVENING";
+
+                var h = '<div class="sheet">';
+
+                h += '<div class="hd">';
+                h += '<h2>' + (eve ? "🌆 সন্ধ্যার হিসাব" : "🌅 সকালের কাগজ") + '</h2>';
+                h += '<p>' + NK.esc(s.agentName) + ' · ' + NK.esc(s.branchName || "—") +
+                    ' · ' + NK.dt(s.date) + '</p>';
+                h += '</div>';
+
+                (s.markets || []).forEach(function (m) {
+                    h += '<div class="mkt">🏬 ' + NK.esc(m.marketName) +
+                        ' (' + m.customerCount + ' জন)</div>';
+
+                    h += '<table>';
+                    h += '<thead><tr>';
+                    h += '<th>#</th><th>নাম</th>';
+                    h += '<th class="r">বকেয়া</th>';
+                    h += '<th class="r">আজ</th>';
+                    h += '<th class="r">নিতে হবে</th>';
+                    if (eve) h += '<th class="r">উঠল</th>';
+                    h += '</tr></thead><tbody>';
+
+                    (m.rows || []).forEach(function (r) {
+                        h += '<tr>';
+                        h += '<td>' + r.serial + '</td>';
+                        h += '<td>' + NK.esc(r.customerName) + '<br>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">' +
+                            NK.esc(r.customerPhone || "") + '</span></td>';
+                        h += '<td class="r">' + NK.inr(r.arrears) + '</td>';
+                        h += '<td class="r">' + NK.inr(r.todayDue) + '</td>';
+                        h += '<td class="r"><b>' + NK.inr(r.netToCollect) + '</b></td>';
+
+                        if (eve) {
+                            h += '<td class="r" style="color:' +
+                                (r.paid ? 'var(--green)' : 'var(--red)') + ';font-weight:700;">' +
+                                (r.paid ? NK.inr(r.collectedAmount) : "—") + '</td>';
+                        }
+
+                        h += '</tr>';
+                    });
+
+                    h += '</tbody></table>';
+
+                    h += '<div style="text-align:right;font-size:12.5px;padding:8px 6px;' +
+                        'color:var(--muted);">মার্কেট মোট: <b style="color:var(--ink);">' +
+                        NK.inr(m.marketDue) + '</b>' +
+                        (eve ? ' · উঠল <b style="color:var(--green);">' +
+                            NK.inr(m.marketCollected) + '</b>' : '') + '</div>';
+                });
+
+                if (s.odCustomers && s.odCustomers.length) {
+                    h += '<div class="mkt" style="background:#1F2937;color:#fff;">⛔ OD (' +
+                        s.odCustomers.length + ' জন)</div>';
+
+                    h += '<table><thead><tr>';
+                    h += '<th>নাম</th><th class="r">কত দিন</th><th class="r">বাকি</th>';
+                    h += '</tr></thead><tbody>';
+
+                    s.odCustomers.forEach(function (o) {
+                        h += '<tr>';
+                        h += '<td>' + NK.esc(o.customerName) + '<br>' +
+                            '<span style="font-size:10.5px;color:var(--muted);">' +
+                            NK.esc(o.customerPhone || "") + '</span></td>';
+                        h += '<td class="r">' + o.daysOverdue + '</td>';
+                        h += '<td class="r"><b style="color:var(--red);">' +
+                            NK.inr(o.outstanding) + '</b></td>';
+                        h += '</tr>';
+                    });
+
+                    h += '</tbody></table>';
+                }
+
+                h += '<div class="tot">';
+                h += '<span>মোট নিতে হবে</span>';
+                h += '<span>' + NK.inr(s.totalDue) + '</span>';
+                h += '</div>';
+
+                if (eve) {
+                    h += '<div class="tot" style="border-top:1px solid var(--line);' +
+                        'color:var(--green);">';
+                    h += '<span>মোট উঠল</span>';
+                    h += '<span>' + NK.inr(s.totalCollected) + '</span>';
+                    h += '</div>';
+
+                    if (Number(s.shortfall) > 0) {
+                        h += '<div class="tot" style="border-top:1px solid var(--line);' +
+                            'color:var(--red);">';
+                        h += '<span>কম পড়ল</span>';
+                        h += '<span>' + NK.inr(s.shortfall) + '</span>';
+                        h += '</div>';
+                    }
+                }
+
+                h += '<div class="sign">';
+                h += '<div>এজেন্টের সই</div>';
+                h += '<div>ম্যানেজারের সই</div>';
+                h += '</div>';
+
+                h += '</div>';
+
+                q("shBox").innerHTML = h;
+                q("sh_print").style.display = "flex";
+
+            }).catch(function (e) {
+                q("shBox").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("sh_print").style.display = "none";
+            });
+        }
+
+        q("sh_d").addEventListener("change", showSheet);
+
+        Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (b) {
+            b.addEventListener("click", function () {
+                Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (x) {
+                    x.classList.remove("on");
+                });
+                b.classList.add("on");
+                shType = b.getAttribute("data-t");
+                showSheet();
+            });
+        });
+
+        q("sh_print").addEventListener("click", function () {
+            window.print();
+        });
 
         function loadBlack() {
             q("blackList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
