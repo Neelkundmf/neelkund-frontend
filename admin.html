@@ -563,8 +563,10 @@
             <div class="card">
                 <h2 style="margin-bottom:6px;">পুরনো Excel তোলা</h2>
                 <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">
-                    ফাইলের নামে DISBURSE বা COLLECTION থাকতে হবে
+                    ফাইলের নামে DISBURSE / COLLECTION / INVESTMENT / EXPENSE থাকতে হবে
                 </p>
+                <button class="btn ghost sm" id="dl_inv_sample">📥 বিনিয়োগের ডেমো ফাইল</button>
+                <button class="btn ghost sm" id="dl_exp_sample" style="margin-left:6px;">📥 খরচের ডেমো ফাইল</button>
 
                 <div class="msg" id="imMsg"></div>
 
@@ -2578,6 +2580,13 @@
         /* =====================================================================
          * ইম্পোর্ট
          * ===================================================================== */
+        q("dl_inv_sample").addEventListener("click", function () {
+            download("/api/admin/import/sample?type=INVESTMENT", "INVESTMENT_sample.xlsx");
+        });
+        q("dl_exp_sample").addEventListener("click", function () {
+            download("/api/admin/import/sample?type=EXPENSE", "EXPENSE_sample.xlsx");
+        });
+
         q("im_go").addEventListener("click", function () {
             hide("imMsg");
 

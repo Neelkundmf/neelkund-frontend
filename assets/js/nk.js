@@ -150,7 +150,7 @@
 
             /* ফাইল নামানো */
             var ct = r.headers.get("content-type") || "";
-            if (ct.indexOf("text/csv") !== -1 || ct.indexOf("image/") !== -1) {
+            if (ct.indexOf("text/csv") !== -1 || ct.indexOf("image/") !== -1 || ct.indexOf("spreadsheetml") !== -1) {
                 if (!r.ok) throw mkErr(r.status, null);
                 return r.blob();
             }
