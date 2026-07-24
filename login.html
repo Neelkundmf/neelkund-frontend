@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0F2942">
+  <meta name="theme-color" content="#060D19">
   <title>NEELKUND — লগইন</title>
 
   <link rel="icon" href="assets/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/nk.css">
 
   <style>
@@ -20,126 +20,100 @@
       position: relative;
       overflow: hidden;
 
-      background:
-              radial-gradient(800px 480px at 10% -8%, #1F6F5C 0%, transparent 52%),
-              radial-gradient(760px 520px at 108% 108%, #14B8A6 0%, transparent 46%),
-              radial-gradient(700px 460px at 90% -5%, #1B3B5C 0%, transparent 50%),
-              linear-gradient(160deg, #0F2942 0%, #0A1B2E 60%, #08243A 100%);
-    }
-
-    /* পেছনে হালকা glow বল — ধীরে ভাসবে */
-    body::before,
-    body::after {
-      content: "";
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: .35;
-      z-index: 0;
-      pointer-events: none;
-    }
-    body::before {
-      width: 340px; height: 340px;
-      background: #16C79A;
-      top: -80px; left: -60px;
-      animation: float1 11s ease-in-out infinite;
-    }
-    body::after {
-      width: 300px; height: 300px;
-      background: #2E7CF6;
-      bottom: -90px; right: -50px;
-      animation: float2 13s ease-in-out infinite;
-    }
-    @keyframes float1 {
-      0%,100% { transform: translate(0,0) scale(1); }
-      50%     { transform: translate(40px,30px) scale(1.12); }
-    }
-    @keyframes float2 {
-      0%,100% { transform: translate(0,0) scale(1); }
-      50%     { transform: translate(-36px,-28px) scale(1.15); }
-    }
-
-    /* পেছনে বড় লোগো — live নিঃশ্বাসের মতো */
-    .bglogo {
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 460px; height: 460px;
-      transform: translate(-50%, -50%);
-      z-index: 0;
-      opacity: .06;
-      pointer-events: none;
-      animation: breathe 7s ease-in-out infinite;
-    }
-    .bglogo img { width: 100%; height: 100%; object-fit: contain; }
-    @keyframes breathe {
-      0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: .05; }
-      50%     { transform: translate(-50%,-50%) scale(1.14); opacity: .10; }
+      background: radial-gradient(ellipse 700px 500px at 50% 22%, #123055 0%, #081527 45%, #04070d 85%);
     }
 
     .wrap { width: 100%; max-width: 400px; position: relative; z-index: 2; }
 
-    /* ---- লোগো ---- */
+    /* ---- লোগো + জ্বলজ্বলে রিং ---- */
     .top {
       text-align: center;
-      margin-bottom: 26px;
+      margin-bottom: 22px;
       color: #fff;
     }
     .mark {
-      width: 78px;
-      height: 78px;
-      margin: 0 auto 16px;
-
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 18px;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-
-      background: linear-gradient(145deg, rgba(22,199,154,.22), rgba(46,124,246,.18));
-      border: 1px solid rgba(255,255,255,.22);
-      border-radius: 22px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 10px 30px rgba(20,184,166,.25);
-      animation: markpulse 4s ease-in-out infinite;
     }
-    @keyframes markpulse {
-      0%,100% { box-shadow: 0 10px 30px rgba(20,184,166,.25); }
-      50%     { box-shadow: 0 12px 40px rgba(46,124,246,.40); }
+    .mark::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2.5px solid transparent;
+      border-top-color: rgba(255,60,60,.95);
+      border-right-color: rgba(255,120,120,.55);
+      border-bottom-color: rgba(255,25,25,.2);
+      box-shadow: 0 0 18px 4px rgba(255,25,25,.4);
+      animation: spin 3s linear infinite;
     }
-    .mark img { width: 46px; height: 46px; object-fit: contain; }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .mark img {
+      width: 108px;
+      height: 108px;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 12px rgba(255,35,35,.5));
+    }
 
     .top h1 {
-      font-family: 'Fraunces', serif;
-      font-size: 29px;
-      letter-spacing: .06em;
-      margin-bottom: 5px;
-      background: linear-gradient(90deg, #EAFBF4, #BFE9FF);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: 'Manrope', sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255,255,255,.22);
+      margin-bottom: 4px;
     }
     .top p {
       margin: 0;
-      font-size: 13.5px;
-      color: rgba(255,255,255,.7);
+      font-size: 13px;
+      color: rgba(255,255,255,.55);
       letter-spacing: .02em;
     }
 
-    /* ---- বাক্স ---- */
-    .box {
-      background: rgba(255,255,255,.98);
-      border-radius: 22px;
-      padding: 26px 22px;
-      box-shadow: 0 24px 70px rgba(0,0,0,.38);
-      border: 1px solid rgba(255,255,255,.5);
-    }
+    /* ---- ফর্ম (আর সাদা বাক্স না, সরাসরি অন্ধকার পটভূমিতে) ---- */
+    .box { padding: 0; }
 
     .box h2 {
-      font-size: 18px;
-      margin-bottom: 4px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255,255,255,.92);
+      margin: 0 0 3px;
     }
     .box .sub {
-      font-size: 13.5px;
-      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,.5);
       margin: 0 0 22px;
+    }
+
+    .fld label {
+      color: rgba(255,255,255,.6);
+      font-size: 12.5px;
+    }
+    .fld input {
+      background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(255,255,255,.22);
+      color: #fff;
+      border-radius: 14px;
+      transition: box-shadow .2s, border-color .2s, background .2s;
+    }
+    .fld input::placeholder { color: rgba(255,255,255,.32); }
+    .fld input:focus {
+      border-color: rgba(255,70,70,.85);
+      box-shadow: 0 0 0 3px rgba(255,35,35,.15), 0 0 18px rgba(255,35,35,.35);
+      background: rgba(255,255,255,.07);
+      outline: none;
     }
 
     /* ---- পাসওয়ার্ড দেখা ---- */
@@ -162,10 +136,21 @@
       border-radius: 8px;
 
       font-size: 17px;
-      color: var(--muted);
+      color: rgba(255,255,255,.55);
       cursor: pointer;
     }
-    .eye:active { background: #F1F5F9; }
+    .eye:active { background: rgba(255,255,255,.08); }
+
+    /* ---- বোতাম — লাল গ্লো ---- */
+    #go {
+      background: linear-gradient(135deg, #FF2A2A, #C4001A);
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: .03em;
+      border-radius: 999px;
+      box-shadow: 0 0 22px rgba(255,20,20,.5), 0 10px 26px rgba(255,20,20,.28);
+    }
 
     /* ---- নিচের লাইন ---- */
     .foot {
@@ -175,14 +160,14 @@
     .foot a {
       font-size: 13.5px;
       font-weight: 600;
-      color: var(--muted);
+      color: rgba(255,255,255,.65);
     }
 
     .copy {
       text-align: center;
       margin-top: 24px;
       font-size: 12px;
-      color: rgba(255,255,255,.5);
+      color: rgba(255,255,255,.4);
       position: relative;
       z-index: 2;
     }
@@ -215,8 +200,6 @@
   }
 </script>
 <body>
-
-<div class="bglogo"><img src="assets/logo.png" alt=""></div>
 
 <div id="toast"></div>
 
