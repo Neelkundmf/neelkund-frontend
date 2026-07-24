@@ -181,6 +181,21 @@
             <div id="lList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- ---------------- ব্রাঞ্চ ---------------- -->
+        <div class="view" id="v-branch">
+            <div id="brList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- ---------------- মার্কেট ---------------- -->
+        <div class="view" id="v-market">
+            <div id="mkList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- ---------------- টিম ---------------- -->
+        <div class="view" id="v-team">
+            <div id="tmList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
 
 
         <!-- ---------------- অগ্রগতি ---------------- -->
@@ -226,6 +241,9 @@
         <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
         <button data-v="loan"><i>💳</i>লোন</button>
+        <button data-v="branch"><i>🏢</i>ব্রাঞ্চ</button>
+        <button data-v="market"><i>🏬</i>মার্কেট</button>
+        <button data-v="team"><i>👥</i>টিম</button>
         <button data-v="growth"><i>📈</i>অগ্রগতি</button>
         <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
         <button data-v="od"><i>🚨</i>OD</button>
@@ -262,7 +280,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -283,6 +301,9 @@
                 if (key === "dash")   loadDash();
                 if (key === "cust")   loadCust();
                 if (key === "loan")   loadLoan();
+                if (key === "branch") loadBranch();
+                if (key === "market") loadMarket();
+                if (key === "team")   loadTeam();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
                 if (key === "od")     loadOd();
@@ -883,6 +904,80 @@
             clearTimeout(cqTimer);
             cqTimer = setTimeout(drawLoans, 300);
         });
+        /* =====================================================================
+         * ব্রাঞ্চ, মার্কেট, টিম
+         * ===================================================================== */
+        function loadBranch() {
+            NK.GET("/api/branches").then(function (r) {
+                var rows = NK.rows(r);
+                if (!rows.length) {
+                    q("brList").innerHTML = '<div class="card"><div class="empty">কোনো ব্রাঞ্চ নেই</div></div>';
+                    return;
+                }
+                var html = '<div class="list">';
+                rows.forEach(function (b) {
+                    html += '<div class="item">';
+                    html += '<div class="av">' + NK.esc(b.code || "?") + '</div>';
+                    html += '<div class="mid"><b>' + NK.esc(b.name) + '</b>' +
+                        '<span>' + NK.esc(b.nextCodePreview || b.code || "") + ' · ' + b.customerCount + ' গ্রাহক</span></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                q("brList").innerHTML = html;
+            }).catch(function (e) {
+                q("brList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function loadMarket() {
+            NK.GET("/api/markets").then(function (list) {
+                var rows = NK.rows(list);
+                if (!rows.length) {
+                    q("mkList").innerHTML = '<div class="card"><div class="empty">কোনো মার্কেট নেই</div></div>';
+                    return;
+                }
+                var html = '<div class="list">';
+                rows.forEach(function (m) {
+                    html += '<div class="item">';
+                    html += '<div class="av">🏬</div>';
+                    html += '<div class="mid"><b>' + NK.esc(m.name) + '</b>' +
+                        '<span>' + NK.esc(m.branchName) + ' · ' + m.customerCount + ' গ্রাহক' +
+                        (m.managerName ? ' · ' + NK.esc(m.managerName) : '') + '</span></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                q("mkList").innerHTML = html;
+            }).catch(function (e) {
+                q("mkList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        var ROLE_BN2 = { ADMIN: "অ্যাডমিন", PARTNER: "পার্টনার", MANAGER: "ম্যানেজার", AGENT: "এজেন্ট" };
+
+        function loadTeam() {
+            NK.GET("/api/manager/users").then(function (r) {
+                var rows = NK.rows(r);
+                if (!rows.length) {
+                    q("tmList").innerHTML = '<div class="card"><div class="empty">কোনো কর্মী নেই</div></div>';
+                    return;
+                }
+                var html = '<div class="list">';
+                rows.forEach(function (u) {
+                    var off = !u.enabled;
+                    html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
+                    html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
+                    html += '<div class="mid"><b>' + NK.esc(u.fullName) + '</b>' +
+                        '<span>' + NK.esc(u.phone) + (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
+                    html += '<div class="end"><span class="b n">' + (ROLE_BN2[u.role] || u.role) + '</span>' +
+                        (off ? '<br><span class="b r">বন্ধ</span>' : '') + '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                q("tmList").innerHTML = html;
+            }).catch(function (e) {
+                q("tmList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
 
         var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
 
