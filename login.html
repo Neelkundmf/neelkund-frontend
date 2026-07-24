@@ -32,36 +32,18 @@
       color: #fff;
     }
     .mark {
-      width: 150px;
-      height: 150px;
+      width: 170px;
+      height: 170px;
       margin: 0 auto 18px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .mark::before {
-      content: "";
-      position: absolute;
-      inset: 0;
       border-radius: 50%;
-      border: 2.5px solid transparent;
-      border-top-color: rgba(255,60,60,.95);
-      border-right-color: rgba(255,120,120,.55);
-      border-bottom-color: rgba(255,25,25,.2);
-      box-shadow: 0 0 18px 4px rgba(255,25,25,.4);
-      animation: spin 3s linear infinite;
+      overflow: hidden;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .mark img {
-      width: 108px;
-      height: 108px;
-      object-fit: contain;
-      position: relative;
-      z-index: 1;
-      filter: drop-shadow(0 0 12px rgba(255,35,35,.5));
+    .mark video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
     }
 
     .top h1 {
@@ -101,18 +83,29 @@
       color: rgba(255,255,255,.6);
       font-size: 12.5px;
     }
+    @property --ang {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
     .fld input {
-      background: rgba(255,255,255,.05);
-      border: 1.5px solid rgba(255,255,255,.22);
       color: #fff;
       border-radius: 14px;
-      transition: box-shadow .2s, border-color .2s, background .2s;
+      border: 2px solid transparent;
+      background-image:
+        linear-gradient(#0d1a2e, #0d1a2e),
+        conic-gradient(from var(--ang), transparent 0deg, rgba(255,60,60,.12) 55deg, rgba(255,60,60,1) 90deg, rgba(255,60,60,.12) 125deg, transparent 210deg, transparent 360deg);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      animation: bspin 3s linear infinite;
+      transition: box-shadow .2s;
+    }
+    @keyframes bspin {
+      to { --ang: 360deg; }
     }
     .fld input::placeholder { color: rgba(255,255,255,.32); }
     .fld input:focus {
-      border-color: rgba(255,70,70,.85);
-      box-shadow: 0 0 0 3px rgba(255,35,35,.15), 0 0 18px rgba(255,35,35,.35);
-      background: rgba(255,255,255,.07);
+      box-shadow: 0 0 18px rgba(255,35,35,.4);
       outline: none;
     }
 
@@ -206,7 +199,11 @@
 <div class="wrap">
 
   <div class="top">
-    <div class="mark"><img src="assets/logo.png" alt="NEELKUND"></div>
+    <div class="mark">
+      <video autoplay loop muted playsinline preload="auto" poster="assets/logo.png">
+        <source src="assets/nk_login_intro.mp4" type="video/mp4">
+      </video>
+    </div>
     <h1>NEELKUND</h1>
     <p>মাইক্রোফাইন্যান্স</p>
   </div>
