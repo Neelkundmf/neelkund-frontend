@@ -58,6 +58,32 @@
       color: #fff;
     }
 
+    .titlerow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .langsw {
+      display: flex;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .langsw button {
+      padding: 4px 11px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.6);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .langsw button.on {
+      background: rgba(255,255,255,.18);
+      color: #fff;
+    }
+
     .top h1 {
       font-family: 'Manrope', sans-serif;
       font-size: 25px;
@@ -216,7 +242,13 @@
 <div class="wrap">
 
   <div class="top">
-    <h1>NEELKUND</h1>
+    <div class="titlerow">
+      <h1>NEELKUND</h1>
+      <div class="langsw" id="langsw">
+        <button type="button" data-l="bn">বাং</button>
+        <button type="button" data-l="en">EN</button>
+      </div>
+    </div>
     <p>মাইক্রোফাইন্যান্স</p>
   </div>
 
@@ -270,6 +302,12 @@
     "use strict";
 
     var q = function (id) { return document.getElementById(id); };
+
+    /* ---- ভাষা বাটন ---- */
+    Array.prototype.forEach.call(q("langsw").querySelectorAll("button"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-l") === NK.getLang());
+      b.addEventListener("click", function () { NK.setLang(b.getAttribute("data-l")); });
+    });
 
     /* ---- টোস্ট ---- */
     function toast(m, kind) {

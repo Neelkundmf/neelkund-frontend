@@ -332,10 +332,97 @@
     } else {
         initPrivacy();
     }
+    /* ---------------- ভাষা (বাংলা / English) ----------------
+       এখন শুধু মেনু/বাটন/হেডিং-এর মতো স্থায়ী লেখা বদলায়।
+       লিস্ট/হিসাবের ভেতরের তথ্য (JS দিয়ে বসানো) এখনো বাংলাই থাকে। */
+
+    var LANG_KEY = "nk_lang";
+
+    var DICT = {
+        "ড্যাশবোর্ড": "Dashboard", "হোম": "Home", "গ্রাহক": "Customer",
+        "লোন": "Loan", "কালেকশন": "Collection", "আরও": "More",
+        "ব্রাঞ্চ": "Branch", "মার্কেট": "Market", "টিম": "Team",
+        "ফান্ড": "Fund", "খরচ": "Expense", "বেতন": "Salary",
+        "কর্মীর ডিটেলস": "Staff Details", "KYC ছবি": "KYC Photos",
+        "OD তালিকা": "OD List", "ধাপ": "Stages", "সেটিংস": "Settings",
+        "পারমিশন": "Permission", "অ্যাক্সেস": "Access", "ইম্পোর্ট": "Import",
+        "রিপোর্ট": "Report", "লগইন লগ": "Login Log", "লগ আউট": "Log Out",
+        "এজেন্ট": "Agent", "ব্ল্যাকলিস্ট": "Blacklist", "কাগজ": "Sheet",
+        "আজ": "Today", "নতুন": "New", "অগ্রগতি": "Growth",
+        "বিনিয়োগ": "Investment",
+        "ব্ল্যাকলিস্ট (১২০+ দিন)": "Blacklist (120+ days)",
+        "আজকের রিপোর্ট": "Today's Report", "লোনের অনুরোধ": "Loan Requests",
+        "আজকের কাজ": "Today's Work", "নতুন গ্রাহক": "New Customer",
+        "লগইন করা নেই": "Not Logged In",
+        "স্বাগতম": "Welcome", "মাইক্রোফাইন্যান্স": "Microfinance",
+        "ফোন নম্বর": "Phone Number", "পাসওয়ার্ড": "Password",
+        "পাসওয়ার্ড ভুলে গেছেন?": "Forgot password?",
+        "লগইন করুন": "Log In", "পাসওয়ার্ড বদলান": "Change Password",
+        "প্রথমবার ঢুকছেন — নিজের পাসওয়ার্ড বসান": "First time login — set your own password",
+        "এখনকার পাসওয়ার্ড": "Current Password", "নতুন পাসওয়ার্ড": "New Password",
+        "নতুন পাসওয়ার্ড আবার": "New Password Again"
+    };
+
+    function getLang() {
+        try { return localStorage.getItem(LANG_KEY) || "bn"; } catch (e) { return "bn"; }
+    }
+    function setLang(l) {
+        try { localStorage.setItem(LANG_KEY, l); } catch (e) {}
+    }
+
+    /** JS থেকে সরাসরি ব্যবহারের জন্য — NK.tr("গ্রাহক") */
+    function tr(bn) {
+        if (getLang() !== "en") return bn;
+        return DICT[bn] || bn;
+    }
+
+    /** পাতার স্থায়ী (মেনু/বাটন/হেডিং) লেখা বাংলা/ইংরেজি করে —
+        পাতা লোড হওয়ার সময় একবার চলে, JS দিয়ে পরে বসানো লেখা ধরে না */
+    function applyLang() {
+        var lang = getLang();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) nodes.push(n);
+
+        nodes.forEach(function (node) {
+            var el = node.parentNode;
+            if (!el || el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
+
+            var full = node.nodeValue;
+            var trimmed = full.trim();
+            if (!trimmed) return;
+
+            var bn = el.getAttribute("data-i18n-bn");
+            if (!bn) {
+                if (!DICT.hasOwnProperty(trimmed)) return;
+                bn = trimmed;
+                el.setAttribute("data-i18n-bn", bn);
+            }
+
+            var target = lang === "en" ? (DICT[bn] || bn) : bn;
+            var i = full.indexOf(trimmed);
+            node.nodeValue = full.slice(0, i) + target + full.slice(i + trimmed.length);
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", applyLang);
+    } else {
+        applyLang();
+    }
+    /* ফোনের ব্যাক বাটনে পুরনো (cache করা) পাতা ফিরে এলেও যেন
+       ভাষা ঠিক থাকে */
+    window.addEventListener("pageshow", applyLang);
+
     /* ---------------- বাইরে যা দেব ---------------- */
 
     window.NK = {
         API: API,
+
+        tr: tr,
+        getLang: getLang,
+        setLang: function (l) { setLang(l); window.location.reload(); },
 
         login: login,
         logout: logout,

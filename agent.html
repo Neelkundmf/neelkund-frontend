@@ -1174,6 +1174,249 @@
     (function () {
         "use strict";
 
+        /* =====================================================================
+         * ভাষা — এই পাতার নিজস্ব অনুবাদ অভিধান (nk.js-এর DICT আলাদা, ওইটা
+         * শুধু মেনু/ট্যাব-এর মতো স্থায়ী লেখার জন্য)। এখানে যা যা এই পাতা
+         * নিজে JS দিয়ে বানায় (তালিকা, popup, toast, ফর্ম লেবেল ইত্যাদি)
+         * তার অনুবাদ থাকবে।
+         * ===================================================================== */
+        var LDICT = {
+            "এই পাতা দেখতে হলে আগে লগইন করতে হবে।": "You need to log in to view this page.",
+            "লগইন পাতায় যান": "Go to login page",
+            "📡 ইন্টারনেট নেই — এন্ট্রি ফোনে জমা থাকবে": "📡 No internet — entries will be saved on your phone",
+            "০টি এন্ট্রি অপেক্ষা করছে": "0 entries waiting",
+            "টি এন্ট্রি অপেক্ষা করছে": " entries waiting",
+            "🔄 পাঠান": "🔄 Send",
+            "লোড হচ্ছে...": "Loading...",
+            "🏬 মার্কেট বাছুন": "🏬 Select Market",
+            "← মার্কেট বদলান": "← Change Market",
+            "নাম / ফোন / আইডি খুঁজুন": "Search name / phone / ID",
+            "নাম / ফোন / CUST ID খুঁজুন": "Search name / phone / CUST ID",
+            "চলমান": "Active",
+            "পিছিয়ে": "Behind",
+            "শোধ": "Settled",
+            "গ্রাহকের ছবি": "Customer's Photo",
+            "গ্রাহকের কোড": "Customer Code",
+            "[অটো] টিপুন": "[Auto] tap",
+            "অটো": "Auto",
+            "খালি রাখলে সিস্টেম নিজে বসাবে": "Leave blank and the system will fill it in",
+            "পুরো নাম *": "Full Name *",
+            "ফোন নম্বর *": "Phone Number *",
+            "আধার নম্বর *": "Aadhaar Number *",
+            "আধারের ছবি — সামনে ও পিছন": "Aadhaar photo — front and back",
+            "প্যান নম্বর": "PAN Number",
+            "প্যানের ছবি — সামনে ও পিছন": "PAN photo — front and back",
+            "ঠিকানা": "Address",
+            "গ্রাহকের বাড়ি কোথায় (GPS)": "Where is the customer's house (GPS)",
+            "📍 লোকেশন নিন": "📍 Get Location",
+            "গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন": "Tap while standing at the customer's house",
+            "বাবা / স্বামীর নাম": "Father's / Husband's Name",
+            "জন্মতারিখ": "Date of Birth",
+            "লিঙ্গ": "Gender",
+            "— বাছুন —": "— Select —",
+            "পুরুষ": "Male",
+            "মহিলা": "Female",
+            "অন্য": "Other",
+            "স্থায়ী ঠিকানা": "Permanent Address",
+            "ব্যবসার ঠিকানা": "Business Address",
+            "ব্যবসার ধরন": "Business Type",
+            "যেমন সবজি বিক্রি": "e.g. selling vegetables",
+            "জামিনদার": "Guarantor",
+            "নাম": "Name",
+            "ফোন": "Phone",
+            "কত টাকার লোন *": "Loan Amount *",
+            "গ্রাহক যোগ করে লোন অনুরোধ পাঠান": "Add Customer & Send Loan Request",
+            "তারিখ": "Date",
+            "🌅 সকাল": "🌅 Morning",
+            "🌆 সন্ধ্যা": "🌆 Evening",
+            "🖨️ প্রিন্ট করুন": "🖨️ Print",
+            "pin টেনে বাড়ির উপর বসান": "Drag the pin onto the house",
+            "ঠিকানা খোঁজা হচ্ছে...": "Finding address...",
+            "✓ এই জায়গা ঠিক আছে": "✓ This location is correct",
+            "টাকা নেওয়া": "Collect Payment",
+            "জমা নিন": "Collect",
+            "কাস্টমার প্রোফাইল": "Customer Profile",
+            "লোনের বিস্তারিত": "Loan Details",
+            "ইন্টারনেট নেই": "No internet",
+            "পাঠাচ্ছি...": "Sending...",
+            "টি জমা হয়েছে ✓": " saved ✓",
+            "টাকার অঙ্ক লিখুন": "Enter the amount",
+            "জমা হচ্ছে...": "Saving...",
+            "ফোনে জমা রাখা হল — নেট এলে পাঠাবেন": "Saved on phone — will send once online",
+            "জমা হয়েছে ✓": "collected ✓",
+            "জমা হয়েছে": "collected",
+            "ফোনে জমা রাখা হল": "Saved on phone",
+            "আমার মার্কেটে পড়ে আছে": "Outstanding in my market",
+            "গ্রাহক": "Customers",
+            "জন": "people",
+            "সব": "All",
+            "পড়ে আছে": "Outstanding",
+            "আজ ওঠার কথা": "Due today",
+            "আজ উঠল": "Collected today",
+            "টিপে দেখুন ›": "Tap to view ›",
+            "মার্কেট": "Market",
+            "এই মার্কেটে পড়ে আছে": "Outstanding in this market",
+            "বিতরণ": "Disbursed",
+            "বাকি": "Due",
+            "← বক্সে ফিরুন": "← Back to boxes",
+            "এই তালিকায় কেউ নেই": "No one in this list",
+            "দিন বাকি": "days left",
+            "টিপে জমা": "Tap to collect",
+            "অঙ্ক অনুযায়ী হিসাব": "Amount-wise Summary",
+            "মোট বাকি": "Total due",
+            "আজ ওঠার": "Due today",
+            "আপনার অধীনে কোনো মার্কেট বসানো নেই।": "No market is assigned to you.",
+            "কেউ নেই": "None found",
+            "লোন": "Loan",
+            "লোন অঙ্ক": "Loan Amount",
+            "দৈনিক EMI": "Daily EMI",
+            "এখনও বাকি": "Still Due",
+            "অ্যাডভান্স জমা": "Advance Deposit",
+            "নরমাল ডিউ": "Normal Due",
+            "✓ দিলে আজকের EMI জমা · ✗ দিলে আজ বাদ": "✓ marks today's EMI as collected · ✗ skips today",
+            "দিয়েছে": "Paid",
+            "দেয়নি": "Not Paid",
+            "জমা": "Paid",
+            "বেশি দিলে বাকিটা অ্যাডভান্স হিসেবে থাকবে। পুরনো দিন আগে মিটবে।": "Extra amount will be kept as advance. Older days will be settled first.",
+            "পুরো শোধ করে বন্ধ করুন (Foreclosure)": "Pay in full and close (Foreclosure)",
+            "✓ আজকের EMI জমা হয়েছে": "✓ Today's EMI collected",
+            "আজ বাদ রাখা হল": "Skipped for today",
+            "অঙ্ক লিখুন": "Enter the amount",
+            "আপনার বাকি আছে": "You have outstanding",
+            "পুরো": "Collect full",
+            "জমা নিয়ে বন্ধ করুন": "and close",
+            "লোন পুরো শোধ হয়েছে ✓": "Loan fully settled ✓",
+            "আজ তুলতে হবে": "To collect today",
+            "উঠেছে": "Collected",
+            "টিপে জমা নিন": "Tap to collect",
+            "দি": "d",
+            "আজ কারও কিস্তি নেই": "No one has an installment today",
+            "রিপিট": "Repeat",
+            "নতুন": "New",
+            "দিন পার": "days overdue",
+            "দিন পিছিয়ে": "days behind",
+            "আরও দেখুন": "See more",
+            "জন বাকি": "remaining",
+            "আসল": "Principal",
+            "মোট ফেরত": "Total Repayable",
+            "দৈনিক": "Daily",
+            "⚠️ এই গ্রাহক আগে থেকেই আছেন — ": "⚠️ This customer already exists — ",
+            "নতুন করে না বানিয়ে, পুরনো হিসাবেই লোন অনুরোধ পাঠান।": "Instead of creating a new one, send the loan request under the existing account.",
+            "পুরনো প্রোফাইল দেখুন": "View old profile",
+            "এঁর নামেই লোন অনুরোধ পাঠান": "Send loan request under this name",
+            "নতুন লোন দেওয়া যাবে না": "Cannot give a new loan",
+            "লোন অনুরোধ পাঠানো হয়েছে": "Loan request sent",
+            "কোড বসানো হল ✓": "Code filled in ✓",
+            "এই ফোনে GPS নেই": "This phone has no GPS",
+            "লোকেশন নিচ্ছি...": "Getting location...",
+            "লোকেশন নেওয়া হয়েছে": "Location captured",
+            "মিটার": "meters",
+            "ঠিকানা আনছি...": "fetching address...",
+            "📍 আবার নিন": "📍 Get Again",
+            "✓ লোকেশন ও ঠিকানা বসানো হয়েছে": "✓ Location & address filled in",
+            "✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)": "✓ Location filled in (address not found)",
+            "লোকেশন বসানো হল ✓": "Location filled in ✓",
+            "লোকেশন পাওয়া গেল না — অনুমতি দিন": "Could not get location — please allow permission",
+            "ছবি ৫MB-র কম হতে হবে": "Photo must be under 5MB",
+            "যোগ হচ্ছে...": "Adding...",
+            "গ্রাহক + লোন অনুরোধ হয়েছে": "Customer + loan request done",
+            "তৈরি হচ্ছে...": "Preparing...",
+            "সন্ধ্যার হিসাব": "Evening Summary",
+            "সকালের কাগজ": "Morning Sheet",
+            "বকেয়া": "Arrears",
+            "নিতে হবে": "To Collect",
+            "উঠল": "Collected",
+            "মার্কেট মোট:": "Market Total:",
+            "কত দিন": "Days",
+            "মোট নিতে হবে": "Total to collect",
+            "মোট উঠল": "Total Collected",
+            "কম পড়ল": "Shortfall",
+            "এজেন্টের সই": "Agent's Signature",
+            "ম্যানেজারের সই": "Manager's Signature",
+            "ব্ল্যাকলিস্টে": "Blacklisted",
+            "নাম / আইডি / ফোন খুঁজুন": "Search name / ID / phone",
+            "দিন": "days",
+            "প্রথম ২০০ জন — খুঁজে বের করুন": "First 200 shown — search to find others",
+            "DB ডেট": "DB Date",
+            "EMI শুরু": "EMI Start",
+            "ক্লোজিং ডেট": "Closing Date",
+            "শোধ হয়েছে": "Settled On",
+            "চলছে": "Ongoing",
+            "কত দিনে শোধ": "Settled In",
+            "দিনে": "days",
+            "ওভারডিউ ডেট": "Overdue Date",
+            "নেই": "None",
+            "ডিলে পেমেন্ট": "Delay",
+            "লাস্ট পেমেন্ট ডেট": "Last Payment Date",
+            "এখনও কিছু আসেনি": "Nothing yet",
+            "লাস্ট পেমেন্ট অঙ্ক": "Last Payment Amount",
+            "এজেন্ট": "Agent",
+            "EMI ও পেমেন্ট ক্যালেন্ডার": "EMI & Payment Calendar",
+            "টাকা এসেছে": "Money received",
+            "আসেনি": "Not received",
+            "দিন আসেনি": "Day hasn't come",
+            "বাড়তি জমা": "Extra payment",
+            "কিস্তির তালিকা তৈরি হয়নি": "Installment list not generated yet",
+            "🕒 পেমেন্টের সময়": "🕒 Payment Timeline",
+            "ভুল?": "Mistake?",
+            "কেন বাতিল করছেন? (কারণ লিখুন)": "Why are you cancelling? (enter reason)",
+            "বাতিল হয়েছে ✓": "Cancelled ✓",
+            "বাড়ি দেখুন (Google Maps)": "View house (Google Maps)",
+            "ম্যানেজার": "Manager",
+            "সাইকেল": "Cycle",
+            "লাস্ট লোন ডেট": "Last Loan Date",
+            "লাস্ট লোন অঙ্ক": "Last Loan Amount",
+            "লাস্ট লোন এজেন্ট": "Last Loan Agent",
+            "মোট লোন": "Total Loans",
+            "অগ্রিম জমা আছে": "Advance balance available",
+            "লোনের ইতিহাস (টিপে বিস্তারিত)": "Loan History (tap for details)",
+            "কোনো লোন নেই": "No loans",
+            "ক্লোজ:": "Closed:",
+            "নতুন কোনো খবর নেই": "No new updates",
+            "কিস্তি": "Installments"
+        };
+
+        /** এই পাতার লেখার জন্য — ltr("গ্রাহকের কোড") */
+        function ltr(bn) {
+            return (NK.getLang() === "en") ? (LDICT[bn] || bn) : bn;
+        }
+
+        /** স্ট্যাটিক HTML-এ লেখা (label/placeholder/heading/option ইত্যাদি) —
+            nk.js-এর DICT-এ নেই এমন লেখা এই পাতা নিজে বদলে নেয়। JS দিয়ে পরে
+            বসানো লেখা এটা ধরে না — সেগুলো ltr() দিয়ে আলাদাভাবে করা আছে। */
+        function applyLocalLang() {
+            if (NK.getLang() !== "en") return;
+
+            var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+            var nodes = [];
+            var n;
+            while ((n = walker.nextNode())) nodes.push(n);
+
+            nodes.forEach(function (node) {
+                var el = node.parentNode;
+                if (!el || el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
+
+                var full = node.nodeValue;
+                var trimmed = full.trim();
+                if (!trimmed || !LDICT.hasOwnProperty(trimmed)) return;
+
+                var i = full.indexOf(trimmed);
+                node.nodeValue = full.slice(0, i) + LDICT[trimmed] + full.slice(i + trimmed.length);
+            });
+
+            Array.prototype.forEach.call(document.querySelectorAll("[placeholder]"), function (el) {
+                var p = el.getAttribute("placeholder");
+                if (LDICT.hasOwnProperty(p)) el.setAttribute("placeholder", LDICT[p]);
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", applyLocalLang);
+        } else {
+            applyLocalLang();
+        }
+        window.addEventListener("pageshow", applyLocalLang);
+
         var q = function (id) { return document.getElementById(id); };
 
         function toast(m, kind) {
@@ -1218,7 +1461,7 @@
         function drawPend() {
             var n = getPend().length;
             if (n > 0) {
-                q("pendTxt").textContent = n + "টি এন্ট্রি অপেক্ষা করছে";
+                q("pendTxt").textContent = n + ltr("টি এন্ট্রি অপেক্ষা করছে");
                 q("pend").classList.add("on");
             } else {
                 q("pend").classList.remove("on");
@@ -1240,13 +1483,13 @@
             if (!list.length) return;
 
             if (!navigator.onLine) {
-                toast("ইন্টারনেট নেই", "er");
+                toast(ltr("ইন্টারনেট নেই"), "er");
                 return;
             }
 
             var b = q("sync");
             b.disabled = true;
-            b.textContent = "পাঠাচ্ছি...";
+            b.textContent = ltr("পাঠাচ্ছি...");
 
             NK.POST("/api/payments/sync", { payments: list })
                 .then(function (r) {
@@ -1260,7 +1503,7 @@
                     });
                     setPend(left);
 
-                    toast(r.saved + "টি জমা হয়েছে ✓", "ok");
+                    toast(r.saved + ltr("টি জমা হয়েছে ✓"), "ok");
                     loadToday();
                 })
                 .catch(function (e) {
@@ -1268,7 +1511,7 @@
                 })
                 .then(function () {
                     b.disabled = false;
-                    b.textContent = "🔄 পাঠান";
+                    b.textContent = ltr("🔄 পাঠান");
                 });
         }
 
@@ -1303,7 +1546,7 @@
                 b.classList.toggle("on", b.getAttribute("data-v") === key);
             });
 
-            q("ttl").textContent = TITLES[key];
+            q("ttl").textContent = NK.tr(TITLES[key]);
             window.scrollTo(0, 0);
 
             if (!loaded[key]) {
@@ -1368,7 +1611,7 @@
             var amt = Number(q("payAmt").value || 0);
 
             if (!amt || amt <= 0) {
-                toast("টাকার অঙ্ক লিখুন", "er");
+                toast(ltr("টাকার অঙ্ক লিখুন"), "er");
                 return;
             }
 
@@ -1382,15 +1625,15 @@
 
             var b = q("payGo");
             b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> জমা হচ্ছে...';
+            b.innerHTML = '<span class="spin"></span> ' + ltr("জমা হচ্ছে...");
 
             /* নেট নেই — ফোনে জমা */
             if (!navigator.onLine) {
                 addPend(entry);
-                toast("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন", "in");
+                toast(ltr("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন"), "in");
                 q("pay").classList.remove("on");
                 b.disabled = false;
-                b.textContent = "জমা নিন";
+                b.textContent = ltr("জমা নিন");
                 return;
             }
 
@@ -1401,7 +1644,7 @@
                 note: null
             })
                 .then(function () {
-                    toast(NK.inr(amt) + " জমা হয়েছে ✓", "ok");
+                    toast(NK.inr(amt) + " " + ltr("জমা হয়েছে ✓"), "ok");
                     q("pay").classList.remove("on");
                     loadToday();
                     loaded.cust = false;
@@ -1411,7 +1654,7 @@
                     /* সার্ভার পাওয়া গেল না — ফোনে জমা */
                     if (!e.status) {
                         addPend(entry);
-                        toast("ফোনে জমা রাখা হল", "in");
+                        toast(ltr("ফোনে জমা রাখা হল"), "in");
                         q("pay").classList.remove("on");
                     } else {
                         toast(e.message, "er");
@@ -1419,7 +1662,7 @@
                 })
                 .then(function () {
                     b.disabled = false;
-                    b.textContent = "জমা নিন";
+                    b.textContent = ltr("জমা নিন");
                 });
         });
 
@@ -1444,12 +1687,12 @@
 
             /* ---- মোট ---- */
             h += '<div class="target" style="margin-bottom:10px;">';
-            h += '<div class="t">💰 আমার মার্কেটে পড়ে আছে</div>';
+            h += '<div class="t">💰 ' + ltr("আমার মার্কেটে পড়ে আছে") + '</div>';
             h += '<div class="n">' + NK.inr(MKT.totalOutstanding) + '</div>';
 
             h += '<div class="sub" style="margin-top:8px;">';
-            h += '<span>' + MKT.activeCustomers + ' গ্রাহক</span>';
-            h += '<span>OD ' + MKT.odCustomers + ' জন · ' +
+            h += '<span>' + MKT.activeCustomers + ' ' + ltr('গ্রাহক') + '</span>';
+            h += '<span>OD ' + MKT.odCustomers + ' ' + ltr('জন') + ' · ' +
                 NK.inrShort(MKT.odOutstanding) + '</span>';
             h += '</div>';
             h += '</div>';
@@ -1459,7 +1702,7 @@
 
                 h += '<div class="chips" id="mtabs">';
                 h += '<button class="' + (mktPick === null ? 'on' : '') +
-                    '" data-m="">সব</button>';
+                    '" data-m="">' + ltr('সব') + '</button>';
 
                 MKT.markets.forEach(function (m) {
                     h += '<button class="' + (String(mktPick) === String(m.marketId) ? 'on' : '') +
@@ -1479,10 +1722,10 @@
 
                 if (sel) {
                     h += '<div class="stats">';
-                    h += st("গ্রাহক", sel.activeCustomers);
-                    h += st("পড়ে আছে", NK.inrShort(sel.outstanding), "r");
-                    h += st("আজ ওঠার কথা", NK.inrShort(sel.todayDue));
-                    h += st("আজ উঠল", NK.inrShort(sel.todayCollected), "g");
+                    h += st(ltr("গ্রাহক"), sel.activeCustomers);
+                    h += st(ltr("পড়ে আছে"), NK.inrShort(sel.outstanding), "r");
+                    h += st(ltr("আজ ওঠার কথা"), NK.inrShort(sel.todayDue));
+                    h += st(ltr("আজ উঠল"), NK.inrShort(sel.todayCollected), "g");
                     h += '</div>';
                 } else {
                     /* সব মার্কেটের তালিকা */
@@ -1493,10 +1736,10 @@
                             '" data-mname="' + NK.esc(m.marketName) + '">';
                         h += '<div class="av">🏬</div>';
                         h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
-                            '<span>' + m.activeCustomers + ' গ্রাহক' +
+                            '<span>' + m.activeCustomers + ' ' + ltr('গ্রাহক') +
                             (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span></div>';
                         h += '<div class="end"><b>' + NK.inrShort(m.outstanding) + '</b>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">টিপে দেখুন ›</span></div>';
+                            '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে দেখুন ›') + '</span></div>';
                         h += '</div>';
                     });
 
@@ -1533,10 +1776,10 @@
 
         function openAmtPage(marketId, marketName) {
             AMT_MKT = marketId;
-            AMT_MNAME = marketName || "মার্কেট";
+            AMT_MNAME = marketName || ltr("মার্কেট");
 
             q("amtTitle").textContent = AMT_MNAME;
-            q("amtBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("amtBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("amtPage").classList.add("on");
 
             NK.GET("/api/agent/my-market/" + (marketId || "null") + "/amounts")
@@ -1554,11 +1797,11 @@
 
             /* উপরে মোট */
             h += '<div class="target" style="margin-bottom:14px;">';
-            h += '<div class="t">💰 এই মার্কেটে পড়ে আছে</div>';
+            h += '<div class="t">💰 ' + ltr("এই মার্কেটে পড়ে আছে") + '</div>';
             h += '<div class="n">' + NK.inr(d.totalOutstanding) + '</div>';
             h += '<div class="sub" style="margin-top:8px;">';
-            h += '<span>' + d.totalRunning + ' চলমান</span>';
-            h += '<span>OD ' + d.totalOd + ' জন</span>';
+            h += '<span>' + d.totalRunning + ' ' + ltr('চলমান') + '</span>';
+            h += '<span>OD ' + d.totalOd + ' ' + ltr('জন') + '</span>';
             h += '</div>';
             h += '</div>';
 
@@ -1572,13 +1815,13 @@
                 h += '</div>';
 
                 h += '<div class="amini">';
-                h += '<div><div class="n">' + b.runningCustomers + '</div><div class="k">চলমান</div></div>';
+                h += '<div><div class="n">' + b.runningCustomers + '</div><div class="k">' + ltr('চলমান') + '</div></div>';
                 h += '<div><div class="n">' + b.odCustomers + '</div><div class="k">OD</div></div>';
-                h += '<div><div class="n">' + b.completedCustomers + '</div><div class="k">শোধ</div></div>';
+                h += '<div><div class="n">' + b.completedCustomers + '</div><div class="k">' + ltr('শোধ') + '</div></div>';
                 h += '</div>';
 
-                h += '<div class="aout"><span>বিতরণ ' + NK.inrShort(b.disbursed) +
-                    '</span><b>বাকি ' + NK.inrShort(b.outstanding) + '</b></div>';
+                h += '<div class="aout"><span>' + ltr('বিতরণ') + ' ' + NK.inrShort(b.disbursed) +
+                    '</span><b>' + ltr('বাকি') + ' ' + NK.inrShort(b.outstanding) + '</b></div>';
 
                 h += '</div>';
             });
@@ -1594,7 +1837,7 @@
         }
         function openAmtCustomers(amount) {
             q("amtTitle").textContent = AMT_MNAME + " · " + NK.inr(amount);
-            q("amtBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("amtBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/agent/my-market/" + (AMT_MKT || "null") +
                 "/amount/" + amount + "/customers")
@@ -1626,20 +1869,20 @@
 
             /* পিছনে বোতাম — বক্সে ফিরি */
             h += '<button class="btn ghost block" id="amtBack" style="margin-bottom:14px;">' +
-                '← বক্সে ফিরুন</button>';
+                ltr('← বক্সে ফিরুন') + '</button>';
 
             /* ট্যাব */
             h += '<div class="atabs">';
             h += '<button data-at="running"' + (acTab === "running" ? ' class="on"' : '') +
-                '>চলমান (' + (d.running || []).length + ')</button>';
+                '>' + ltr('চলমান') + ' (' + (d.running || []).length + ')</button>';
             h += '<button data-at="due"' + (acTab === "due" ? ' class="on"' : '') +
-                '>বাকি (' + (d.due || []).length + ')</button>';
+                '>' + ltr('বাকি') + ' (' + (d.due || []).length + ')</button>';
             h += '<button data-at="completed"' + (acTab === "completed" ? ' class="on"' : '') +
-                '>শোধ (' + (d.completed || []).length + ')</button>';
+                '>' + ltr('শোধ') + ' (' + (d.completed || []).length + ')</button>';
             h += '</div>';
 
             if (!list.length) {
-                h += '<div class="card"><div class="empty">এই তালিকায় কেউ নেই</div></div>';
+                h += '<div class="card"><div class="empty">' + ltr('এই তালিকায় কেউ নেই') + '</div></div>';
             } else {
                 h += '<div class="list">';
                 list.forEach(function (c) {
@@ -1650,11 +1893,11 @@
                     h += '<div class="av">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
                     h += '<div class="mid"><b>' + NK.esc(c.customerName) + '</b>' +
                         '<span>' + NK.esc(c.customerPhone || "—") +
-                        (c.daysOverdue > 0 ? ' · ' + c.daysOverdue + ' দিন বাকি' : '') +
+                        (c.daysOverdue > 0 ? ' · ' + c.daysOverdue + ' ' + ltr('দিন বাকি') : '') +
                         '</span></div>';
                     h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                        (closed ? '<span class="b g">শোধ</span>'
-                            : '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span>') +
+                        (closed ? '<span class="b g">' + ltr('শোধ') + '</span>'
+                            : '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>') +
                         '</div>';
                     h += '</div>';
                 });
@@ -1699,10 +1942,10 @@
 
             /* উপরে মোট — Due / Collected */
             h += '<div class="target" style="margin-bottom:14px;">';
-            h += '<div class="t">📊 অঙ্ক অনুযায়ী হিসাব</div>';
+            h += '<div class="t">📊 ' + ltr("অঙ্ক অনুযায়ী হিসাব") + '</div>';
             h += '<div class="sub" style="margin-top:10px;">';
-            h += '<span>মোট বাকি ' + NK.inr(d.totalDue) + '</span>';
-            h += '<span>আজ উঠল ' + NK.inr(d.totalCollectedToday) + '</span>';
+            h += '<span>' + ltr('মোট বাকি') + ' ' + NK.inr(d.totalDue) + '</span>';
+            h += '<span>' + ltr('আজ উঠল') + ' ' + NK.inr(d.totalCollectedToday) + '</span>';
             h += '</div>';
             h += '</div>';
 
@@ -1715,14 +1958,14 @@
                 h += '</div>';
 
                 h += '<div class="amini">';
-                h += '<div><div class="n">' + b.totalCustomers + '</div><div class="k">গ্রাহক</div></div>';
+                h += '<div><div class="n">' + b.totalCustomers + '</div><div class="k">' + ltr('গ্রাহক') + '</div></div>';
                 h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollection) +
-                    '</div><div class="k">আজ ওঠার</div></div>';
+                    '</div><div class="k">' + ltr('আজ ওঠার') + '</div></div>';
                 h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollected) +
-                    '</div><div class="k">আজ উঠল</div></div>';
+                    '</div><div class="k">' + ltr('আজ উঠল') + '</div></div>';
                 h += '</div>';
 
-                h += '<div class="aout"><span>মোট বাকি</span><b>' +
+                h += '<div class="aout"><span>' + ltr('মোট বাকি') + '</span><b>' +
                     NK.inrShort(b.totalDue) + '</b></div>';
 
                 h += '</div>';
@@ -1743,14 +1986,14 @@
             q("collInside").style.display = "none";
 
             var box = q("collMktList");
-            box.innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/agent/my-markets").then(function (d) {
                 var mkts = (d && d.markets) ? d.markets : [];
 
                 if (!mkts.length) {
                     box.innerHTML = '<div class="card"><div class="empty">' +
-                        'আপনার অধীনে কোনো মার্কেট বসানো নেই।</div></div>';
+                        ltr('আপনার অধীনে কোনো মার্কেট বসানো নেই।') + '</div></div>';
                     return;
                 }
 
@@ -1759,7 +2002,7 @@
                     h += '<div class="colmkt" data-mkt="' + (m.marketId || "") +
                         '" data-mname="' + NK.esc(m.marketName) + '">';
                     h += '<div class="nm">' + NK.esc(m.marketName) + '</div>';
-                    h += '<div class="sub">' + m.activeCustomers + ' গ্রাহক · বাকি ' +
+                    h += '<div class="sub">' + m.activeCustomers + ' ' + ltr('গ্রাহক') + ' · ' + ltr('বাকি') + ' ' +
                         NK.inrShort(m.outstanding) + '</div>';
                     h += '</div>';
                 });
@@ -1778,12 +2021,12 @@
         }
         function openCollMarket(marketId, marketName) {
             COLL_MKT = marketId;
-            COLL_MNAME = marketName || "মার্কেট";
+            COLL_MNAME = marketName || ltr("মার্কেট");
 
             q("collMkt").style.display = "none";
             q("collInside").style.display = "block";
             q("collSearch").value = "";
-            q("collList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("collList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("collHead").innerHTML = "";
             window.scrollTo(0, 0);
 
@@ -1795,9 +2038,9 @@
                         '<div class="colhead">' +
                         '<div style="font-size:16px;font-weight:800;">🏬 ' + NK.esc(d.marketName) + '</div>' +
                         '<div class="row2">' +
-                        '<div><div class="l">মোট বাকি</div><div class="v">' +
+                        '<div><div class="l">' + ltr('মোট বাকি') + '</div><div class="v">' +
                         NK.inrShort(d.totalDue) + '</div></div>' +
-                        '<div><div class="l">আজ উঠল</div><div class="v">' +
+                        '<div><div class="l">' + ltr('আজ উঠল') + '</div><div class="v">' +
                         NK.inrShort(d.todayCollected) + '</div></div>' +
                         '</div></div>';
 
@@ -1821,7 +2064,7 @@
 
             if (!list.length) {
                 q("collList").innerHTML =
-                    '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                    '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
                 return;
             }
 
@@ -1834,7 +2077,7 @@
                 h += '<div><div class="nm">' + NK.esc(c.customerName) + '</div>' +
                     '<div class="ph">' + NK.esc(c.customerPhone || "—") +
                     (c.customerCode ? ' · ' + NK.esc(c.customerCode) : '') + '</div></div>';
-                h += '<div class="amt">লোন <b>' + NK.inr(c.loanAmount) + '</b>' +
+                h += '<div class="amt">' + ltr('লোন') + ' <b>' + NK.inr(c.loanAmount) + '</b>' +
                     '<span class="emi">EMI ₹' + Number(c.emiAmount).toFixed(0) + '</span></div>';
                 h += '</div>';
 
@@ -1881,10 +2124,10 @@
 
         function openPayPage(loanId, name) {
             PAY_LOAN = loanId;
-            PAY_NAME = name || "গ্রাহক";
+            PAY_NAME = name || (NK.getLang() === "en" ? "Customer" : "গ্রাহক");
 
             q("payPage").classList.add("on");
-            q("payPageBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("payPageBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             window.scrollTo(0, 0);
 
             NK.GET("/api/payments/loan/" + loanId + "/status")
@@ -1917,18 +2160,18 @@
                 NK.esc(PAY_ROW.customerPhone) : "") + '</div>';
 
             h += '<div class="grid4">';
-            h += '<div class="cell"><div class="l">লোন অঙ্ক</div><div class="v">' +
+            h += '<div class="cell"><div class="l">' + ltr('লোন অঙ্ক') + '</div><div class="v">' +
                 NK.inr(loanAmt) + '</div></div>';
-            h += '<div class="cell"><div class="l">দৈনিক EMI</div><div class="v">₹' +
+            h += '<div class="cell"><div class="l">' + ltr('দৈনিক EMI') + '</div><div class="v">₹' +
                 emi.toFixed(0) + '</div></div>';
-            h += '<div class="cell"><div class="l">এখনও বাকি</div><div class="v r">' +
+            h += '<div class="cell"><div class="l">' + ltr('এখনও বাকি') + '</div><div class="v r">' +
                 NK.inr(remaining) + '</div></div>';
 
             if (advance > 0) {
-                h += '<div class="cell"><div class="l">অ্যাডভান্স জমা</div><div class="v g">' +
+                h += '<div class="cell"><div class="l">' + ltr('অ্যাডভান্স জমা') + '</div><div class="v g">' +
                     NK.inr(advance) + '</div></div>';
             } else {
-                h += '<div class="cell"><div class="l">নরমাল ডিউ</div><div class="v ' +
+                h += '<div class="cell"><div class="l">' + ltr('নরমাল ডিউ') + '</div><div class="v ' +
                     (arrears > 0 ? 'r' : 'g') + '">' + NK.inr(arrears) + '</div></div>';
             }
             h += '</div>';
@@ -1936,27 +2179,28 @@
 
             /* ---- রেগুলার (UP_TO_DATE / ADVANCE) — ✓ / ✗ ---- */
             if (standing === "UP_TO_DATE" || standing === "ADVANCE") {
-                h += '<div class="sectlabel">✓ দিলে আজকের EMI জমা · ✗ দিলে আজ বাদ</div>';
+                h += '<div class="sectlabel">' + ltr('✓ দিলে আজকের EMI জমা · ✗ দিলে আজ বাদ') + '</div>';
                 h += '<div class="yn">';
-                h += '<button class="yes" id="pyYes"><span class="big">✓</span>দিয়েছে (₹' +
+                h += '<button class="yes" id="pyYes"><span class="big">✓</span>' + ltr('দিয়েছে') + ' (₹' +
                     emi.toFixed(0) + ')</button>';
-                h += '<button class="no" id="pyNo"><span class="big">✗</span>দেয়নি</button>';
+                h += '<button class="no" id="pyNo"><span class="big">✗</span>' + ltr('দেয়নি') + '</button>';
                 h += '</div>';
             } else {
                 /* ---- নরমাল ডিউ (BEHIND) — অঙ্ক লিখে জমা ---- */
                 var totalDue = arrears + emi;   // জমে থাকা + আজকের
-                h += '<div class="sectlabel">মোট নিতে হবে: ₹' + totalDue.toFixed(0) +
-                    ' (জমা ₹' + arrears.toFixed(0) + ' + আজ ₹' + emi.toFixed(0) + ')</div>';
+                h += '<div class="sectlabel">' + (NK.getLang() === "en"
+                    ? "Total to collect: ₹" + totalDue.toFixed(0) + " (due ₹" + arrears.toFixed(0) + " + today ₹" + emi.toFixed(0) + ")"
+                    : "মোট নিতে হবে: ₹" + totalDue.toFixed(0) + " (জমা ₹" + arrears.toFixed(0) + " + আজ ₹" + emi.toFixed(0) + ")") + '</div>';
                 h += '<input class="pinput" id="pyAmt" type="number" inputmode="numeric" ' +
                     'placeholder="₹0" value="' + (totalDue > 0 ? totalDue.toFixed(0) : "") + '">';
                 h += '<div class="hint" style="margin:-4px 0 12px;">' +
-                    'বেশি দিলে বাকিটা অ্যাডভান্স হিসেবে থাকবে। পুরনো দিন আগে মিটবে।</div>';
-                h += '<button class="pbtn" id="pyPay">জমা নিন</button>';
+                    ltr('বেশি দিলে বাকিটা অ্যাডভান্স হিসেবে থাকবে। পুরনো দিন আগে মিটবে।') + '</div>';
+                h += '<button class="pbtn" id="pyPay">' + ltr('জমা নিন') + '</button>';
             }
 
             /* ---- ফোরক্লোজার (সবার জন্য) ---- */
             h += '<div style="margin-top:8px;">';
-            h += '<button class="fcbtn" id="pyFcOpen">🔒 পুরো শোধ করে বন্ধ করুন (Foreclosure)</button>';
+            h += '<button class="fcbtn" id="pyFcOpen">🔒 ' + ltr('পুরো শোধ করে বন্ধ করুন (Foreclosure)') + '</button>';
             h += '</div>';
             h += '<div id="pyFcBox"></div>';
 
@@ -1965,20 +2209,20 @@
             /* ---- বোতাম বাঁধা ---- */
             if (q("pyYes")) {
                 q("pyYes").addEventListener("click", function () {
-                    doPay(emi, "✓ আজকের EMI জমা হয়েছে");
+                    doPay(emi, ltr("✓ আজকের EMI জমা হয়েছে"));
                 });
             }
             if (q("pyNo")) {
                 q("pyNo").addEventListener("click", function () {
-                    toast("আজ বাদ রাখা হল", "in");
+                    toast(ltr("আজ বাদ রাখা হল"), "in");
                     closePayPage();
                 });
             }
             if (q("pyPay")) {
                 q("pyPay").addEventListener("click", function () {
                     var amt = Number(q("pyAmt").value || 0);
-                    if (!amt || amt <= 0) { toast("অঙ্ক লিখুন", "er"); return; }
-                    doPay(amt, NK.inr(amt) + " জমা হয়েছে");
+                    if (!amt || amt <= 0) { toast(ltr("অঙ্ক লিখুন"), "er"); return; }
+                    doPay(amt, NK.inr(amt) + " " + ltr("জমা হয়েছে"));
                 });
             }
 
@@ -1987,14 +2231,14 @@
                 var box = q("pyFcBox");
                 box.innerHTML =
                     '<div class="fcbox">' +
-                    '<div class="t">আপনার বাকি আছে</div>' +
+                    '<div class="t">' + ltr('আপনার বাকি আছে') + '</div>' +
                     '<div class="a">' + NK.inr(remaining) + '</div>' +
                     '<button class="pbtn" id="pyFcPay" style="margin:0;">' +
-                    '✓ পুরো ' + NK.inr(remaining) + ' জমা নিয়ে বন্ধ করুন</button>' +
+                    '✓ ' + ltr('পুরো') + ' ' + NK.inr(remaining) + ' ' + ltr('জমা নিয়ে বন্ধ করুন') + '</button>' +
                     '</div>';
 
                 q("pyFcPay").addEventListener("click", function () {
-                    doPay(remaining, "লোন পুরো শোধ হয়েছে ✓");
+                    doPay(remaining, ltr("লোন পুরো শোধ হয়েছে ✓"));
                 });
             });
         }
@@ -2023,7 +2267,7 @@
             /* নেট নেই — ফোনে জমা */
             if (!navigator.onLine) {
                 addPend(entry);
-                toast("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন", "in");
+                toast(ltr("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন"), "in");
                 closePayPage();
                 return;
             }
@@ -2034,7 +2278,7 @@
                 note: null
             })
                 .then(function () {
-                    toast(okMsg || "জমা হয়েছে ✓", "ok");
+                    toast(okMsg || ltr("জমা হয়েছে ✓"), "ok");
                     closePayPage();
                     loadAmtDash();
                     loadToday();
@@ -2042,7 +2286,7 @@
                 .catch(function (e) {
                     if (!e.status) {
                         addPend(entry);
-                        toast("ফোনে জমা রাখা হল", "in");
+                        toast(ltr("ফোনে জমা রাখা হল"), "in");
                         closePayPage();
                     } else {
                         toast(e.message, "er");
@@ -2050,7 +2294,7 @@
                 });
         }
         function loadToday() {
-            q("today").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/agent/my-today").then(function (r) {
                 var target = Number(r.netTarget || 0);
@@ -2061,21 +2305,21 @@
 
                 /* টার্গেট */
                 h += '<div class="target">';
-                h += '<div class="t">আজ তুলতে হবে</div>';
+                h += '<div class="t">' + ltr('আজ তুলতে হবে') + '</div>';
                 h += '<div class="n">' + NK.inr(target) + '</div>';
                 h += '<div class="bar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
-                h += '<div class="sub"><span>উঠেছে ' + NK.inr(got) + '</span>' +
+                h += '<div class="sub"><span>' + ltr('উঠেছে') + ' ' + NK.inr(got) + '</span>' +
                     '<span>' + pct.toFixed(0) + '%</span></div>';
                 h += '</div>';
 
                 h += '<div class="stats">';
-                h += st("দিয়েছে", r.paidCount, "g");
-                h += st("দেয়নি", r.unpaidCount, "r");
+                h += st(ltr("দিয়েছে"), r.paidCount, "g");
+                h += st(ltr("দেয়নি"), r.unpaidCount, "r");
                 h += '</div>';
 
                 /* যারা দেয়নি */
                 if (r.unpaid && r.unpaid.length) {
-                    h += '<h2 style="margin:16px 0 10px;color:var(--red);">দেয়নি (' +
+                    h += '<h2 style="margin:16px 0 10px;color:var(--red);">' + ltr('দেয়নি') + ' (' +
                         r.unpaid.length + ')</h2>';
                     h += '<div class="list">';
 
@@ -2089,7 +2333,7 @@
                             '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
                         h += '<div class="end"><b style="color:var(--red);">' +
                             NK.inr(x.dueAmount) + '</b>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা নিন</span></div>';
+                            '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা নিন') + '</span></div>';
                         h += '</div>';
                     });
 
@@ -2098,7 +2342,7 @@
 
                 /* যারা দিয়েছে */
                 if (r.paid && r.paid.length) {
-                    h += '<h2 style="margin:16px 0 10px;color:var(--green);">দিয়েছে (' +
+                    h += '<h2 style="margin:16px 0 10px;color:var(--green);">' + ltr('দিয়েছে') + ' (' +
                         r.paid.length + ')</h2>';
                     h += '<div class="list">';
 
@@ -2125,7 +2369,7 @@
                             '" data-name="' + NK.esc(x.customerName) +
                             '" data-amt="">';
                         h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
-                            x.daysOverdue + 'দি</div>';
+                            x.daysOverdue + ltr('দি') + '</div>';
                         h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
                             '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
                         h += '<div class="end"><b>' + NK.inrShort(x.outstanding) + '</b></div>';
@@ -2136,7 +2380,7 @@
                 }
 
                 if (!r.unpaid.length && !r.paid.length) {
-                    h += '<div class="card"><div class="empty">আজ কারও কিস্তি নেই</div></div>';
+                    h += '<div class="card"><div class="empty">' + ltr('আজ কারও কিস্তি নেই') + '</div></div>';
                 }
 
                 q("today").innerHTML = h;
@@ -2173,7 +2417,7 @@
             var path = "/api/dashboard/agent-customers" +
                 (s ? "?search=" + encodeURIComponent(s) : "");
 
-            q("cList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET(path).then(function (list) {
                 var all = NK.rows(list);
@@ -2186,7 +2430,7 @@
                 });
 
                 if (!MYC.length) {
-                    q("cList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                    q("cList").innerHTML = '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
                     return;
                 }
 
@@ -2207,20 +2451,20 @@
                 var initial = NK.esc((c.fullName || "?").charAt(0));
 
                 var nrBadge = c.isRepeat
-                    ? '<span class="b a" style="font-size:9.5px;">রিপিট</span>'
-                    : '<span class="b g" style="font-size:9.5px;">নতুন</span>';
+                    ? '<span class="b a" style="font-size:9.5px;">' + ltr('রিপিট') + '</span>'
+                    : '<span class="b g" style="font-size:9.5px;">' + ltr('নতুন') + '</span>';
 
                 var remTxt = "";
                 if (!closed && c.remainingDays !== null && c.remainingDays !== undefined) {
                     if (c.remainingDays >= 0) {
-                        remTxt = c.remainingDays + " দিন বাকি";
+                        remTxt = c.remainingDays + " " + ltr("দিন বাকি");
                     } else {
-                        remTxt = Math.abs(c.remainingDays) + " দিন পার";
+                        remTxt = Math.abs(c.remainingDays) + " " + ltr("দিন পার");
                     }
                 }
 
                 var odTxt = Number(c.daysOverdue || 0) > 0
-                    ? '<span style="color:' + (c.flag === "RED" ? "var(--red)" : "var(--amber)") + ';font-weight:600;">' + c.daysOverdue + ' দিন পিছিয়ে</span>'
+                    ? '<span style="color:' + (c.flag === "RED" ? "var(--red)" : "var(--amber)") + ';font-weight:600;">' + c.daysOverdue + ' ' + ltr('দিন পিছিয়ে') + '</span>'
                     : "";
 
                 h += '<div class="item"' +
@@ -2239,8 +2483,8 @@
                     '</div>';
 
                 h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                    (closed ? '<span class="b g">শোধ</span>'
-                        : '<span style="font-size:10.5px;color:var(--muted);">টিপে জমা</span>') +
+                    (closed ? '<span class="b g">' + ltr('শোধ') + '</span>'
+                        : '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>') +
                     '</div>';
 
                 h += '</div>';
@@ -2250,8 +2494,8 @@
 
             if (rows.length > cShow) {
                 h += '<button class="btn ghost block" id="cMore" ' +
-                    'style="margin-top:12px;">আরও দেখুন (' +
-                    (rows.length - cShow) + ' জন বাকি)</button>';
+                    'style="margin-top:12px;">' + ltr('আরও দেখুন') + ' (' +
+                    (rows.length - cShow) + ' ' + ltr('জন বাকি') + ')</button>';
             }
 
             q("cList").innerHTML = h;
@@ -2326,7 +2570,7 @@
             var total = Math.round(p * 1.15);
             var emi = (total / 46).toFixed(2);
             q("n_calc").innerHTML =
-                'আসল ₹' + p + ' · মোট ফেরত ₹' + total + ' · দৈনিক ₹' + emi;
+                ltr('আসল') + ' ₹' + p + ' · ' + ltr('মোট ফেরত') + ' ₹' + total + ' · ' + ltr('দৈনিক') + ' ₹' + emi;
         }
         q("n_amt").addEventListener("change", nCalc);
         nCalc();
@@ -2372,14 +2616,14 @@
             box.style.display = "block";
             box.innerHTML =
                 '<div class="msg er" style="display:block;">' +
-                '⚠️ এই গ্রাহক আগে থেকেই আছেন — <b>' + NK.esc(c.fullName) + '</b>' +
+                '⚠️ ' + ltr('এই গ্রাহক আগে থেকেই আছেন — ') + '<b>' + NK.esc(c.fullName) + '</b>' +
                 (c.customerCode ? ' (' + NK.esc(c.customerCode) + ')' : '') + '<br>' +
-                'নতুন করে না বানিয়ে, পুরনো হিসাবেই লোন অনুরোধ পাঠান।' +
+                ltr('নতুন করে না বানিয়ে, পুরনো হিসাবেই লোন অনুরোধ পাঠান।') +
                 '</div>' +
                 '<button type="button" class="btn ghost block" id="dupView" ' +
-                'style="margin-bottom:8px;">👁️ পুরনো প্রোফাইল দেখুন</button>' +
+                'style="margin-bottom:8px;">👁️ ' + ltr('পুরনো প্রোফাইল দেখুন') + '</button>' +
                 '<button type="button" class="btn block" id="dupUse" ' +
-                'style="margin-bottom:14px;">✓ এঁর নামেই লোন অনুরোধ পাঠান</button>';
+                'style="margin-bottom:14px;">✓ ' + ltr('এঁর নামেই লোন অনুরোধ পাঠান') + '</button>';
 
             q("dupView").addEventListener("click", function () {
                 openDupProfile(c.id);
@@ -2405,16 +2649,32 @@
         function openDupProfile(id) {
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
                 var c = p.customer || {};
-                var msg = "গ্রাহক: " + (c.fullName || "—") + "\n";
-                msg += "মোট লোন: " + (p.totalLoans || 0) + "টি · শোধ: " +
-                    (p.closedLoans || 0) + "টি\n";
-                msg += "সময়ে দিয়েছে: " + (p.onTimeCount || 0) + " বার · দেরি: " +
-                    (p.lateCount || 0) + " বার\n";
-                if (Number(p.outstanding) > 0) {
-                    msg += "এখনও বাকি: ₹" + p.outstanding + "\n";
-                }
-                if (p.canTakeNewLoan === false) {
-                    msg += "\n⛔ " + (p.blockReason || "নতুন লোন দেওয়া যাবে না");
+                var en = NK.getLang() === "en";
+                var msg;
+                if (en) {
+                    msg = "Customer: " + (c.fullName || "—") + "\n";
+                    msg += "Total loans: " + (p.totalLoans || 0) + " · Settled: " +
+                        (p.closedLoans || 0) + "\n";
+                    msg += "On time: " + (p.onTimeCount || 0) + " times · Late: " +
+                        (p.lateCount || 0) + " times\n";
+                    if (Number(p.outstanding) > 0) {
+                        msg += "Still due: ₹" + p.outstanding + "\n";
+                    }
+                    if (p.canTakeNewLoan === false) {
+                        msg += "\n⛔ " + (p.blockReason || "Cannot give a new loan");
+                    }
+                } else {
+                    msg = "গ্রাহক: " + (c.fullName || "—") + "\n";
+                    msg += "মোট লোন: " + (p.totalLoans || 0) + "টি · শোধ: " +
+                        (p.closedLoans || 0) + "টি\n";
+                    msg += "সময়ে দিয়েছে: " + (p.onTimeCount || 0) + " বার · দেরি: " +
+                        (p.lateCount || 0) + " বার\n";
+                    if (Number(p.outstanding) > 0) {
+                        msg += "এখনও বাকি: ₹" + p.outstanding + "\n";
+                    }
+                    if (p.canTakeNewLoan === false) {
+                        msg += "\n⛔ " + (p.blockReason || "নতুন লোন দেওয়া যাবে না");
+                    }
                 }
                 alert(msg);
             }).catch(function (e) {
@@ -2436,7 +2696,7 @@
 
             var b = q("dupUse");
             b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> পাঠাচ্ছি...';
+            b.innerHTML = '<span class="spin"></span> ' + ltr("পাঠাচ্ছি...");
 
             NK.POST("/api/loan-requests", {
                 customerId: Number(c.id),
@@ -2450,9 +2710,12 @@
                 clientCreatedAt: null
             })
                 .then(function () {
-                    say("nMsg", "✓ পুরনো গ্রাহক " + c.fullName +
-                        " এর নামে লোন অনুরোধ পাঠানো হয়েছে। ম্যানেজার অনুমোদন করলে টাকা দিতে পারবেন।", true);
-                    toast("লোন অনুরোধ পাঠানো হয়েছে", "ok");
+                    say("nMsg", NK.getLang() === "en"
+                        ? "✓ Loan request sent under existing customer " + c.fullName +
+                            ". You can disburse once the manager approves."
+                        : "✓ পুরনো গ্রাহক " + c.fullName +
+                            " এর নামে লোন অনুরোধ পাঠানো হয়েছে। ম্যানেজার অনুমোদন করলে টাকা দিতে পারবেন।", true);
+                    toast(ltr("লোন অনুরোধ পাঠানো হয়েছে"), "ok");
                     clearNewForm();
                 })
                 .catch(function (e) {
@@ -2461,7 +2724,7 @@
                 })
                 .then(function () {
                     b.disabled = false;
-                    b.innerHTML = "✓ এঁর নামেই লোন অনুরোধ পাঠান";
+                    b.innerHTML = "✓ " + ltr("এঁর নামেই লোন অনুরোধ পাঠান");
                 });
         }
 
@@ -2475,7 +2738,7 @@
             NGPS = null;
             DUP = null;
             q("dupBox").style.display = "none";
-            q("n_loc").textContent = "গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন";
+            q("n_loc").textContent = ltr("গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন");
             q("n_loc").style.color = "";
             resetCPics();
             nCalc();
@@ -2492,14 +2755,14 @@
             NK.GET("/api/customers/next-code")
                 .then(function (r) {
                     q("n_code").value = r.customerCode || "";
-                    toast("কোড বসানো হল ✓", "ok");
+                    toast(ltr("কোড বসানো হল ✓"), "ok");
                 })
                 .catch(function (e) {
                     toast(e.message, "er");
                 })
                 .then(function () {
                     b.disabled = false;
-                    b.textContent = "অটো";
+                    b.textContent = ltr("অটো");
                 });
         });
 
@@ -2542,7 +2805,7 @@
         }
 
         function fetchAddr(lat, lng) {
-            q("mapAddr").textContent = "ঠিকানা খোঁজা হচ্ছে...";
+            q("mapAddr").textContent = ltr("ঠিকানা খোঁজা হচ্ছে...");
             clearTimeout(_addrTimer);
 
             _addrTimer = setTimeout(function () {
@@ -2553,7 +2816,7 @@
                         q("mapAddr").textContent = _map._lastAddr;
                     } else {
                         _map._lastAddr = "";
-                        q("mapAddr").textContent = "ঠিকানা পাওয়া যায়নি — pin ঠিক আছে";
+                        q("mapAddr").textContent = ltr("ঠিকানা পাওয়া যায়নি — pin ঠিক আছে");
                     }
                 });
             }, 400);
@@ -2574,13 +2837,13 @@
         /* ---- "লোকেশন নিন" ---- */
         q("n_gps").addEventListener("click", function () {
             if (!navigator.geolocation) {
-                toast("এই ফোনে GPS নেই", "er");
+                toast(ltr("এই ফোনে GPS নেই"), "er");
                 return;
             }
 
             var b = q("n_gps");
             b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> লোকেশন নিচ্ছি...';
+            b.innerHTML = '<span class="spin"></span> ' + ltr("লোকেশন নিচ্ছি...");
 
             navigator.geolocation.getCurrentPosition(
                 function (pos) {
@@ -2589,29 +2852,29 @@
 
                     NGPS = { lat: lat, lng: lng, acc: pos.coords.accuracy };
 
-                    q("n_loc").innerHTML = '✓ লোকেশন নেওয়া হয়েছে (' +
-                        pos.coords.accuracy.toFixed(0) + ' মিটার) — ঠিকানা আনছি...';
+                    q("n_loc").innerHTML = '✓ ' + ltr('লোকেশন নেওয়া হয়েছে') + ' (' +
+                        pos.coords.accuracy.toFixed(0) + ' ' + ltr('মিটার') + ') — ' + ltr('ঠিকানা আনছি...');
                     q("n_loc").style.color = "var(--green)";
 
                     b.disabled = false;
-                    b.textContent = "📍 আবার নিন";
+                    b.textContent = ltr("📍 আবার নিন");
 
                     var geocoder2 = new google.maps.Geocoder();
                     geocoder2.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
                         if (status === "OK" && results[0]) {
                             q("n_addr").value = results[0].formatted_address;
-                            q("n_loc").innerHTML = '✓ লোকেশন ও ঠিকানা বসানো হয়েছে';
+                            q("n_loc").innerHTML = ltr('✓ লোকেশন ও ঠিকানা বসানো হয়েছে');
                         } else {
-                            q("n_loc").innerHTML = '✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)';
+                            q("n_loc").innerHTML = ltr('✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)');
                         }
                         q("n_loc").style.color = "var(--green)";
-                        toast("লোকেশন বসানো হল ✓", "ok");
+                        toast(ltr("লোকেশন বসানো হল ✓"), "ok");
                     });
                 },
                 function () {
-                    toast("লোকেশন পাওয়া গেল না — অনুমতি দিন", "er");
+                    toast(ltr("লোকেশন পাওয়া গেল না — অনুমতি দিন"), "er");
                     b.disabled = false;
-                    b.textContent = "📍 লোকেশন নিন";
+                    b.textContent = ltr("📍 লোকেশন নিন");
                 },
                 { enableHighAccuracy: true, timeout: 12000 }
             );
@@ -2643,7 +2906,7 @@
             if (!f || !picTarget) return;
 
             if (f.size > 5 * 1024 * 1024) {
-                toast("ছবি ৫MB-র কম হতে হবে", "er");
+                toast(ltr("ছবি ৫MB-র কম হতে হবে"), "er");
                 return;
             }
 
@@ -2705,7 +2968,7 @@
             var me = NK.me();
             var b = q("n_go");
             b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> যোগ হচ্ছে...';
+            b.innerHTML = '<span class="spin"></span> ' + ltr("যোগ হচ্ছে...");
 
             var newCust = null;
 
@@ -2750,9 +3013,11 @@
                     });
                 })
                 .then(function () {
-                    say("nMsg", "✓ গ্রাহক যোগ হয়েছে ও লোন অনুরোধ পাঠানো হয়েছে। " +
-                        "ম্যানেজার অনুমোদন করলে টাকা দিতে পারবেন।", true);
-                    toast("গ্রাহক + লোন অনুরোধ হয়েছে", "ok");
+                    say("nMsg", NK.getLang() === "en"
+                        ? "✓ Customer added and loan request sent. You can disburse once the manager approves."
+                        : "✓ গ্রাহক যোগ হয়েছে ও লোন অনুরোধ পাঠানো হয়েছে। " +
+                            "ম্যানেজার অনুমোদন করলে টাকা দিতে পারবেন।", true);
+                    toast(ltr("গ্রাহক + লোন অনুরোধ হয়েছে"), "ok");
                     clearNewForm();
                 })
                 .catch(function (e) {
@@ -2761,7 +3026,7 @@
                 })
                 .then(function () {
                     b.disabled = false;
-                    b.textContent = "গ্রাহক যোগ করে লোন অনুরোধ পাঠান";
+                    b.textContent = ltr("গ্রাহক যোগ করে লোন অনুরোধ পাঠান");
                 });
         });
 
@@ -2784,7 +3049,7 @@
         function showSheet() {
             var d = q("sh_d").value;
 
-            q("shBox").innerHTML = '<div class="loading">তৈরি হচ্ছে...</div>';
+            q("shBox").innerHTML = '<div class="loading">' + ltr("তৈরি হচ্ছে...") + '</div>';
 
             var url = "/api/agent/my-sheet?type=" + shType + (d ? "&date=" + d : "");
 
@@ -2794,22 +3059,22 @@
                 var h = '<div class="sheet">';
 
                 h += '<div class="hd">';
-                h += '<h2>' + (eve ? "🌆 সন্ধ্যার হিসাব" : "🌅 সকালের কাগজ") + '</h2>';
+                h += '<h2>' + (eve ? "🌆 " + ltr("সন্ধ্যার হিসাব") : "🌅 " + ltr("সকালের কাগজ")) + '</h2>';
                 h += '<p>' + NK.esc(s.agentName) + ' · ' + NK.esc(s.branchName || "—") +
                     ' · ' + NK.dt(s.date) + '</p>';
                 h += '</div>';
 
                 (s.markets || []).forEach(function (m) {
                     h += '<div class="mkt">🏬 ' + NK.esc(m.marketName) +
-                        ' (' + m.customerCount + ' জন)</div>';
+                        ' (' + m.customerCount + ' ' + ltr('জন') + ')</div>';
 
                     h += '<table>';
                     h += '<thead><tr>';
-                    h += '<th>#</th><th>নাম</th>';
-                    h += '<th class="r">বকেয়া</th>';
-                    h += '<th class="r">আজ</th>';
-                    h += '<th class="r">নিতে হবে</th>';
-                    if (eve) h += '<th class="r">উঠল</th>';
+                    h += '<th>#</th><th>' + ltr('নাম') + '</th>';
+                    h += '<th class="r">' + ltr('বকেয়া') + '</th>';
+                    h += '<th class="r">' + ltr('আজ') + '</th>';
+                    h += '<th class="r">' + ltr('নিতে হবে') + '</th>';
+                    if (eve) h += '<th class="r">' + ltr('উঠল') + '</th>';
                     h += '</tr></thead><tbody>';
 
                     (m.rows || []).forEach(function (r) {
@@ -2834,18 +3099,18 @@
                     h += '</tbody></table>';
 
                     h += '<div style="text-align:right;font-size:12.5px;padding:8px 6px;' +
-                        'color:var(--muted);">মার্কেট মোট: <b style="color:var(--ink);">' +
+                        'color:var(--muted);">' + ltr('মার্কেট মোট:') + ' <b style="color:var(--ink);">' +
                         NK.inr(m.marketDue) + '</b>' +
-                        (eve ? ' · উঠল <b style="color:var(--green);">' +
+                        (eve ? ' · ' + ltr('উঠল') + ' <b style="color:var(--green);">' +
                             NK.inr(m.marketCollected) + '</b>' : '') + '</div>';
                 });
 
                 if (s.odCustomers && s.odCustomers.length) {
                     h += '<div class="mkt" style="background:#1F2937;color:#fff;">⛔ OD (' +
-                        s.odCustomers.length + ' জন)</div>';
+                        s.odCustomers.length + ' ' + ltr('জন') + ')</div>';
 
                     h += '<table><thead><tr>';
-                    h += '<th>নাম</th><th class="r">কত দিন</th><th class="r">বাকি</th>';
+                    h += '<th>' + ltr('নাম') + '</th><th class="r">' + ltr('কত দিন') + '</th><th class="r">' + ltr('বাকি') + '</th>';
                     h += '</tr></thead><tbody>';
 
                     s.odCustomers.forEach(function (o) {
@@ -2863,29 +3128,29 @@
                 }
 
                 h += '<div class="tot">';
-                h += '<span>মোট নিতে হবে</span>';
+                h += '<span>' + ltr('মোট নিতে হবে') + '</span>';
                 h += '<span>' + NK.inr(s.totalDue) + '</span>';
                 h += '</div>';
 
                 if (eve) {
                     h += '<div class="tot" style="border-top:1px solid var(--line);' +
                         'color:var(--green);">';
-                    h += '<span>মোট উঠল</span>';
+                    h += '<span>' + ltr('মোট উঠল') + '</span>';
                     h += '<span>' + NK.inr(s.totalCollected) + '</span>';
                     h += '</div>';
 
                     if (Number(s.shortfall) > 0) {
                         h += '<div class="tot" style="border-top:1px solid var(--line);' +
                             'color:var(--red);">';
-                        h += '<span>কম পড়ল</span>';
+                        h += '<span>' + ltr('কম পড়ল') + '</span>';
                         h += '<span>' + NK.inr(s.shortfall) + '</span>';
                         h += '</div>';
                     }
                 }
 
                 h += '<div class="sign">';
-                h += '<div>এজেন্টের সই</div>';
-                h += '<div>ম্যানেজারের সই</div>';
+                h += '<div>' + ltr('এজেন্টের সই') + '</div>';
+                h += '<div>' + ltr('ম্যানেজারের সই') + '</div>';
                 h += '</div>';
 
                 h += '</div>';
@@ -2917,7 +3182,7 @@
         });
 
         function loadBlack() {
-            q("blackList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("blackList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/dashboard/agent-overdue-customers").then(function (list) {
                 var rows = NK.rows(list);
@@ -2948,35 +3213,35 @@
             var h = "";
 
             h += '<div class="bl-top">';
-            h += '<div class="n">' + BL_ALL.length + ' জন</div>';
-            h += '<div class="l">ব্ল্যাকলিস্টে · মোট বাকি ' + NK.inr(total) + '</div>';
+            h += '<div class="n">' + BL_ALL.length + ' ' + ltr('জন') + '</div>';
+            h += '<div class="l">' + ltr('ব্ল্যাকলিস্টে') + ' · ' + ltr('মোট বাকি') + ' ' + NK.inr(total) + '</div>';
             h += '</div>';
 
             h += '<div class="search"><span class="ic">🔍</span>' +
-                '<input id="blq" type="search" placeholder="নাম / আইডি / ফোন খুঁজুন" value="' +
+                '<input id="blq" type="search" placeholder="' + ltr('নাম / আইডি / ফোন খুঁজুন') + '" value="' +
                 (s ? NK.esc(q("blq").value) : "") + '"></div>';
 
             if (!list.length) {
-                h += '<div class="card"><div class="empty">কেউ নেই</div></div>';
+                h += '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
             } else {
                 list.slice(0, 200).forEach(function (x) {
                     h += '<div class="bl-card" data-prof="' + x.customerId +
                         '" data-name="' + NK.esc(x.customerName) + '">';
 
                     h += '<div class="av"><span class="d">' + x.daysOverdue +
-                        '</span><span class="u">দিন</span></div>';
+                        '</span><span class="u">' + ltr('দিন') + '</span></div>';
 
                     h += '<div class="mid">';
                     h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
                     h += '<div class="sub">' + NK.esc(x.customerPhone || "—") +
                         (x.marketName ? ' · ' + NK.esc(x.marketName) : '') + '</div>';
-                    h += '<div class="sub">লোন ₹' + NK.inr(x.principal) +
+                    h += '<div class="sub">' + ltr('লোন') + ' ₹' + NK.inr(x.principal) +
                         ' · #' + x.loanId + '</div>';
                     h += '</div>';
 
                     h += '<div class="end">';
                     h += '<div class="ov">' + NK.inrShort(x.outstanding) + '</div>';
-                    h += '<div class="paid">শোধ ' + NK.inrShort(x.totalPaid) + '</div>';
+                    h += '<div class="paid">' + (NK.getLang() === "en" ? "Paid " : "শোধ ") + NK.inrShort(x.totalPaid) + '</div>';
                     h += '</div>';
 
                     h += '</div>';
@@ -2984,7 +3249,7 @@
 
                 if (list.length > 200) {
                     h += '<div class="hint" style="text-align:center;margin-top:8px;">' +
-                        'প্রথম ২০০ জন — খুঁজে বের করুন</div>';
+                        ltr('প্রথম ২০০ জন — খুঁজে বের করুন') + '</div>';
                 }
             }
 
@@ -3018,7 +3283,10 @@
 
         var LD_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        var LD_MONTHS_EN = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
         var LD_WEEK = ["র", "সো", "ম", "বু", "বৃ", "শু", "শ"];
+        var LD_WEEK_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
         function ldKey(d) {
             return d.getFullYear() + "-" +
@@ -3034,66 +3302,66 @@
 
         function openLoanDetail(loanId) {
             q("loanX").classList.add("on");
-            q("lxSm").textContent = "লোন #" + loanId;
-            q("lxTitle").textContent = "লোড হচ্ছে...";
-            q("lxBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("lxSm").textContent = ltr("লোন") + " #" + loanId;
+            q("lxTitle").textContent = ltr("লোড হচ্ছে...");
+            q("lxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
-                q("lxTitle").textContent = NK.inr(d.principal) + " এর লোন";
-                q("lxSm").textContent = "লোন #" + d.loanId +
+                q("lxTitle").textContent = NK.inr(d.principal) + " " + ltr("এর লোন");
+                q("lxSm").textContent = ltr("লোন") + " #" + d.loanId +
                     (d.agentName ? " · " + d.agentName : "");
 
                 var h = "";
 
                 h += '<div class="ld-hero">';
                 h += '<div class="amt">' + NK.inr(d.principal) + '</div>';
-                h += '<div class="sub">মোট ফেরত ' + NK.inr(d.totalRepayable) +
-                    ' · দৈনিক ' + NK.inr(d.dailyEmiAmount) + '</div>';
+                h += '<div class="sub">' + ltr('মোট ফেরত') + ' ' + NK.inr(d.totalRepayable) +
+                    ' · ' + ltr('দৈনিক') + ' ' + NK.inr(d.dailyEmiAmount) + '</div>';
                 h += '<div class="ld-bars">';
-                h += '<div><div class="l">জমা</div><div class="v">' +
+                h += '<div><div class="l">' + ltr('জমা') + '</div><div class="v">' +
                     NK.inrShort(d.totalPaid) + '</div></div>';
-                h += '<div><div class="l">বাকি</div><div class="v">' +
+                h += '<div><div class="l">' + ltr('বাকি') + '</div><div class="v">' +
                     NK.inrShort(d.remaining) + '</div></div>';
-                h += '<div><div class="l">কিস্তি</div><div class="v">' +
+                h += '<div><div class="l">' + ltr('কিস্তি') + '</div><div class="v">' +
                     (d.paidCount || 0) + '/' + (d.totalCount || 0) + '</div></div>';
                 h += '</div>';
                 h += '</div>';
 
                 h += '<div class="ld-box">';
-                h += ldRow("DB ডেট", d.dbDate ? NK.dt(d.dbDate) : "—");
-                h += ldRow("EMI শুরু", d.emiStartDate ? NK.dt(d.emiStartDate) : "—");
-                h += ldRow("ক্লোজিং ডেট", d.emiEndDate ? NK.dt(d.emiEndDate) : "—");
-                h += ldRow("শোধ হয়েছে", d.closedDate ? NK.dt(d.closedDate) : "চলছে",
+                h += ldRow(ltr("DB ডেট"), d.dbDate ? NK.dt(d.dbDate) : "—");
+                h += ldRow(ltr("EMI শুরু"), d.emiStartDate ? NK.dt(d.emiStartDate) : "—");
+                h += ldRow(ltr("ক্লোজিং ডেট"), d.emiEndDate ? NK.dt(d.emiEndDate) : "—");
+                h += ldRow(ltr("শোধ হয়েছে"), d.closedDate ? NK.dt(d.closedDate) : ltr("চলছে"),
                     d.closedDate ? "g" : "");
-                if (d.closedOnDay) h += ldRow("কত দিনে শোধ", d.closedOnDay + " দিনে", "g");
+                if (d.closedOnDay) h += ldRow(ltr("কত দিনে শোধ"), d.closedOnDay + " " + ltr("দিনে"), "g");
                 h += '</div>';
 
                 h += '<div class="ld-box">';
-                h += ldRow("ওভারডিউ ডেট", d.overdueDate ? NK.dt(d.overdueDate) : "নেই",
+                h += ldRow(ltr("ওভারডিউ ডেট"), d.overdueDate ? NK.dt(d.overdueDate) : ltr("নেই"),
                     d.overdueDate ? "r" : "g");
-                h += ldRow("ডিলে পেমেন্ট", (d.delayDays || 0) + " দিন",
+                h += ldRow(ltr("ডিলে পেমেন্ট"), (d.delayDays || 0) + " " + ltr("দিন"),
                     (d.delayDays > 0) ? "r" : "g");
-                h += ldRow("লাস্ট পেমেন্ট ডেট",
-                    d.lastPaymentDate ? NK.dt(d.lastPaymentDate) : "এখনও কিছু আসেনি");
+                h += ldRow(ltr("লাস্ট পেমেন্ট ডেট"),
+                    d.lastPaymentDate ? NK.dt(d.lastPaymentDate) : ltr("এখনও কিছু আসেনি"));
                 if (d.lastPaymentAmount)
-                    h += ldRow("লাস্ট পেমেন্ট অঙ্ক", NK.inr(d.lastPaymentAmount), "g");
-                h += ldRow("এজেন্ট", d.agentName || "—");
+                    h += ldRow(ltr("লাস্ট পেমেন্ট অঙ্ক"), NK.inr(d.lastPaymentAmount), "g");
+                h += ldRow(ltr("এজেন্ট"), d.agentName || "—");
                 h += '</div>';
 
-                h += '<div class="ld-title">📅 EMI ও পেমেন্ট ক্যালেন্ডার</div>';
+                h += '<div class="ld-title">📅 ' + ltr('EMI ও পেমেন্ট ক্যালেন্ডার') + '</div>';
 
                 h += '<div class="ld-legend">';
-                h += '<span><i style="background:#16A34A;"></i>টাকা এসেছে</span>';
-                h += '<span><i style="background:#FEE2E2;"></i>আসেনি</span>';
-                h += '<span><i style="background:#FEF9E7;"></i>দিন আসেনি</span>';
-                h += '<span><i style="background:#DBEAFE;"></i>বাড়তি জমা</span>';
+                h += '<span><i style="background:#16A34A;"></i>' + ltr('টাকা এসেছে') + '</span>';
+                h += '<span><i style="background:#FEE2E2;"></i>' + ltr('আসেনি') + '</span>';
+                h += '<span><i style="background:#FEF9E7;"></i>' + ltr('দিন আসেনি') + '</span>';
+                h += '<span><i style="background:#DBEAFE;"></i>' + ltr('বাড়তি জমা') + '</span>';
                 h += '</div>';
 
                 var emis = d.emis || [];
                 var pays = d.payments || [];
 
                 if (!emis.length) {
-                    h += '<div class="card"><div class="empty">কিস্তির তালিকা তৈরি হয়নি</div></div>';
+                    h += '<div class="card"><div class="empty">' + ltr('কিস্তির তালিকা তৈরি হয়নি') + '</div></div>';
                     q("lxBody").innerHTML = h;
                     return;
                 }
@@ -3120,15 +3388,18 @@
                 var cur = new Date(first.getFullYear(), first.getMonth(), 1);
                 var stop = new Date(last.getFullYear(), last.getMonth(), 1);
 
+                var ldMonths = NK.getLang() === "en" ? LD_MONTHS_EN : LD_MONTHS;
+                var ldWeek = NK.getLang() === "en" ? LD_WEEK_EN : LD_WEEK;
+
                 while (cur <= stop) {
                     var yy = cur.getFullYear();
                     var mm = cur.getMonth();
 
                     h += '<div class="ld-month">';
-                    h += '<div class="mh">' + LD_MONTHS[mm] + ' ' + yy + '</div>';
+                    h += '<div class="mh">' + ldMonths[mm] + ' ' + yy + '</div>';
                     h += '<div class="ld-grid">';
 
-                    LD_WEEK.forEach(function (w) {
+                    ldWeek.forEach(function (w) {
                         h += '<div class="dw">' + w + '</div>';
                     });
 
@@ -3168,7 +3439,7 @@
                     cur = new Date(yy, mm + 1, 1);
                 }
                 if (d.paymentLog && d.paymentLog.length) {
-                    h += '<div class="ld-title">🕒 পেমেন্টের সময়</div>';
+                    h += '<div class="ld-title">🕒 ' + ltr('পেমেন্টের সময়') + '</div>';
                     h += '<div class="list">';
                     d.paymentLog.forEach(function (p) {
                         h += '<div class="item">';
@@ -3176,7 +3447,7 @@
                         h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span></div>';
                         if (Number(p.amount) > 0) {
-                            h += '<button class="btn ghost sm" data-reverse="' + p.id + '">✏️ ভুল?</button>';
+                            h += '<button class="btn ghost sm" data-reverse="' + p.id + '">✏️ ' + ltr('ভুল?') + '</button>';
                         }
                         h += '</div>';
                     });
@@ -3187,7 +3458,7 @@
 
                 Array.prototype.forEach.call(q("lxBody").querySelectorAll("[data-reverse]"), function (b) {
                     b.addEventListener("click", function () {
-                        var reason = prompt("কেন বাতিল করছেন? (কারণ লিখুন)");
+                        var reason = prompt(ltr("কেন বাতিল করছেন? (কারণ লিখুন)"));
                         if (!reason || !reason.trim()) return;
 
                         b.disabled = true;
@@ -3195,18 +3466,18 @@
 
                         NK.POST("/api/payments/" + b.getAttribute("data-reverse") + "/reverse", { reason: reason.trim() })
                             .then(function () {
-                                toast("বাতিল হয়েছে ✓", "ok");
+                                toast(ltr("বাতিল হয়েছে ✓"), "ok");
                                 openLoanDetail(loanId);
                             })
                             .catch(function (e) {
                                 toast(e.message, "er");
                                 b.disabled = false;
-                                b.textContent = "✏️ ভুল?";
+                                b.textContent = "✏️ " + ltr("ভুল?");
                             });
                     });
                 });
             }).catch(function (e) {
-                q("lxTitle").textContent = "লোন #" + loanId;
+                q("lxTitle").textContent = ltr("লোন") + " #" + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
@@ -3229,8 +3500,8 @@
 
         function openCustomerProfile(customerId) {
             q("prof").classList.add("on");
-            q("pfCid").textContent = "লোড হচ্ছে...";
-            q("pfBody").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+            q("pfCid").textContent = ltr("লোড হচ্ছে...");
+            q("pfBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
                 var c = p.customer || {};
@@ -3257,54 +3528,60 @@
                 if (c.mapsUrl) {
                     h += '<a href="' + NK.esc(c.mapsUrl) + '" target="_blank" rel="noopener" ' +
                         'class="btn ghost block" style="margin-bottom:14px;text-decoration:none;">' +
-                        '📍 বাড়ি দেখুন (Google Maps)</a>';
+                        '📍 ' + ltr('বাড়ি দেখুন (Google Maps)') + '</a>';
                 }
 
                 var flagCls = { GREEN: "g", YELLOW: "a", RED: "r" }[c.flag] || "";
                 if (c.flagReason || (c.flag && c.flag !== "GREEN")) {
-                    var flagTxt = { GREEN: "ভালো", YELLOW: "সাবধান", RED: "খারাপ" }[c.flag] || "";
+                    var flagTxt = (NK.getLang() === "en"
+                        ? { GREEN: "Good", YELLOW: "Caution", RED: "Bad" }
+                        : { GREEN: "ভালো", YELLOW: "সাবধান", RED: "খারাপ" })[c.flag] || "";
                     h += '<div class="pf-remark ' + flagCls + '">';
-                    h += '<div class="rl">Remark (ম্যানেজার)</div>';
+                    h += '<div class="rl">Remark (' + ltr('ম্যানেজার') + ')</div>';
                     h += '<div class="rt">' + NK.esc(c.flagReason || flagTxt) + '</div>';
                     h += '</div>';
                 }
 
                 var lastLoan = loans.length ? loans[0] : null;
                 h += '<div class="pf-green">';
-                h += pfRow("সাইকেল", (p.totalLoans || 0) + " নম্বর লোন");
-                if (c.marketName) h += pfRow("মার্কেট", c.marketName);
+                h += pfRow(ltr("সাইকেল"), NK.getLang() === "en"
+                    ? "Loan #" + (p.totalLoans || 0)
+                    : (p.totalLoans || 0) + " নম্বর লোন");
+                if (c.marketName) h += pfRow(ltr("মার্কেট"), c.marketName);
                 if (lastLoan) {
-                    h += pfRow("লাস্ট লোন ডেট", lastLoan.startDate ? NK.dt(lastLoan.startDate) : "—");
-                    h += pfRow("লাস্ট লোন অঙ্ক", NK.inr(lastLoan.principal));
-                    h += pfRow("লাস্ট লোন এজেন্ট", lastLoan.agentName || "—");
+                    h += pfRow(ltr("লাস্ট লোন ডেট"), lastLoan.startDate ? NK.dt(lastLoan.startDate) : "—");
+                    h += pfRow(ltr("লাস্ট লোন অঙ্ক"), NK.inr(lastLoan.principal));
+                    h += pfRow(ltr("লাস্ট লোন এজেন্ট"), lastLoan.agentName || "—");
                 }
                 h += '</div>';
 
                 h += '<div class="stats" style="margin-bottom:14px;">';
-                h += st("মোট লোন", (p.totalLoans || 0) + "টি");
-                h += st("শোধ", (p.closedLoans || 0) + "টি", "g");
-                h += st("চলছে", (p.activeLoans || 0) + "টি");
-                h += st("বাকি", NK.inrShort(p.outstanding), "r");
+                h += st(ltr("মোট লোন"), (p.totalLoans || 0) + (NK.getLang() === "en" ? "" : "টি"));
+                h += st(ltr("শোধ"), (p.closedLoans || 0) + (NK.getLang() === "en" ? "" : "টি"), "g");
+                h += st(ltr("চলছে"), (p.activeLoans || 0) + (NK.getLang() === "en" ? "" : "টি"));
+                h += st(ltr("বাকি"), NK.inrShort(p.outstanding), "r");
                 h += '</div>';
                 if (Number(p.advanceAmount) > 0) {
                     h += '<div class="card" style="text-align:center;padding:12px;">';
-                    h += '<div style="font-size:12.5px;color:var(--muted);">অগ্রিম জমা আছে</div>';
+                    h += '<div style="font-size:12.5px;color:var(--muted);">' + ltr('অগ্রিম জমা আছে') + '</div>';
                     h += '<div style="font-size:20px;font-weight:800;color:var(--blue);">' + NK.inr(p.advanceAmount) + '</div>';
                     h += '</div>';
                 }
-                h += '<div class="pf-loans-title">লোনের ইতিহাস (টিপে বিস্তারিত)</div>';
+                h += '<div class="pf-loans-title">' + ltr('লোনের ইতিহাস (টিপে বিস্তারিত)') + '</div>';
 
                 if (!loans.length) {
-                    h += '<div class="card"><div class="empty">কোনো লোন নেই</div></div>';
+                    h += '<div class="card"><div class="empty">' + ltr('কোনো লোন নেই') + '</div></div>';
                 } else {
                     h += '<div class="pf-loans">';
                     loans.forEach(function (l) {
                         var bg = l.gradeColor || l.stageColor || "#64748B";
                         h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
-                        h += '<div class="cyc">' + l.cycle + ' নম্বর লোন</div>';
+                        h += '<div class="cyc">' + (NK.getLang() === "en"
+                            ? "Loan #" + l.cycle
+                            : l.cycle + " নম্বর লোন") + '</div>';
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
-                        h += '<div class="d">ক্লোজ: ' + (l.closedDate ? NK.dt(l.closedDate) : "চলছে") + '</div>';
+                        h += '<div class="d">' + ltr('ক্লোজ:') + ' ' + (l.closedDate ? NK.dt(l.closedDate) : ltr("চলছে")) + '</div>';
                         h += '<span class="st">' +
                             NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
                         h += '</div>';
@@ -3351,7 +3628,7 @@
         q("bell").addEventListener("click", function () {
             NK.GET("/api/notifications").then(function (n) {
                 if (!n.items || !n.items.length) {
-                    toast("নতুন কোনো খবর নেই", "in");
+                    toast(ltr("নতুন কোনো খবর নেই"), "in");
                     return;
                 }
                 n.items.forEach(function (it) {
@@ -3387,7 +3664,7 @@
 
             q("gate").remove();
             q("app").style.display = "block";
-            q("who").textContent = u.fullName + " · এজেন্ট";
+            q("who").textContent = u.fullName + " · " + ltr("এজেন্ট");
             net();
             drawPend();
             loadMkt();
