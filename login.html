@@ -25,43 +25,29 @@
 
     .wrap { width: 100%; max-width: 400px; position: relative; z-index: 2; }
 
-    /* ---- লোগো + জ্বলজ্বলে রিং ---- */
+    /* ---- পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড ভিডিও ---- */
+    .bgvideo {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+      mix-blend-mode: screen;
+    }
+    .bgfade {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(ellipse 700px 500px at 50% 22%, transparent 0%, rgba(4,7,13,.5) 55%, rgba(4,7,13,.92) 100%);
+      pointer-events: none;
+    }
+
+    /* ---- লোগো টেক্সট ---- */
     .top {
       text-align: center;
       margin-bottom: 22px;
       color: #fff;
-      position: relative;
-    }
-    .glow {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      width: 140vw;
-      height: 140vw;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle, rgba(255,40,40,.35) 0%, rgba(255,40,40,.14) 28%, rgba(30,80,200,.08) 50%, transparent 72%);
-      mix-blend-mode: screen;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .mark {
-      position: relative;
-      z-index: 1;
-      width: 320px;
-      height: 320px;
-      margin: -50px auto -10px;
-      overflow: hidden;
-    }
-    .mark video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      mix-blend-mode: screen;
-      filter: contrast(3) brightness(.8);
-      transform: scale(1.55);
-      -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
-      mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
     }
 
     .top h1 {
@@ -212,17 +198,16 @@
 </script>
 <body>
 
+<video class="bgvideo" autoplay loop muted playsinline preload="auto" poster="assets/logo.png">
+  <source src="assets/nk_login_intro.mp4" type="video/mp4">
+</video>
+<div class="bgfade"></div>
+
 <div id="toast"></div>
 
 <div class="wrap">
 
   <div class="top">
-    <div class="glow"></div>
-    <div class="mark">
-      <video autoplay loop muted playsinline preload="auto" poster="assets/logo.png">
-        <source src="assets/nk_login_intro.mp4" type="video/mp4">
-      </video>
-    </div>
     <h1>NEELKUND</h1>
     <p>মাইক্রোফাইন্যান্স</p>
   </div>
