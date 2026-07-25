@@ -355,8 +355,17 @@
 
         var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", report: "রিপোর্ট", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
+        var CURRENT_VIEW = "dash";
+
+        var SAFE_REFRESH = {
+            dash: loadDash, cust: loadCust, loan: loadLoan, branch: loadBranch,
+            market: loadMarket, team: loadTeam, expense: loadExpense,
+            salary: loadSalary, report: loadReport, growth: loadGrowth,
+            money: loadMoney, od: loadOd
+        };
 
         function show(key) {
+            CURRENT_VIEW = key;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
                 v.classList.remove("on");
             });
@@ -411,6 +420,15 @@
                 show(go);
             });
         });
+
+        /* ---------------- নিজে থেকে আপডেট (১২ সেকেন্ড পর পর) ---------------- */
+        setInterval(function () {
+            if (document.visibilityState !== "visible") return;
+            var ae = document.activeElement;
+            if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
+            var f = SAFE_REFRESH[CURRENT_VIEW];
+            if (f) f();
+        }, 12000);
 
 
 

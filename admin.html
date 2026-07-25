@@ -797,8 +797,22 @@
         };
 
         var loaded = {};
+        var CURRENT_VIEW = "dash";
+
+        /* সব view-র loader — "আরও" মেনু এটা ব্যবহার করে */
+        var LOADERS = {
+            od: loadOd, branch: loadBranch, market: loadMarket, team: loadTeam,
+            money: loadMoney, expense: loadExpense, stages: loadStages,
+            settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
+            profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport
+        };
+
+        /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
+           ধাপে-ধাপে (drill-down) বা ফর্ম নেই, তাই নিরাপদে বার বার লোড করা যায় */
+        var SAFE_REFRESH = { dash: loadDash, cust: loadCust, loan: loadLoan, coll: loadColl };
 
         function show(key) {
+            CURRENT_VIEW = key;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
                 v.classList.remove("on");
             });
@@ -821,6 +835,15 @@
                 if (key === "coll") loadColl();
             }
         }
+
+        /* ---------------- নিজে থেকে আপডেট (১২ সেকেন্ড পর পর) ---------------- */
+        setInterval(function () {
+            if (document.visibilityState !== "visible") return;
+            var ae = document.activeElement;
+            if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
+            var f = SAFE_REFRESH[CURRENT_VIEW];
+            if (f) f();
+        }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
             b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
@@ -845,23 +868,7 @@
                     return;
                 }
 
-                var LOADERS = {
-                    od: loadOd,
-                    branch: loadBranch,
-                    market: loadMarket,
-                    team: loadTeam,
-                    money: loadMoney,
-                    expense: loadExpense,
-                    stages: loadStages,
-                    settings: loadSettings,
-                    perm: loadPerm,
-                    log: loadLog,
-                    salary: loadSalary,
-                    profile: loadProfile,
-                    kyc: loadKyc,
-                    access: loadAccess,
-                    report: loadReport
-                };
+                CURRENT_VIEW = go;
 
                 var v = q("v-" + go);
                 if (!v) {

@@ -1283,8 +1283,17 @@
             black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
         };
         var loaded = {};
+        var CURRENT_VIEW = "today";
+
+        /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
+           মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
+        var SAFE_REFRESH = {
+            today: loadToday, coll: loadColl, cust: loadCust,
+            black: loadBlack, sheet: loadSheet
+        };
 
         function show(key) {
+            CURRENT_VIEW = key;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
                 v.classList.remove("on");
             });
@@ -1306,6 +1315,15 @@
                 if (key === "sheet") loadSheet();
             }
         }
+
+        /* ---------------- নিজে থেকে আপডেট (১২ সেকেন্ড পর পর) ---------------- */
+        setInterval(function () {
+            if (document.visibilityState !== "visible") return;
+            var ae = document.activeElement;
+            if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
+            var f = SAFE_REFRESH[CURRENT_VIEW];
+            if (f) f();
+        }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
             b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
