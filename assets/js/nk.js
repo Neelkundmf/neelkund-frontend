@@ -355,6 +355,8 @@
         "আজকের কাজ": "Today's Work", "নতুন গ্রাহক": "New Customer",
         "লগইন করা নেই": "Not Logged In",
         "স্বাগতম": "Welcome", "মাইক্রোফাইন্যান্স": "Microfinance",
+        "ফোন নম্বর আর পাসওয়ার্ড দিয়ে ঢুকুন": "Log in with your phone number and password",
+        "১০ সংখ্যার নম্বর": "10-digit number",
         "ফোন নম্বর": "Phone Number", "পাসওয়ার্ড": "Password",
         "পাসওয়ার্ড ভুলে গেছেন?": "Forgot password?",
         "লগইন করুন": "Log In", "পাসওয়ার্ড বদলান": "Change Password",
@@ -403,6 +405,18 @@
             var target = lang === "en" ? (DICT[bn] || bn) : bn;
             var i = full.indexOf(trimmed);
             node.nodeValue = full.slice(0, i) + target + full.slice(i + trimmed.length);
+        });
+
+        /* placeholder-এর লেখাও (এটা টেক্সট নোড না, তাই আলাদাভাবে) */
+        Array.prototype.forEach.call(document.querySelectorAll("[placeholder]"), function (el) {
+            var bn = el.getAttribute("data-i18n-ph-bn");
+            if (!bn) {
+                var t = el.getAttribute("placeholder");
+                if (!t || !DICT.hasOwnProperty(t)) return;
+                bn = t;
+                el.setAttribute("data-i18n-ph-bn", bn);
+            }
+            el.setAttribute("placeholder", lang === "en" ? (DICT[bn] || bn) : bn);
         });
     }
 
