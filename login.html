@@ -58,8 +58,10 @@
       object-fit: contain;
       display: block;
       mix-blend-mode: screen;
-      filter: contrast(1.6) brightness(1.05);
+      filter: contrast(3) brightness(.8);
       transform: scale(1.55);
+      -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+      mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
     }
 
     .top h1 {
