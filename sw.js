@@ -6,7 +6,7 @@
    ⚠️ API-র উত্তর কখনও জমা রাখা হয় না — টাকার হিসাব সবসময় তাজা।
    ========================================================================= */
 
-var VER = "nk-v2";
+var VER = "nk-v3";
 
 var SHELL = [
     "/login.html",
@@ -19,7 +19,15 @@ var SHELL = [
     "/assets/css/app.css",
     "/assets/js/nk.js",
     "/assets/logo.png",
+    "/assets/nk_login_intro.mp4",
     "/manifest.json"
+];
+
+/* এই ফাইলগুলো কম বদলায় (ভারী ভিডিও/ছবি) — নেট চেক না করে
+   সাথে সাথে ফোনে জমানো কপি থেকে দেখাই, অ্যাপ তাড়াতাড়ি খুলবে */
+var CACHE_FIRST = [
+    "/assets/nk_login_intro.mp4",
+    "/assets/logo.png"
 ];
 
 /* ---- বসানোর সময় ---- */
@@ -66,7 +74,25 @@ self.addEventListener("fetch", function (e) {
         return;
     }
 
-    /* নিজেদের ফাইল — নেট আগে, নেট না থাকলে জমানোটা।
+    /* ভারী, কম-বদলানো ফাইল — জমানো কপি থাকলে সেটাই সাথে সাথে দেখাই,
+       ব্যাকগ্রাউন্ডে নতুন কপি এলে পরের বারের জন্য জমিয়ে রাখি */
+    if (CACHE_FIRST.indexOf(url.pathname) !== -1) {
+        e.respondWith(
+            caches.match(req).then(function (hit) {
+                var network = fetch(req).then(function (res) {
+                    if (res && res.ok) {
+                        var copy = res.clone();
+                        caches.open(VER).then(function (c) { c.put(req, copy); });
+                    }
+                    return res;
+                }).catch(function () { return hit; });
+                return hit || network;
+            })
+        );
+        return;
+    }
+
+    /* বাকি নিজেদের ফাইল — নেট আগে, নেট না থাকলে জমানোটা।
        এতে অনলাইনে সবসময় টাটকা ফাইল আসে, নতুন আপডেট আটকায় না। */
     e.respondWith(
         fetch(req).then(function (res) {
