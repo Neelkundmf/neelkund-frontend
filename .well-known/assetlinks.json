@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.neelkundmf.twa",
+    "sha256_cert_fingerprints": ["09:61:6F:B6:B8:60:29:C1:9B:52:58:B9:39:4B:11:70:75:32:04:C6:E5:F4:5E:E5:7C:B7:2B:D7:C8:07:17:75"]
+  }
+}]
