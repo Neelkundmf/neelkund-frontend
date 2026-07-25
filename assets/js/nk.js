@@ -3,8 +3,9 @@
    সব পাতা এইটা ব্যবহার করবে।
 
    নিরাপত্তা:
-   - টোকেন মেমরিতে থাকে, localStorage-এ নয়
-   - শুধু রিফ্রেশ টোকেন sessionStorage-এ (পাতা বন্ধ করলে মুছে যায়)
+   - অ্যাক্সেস টোকেন মেমরিতে থাকে, localStorage-এ নয়
+   - রিফ্রেশ টোকেন localStorage-এ (ব্যাক বাটন/অ্যাপ বন্ধ করলেও থাকে,
+     শুধু লগ-আউট করলে বা মেয়াদ (৭ দিন) শেষ হলে মোছে)
    - কোনো পাতা নিজে থেকে redirect করে না
    ========================================================================= */
 
@@ -19,33 +20,33 @@
     var me = null;
     var perms = null;
 
-    /* রিফ্রেশ টোকেন — sessionStorage-এ।
-       পাতা বন্ধ করলে মুছে যায়, মিনিমাইজ করলে থাকে। */
+    /* রিফ্রেশ টোকেন — localStorage-এ।
+       অ্যাপ বন্ধ/ব্যাক বাটনেও থাকে, লগ-আউট বা মেয়াদ শেষ হলে মোছে। */
     var RT_KEY = "nk_rt";
 
     function setRefresh(t) {
-        try { sessionStorage.setItem(RT_KEY, t); } catch (e) {}
+        try { localStorage.setItem(RT_KEY, t); } catch (e) {}
     }
     function getRefresh() {
-        try { return sessionStorage.getItem(RT_KEY); } catch (e) { return null; }
+        try { return localStorage.getItem(RT_KEY); } catch (e) { return null; }
     }
     function clearAll() {
         accessToken = null;
         me = null;
         perms = null;
-        try { sessionStorage.removeItem(RT_KEY); } catch (e) {}
-        try { sessionStorage.removeItem("nk_me"); } catch (e) {}
+        try { localStorage.removeItem(RT_KEY); } catch (e) {}
+        try { localStorage.removeItem("nk_me"); } catch (e) {}
     }
 
-    /* কে লগইন করে আছে — sessionStorage-এ (সংবেদনশীল নয়) */
+    /* কে লগইন করে আছে — localStorage-এ (সংবেদনশীল নয়) */
     function saveMe(u) {
         me = u;
-        try { sessionStorage.setItem("nk_me", JSON.stringify(u)); } catch (e) {}
+        try { localStorage.setItem("nk_me", JSON.stringify(u)); } catch (e) {}
     }
     function loadMe() {
         if (me) return me;
         try {
-            var s = sessionStorage.getItem("nk_me");
+            var s = localStorage.getItem("nk_me");
             if (s) me = JSON.parse(s);
         } catch (e) {}
         return me;

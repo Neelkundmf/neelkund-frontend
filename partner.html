@@ -233,15 +233,6 @@
             <div id="slList"><div class="empty">উপরে একটা মাস বাছুন</div></div>
         </div>
 
-        <!-- ---------------- KYC ছবি ---------------- -->
-        <div class="view" id="v-kyc">
-            <div class="search">
-                <span class="ic">🔍</span>
-                <input id="kq" type="search" placeholder="গ্রাহক খুঁজুন">
-            </div>
-            <div id="kList"><div class="loading">লোড হচ্ছে...</div></div>
-        </div>
-
         <!-- ---------------- রিপোর্ট ---------------- -->
         <div class="view" id="v-report">
             <div class="card">
@@ -307,20 +298,31 @@
     <div class="tabs">
         <button class="on" data-v="dash"><i>📊</i>ড্যাশবোর্ড</button>
         <button data-v="cust"><i>👤</i>গ্রাহক</button>
-        <button data-v="loan"><i>💳</i>লোন</button>
         <button data-v="branch"><i>🏢</i>ব্রাঞ্চ</button>
         <button data-v="market"><i>🏬</i>মার্কেট</button>
-        <button data-v="team"><i>👥</i>টিম</button>
-        <button data-v="expense"><i>💸</i>খরচ</button>
-        <button data-v="salary"><i>💰</i>বেতন</button>
-        <button data-v="kyc"><i>📷</i>KYC ছবি</button>
-        <button data-v="report"><i>📋</i>রিপোর্ট</button>
-        <button data-v="growth"><i>📈</i>অগ্রগতি</button>
-        <button data-v="money"><i>🏦</i>বিনিয়োগ</button>
-        <button data-v="od"><i>🚨</i>OD</button>
-        <button id="outBtn"><i>🚪</i>লগ আউট</button>
+        <button id="moreBtn"><i>⋯</i>আরও</button>
     </div>
 
+</div>
+
+<!-- ================= আরও মেনু ================= -->
+<div id="sheet">
+    <div class="bg" id="sheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>আরও</h3>
+        <div class="menu-grid">
+            <button data-go="loan"><i>💳</i>লোন</button>
+            <button data-go="team"><i>👥</i>টিম</button>
+            <button data-go="expense"><i>💸</i>খরচ</button>
+            <button data-go="salary"><i>💰</i>বেতন</button>
+            <button data-go="report"><i>📋</i>রিপোর্ট</button>
+            <button data-go="growth"><i>📈</i>অগ্রগতি</button>
+            <button data-go="money"><i>🏦</i>বিনিয়োগ</button>
+            <button data-go="od"><i>🚨</i>OD</button>
+            <button data-go="logout"><i>🚪</i>লগ আউট</button>
+        </div>
+    </div>
 </div>
 
 <!-- ================= প্রোফাইল ================= -->
@@ -351,7 +353,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", kyc: "KYC ছবি", report: "রিপোর্ট", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
+        var TITLES = { dash: "ড্যাশবোর্ড", cust: "গ্রাহক", loan: "লোন", branch: "ব্রাঞ্চ", market: "মার্কেট", team: "টিম", expense: "খরচ", salary: "বেতন", report: "রিপোর্ট", growth: "অগ্রগতি", money: "বিনিয়োগ", od: "OD তালিকা" };
         var loaded = {};
 
         function show(key) {
@@ -377,7 +379,6 @@
                 if (key === "team")   loadTeam();
                 if (key === "expense") loadExpense();
                 if (key === "salary")  loadSalary();
-                if (key === "kyc")    loadKyc();
                 if (key === "report") loadReport();
                 if (key === "growth") loadGrowth();
                 if (key === "money")  loadMoney();
@@ -389,10 +390,28 @@
             b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
         });
 
-        q("outBtn").addEventListener("click", function () {
-            NK.logout();
-            window.location.replace("login.html");
+        /* ---- আরও মেনু ---- */
+        q("moreBtn").addEventListener("click", function () {
+            q("sheet").classList.add("on");
         });
+        q("sheetBg").addEventListener("click", function () {
+            q("sheet").classList.remove("on");
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll("#sheet [data-go]"), function (b) {
+            b.addEventListener("click", function () {
+                var go = b.getAttribute("data-go");
+                q("sheet").classList.remove("on");
+
+                if (go === "logout") {
+                    NK.logout();
+                    window.location.replace("login.html");
+                    return;
+                }
+                show(go);
+            });
+        });
+
 
 
         /* =====================================================================
@@ -1229,93 +1248,6 @@
             });
         }
         q("sl_f").addEventListener("change", showSalary);
-        /* =====================================================================
-         * KYC ছবি (শুধু দেখার জন্য)
-         * ===================================================================== */
-        var DOCS = [
-            ["SELFIE", "গ্রাহকের ছবি", "photoUrl"],
-            ["AADHAAR", "আধার (সামনে)", "aadhaarPhotoUrl"],
-            ["AADHAAR_BACK", "আধার (পিছন)", "aadhaarBackPhotoUrl"],
-            ["PAN", "প্যান (সামনে)", "panPhotoUrl"],
-            ["PAN_BACK", "প্যান (পিছন)", "panBackPhotoUrl"]
-        ];
-        var kTimer = null;
-
-        function loadKyc() {
-            var s = q("kq").value.trim();
-            q("kList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
-
-            NK.GET("/api/customers?page=0&size=60").then(function (r) {
-                var rows = NK.rows(r);
-
-                if (s) {
-                    var sl = s.toLowerCase();
-                    rows = rows.filter(function (c) {
-                        return (c.fullName || "").toLowerCase().indexOf(sl) !== -1
-                            || (c.phone || "").indexOf(s) !== -1
-                            || (c.customerCode || "").toLowerCase().indexOf(sl) !== -1;
-                    });
-                }
-
-                if (!rows.length) {
-                    q("kList").innerHTML = '<div class="card"><div class="empty">কেউ নেই</div></div>';
-                    return;
-                }
-
-                var html = "";
-
-                rows.slice(0, 40).forEach(function (c) {
-                    html += '<div class="card" style="padding:14px;">';
-                    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
-                    html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
-                    html += '<div style="flex:1;min-width:0;">';
-                    html += '<b style="font-size:14.5px;">' + NK.esc(c.fullName) + '</b><br>';
-                    html += '<span style="font-size:12.5px;color:var(--muted);">' +
-                        NK.esc(c.customerCode || "") + ' · ' + NK.esc(c.phone || "—") + '</span>';
-                    html += '</div></div>';
-
-                    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">';
-
-                    DOCS.forEach(function (d) {
-                        var has = !!c[d[2]];
-                        html += '<button' + (has ? ' data-view="' + NK.esc(c.id) + '" data-type="' + d[0] + '"' : ' disabled') + ' ' +
-                            'style="min-height:64px;padding:8px 4px;border-radius:10px;' +
-                            'border:1.5px solid ' + (has ? 'var(--green)' : 'var(--line)') + ';' +
-                            'background:' + (has ? 'var(--green-soft)' : '#fff') + ';' +
-                            'font-family:inherit;font-size:10px;font-weight:600;' +
-                            'color:' + (has ? 'var(--green)' : 'var(--muted)') + ';' +
-                            (has ? 'cursor:pointer;' : 'cursor:default;opacity:.6;') + '">';
-                        html += (has ? '✓' : '—') + '<br>' + d[1];
-                        html += '</button>';
-                    });
-
-                    html += '</div></div>';
-                });
-
-                q("kList").innerHTML = html;
-
-                Array.prototype.forEach.call(q("kList").querySelectorAll("[data-view]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var id = b.getAttribute("data-view");
-                        var type = b.getAttribute("data-type");
-                        var path = type === "SELFIE" ? "/api/customers/" + id + "/photo" :
-                            "/api/customers/" + id + "/document?type=" + type;
-                        NK.GET(path).then(function (blob) {
-                            window.open(URL.createObjectURL(blob), "_blank");
-                        }).catch(function () { toast("ছবি পাওয়া যায়নি", "er"); });
-                    });
-                });
-
-            }).catch(function (e) {
-                q("kList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
-            });
-        }
-
-        q("kq").addEventListener("input", function () {
-            clearTimeout(kTimer);
-            kTimer = setTimeout(loadKyc, 400);
-        });
-
         /* =====================================================================
          * রিপোর্ট
          * ===================================================================== */

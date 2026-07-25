@@ -2617,6 +2617,9 @@
         bindPic("np_panb",   "PAN_BACK");
         bindPic("np_guar",   "GUARANTOR");
 
+        /* ছবি ১ তোলার পর ছবি ২ (পিছনের দিক) এমনিতেই খুলে যাবে */
+        var NEXT_PIC = { AADHAAR: "np_aadb", PAN: "np_panb" };
+
         q("picFile").addEventListener("change", function () {
             var f = this.files[0];
             if (!f || !picTarget) return;
@@ -2636,6 +2639,11 @@
             el.appendChild(img);
             el.classList.add("has");
             el.classList.remove("req");
+
+            var nextId = NEXT_PIC[picTarget.type];
+            if (nextId) {
+                setTimeout(function () { q(nextId).click(); }, 400);
+            }
         });
 
         function uploadCustPics(custId) {

@@ -2095,6 +2095,9 @@
         bindPicker("tp_pan",    "PAN", false);
         bindPicker("tp_panb",   "PAN_BACK", false);
 
+        /* ছবি ১ তোলার পর ছবি ২ (পিছনের দিক) এমনিতেই খুলে যাবে */
+        var NEXT_PIC = { AADHAAR: "tp_aadb", PAN: "tp_panb" };
+
         q("picFile").addEventListener("change", function () {
             var f = this.files[0];
             if (!f || !picTarget) return;
@@ -2114,6 +2117,11 @@
             el.appendChild(img);
             el.classList.add("has");
             el.classList.remove("req");
+
+            var nextId = NEXT_PIC[picTarget.type];
+            if (nextId) {
+                setTimeout(function () { q(nextId).click(); }, 400);
+            }
         });
 
         /* ---- সব ছবি সার্ভারে পাঠাই ---- */
