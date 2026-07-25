@@ -30,7 +30,7 @@
       z-index: 2;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
     }
 
     /* ---- পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড ভিডিও ---- */
@@ -73,6 +73,8 @@
       color: rgba(255,255,255,.55);
       letter-spacing: .02em;
     }
+
+    .bottom { margin-top: 12vh; }
 
     /* ---- ফর্ম (আর সাদা বাক্স না, সরাসরি অন্ধকার পটভূমিতে) ---- */
     .box { padding: 0; }
@@ -206,7 +208,7 @@
 </script>
 <body>
 
-<video class="bgvideo" autoplay loop muted playsinline preload="auto" poster="assets/logo.png">
+<video class="bgvideo" autoplay loop muted playsinline preload="auto">
   <source src="assets/nk_login_intro.mp4" type="video/mp4">
 </video>
 <div class="bgfade"></div>
