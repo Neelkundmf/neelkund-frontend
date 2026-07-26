@@ -1319,7 +1319,7 @@
             var ae = document.activeElement;
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
-            if (f) f();
+            if (f) f(true);
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -1664,8 +1664,10 @@
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
-        function loadDash() {
-            q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadDash(silent) {
+            if (silent !== true) {
+                q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             var me = NK.me();
             var mgrName = (me && me.fullName) ? me.fullName : ltr("ম্যানেজার");
@@ -2085,8 +2087,10 @@
             return '<div class="r"><span>' + NK.esc(label) + '</span><b>' +
                 NK.esc(String(value)) + '</b></div>';
         }
-        function loadReq() {
-            q("reqList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadReq(silent) {
+            if (silent !== true) {
+                q("reqList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/loan-requests/pending").then(function (list) {
                 var rows = NK.rows(list);
@@ -2405,9 +2409,11 @@
         var BC_ALL = [];
         var bcTimer = null;
 
-        function loadCust() {
-            q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-            q("bcBoxes").innerHTML = "";
+        function loadCust(silent) {
+            if (silent !== true) {
+                q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+                q("bcBoxes").innerHTML = "";
+            }
 
             NK.GET("/api/dashboard/branch-customers").then(function (d) {
                 BC_ALL = d.customers || [];
@@ -2507,8 +2513,10 @@
         var BL_ALL = [];
         var blTimer = null;
 
-        function loadOd() {
-            q("odList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadOd(silent) {
+            if (silent !== true) {
+                q("odList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/dashboard/od-customers").then(function (list) {
                 BL_ALL = NK.rows(list);

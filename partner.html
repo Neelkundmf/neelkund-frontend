@@ -690,7 +690,7 @@
             var ae = document.activeElement;
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
-            if (f) f();
+            if (f) f(true);
         }, 12000);
 
 
@@ -698,9 +698,11 @@
         /* =====================================================================
          * ড্যাশবোর্ড
          * ===================================================================== */
-        function loadDash() {
+        function loadDash(silent) {
             var b = q("br").value;
-            q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            if (silent !== true) {
+                q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/dashboard" + (b ? "?branchId=" + b : "")).then(function (d) {
                 var h = "";
@@ -871,7 +873,7 @@
             return h;
         }
 
-        function loadGrowth() {
+        function loadGrowth(silent) {
             var d = q("g_date").value;
             var b = q("g_br").value;
 
@@ -879,7 +881,9 @@
                 (d ? "&date=" + d : "") +
                 (b ? "&branchId=" + b : "");
 
-            q("growth").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            if (silent !== true) {
+                q("growth").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET(path).then(function (g) {
                 var h = "";
@@ -994,8 +998,10 @@
         /* =====================================================================
          * বিনিয়োগ
          * ===================================================================== */
-        function loadMoney() {
-            q("fdList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadMoney(silent) {
+            if (silent !== true) {
+                q("fdList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/funds/branches").then(function (d) {
                 var h = '<div class="stats">';
@@ -1090,8 +1096,10 @@
 
             bindCust();
         }
-        function loadOd() {
-            q("odList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadOd(silent) {
+            if (silent !== true) {
+                q("odList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/dashboard/od-customers").then(function (list) {
                 var rows = NK.rows(list);
@@ -1137,8 +1145,10 @@
         var cqTimer = null;
         var CUST_ROWS = [];
 
-        function loadCust() {
-            q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadCust(silent) {
+            if (silent !== true) {
+                q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
             NK.GET("/api/customers?page=0&size=500").then(function (r) {
                 CUST_ROWS = NK.rows(r);
                 cShow = 50;
@@ -1223,8 +1233,10 @@
             ACTIVE: [ltr("চলমান"), "g"], CLOSED: [ltr("শোধ"), "n"], DEFAULTED: [ltr("খেলাপি"), "r"]
         };
 
-        function loadLoan() {
-            q("lList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadLoan(silent) {
+            if (silent !== true) {
+                q("lList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/loans?page=0&size=300").then(function (r) {
                 LOANS = NK.rows(r);
@@ -1532,15 +1544,17 @@
         /* =====================================================================
          * রিপোর্ট
          * ===================================================================== */
-        function loadReport() {
+        function loadReport(silent) {
             if (!q("rp_m").value) q("rp_m").value = thisMonth();
-            showReport();
+            showReport(silent);
         }
 
-        function showReport() {
+        function showReport(silent) {
             var m = q("rp_m").value;
-            q("rpBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-            showDisb(m);
+            if (silent !== true) {
+                q("rpBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
+            showDisb(m, silent);
             NK.GET("/api/manager/reports/pnl?month=" + m).then(function (d) {
                 var html = '<div class="stats">';
                 html += st(ltr("বিতরণ"), NK.inrShort(d.disbursed));
@@ -1562,9 +1576,11 @@
 
         var DISB = null;
 
-        function showDisb(m) {
+        function showDisb(m, silent) {
             DISB = null;
-            q("dsBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            if (silent !== true) {
+                q("dsBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/manager/reports/disbursement?month=" + m).then(function (d) {
                 DISB = d;

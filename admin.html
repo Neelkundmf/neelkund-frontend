@@ -1202,7 +1202,7 @@
             var ae = document.activeElement;
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
-            if (f) f();
+            if (f) f(true);
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -1260,11 +1260,13 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
-        function loadDash() {
+        function loadDash(silent) {
             var branchId = q("br").value;
             var path = "/api/dashboard" + (branchId ? "?branchId=" + branchId : "");
 
-            q("dash").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            if (silent !== true) {
+                q("dash").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            }
 
             NK.GET(path).then(function (d) {
 
@@ -1727,12 +1729,14 @@
             YELLOW: [ltr("হলুদ"), "a"], RED: [ltr("লাল"), "r"], OD: ["OD", "r"]
         };
 
-        function loadCust() {
+        function loadCust(silent) {
             var s = q("cq").value.trim();
             var path = "/api/customers/list?tab=" + cTab +
                 (s ? "&search=" + encodeURIComponent(s) : "");
 
-            q("cList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            if (silent !== true) {
+                q("cList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            }
 
             NK.GET(path).then(function (list) {
                 var rows = NK.rows(list);
@@ -1872,8 +1876,10 @@
             ACTIVE: [ltr("চলমান"), "g"], CLOSED: [ltr("শোধ"), "n"], DEFAULTED: [ltr("খেলাপি"), "r"]
         };
 
-        function loadLoan() {
-            q("lList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+        function loadLoan(silent) {
+            if (silent !== true) {
+                q("lList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            }
 
             NK.GET("/api/loans?page=0&size=300").then(function (r) {
                 LOANS = NK.rows(r);

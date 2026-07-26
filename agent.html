@@ -1531,7 +1531,7 @@
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
-            today: loadToday, coll: loadColl, cust: loadCust,
+            today: loadToday, coll: refreshCollView, cust: loadCust,
             black: loadBlack, sheet: loadSheet
         };
 
@@ -1565,7 +1565,7 @@
             var ae = document.activeElement;
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
-            if (f) f();
+            if (f) f(true);
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -1981,12 +1981,14 @@
         var COLL_ROWS = [];
         var collTimer = null;
 
-        function loadColl() {
-            q("collMkt").style.display = "block";
-            q("collInside").style.display = "none";
-
+        function loadColl(silent) {
             var box = q("collMktList");
-            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            if (silent !== true) {
+                q("collMkt").style.display = "block";
+                q("collInside").style.display = "none";
+                box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/agent/my-markets").then(function (d) {
                 var mkts = (d && d.markets) ? d.markets : [];
@@ -2030,7 +2032,11 @@
             q("collHead").innerHTML = "";
             window.scrollTo(0, 0);
 
-            NK.GET("/api/agent/collection/" + (marketId || "null") + "/customers")
+            refreshCollInside(false);
+        }
+
+        function refreshCollInside(silent) {
+            NK.GET("/api/agent/collection/" + (COLL_MKT || "null") + "/customers")
                 .then(function (d) {
                     COLL_ROWS = d.customers || [];
 
@@ -2047,9 +2053,21 @@
                     drawCollList();
                 })
                 .catch(function (e) {
-                    q("collList").innerHTML =
-                        '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                    if (silent !== true) {
+                        q("collList").innerHTML =
+                            '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                    }
                 });
+        }
+
+        /* auto-refresh এর জন্য — এখন মার্কেট-তালিকায় আছি নাকি ভেতরে ঢুকে
+           আছি সেটা দেখে ঠিক জায়গাটাই সাইলেন্টলি আপডেট করি */
+        function refreshCollView(silent) {
+            if (q("collInside").style.display === "block") {
+                refreshCollInside(silent);
+            } else {
+                loadColl(silent);
+            }
         }
 
         function drawCollList() {
@@ -2293,8 +2311,10 @@
                     }
                 });
         }
-        function loadToday() {
-            q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadToday(silent) {
+            if (silent !== true) {
+                q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/agent/my-today").then(function (r) {
                 var target = Number(r.netTarget || 0);
@@ -2412,12 +2432,14 @@
         var cTimer = null;
         var MYC = [];
         var cShow = 50;
-        function loadCust() {
+        function loadCust(silent) {
             var s = q("cq").value.trim();
             var path = "/api/dashboard/agent-customers" +
                 (s ? "?search=" + encodeURIComponent(s) : "");
 
-            q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            if (silent !== true) {
+                q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET(path).then(function (list) {
                 var all = NK.rows(list);
@@ -3041,15 +3063,17 @@
          * ===================================================================== */
         var shType = "MORNING";
 
-        function loadSheet() {
+        function loadSheet(silent) {
             if (!q("sh_d").value) q("sh_d").value = new Date().toISOString().slice(0, 10);
-            showSheet();
+            showSheet(silent);
         }
 
-        function showSheet() {
+        function showSheet(silent) {
             var d = q("sh_d").value;
 
-            q("shBox").innerHTML = '<div class="loading">' + ltr("তৈরি হচ্ছে...") + '</div>';
+            if (silent !== true) {
+                q("shBox").innerHTML = '<div class="loading">' + ltr("তৈরি হচ্ছে...") + '</div>';
+            }
 
             var url = "/api/agent/my-sheet?type=" + shType + (d ? "&date=" + d : "");
 
@@ -3181,8 +3205,10 @@
             window.print();
         });
 
-        function loadBlack() {
-            q("blackList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadBlack(silent) {
+            if (silent !== true) {
+                q("blackList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             NK.GET("/api/dashboard/agent-overdue-customers").then(function (list) {
                 var rows = NK.rows(list);
