@@ -2611,7 +2611,7 @@
         /* =====================================================================
           * গ্রাহকের প্রোফাইল
           * ===================================================================== */
-        var GEN_BN = { MALE: "পুরুষ", FEMALE: "মহিলা", OTHER: "অন্য" };
+        var GEN_BN = { MALE: ltr("পুরুষ"), FEMALE: ltr("মহিলা"), OTHER: ltr("অন্য") };
         function genLabel(g) { return GEN_BN[g] ? ltr(GEN_BN[g]) : g; }
 
         function row(label, value) {

@@ -70,15 +70,19 @@
     function msgFor(status, body) {
         if (body && body.message) return body.message;
 
-        if (status === 400) return "তথ্য ঠিকমতো দেওয়া হয়নি।";
-        if (status === 401) return "লগইনের মেয়াদ শেষ। আবার লগইন করুন।";
-        if (status === 403) return "এই কাজের অনুমতি নেই।";
-        if (status === 404) return "খুঁজে পাওয়া গেল না।";
-        if (status === 409) return "এই তথ্য আগে থেকেই আছে।";
-        if (status === 413) return "ফাইলটা খুব বড়।";
-        if (status === 429) return "অনেকবার চেষ্টা হয়েছে। একটু পরে আবার করুন।";
-        if (status >= 500)  return "সার্ভারে সমস্যা হয়েছে। একটু পরে আবার করুন।";
-        return "কাজটি করা গেল না।";
+        var en = (function () {
+            try { return localStorage.getItem("nk_lang") === "en"; } catch (e) { return false; }
+        })();
+
+        if (status === 400) return en ? "The information given wasn't correct." : "তথ্য ঠিকমতো দেওয়া হয়নি।";
+        if (status === 401) return en ? "Login session expired. Please log in again." : "লগইনের মেয়াদ শেষ। আবার লগইন করুন।";
+        if (status === 403) return en ? "You don't have permission for this." : "এই কাজের অনুমতি নেই।";
+        if (status === 404) return en ? "Not found." : "খুঁজে পাওয়া গেল না।";
+        if (status === 409) return en ? "This already exists." : "এই তথ্য আগে থেকেই আছে।";
+        if (status === 413) return en ? "The file is too large." : "ফাইলটা খুব বড়।";
+        if (status === 429) return en ? "Too many attempts. Please try again shortly." : "অনেকবার চেষ্টা হয়েছে। একটু পরে আবার করুন।";
+        if (status >= 500)  return en ? "Server error. Please try again shortly." : "সার্ভারে সমস্যা হয়েছে। একটু পরে আবার করুন।";
+        return en ? "Could not complete the action." : "কাজটি করা গেল না।";
     }
 
     /* ---------------- API ডাকা ---------------- */

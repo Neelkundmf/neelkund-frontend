@@ -1188,7 +1188,7 @@
                 b.classList.toggle("on", b.getAttribute("data-v") === key);
             });
 
-            q("ttl").textContent = TITLES[key] || key;
+            q("ttl").textContent = NK.tr(TITLES[key] || key);
             q("backbar").classList.remove("on");
             window.scrollTo(0, 0);
 
@@ -2376,7 +2376,7 @@
                         (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
                         '<div style="margin-top:6px;display:flex;gap:6px;">' +
                         '<button class="btn ghost sm" data-en="' + u.id + '" data-v="' +
-                        (off ? 'true' : 'false') + '">' + ltr(off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
+                        (off ? 'true' : 'false') + '">' + (off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
                         '<button class="btn sm danger" data-del="' + u.id + '">' + ltr('মুছুন') + '</button>' +
                         '</div></div>';
                     html += '</div>';
@@ -3784,17 +3784,17 @@
             a.href = URL.createObjectURL(blob);
             a.download = "disbursement-" + (DISB.month || q("rp_m").value) + ".csv";
             a.click();
-            toast(ltr("' + ltr('নামানো হয়েছে ✓') + '"), "ok");
+            toast(ltr('নামানো হয়েছে ✓'), "ok");
         });
         function download(path, name) {
-            toast(ltr("' + ltr('নামানো হচ্ছে...') + '"), "in");
+            toast(ltr('নামানো হচ্ছে...'), "in");
 
             NK.GET(path).then(function (blob) {
                 var a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
                 a.download = name;
                 a.click();
-                toast(ltr("' + ltr('নামানো হয়েছে ✓') + '"), "ok");
+                toast(ltr('নামানো হয়েছে ✓'), "ok");
             }).catch(function (e) {
                 toast(e.message, "er");
             });
@@ -3812,7 +3812,7 @@
    * ===================================================================== */
         function openAgent(id) {
             q("prof").classList.add("on");
-            q("pTitle").textContent = ltr("' + ltr('কর্মী') + '");
+            q("pTitle").textContent = ltr('কর্মী');
             q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             window.scrollTo(0, 0);
 
@@ -3833,28 +3833,28 @@
 
                 /* ---- এখনকার হিসাব ---- */
                 h += '<div class="stats">';
-                h += st(ltr("' + ltr('চলমান লোন') + '"), p.activeLoans);
-                h += st(ltr("' + ltr('গ্রাহক') + '"), p.activeCustomers);
-                h += st(ltr("' + ltr('মার্কেটে পড়ে') + '"), NK.inrShort(p.outstanding), "r");
-                h += st(ltr("' + ltr('আজ ওঠার কথা') + '"), NK.inrShort(p.todayDue));
+                h += st(ltr('চলমান লোন'), p.activeLoans);
+                h += st(ltr('গ্রাহক'), p.activeCustomers);
+                h += st(ltr('মার্কেটে পড়ে'), NK.inrShort(p.outstanding), "r");
+                h += st(ltr('আজ ওঠার কথা'), NK.inrShort(p.todayDue));
                 h += '</div>';
 
                 /* ---- এই মাসে (কমিশন) ---- */
                 h += '<div class="card">';
                 h += ltr('<h2 style="margin-bottom:12px;">এই মাসে (কমিশনের হিসাব)</h2>');
                 h += '<div class="stats" style="margin:0;">';
-                h += st(ltr("' + ltr('লোন দিয়েছে') + '"), p.monthLoans + ltr("' + ltr('টি') + '"), "g");
-                h += st(ltr("' + ltr('মোট টাকা') + '"), NK.inrShort(p.monthDisbursed), "g");
-                h += st(ltr("' + ltr('আদায় করেছে') + '"), NK.inrShort(p.monthCollected), "g");
-                h += st(ltr("' + ltr('আজ উঠল') + '"), NK.inrShort(p.todayCollected), "g");
+                h += st(ltr('লোন দিয়েছে'), p.monthLoans + ltr('টি'), "g");
+                h += st(ltr('মোট টাকা'), NK.inrShort(p.monthDisbursed), "g");
+                h += st(ltr('আদায় করেছে'), NK.inrShort(p.monthCollected), "g");
+                h += st(ltr('আজ উঠল'), NK.inrShort(p.todayCollected), "g");
                 h += '</div></div>';
 
                 /* ---- অবস্থা ---- */
                 h += '<div class="stats">';
-                h += st(ltr("' + ltr('চলমান') + '"), p.runningCount);
-                h += st(ltr("' + ltr('দেরি') + '"), p.lateCount, "a");
+                h += st(ltr('চলমান'), p.runningCount);
+                h += st(ltr('দেরি'), p.lateCount, "a");
                 h += st("OD", p.odCount, "r");
-                h += st(ltr("' + ltr('শোধ হয়েছে') + '"), p.completedCount, "g");
+                h += st(ltr('শোধ হয়েছে'), p.completedCount, "g");
                 h += '</div>';
 
                 if (p.odCount > 0) {
@@ -3879,7 +3879,7 @@
 
                 h += '</div>';
 
-                /* ---- ' + ltr('মার্কেট') + ' অনুযায়ী ---- */
+                /* ---- মার্কেট অনুযায়ী ---- */
                 if (p.markets && p.markets.length) {
                     h += ltr('<h3 style="margin:16px 0 10px;">মার্কেট অনুযায়ী</h3>');
                     h += '<div class="list">';
@@ -3902,20 +3902,20 @@
                 /* ---- তথ্য ---- */
                 h += ltr('<h3 style="margin:16px 0 10px;">তথ্য</h3>');
                 h += '<div class="pinfo">';
-                h += row(ltr("' + ltr('পদ') + '"), ROLE_BN2[a.role] || a.role);
-                h += row(ltr("' + ltr('এলাকা') + '"), a.area);
-                h += row(ltr("' + ltr('বাবা / স্বামী') + '"), a.fatherOrHusband);
-                h += row(ltr("' + ltr('জন্মতারিখ') + '"), a.dateOfBirth ? NK.dt(a.dateOfBirth) : null);
-                h += row(ltr("' + ltr('লিঙ্গ') + '"), GEN_BN[a.gender] || a.gender);
-                h += row(ltr("' + ltr('রক্তের গ্রুপ') + '"), a.bloodGroup);
-                h += row(ltr("' + ltr('আধার') + '"), a.aadhaarMasked);
-                h += row(ltr("' + ltr('প্যান') + '"), a.panMasked);
-                h += row(ltr("' + ltr('স্থায়ী ঠিকানা') + '"), a.permanentAddress);
-                h += row(ltr("' + ltr('বর্তমান ঠিকানা') + '"), a.currentAddress);
-                h += row(ltr("' + ltr('জরুরি যোগাযোগ') + '"), a.emergencyName);
-                h += row(ltr("' + ltr('জরুরি ফোন') + '"), a.emergencyPhone);
-                h += row(ltr("' + ltr('জয়েনিং') + '"), a.joinedDate ? NK.dt(a.joinedDate) : null);
-                h += row(ltr("' + ltr('মাসিক বেতন') + '"), a.monthlySalary ? NK.inr(a.monthlySalary) : null);
+                h += row(ltr('পদ'), ROLE_BN2[a.role] || a.role);
+                h += row(ltr('এলাকা'), a.area);
+                h += row(ltr('বাবা / স্বামী'), a.fatherOrHusband);
+                h += row(ltr('জন্মতারিখ'), a.dateOfBirth ? NK.dt(a.dateOfBirth) : null);
+                h += row(ltr('লিঙ্গ'), GEN_BN[a.gender] || a.gender);
+                h += row(ltr('রক্তের গ্রুপ'), a.bloodGroup);
+                h += row(ltr('আধার'), a.aadhaarMasked);
+                h += row(ltr('প্যান'), a.panMasked);
+                h += row(ltr('স্থায়ী ঠিকানা'), a.permanentAddress);
+                h += row(ltr('বর্তমান ঠিকানা'), a.currentAddress);
+                h += row(ltr('জরুরি যোগাযোগ'), a.emergencyName);
+                h += row(ltr('জরুরি ফোন'), a.emergencyPhone);
+                h += row(ltr('জয়েনিং'), a.joinedDate ? NK.dt(a.joinedDate) : null);
+                h += row(ltr('মাসিক বেতন'), a.monthlySalary ? NK.inr(a.monthlySalary) : null);
                 h += '</div>';
 
                 q("pBody").innerHTML = h;
@@ -3938,7 +3938,7 @@
         /* =====================================================================
            * প্রোফাইলের সাহায্যকারী
            * ===================================================================== */
-        var GEN_BN = { MALE: ltr("' + ltr('পুরুষ') + '"), FEMALE: ltr("' + ltr('মহিলা') + '"), OTHER: ltr("' + ltr('অন্য') + '") };
+        var GEN_BN = { MALE: ltr('পুরুষ'), FEMALE: ltr('মহিলা'), OTHER: ltr('অন্য') };
 
         function row(label, value) {
             if (value === null || value === undefined || value === "") return "";
@@ -3962,7 +3962,7 @@
 
         function openCustomer(id) {
             q("profX").classList.add("on");
-            q("pxCid").textContent = ltr("' + ltr('লোড হচ্ছে...') + '");
+            q("pxCid").textContent = ltr('লোড হচ্ছে...');
             q("pxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
@@ -3994,7 +3994,7 @@
 
                 var flagCls = { GREEN: "g", YELLOW: "a", RED: "r" }[c.flag] || "";
                 if (c.flagReason || (c.flag && c.flag !== "GREEN")) {
-                    var flagTxt = { GREEN: ltr("' + ltr('ভালো') + '"), YELLOW: ltr("' + ltr('সাবধান') + '"), RED: ltr("' + ltr('খারাপ') + '") }[c.flag] || "";
+                    var flagTxt = { GREEN: ltr('ভালো'), YELLOW: ltr('সাবধান'), RED: ltr('খারাপ') }[c.flag] || "";
                     h += '<div class="pf-remark ' + flagCls + '">';
                     h += '<div class="rl">Remark</div>';
                     h += '<div class="rt">' + NK.esc(c.flagReason || flagTxt) + '</div>';
@@ -4008,27 +4008,27 @@
                 h += '<button data-f="YELLOW" class="asel' + (c.flag === "YELLOW" ? " on" : "") + ltr('">হলুদ</button>');
                 h += '<button data-f="RED" class="rsel' + (c.flag === "RED" ? " on" : "") + ltr('">লাল</button>');
                 h += '</div>';
-                h += ltr('<textarea id="pxReason" placeholder="নোট লিখুন (যেমন: " + ltr("দেরি") + " করে, " + ltr("সাবধান") + ")">') +
+                h += ltr('<textarea id="pxReason" placeholder="নোট লিখুন (যেমন: দেরি করে, সাবধান)">') +
                     NK.esc(c.flagReason || "") + '</textarea>';
                 h += ltr('<button class="btn block" id="pxSave">Remark সংরক্ষণ করুন</button>');
                 h += '</div>';
 
                 var lastLoan = loans.length ? loans[0] : null;
                 h += '<div class="pf-green">';
-                h += pfRow(ltr("' + ltr('সাইকেল') + '"), (p.totalLoans || 0) + ltr("' + ltr(' নম্বর লোন') + '"));
-                if (c.marketName) h += pfRow(ltr("' + ltr('মার্কেট') + '"), c.marketName);
+                h += pfRow(ltr('সাইকেল'), (p.totalLoans || 0) + ltr(' নম্বর লোন'));
+                if (c.marketName) h += pfRow(ltr('মার্কেট'), c.marketName);
                 if (lastLoan) {
-                    h += pfRow(ltr("' + ltr('লাস্ট লোন ডেট') + '"), lastLoan.startDate ? NK.dt(lastLoan.startDate) : "—");
-                    h += pfRow(ltr("' + ltr('লাস্ট লোন অঙ্ক') + '"), NK.inr(lastLoan.principal));
-                    h += pfRow(ltr("' + ltr('লাস্ট লোন এজেন্ট') + '"), lastLoan.agentName || "—");
+                    h += pfRow(ltr('লাস্ট লোন ডেট'), lastLoan.startDate ? NK.dt(lastLoan.startDate) : "—");
+                    h += pfRow(ltr('লাস্ট লোন অঙ্ক'), NK.inr(lastLoan.principal));
+                    h += pfRow(ltr('লাস্ট লোন এজেন্ট'), lastLoan.agentName || "—");
                 }
                 h += '</div>';
 
                 h += '<div class="stats" style="margin-bottom:14px;">';
-                h += st(ltr("' + ltr('মোট লোন') + '"), (p.totalLoans || 0) + ltr("' + ltr('টি') + '"));
-                h += st(ltr("' + ltr('শোধ') + '"), (p.closedLoans || 0) + ltr("' + ltr('টি') + '"), "g");
-                h += st(ltr("' + ltr('চলছে') + '"), (p.activeLoans || 0) + ltr("' + ltr('টি') + '"));
-                h += st(ltr("' + ltr('বাকি') + '"), NK.inrShort(p.outstanding), "r");
+                h += st(ltr('মোট লোন'), (p.totalLoans || 0) + ltr('টি'));
+                h += st(ltr('শোধ'), (p.closedLoans || 0) + ltr('টি'), "g");
+                h += st(ltr('চলছে'), (p.activeLoans || 0) + ltr('টি'));
+                h += st(ltr('বাকি'), NK.inrShort(p.outstanding), "r");
                 h += '</div>';
                 if (Number(p.advanceAmount) > 0) {
                     h += '<div class="card" style="text-align:center;padding:12px;">';
@@ -4047,7 +4047,7 @@
                         h += '<div class="cyc">' + l.cycle + ltr(' নম্বর লোন</div>');
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
-                        h += ltr('<div class="d">ক্লোজ: ') + (l.closedDate ? NK.dt(l.closedDate) : ltr("' + ltr('চলছে') + '")) + '</div>';
+                        h += ltr('<div class="d">ক্লোজ: ') + (l.closedDate ? NK.dt(l.closedDate) : ltr('চলছে')) + '</div>';
                         h += '<span class="st">' +
                             NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
                         h += '</div>';
@@ -4079,16 +4079,16 @@
 
                 q("pxSave").addEventListener("click", function () {
                     var btn = q("pxSave");
-                    btn.disabled = true; btn.textContent = ltr("' + ltr('সংরক্ষণ হচ্ছে...') + '");
+                    btn.disabled = true; btn.textContent = ltr('সংরক্ষণ হচ্ছে...');
                     NK.PATCH("/api/customers/" + id + "/flag", {
                         flag: pickedFlag,
                         reason: q("pxReason").value.trim()
                     }).then(function () {
-                        toast(ltr("' + ltr('Remark সংরক্ষিত হয়েছে ✓') + '"), "ok");
+                        toast(ltr('Remark সংরক্ষিত হয়েছে ✓'), "ok");
                         openCustomer(id);
                     }).catch(function (e) {
                         toast(e.message, "er");
-                        btn.disabled = false; btn.textContent = ltr("' + ltr('Remark সংরক্ষণ করুন') + '");
+                        btn.disabled = false; btn.textContent = ltr('Remark সংরক্ষণ করুন');
                     });
                 });
 
@@ -4104,15 +4104,15 @@
             });
         }
         /* =====================================================================
-                 *' + ltr(' লোন') + ' ডিটেইল পাতা + EMI ক্যালেন্ডার
+                 * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
                  * ===================================================================== */
         q("lxClose").addEventListener("click", function () {
             q("loanX").classList.remove("on");
         });
 
-        var LD_MONTHS = [ltr("' + ltr('জানুয়ারি') + '"), ltr("' + ltr('ফেব্রুয়ারি') + '"), ltr("' + ltr('মার্চ') + '"), ltr("' + ltr('এপ্রিল') + '"), ltr("' + ltr('মে') + '"), ltr("' + ltr('জুন') + '"),
-            ltr("' + ltr('জুলাই') + '"), ltr("' + ltr('আগস্ট') + '"), ltr("' + ltr('সেপ্টেম্বর') + '"), ltr("' + ltr('অক্টোবর') + '"), ltr("' + ltr('নভেম্বর') + '"), ltr("' + ltr('ডিসেম্বর') + '")];
-        var LD_WEEK = [ltr("' + ltr('র') + '"), ltr("' + ltr('সো') + '"), ltr("' + ltr('ম') + '"), ltr("' + ltr('বু') + '"), ltr("' + ltr('বৃ') + '"), ltr("' + ltr('শু') + '"), ltr("' + ltr('শ') + '")];
+        var LD_MONTHS = [ltr('জানুয়ারি'), ltr('ফেব্রুয়ারি'), ltr('মার্চ'), ltr('এপ্রিল'), ltr('মে'), ltr('জুন'),
+            ltr('জুলাই'), ltr('আগস্ট'), ltr('সেপ্টেম্বর'), ltr('অক্টোবর'), ltr('নভেম্বর'), ltr('ডিসেম্বর')];
+        var LD_WEEK = [ltr('র'), ltr('সো'), ltr('ম'), ltr('বু'), ltr('বৃ'), ltr('শু'), ltr('শ')];
 
         function ldKey(d) {
             return d.getFullYear() + "-" +
@@ -4128,13 +4128,13 @@
 
         function openLoanDetail(loanId) {
             q("loanX").classList.add("on");
-            q("lxSm").textContent = ltr("' + ltr('লোন #') + '") + loanId;
-            q("lxTitle").textContent = ltr("' + ltr('লোড হচ্ছে...') + '");
+            q("lxSm").textContent = ltr('লোন #') + loanId;
+            q("lxTitle").textContent = ltr('লোড হচ্ছে...');
             q("lxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
-                q("lxTitle").textContent = NK.inr(d.principal) + ltr("' + ltr(' এর লোন') + '");
-                q("lxSm").textContent = ltr("' + ltr('লোন #') + '") + d.loanId +
+                q("lxTitle").textContent = NK.inr(d.principal) + ltr(' এর লোন');
+                q("lxSm").textContent = ltr('লোন #') + d.loanId +
                     (d.agentName ? " · " + d.agentName : "");
 
                 var h = "";
@@ -4154,24 +4154,24 @@
                 h += '</div>';
 
                 h += '<div class="ld-box">';
-                h += ldRow(ltr("' + ltr('DB ডেট') + '"), d.dbDate ? NK.dt(d.dbDate) : "—");
-                h += ldRow(ltr("' + ltr('EMI শুরু') + '"), d.emiStartDate ? NK.dt(d.emiStartDate) : "—");
-                h += ldRow(ltr("' + ltr('ক্লোজিং ডেট') + '"), d.emiEndDate ? NK.dt(d.emiEndDate) : "—");
-                h += ldRow(ltr("' + ltr('শোধ হয়েছে') + '"), d.closedDate ? NK.dt(d.closedDate) : ltr("' + ltr('চলছে') + '"),
+                h += ldRow(ltr('DB ডেট'), d.dbDate ? NK.dt(d.dbDate) : "—");
+                h += ldRow(ltr('EMI শুরু'), d.emiStartDate ? NK.dt(d.emiStartDate) : "—");
+                h += ldRow(ltr('ক্লোজিং ডেট'), d.emiEndDate ? NK.dt(d.emiEndDate) : "—");
+                h += ldRow(ltr('শোধ হয়েছে'), d.closedDate ? NK.dt(d.closedDate) : ltr('চলছে'),
                     d.closedDate ? "g" : "");
-                if (d.closedOnDay) h += ldRow(ltr("' + ltr('কত দিনে শোধ') + '"), d.closedOnDay + ltr("' + ltr(' দিনে') + '"), "g");
+                if (d.closedOnDay) h += ldRow(ltr('কত দিনে শোধ'), d.closedOnDay + ltr(' দিনে'), "g");
                 h += '</div>';
 
                 h += '<div class="ld-box">';
-                h += ldRow(ltr("' + ltr('ওভারডিউ ডেট') + '"), d.overdueDate ? NK.dt(d.overdueDate) : ltr("' + ltr('নেই') + '"),
+                h += ldRow(ltr('ওভারডিউ ডেট'), d.overdueDate ? NK.dt(d.overdueDate) : ltr('নেই'),
                     d.overdueDate ? "r" : "g");
-                h += ldRow(ltr("' + ltr('ডিলে পেমেন্ট') + '"), (d.delayDays || 0) + ltr("' + ltr(' দিন') + '"),
+                h += ldRow(ltr('ডিলে পেমেন্ট'), (d.delayDays || 0) + ltr(' দিন'),
                     (d.delayDays > 0) ? "r" : "g");
-                h += ldRow(ltr("' + ltr('লাস্ট পেমেন্ট ডেট') + '"),
-                    d.lastPaymentDate ? NK.dt(d.lastPaymentDate) : ltr("' + ltr('এখনও কিছু আসেনি') + '"));
+                h += ldRow(ltr('লাস্ট পেমেন্ট ডেট'),
+                    d.lastPaymentDate ? NK.dt(d.lastPaymentDate) : ltr('এখনও কিছু আসেনি'));
                 if (d.lastPaymentAmount)
-                    h += ldRow(ltr("' + ltr('লাস্ট পেমেন্ট অঙ্ক') + '"), NK.inr(d.lastPaymentAmount), "g");
-                h += ldRow(ltr("' + ltr('এজেন্ট') + '"), d.agentName || "—");
+                    h += ldRow(ltr('লাস্ট পেমেন্ট অঙ্ক'), NK.inr(d.lastPaymentAmount), "g");
+                h += ldRow(ltr('এজেন্ট'), d.agentName || "—");
                 h += '</div>';
 
                 h += ltr('<div class="ld-title">📅 EMI ও পেমেন্ট ক্যালেন্ডার</div>');
@@ -4265,7 +4265,7 @@
                 q("lxBody").innerHTML = h;
 
             }).catch(function (e) {
-                q("lxTitle").textContent = ltr("' + ltr('লোন #') + '") + loanId;
+                q("lxTitle").textContent = ltr('লোন #') + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
