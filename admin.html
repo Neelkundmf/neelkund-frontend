@@ -529,7 +529,7 @@
 
             <div id="stList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
-
+ 
 
         <!-- ---------------- সেটিংস ---------------- -->
         <div class="view" id="v-settings">
@@ -1203,6 +1203,7 @@
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
             if (f) f(true);
+            loadNotif();
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -2367,7 +2368,12 @@
                         (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
                     html += '<div class="end"><span class="b n">' +
                         (ROLE_BN2[u.role] || u.role) + '</span>' +
-                        (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') + '</div>';
+                        (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
+                        '<div style="margin-top:6px;display:flex;gap:6px;">' +
+                        '<button class="btn ghost sm" data-en="' + u.id + '" data-v="' +
+                        (off ? 'true' : 'false') + '">' + ltr(off ? 'চালু' : 'বন্ধ') + '</button>' +
+                        '<button class="btn sm danger" data-del="' + u.id + '">' + ltr('মুছুন') + '</button>' +
+                        '</div></div>';
                     html += '</div>';
                 });
                 html += '</div>';
