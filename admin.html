@@ -671,6 +671,11 @@
             </div>
 
             <div id="acList"></div>
+
+            <div class="card">
+                <h2 style="margin-bottom:14px;">লগইন-লগআউট</h2>
+                <div id="acLogList"><div class="loading">লোড হচ্ছে...</div></div>
+            </div>
         </div>
 
 
@@ -3026,14 +3031,16 @@
         /* =====================================================================
          * লগইন লগ
          * ===================================================================== */
-        function loadLog() {
-            q("logList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+        function renderLoginLog(targetId, silent) {
+            if (silent !== true) {
+                q(targetId).innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            }
 
             NK.GET("/api/admin/audit-logs/logins?page=0&size=60").then(function (r) {
                 var rows = NK.rows(r);
 
                 if (!rows.length) {
-                    q("logList").innerHTML = ltr('<div class="card"><div class="empty">কোনো লগ নেই</div></div>');
+                    q(targetId).innerHTML = ltr('<div class="card"><div class="empty">কোনো লগ নেই</div></div>');
                     return;
                 }
 
@@ -3058,11 +3065,17 @@
                 });
 
                 html += '</div>';
-                q("logList").innerHTML = html;
+                q(targetId).innerHTML = html;
 
             }).catch(function (e) {
-                q("logList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                if (silent !== true) {
+                    q(targetId).innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                }
             });
+        }
+
+        function loadLog(silent) {
+            renderLoginLog("logList", silent);
         }
         /* =====================================================================
        * বেতন
@@ -3623,6 +3636,9 @@
                 });
 
             }).catch(function () {});
+
+            /* লগইন-লগআউট */
+            renderLoginLog("acLogList");
         }
 
         q("ac_go").addEventListener("click", function () {
