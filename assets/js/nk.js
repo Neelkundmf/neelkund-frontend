@@ -362,7 +362,23 @@
         "লগইন করুন": "Log In", "পাসওয়ার্ড বদলান": "Change Password",
         "প্রথমবার ঢুকছেন — নিজের পাসওয়ার্ড বসান": "First time login — set your own password",
         "এখনকার পাসওয়ার্ড": "Current Password", "নতুন পাসওয়ার্ড": "New Password",
-        "নতুন পাসওয়ার্ড আবার": "New Password Again"
+        "নতুন পাসওয়ার্ড আবার": "New Password Again",
+
+        "লোড হচ্ছে...": "Loading...", "সব": "All",
+        "যাতায়াত": "Transport", "বিদ্যুৎ / জল": "Utilities", "বিদ্যুৎ/জল": "Utilities",
+        "অফিস সামগ্রী": "Office Supplies", "অফিস": "Office",
+        "বিজ্ঞাপন": "Marketing", "ইনসেনটিভ": "Incentive", "বিবিধ": "Miscellaneous",
+        "সব ব্রাঞ্চ": "All Branches", "সব মার্কেট": "All Markets",
+        "গ্রাহকের ধাপ": "Customer Stages", "এখনই সব হিসাব করুন": "Recalculate All Now",
+        "কোনো পার্টনার": "No Partner", "পুরুষ": "Male", "মহিলা": "Female", "অন্য": "Other",
+        "রক্তের গ্রুপ": "Blood Group", "যেমন": "e.g.",
+        "মার্কেট বাছুন": "Select Market", "ব্রাঞ্চ বাছুন": "Select Branch",
+        "কর্মী বাছুন": "Select Staff", "এজেন্ট বাছুন": "Select Agent",
+        "কোন পার্টনার": "Which Partner", "বিনিয়োগকারীর নাম": "Investor Name",
+        "নোট": "Note", "খাত": "Category", "রেন্ট": "Rent", "ভাড়া": "Rent",
+        "— নেই —": "— None —", "— বাছুন —": "— Select —",
+        "এই পাতা দেখতে হলে আগে লগইন করতে হবে।": "You need to log in to view this page.",
+        "লগইন পাতায় যান": "Go to Login Page"
     };
 
     function getLang() {
