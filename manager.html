@@ -1807,6 +1807,58 @@
                 h += '<button class="btn block" id="pxSave">' + ltr("Remark সংরক্ষণ করুন") + '</button>';
                 h += '</div>';
 
+                /* KYC ডকুমেন্ট — আধার, প্যান, ভোটার আইডি */
+                h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
+                h += '<h4 style="margin-bottom:12px;">📋 KYC ডকুমেন্ট</h4>';
+
+                /* আধার */
+                if (c.aadhaarPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (সামনে)</div>';
+                    h += '<img src="' + c.aadhaarPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '</div>';
+                }
+                if (c.aadhaarBackPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (পিছনে)</div>';
+                    h += '<img src="' + c.aadhaarBackPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '</div>';
+                }
+
+                /* প্যান */
+                if (c.panPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (সামনে)</div>';
+                    h += '<img src="' + c.panPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '</div>';
+                }
+                if (c.panBackPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (পিছনে)</div>';
+                    h += '<img src="' + c.panBackPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '</div>';
+                }
+
+                /* ভোটার আইডি আপলোড */
+                h += '<div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--line);">';
+                h += '<div style="font-size:12px; color:var(--muted); margin-bottom:10px;">🎫 ভোটার আইডি আপলোড করুন</div>';
+                h += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">';
+                h += '<input type="file" id="pxVoterFront" accept="image/*" placeholder="সামনে" style="padding:8px; border:1px solid var(--line); border-radius:6px; font-size:11px;">';
+                h += '<input type="file" id="pxVoterBack" accept="image/*" placeholder="পিছনে" style="padding:8px; border:1px solid var(--line); border-radius:6px; font-size:11px;">';
+                h += '</div>';
+                h += '<button class="btn block" id="pxUploadVoter" style="margin-top:8px; font-size:12px;">✓ ভোটার আইডি আপলোড</button>';
+                h += '</div>';
+
+                h += '</div>';
+
+                /* Approve/Reject বাটন */
+                if (true) { /* Manager approval section */
+                    h += '<div style="margin-top:20px; display:flex; gap:10px;">';
+                    h += '<button class="btn block" id="pxApproveLoan" style="background:var(--green); color:#fff; font-weight:700;">✓ লোন অনুমোদন করুন</button>';
+                    h += '<button class="btn block" id="pxRejectLoan" style="background:var(--red); color:#fff; font-weight:700;">✗ নাকচ করুন</button>';
+                    h += '</div>';
+                }
+
                 /* সবুজ অংশ */
                 var lastLoan = loans.length ? loans[0] : null;
                 h += '<div class="pf-green">';
@@ -1898,6 +1950,107 @@
                         openLoanDetail(el.getAttribute("data-loan"));
                     });
                 });
+
+                /* ভোটার আইডি আপলোড */
+                var voterUploadBtn = q("pxUploadVoter");
+                if (voterUploadBtn) {
+                    voterUploadBtn.addEventListener("click", function() {
+                        var front = q("pxVoterFront").files[0];
+                        var back = q("pxVoterBack").files[0];
+
+                        if (!front && !back) {
+                            toast("কমপক্ষে একটি ফাইল নির্বাচন করুন", "er");
+                            return;
+                        }
+
+                        voterUploadBtn.disabled = true;
+                        voterUploadBtn.textContent = "আপলোড হচ্ছে...";
+
+                        var uploadCount = 0;
+                        var uploadTotal = (front ? 1 : 0) + (back ? 1 : 0);
+
+                        var onUploadComplete = function() {
+                            uploadCount++;
+                            if (uploadCount === uploadTotal) {
+                                toast("ভোটার আইডি আপলোড হয়েছে ✓", "ok");
+                                voterUploadBtn.disabled = false;
+                                voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
+                                openCustomerProfile(customerId);
+                            }
+                        };
+
+                        if (front) {
+                            var fd = new FormData();
+                            fd.append("file", front);
+                            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=VOTER_ID", fd)
+                                .then(onUploadComplete)
+                                .catch(function(e) {
+                                    toast("আপলোড ব্যর্থ: " + e.message, "er");
+                                    voterUploadBtn.disabled = false;
+                                    voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
+                                });
+                        }
+
+                        if (back) {
+                            var fd = new FormData();
+                            fd.append("file", back);
+                            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=VOTER_ID_BACK", fd)
+                                .then(onUploadComplete)
+                                .catch(function(e) {
+                                    toast("আপলোড ব্যর্থ: " + e.message, "er");
+                                    voterUploadBtn.disabled = false;
+                                    voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
+                                });
+                        }
+                    });
+                }
+
+                /* Loan অনুমোদন */
+                var approveLoanBtn = q("pxApproveLoan");
+                if (approveLoanBtn) {
+                    approveLoanBtn.addEventListener("click", function() {
+                        if (!confirm("এই লোন অনুমোদন করবেন?")) return;
+
+                        approveLoanBtn.disabled = true;
+                        approveLoanBtn.textContent = "অনুমোদন করা হচ্ছে...";
+
+                        NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/approve", {})
+                            .then(function() {
+                                toast("লোন অনুমোদন সম্পন্ন ✓", "ok");
+                                q("profX").classList.remove("on");
+                                loadPendingLoans();
+                            })
+                            .catch(function(e) {
+                                toast("ত্রুটি: " + e.message, "er");
+                                approveLoanBtn.disabled = false;
+                                approveLoanBtn.textContent = "✓ লোন অনুমোদন করুন";
+                            });
+                    });
+                }
+
+                /* Loan নাকচ */
+                var rejectLoanBtn = q("pxRejectLoan");
+                if (rejectLoanBtn) {
+                    rejectLoanBtn.addEventListener("click", function() {
+                        var reason = prompt("নাকচের কারণ লিখুন:");
+                        if (!reason) return;
+
+                        rejectLoanBtn.disabled = true;
+                        rejectLoanBtn.textContent = "নাকচ করা হচ্ছে...";
+
+                        NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/reject", { reason: reason.trim() })
+                            .then(function() {
+                                toast("লোন নাকচ করা হয়েছে", "ok");
+                                q("profX").classList.remove("on");
+                                loadPendingLoans();
+                            })
+                            .catch(function(e) {
+                                toast("ত্রুটি: " + e.message, "er");
+                                rejectLoanBtn.disabled = false;
+                                rejectLoanBtn.textContent = "✗ নাকচ করুন";
+                            });
+                    });
+                }
 
             }).catch(function (e) {
                 q("pxBody").innerHTML = '<div class="card"><div class="empty">' +

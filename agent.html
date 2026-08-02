@@ -3034,13 +3034,36 @@
                         clientCreatedAt: null
                     });
                 })
-                .then(function () {
-                    say("nMsg", NK.getLang() === "en"
-                        ? "✓ Customer added and loan request sent. You can disburse once the manager approves."
-                        : "✓ গ্রাহক যোগ হয়েছে ও লোন অনুরোধ পাঠানো হয়েছে। " +
-                            "ম্যানেজার অনুমোদন করলে টাকা দিতে পারবেন।", true);
-                    toast(ltr("গ্রাহক + লোন অনুরোধ হয়েছে"), "ok");
+                .then(function (loanReq) {
+                    var amountInr = NK.inr(loanReq.principal);
+                    q("pend").classList.add("on");
+                    q("pend").innerHTML = '⏳ ' + ltr("ম্যানেজারের অনুমোদনের অপেক্ষায়") + ' | ' +
+                        '<button onclick="checkLoanApprovalStatus(' + loanReq.id + ')">🔄 ' + ltr("আপডেট") + '</button>';
+
+                    say("nMsg", '<span style="color:var(--muted);">লোন অনুরোধ পাঠানো হয়েছে। ম্যানেজার অনুমোদন করলে আপনি গ্রাহককে <b>₹' + amountInr + '</b> নগদ দিতে পারবেন।</span>', true);
+                    toast(ltr("লোন অনুরোধ পাঠানো হয়েছে"), "ok");
                     clearNewForm();
+
+                    window.pendingLoanId = loanReq.id;
+                    window.pendingAmount = loanReq.principal;
+                    window.pendingCustomerId = newCust.id;
+
+                    var checkTimer = setInterval(function() {
+                        NK.GET("/api/loan-requests/" + loanReq.id)
+                            .then(function(lr) {
+                                if (lr.status === "APPROVED") {
+                                    clearInterval(checkTimer);
+                                    showLoanApprovalSuccess(lr);
+                                } else if (lr.status === "REJECTED") {
+                                    clearInterval(checkTimer);
+                                    q("pend").classList.remove("on");
+                                    say("nMsg", "❌ " + ltr("আপনার লোন নাকচ করা হয়েছে"), false);
+                                }
+                            })
+                            .catch(function(e) {
+                                console.error("Status check:", e);
+                            });
+                    }, 3000);
                 })
                 .catch(function (e) {
                     say("nMsg", e.message, false);
@@ -3701,6 +3724,98 @@
             /* নেট থাকলে জমে থাকা এন্ট্রি পাঠাই */
             if (navigator.onLine) setTimeout(syncNow, 1500);
         });
+
+        /* ===== লোন অনুমোদন UI ===== */
+        window.checkLoanApprovalStatus = function(loanId) {
+            var btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spin"></span> চেক...';
+
+            NK.GET("/api/loan-requests/" + loanId)
+                .then(function(lr) {
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 আপডেট';
+
+                    if (lr.status === "APPROVED") {
+                        showLoanApprovalSuccess(lr);
+                    } else if (lr.status === "REJECTED") {
+                        say("nMsg", "❌ লোন নাকচ করা হয়েছে", false);
+                        q("pend").classList.remove("on");
+                    }
+                })
+                .catch(function(e) {
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 আপডেট';
+                    toast(e.message, "er");
+                });
+        };
+
+        window.showLoanApprovalSuccess = function(loanRequest) {
+            q("pend").classList.remove("on");
+
+            var amountInr = NK.inr(loanRequest.principal || window.pendingAmount);
+            var custId = loanRequest.customerId || window.pendingCustomerId;
+
+            var msg = '<div style="text-align:center; padding:20px;">' +
+                '<div style="font-size:48px; margin-bottom:10px;">🎉</div>' +
+                '<h2 style="color:var(--green); margin:10px 0;">শুভেচ্ছা!</h2>' +
+                '<p style="font-size:16px; margin:15px 0;"><b>আপনার লোন অনুমোদিত হয়েছে</b></p>' +
+                '<div style="background:var(--paper); padding:15px; border-radius:10px; margin:20px 0;">' +
+                '<p style="color:var(--muted); margin:5px 0;">গ্রাহককে নগদ দিন:</p>' +
+                '<p style="font-size:32px; font-weight:800; color:var(--green); margin:10px 0;">₹' + amountInr + '</p>' +
+                '</div>' +
+                '<button class="btn block" onclick="showLoanAgreementUpload(' + custId + ')" style="background:var(--blue); color:#fff;">✓ চুক্তি আপলোড করুন</button>' +
+                '</div>';
+
+            say("nMsg", msg, true);
+            toast("লোন অনুমোদিত হয়েছে! 🎉", "ok");
+        };
+
+        window.showLoanAgreementUpload = function(customerId) {
+            var html = '<div style="position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.6); display:flex; align-items:flex-end;">' +
+                '<div style="width:100%; background:#fff; border-radius:20px 20px 0 0; padding:20px; animation:up .3s ease-out;">' +
+                '<h3 style="margin-bottom:15px;">📋 লোন চুক্তি স্বাক্ষর</h3>' +
+                '<p style="color:var(--muted); margin-bottom:15px;">গ্রাহকের স্বাক্ষরের ছবি আপলোড করুন</p>' +
+                '<input type="file" id="agreementFile" accept="image/*" style="width:100%; padding:10px; border:2px dashed var(--line); border-radius:10px; margin-bottom:15px;">' +
+                '<div style="display:flex; gap:10px;">' +
+                '<button class="btn block" onclick="uploadLoanAgreement(' + customerId + ')" style="background:var(--green); color:#fff;">✓ আপলোড করুন</button>' +
+                '<button class="btn block" onclick="closeLoanAgreementModal()" style="background:var(--paper);">বন্ধ করুন</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        };
+
+        window.closeLoanAgreementModal = function() {
+            var modal = document.querySelector('[style*="position:fixed"][style*="z-index:300"]');
+            if (modal) modal.remove();
+        };
+
+        window.uploadLoanAgreement = function(customerId) {
+            var file = q("agreementFile").files[0];
+            if (!file) {
+                toast("ছবি নির্বাচন করুন", "er");
+                return;
+            }
+
+            var fd = new FormData();
+            fd.append("file", file);
+
+            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=LOAN_AGREEMENT", fd)
+                .then(function() {
+                    closeLoanAgreementModal();
+                    say("nMsg", '<div style="text-align:center; padding:20px;">' +
+                        '<div style="font-size:36px; margin-bottom:10px;">✅</div>' +
+                        '<p><b>লোন চুক্তি আপলোড হয়েছে</b></p>' +
+                        '<p style="color:var(--muted); margin-top:10px;">গ্রাহক এখন লোন পেতে প্রস্তুত</p>' +
+                        '</div>', true);
+                    toast("চুক্তি আপলোড সম্পন্ন ✓", "ok");
+                })
+                .catch(function(e) {
+                    toast("আপলোড ব্যর্থ: " + e.message, "er");
+                });
+        };
 
     })();
 </script>
