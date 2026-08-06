@@ -3000,13 +3000,13 @@
         q("n_go").addEventListener("click", function () {
             hide("nMsg");
 
-            if (!NGPS) {
-                say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন"), false);
+            if (DUP && DUP.id) {
+                sendOldCustomerLoan(DUP);
                 return;
             }
 
-            if (DUP && DUP.id) {
-                sendOldCustomerLoan(DUP);
+            if (!NGPS) {
+                say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন"), false);
                 return;
             }
 
