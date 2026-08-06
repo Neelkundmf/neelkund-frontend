@@ -2970,6 +2970,12 @@
     })();
 </script>
 <script>
+    window.addEventListener("popstate", function (e) {
+        history.pushState(null, null, window.location.pathname);
+    });
+    history.pushState(null, null, window.location.pathname);
+</script>
+<script>
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
             navigator.serviceWorker.register("/sw.js").catch(function () {});

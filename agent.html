@@ -1427,6 +1427,11 @@
         }
         window.addEventListener("pageshow", applyLocalLang);
 
+        window.addEventListener("popstate", function (e) {
+            history.pushState(null, null, window.location.pathname);
+        });
+        history.pushState(null, null, window.location.pathname);
+
         var q = function (id) { return document.getElementById(id); };
 
         function toast(m, kind) {
@@ -2994,6 +2999,11 @@
         });
         q("n_go").addEventListener("click", function () {
             hide("nMsg");
+
+            if (!NGPS) {
+                say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন"), false);
+                return;
+            }
 
             if (DUP && DUP.id) {
                 sendOldCustomerLoan(DUP);
