@@ -1001,6 +1001,16 @@
                     <button type="button" class="pic-btn" id="np_panb">📷</button>
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
+
+                <div style="margin-top:20px;">
+                    <label style="font-weight:600; display:block; margin-bottom:8px;">🎫 ভোটার আইডির ছবি (ঐচ্ছিক)</label>
+                    <div class="pic-row">
+                        <button type="button" class="pic-btn" id="np_voter">📷 সামনে</button>
+                        <button type="button" class="pic-btn" id="np_voterb">📷 পিছনে</button>
+                    </div>
+                    <div class="hint" style="margin:0;">ভোটার আইডির ছবি — সামনে ও পিছন</div>
+                </div>
+
                 <div class="fld"><label>ঠিকানা</label><input id="n_addr"></div>
 
                 <div class="fld">
@@ -2919,9 +2929,11 @@
         bindPic("np_pan",    "PAN");
         bindPic("np_panb",   "PAN_BACK");
         bindPic("np_guar",   "GUARANTOR");
+        bindPic("np_voter",  "VOTER_ID");
+        bindPic("np_voterb", "VOTER_ID_BACK");
 
         /* ছবি ১ তোলার পর ছবি ২ (পিছনের দিক) এমনিতেই খুলে যাবে */
-        var NEXT_PIC = { AADHAAR: "np_aadb", PAN: "np_panb" };
+        var NEXT_PIC = { AADHAAR: "np_aadb", PAN: "np_panb", VOTER_ID: "np_voterb" };
 
         q("picFile").addEventListener("change", function () {
             var f = this.files[0];
@@ -2965,9 +2977,10 @@
         function resetCPics() {
             CPICS = {};
 
-            ["np_selfie", "np_aad", "np_aadb", "np_pan", "np_panb", "np_guar"]
+            ["np_selfie", "np_aad", "np_aadb", "np_pan", "np_panb", "np_guar", "np_voter", "np_voterb"]
                 .forEach(function (id) {
                     var el = q(id);
+                    if (!el) return;
                     el.innerHTML = (id === "np_selfie") ? "👤" : "📷";
                     el.classList.remove("has");
                 });
