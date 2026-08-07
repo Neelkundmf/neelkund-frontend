@@ -364,6 +364,9 @@
     }
 
     /* ---- আগে থেকেই লগইন করা আছে? ---- */
+    // Ensure user must login explicitly - clear any existing session
+    NK.logout();
+
     NK.boot().then(function (r) {
       if (r.ok && r.me) goHome(r.me);
     });

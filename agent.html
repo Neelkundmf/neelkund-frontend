@@ -1851,10 +1851,16 @@
             });
         }
         function openAmtCustomers(amount) {
+            if (!AMT_MKT) {
+                q("amtBody").innerHTML =
+                    '<div class="card"><div class="empty">' + ltr('মার্কেট সেট করুন') + '</div></div>';
+                return;
+            }
+
             q("amtTitle").textContent = AMT_MNAME + " · " + NK.inr(amount);
             q("amtBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
-            NK.GET("/api/agent/my-market/" + (AMT_MKT || "null") +
+            NK.GET("/api/agent/my-market/" + AMT_MKT +
                 "/amount/" + amount + "/customers")
                 .then(function (d) {
                     drawAmtCustomers(d);
@@ -2086,6 +2092,7 @@
         }
 
         function drawCollList() {
+            if (!COLL_ROWS) COLL_ROWS = [];
             var s = q("collSearch").value.trim().toLowerCase();
 
             var list = COLL_ROWS.filter(function (c) {
@@ -2096,8 +2103,9 @@
             });
 
             if (!list.length) {
+                var msg = !s ? ltr('গ্রাহক নেই') : ltr('খুঁজে পাওয়া যায়নি');
                 q("collList").innerHTML =
-                    '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
+                    '<div class="card"><div class="empty">' + msg + '</div></div>';
                 return;
             }
 
@@ -2896,20 +2904,34 @@
                     b.disabled = false;
                     b.textContent = ltr("📍 আবার নিন");
 
-                    var geocoder2 = new google.maps.Geocoder();
-                    geocoder2.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
-                        if (status === "OK" && results[0]) {
-                            q("n_addr").value = results[0].formatted_address;
-                            q("n_loc").innerHTML = ltr('✓ লোকেশন ও ঠিকানা বসানো হয়েছে');
-                        } else {
-                            q("n_loc").innerHTML = ltr('✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)');
-                        }
+                    if (typeof google !== 'undefined' && google.maps) {
+                        var geocoder2 = new google.maps.Geocoder();
+                        geocoder2.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
+                            if (status === "OK" && results[0]) {
+                                q("n_addr").value = results[0].formatted_address;
+                                q("n_loc").innerHTML = ltr('✓ লোকেশন ও ঠিকানা বসানো হয়েছে');
+                            } else {
+                                q("n_loc").innerHTML = ltr('✓ লোকেশন বসানো হয়েছে (ঠিকানা পাওয়া যায়নি)');
+                            }
+                            q("n_loc").style.color = "var(--green)";
+                            toast(ltr("লোকেশন বসানো হল ✓"), "ok");
+                        });
+                    } else {
+                        q("n_loc").innerHTML = ltr('✓ লোকেশন বসানো হয়েছে');
                         q("n_loc").style.color = "var(--green)";
                         toast(ltr("লোকেশন বসানো হল ✓"), "ok");
-                    });
+                    }
                 },
-                function () {
-                    toast(ltr("লোকেশন পাওয়া গেল না — অনুমতি দিন"), "er");
+                function (err) {
+                    var msg = ltr("লোকেশন পাওয়া গেল না");
+                    if (err && err.code === 1) {
+                        msg = ltr("অনুমতি দিন: সেটিংসে অবস্থান চালু করুন");
+                    } else if (err && err.code === 2) {
+                        msg = ltr("অবস্থান উপলব্ধ নেই");
+                    } else if (err && err.code === 3) {
+                        msg = ltr("সময় শেষ — আবার চেষ্টা করুন");
+                    }
+                    toast(msg, "er");
                     b.disabled = false;
                     b.textContent = ltr("📍 লোকেশন নিন");
                 },
