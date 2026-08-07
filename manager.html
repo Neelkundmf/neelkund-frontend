@@ -1261,6 +1261,26 @@
             }
         }
 
+        function pdfDownload(url, fileName) {
+            try {
+                NK.GET(url).then(function (blob) {
+                    var blobUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = blobUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 1500);
+                    toast(ltr("ফাইল ডাউনলোড হয়েছে ✓"), "ok");
+                }).catch(function (e) {
+                    toast(ltr("ডাউনলোড করা গেল না") + ": " + NK.esc(e.message), "er");
+                });
+            } catch (e) {
+                toast(ltr("ডাউনলোড করা গেল না") + ": " + e.message, "er");
+            }
+        }
+
         function todayStamp() {
             var d = new Date();
             return d.getFullYear() + "-" +
@@ -1472,9 +1492,12 @@
                 (m.activeCustomers || 0) + ' ' + ltr("জন") + '</span></div>';
             h += '</div>';
 
-            /* Excel বোতাম — এখন শুধু জায়গা */
+            /* Excel বোতাম */
             h += '<button class="btn block" id="agExcel" style="background:#16A34A;">' +
                 ltr("⬇️ Excel রিপোর্ট ডাউনলোড") + '</button>';
+            /* PDF বোতাম */
+            h += '<button class="btn block" id="agPdf" style="background:#EF4444;">' +
+                ltr("📄 PDF রিপোর্ট ডাউনলোড") + '</button>';
 
             q("agDetBody").innerHTML = h;
 
@@ -1503,6 +1526,10 @@
                 rows.push([ltr("মোট"), tDue, tCol, tOd, tAct]);
 
                 csvDownload("NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
+            });
+
+            q("agPdf").addEventListener("click", function () {
+                pdfDownload("/api/agent/my-today/pdf", "NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".pdf");
             });
         }
         /* =====================================================================
@@ -1597,6 +1624,7 @@
                 h += '</table></div>';
 
                 h += '<button class="rep-dl" id="repDl">' + ltr("⬇️ রিপোর্ট ডাউনলোড") + '</button>';
+                h += '<button class="rep-dl" id="repPdf" style="background:#EF4444;">' + ltr("📄 PDF রিপোর্ট") + '</button>';
 
                 q("reportBox").innerHTML = h;
 
@@ -1657,6 +1685,10 @@
                     }
 
                     csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
+                });
+
+                q("repPdf").addEventListener("click", function () {
+                    pdfDownload("/api/manager/reports/summary/pdf", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".pdf");
                 });
 
             }).catch(function (e) {
