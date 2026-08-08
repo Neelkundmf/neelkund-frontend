@@ -3027,8 +3027,51 @@
                 return;
             }
 
+            // Field-level validation with specific error messages
+            var name = q("n_name").value.trim();
+            var phone = q("n_phone").value.trim();
+            var aad = q("n_aad").value.trim();
+            var pan = q("n_pan").value.trim();
+
+            // Validate name
+            if (!name) {
+                say("nMsg", ltr("নাম দিতে হবে"), false);
+                return;
+            }
+            if (!/^[a-zA-Z\s]+$/.test(name)) {
+                say("nMsg", ltr("নাম শুধুমাত্র অক্ষর হতে পারে (সংখ্যা বা বিশেষ চিহ্ন নয়)"), false);
+                return;
+            }
+
+            // Validate phone
+            if (!phone) {
+                say("nMsg", ltr("ফোন নম্বর দিতে হবে"), false);
+                return;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                say("nMsg", ltr("ফোন নম্বর ঠিক ১০ ডিজিট হতে হবে"), false);
+                return;
+            }
+
+            // Validate aadhaar
+            if (!aad) {
+                say("nMsg", ltr("আধার নম্বর দিতে হবে"), false);
+                return;
+            }
+            if (!/^\d{12}$/.test(aad)) {
+                say("nMsg", ltr("আধার নম্বর ঠিক ১২ ডিজিট হতে হবে"), false);
+                return;
+            }
+
+            // Validate PAN (optional, but if given must be valid)
+            if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+                say("nMsg", ltr("PAN ফরম্যাট ভুল (যেমন: AAAAA1234A)"), false);
+                return;
+            }
+
+            // Validate GPS
             if (!NGPS) {
-                say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন"), false);
+                say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন (অনুমতি দিন)"), false);
                 return;
             }
 
