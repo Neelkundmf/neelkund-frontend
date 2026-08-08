@@ -370,7 +370,7 @@
     }
 
     /* ---- রক্ষণাবেক্ষণ স্ট্যাটাস ---- */
-    fetch("/api/maintenance/status")
+    fetch("https://neelkund-backend.onrender.com/api/maintenance/status")
       .then(function (r) { return r.json(); })
       .then(function (status) {
         if (status.active) {
