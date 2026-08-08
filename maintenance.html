@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEELKUND — রক্ষণাবেক্ষণ</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .maintenance-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        h1 {
+            font-size: 28px;
+            margin: 0 0 10px 0;
+            color: #1f2937;
+        }
+        p {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .footer {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-box">
+        <div class="icon">🔧</div>
+        <h1>রক্ষণাবেক্ষণাধীন</h1>
+        <p>সিস্টেম সাময়িকভাবে রক্ষণাবেক্ষণের জন্য বন্ধ</p>
+        <p style="font-size: 14px;">আমরা শীঘ্রই ফিরে আসব। দয়া করে কিছুক্ষণ অপেক্ষা করুন।</p>
+        <div class="spinner"></div>
+        <div class="footer">
+            NEELKUND Microfinance System
+        </div>
+    </div>
+
+    <script>
+        // প্রতি 2 সেকেন্ডে চেক করব maintenance mode off হয়েছে কিনা
+        setInterval(function() {
+            if (localStorage.getItem('maintenanceMode') !== 'true') {
+                location.href = 'login.html';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

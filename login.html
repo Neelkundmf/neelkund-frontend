@@ -300,6 +300,13 @@
 
 <script src="assets/js/nk.js"></script>
 <script>
+  // রক্ষণাবেক্ষণ মোড চেক
+  if (localStorage.getItem('maintenanceMode') === 'true') {
+    location.href = 'maintenance.html';
+  }
+</script>
+
+<script>
   (function () {
     "use strict";
 

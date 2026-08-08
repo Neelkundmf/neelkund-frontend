@@ -1181,6 +1181,11 @@
 </div>
 <script src="assets/js/nk.js"></script>
 <script>
+    if (localStorage.getItem('maintenanceMode') === 'true') {
+        location.href = 'maintenance.html';
+    }
+</script>
+<script>
     (function () {
         "use strict";
 
