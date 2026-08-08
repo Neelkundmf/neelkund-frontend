@@ -2098,7 +2098,7 @@
             var list = COLL_ROWS.filter(function (c) {
                 if (!s) return true;
                 return (c.customerName || "").toLowerCase().indexOf(s) !== -1
-                    || (c.customerPhone || "").indexOf(s) !== -1
+                    || (c.customerPhone || "").toLowerCase().indexOf(s) !== -1
                     || (c.customerCode || "").toLowerCase().indexOf(s) !== -1;
             });
 
