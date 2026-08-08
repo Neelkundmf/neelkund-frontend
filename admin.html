@@ -2904,10 +2904,12 @@
                         var end = q("endTime").value;
                         if (!start || !end) { toast(ltr('সময় দিন'), "er"); return; }
                         var msg = q("message").value;
-                        var params = "?startTime=" + encodeURIComponent(new Date(start).toISOString()) +
-                                    "&endTime=" + encodeURIComponent(new Date(end).toISOString()) +
-                                    (msg ? "&message=" + encodeURIComponent(msg) : "");
-                        NK.POST("/api/maintenance/schedule" + params, {}).then(function() {
+                        var payload = {
+                            startTime: new Date(start).toISOString(),
+                            endTime: new Date(end).toISOString(),
+                            message: msg || null
+                        };
+                        NK.POST("/api/maintenance/schedule", payload).then(function() {
                             toast(ltr('সংনির্ধারিত ✓'), "ok");
                             setTimeout(function() { loadSettings(); }, 1000);
                         }).catch(function(e) { toast(e.message, "er"); });
