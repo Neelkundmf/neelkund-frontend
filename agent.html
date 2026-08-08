@@ -923,6 +923,7 @@
     </div>
 
     <div id="off">📡 ইন্টারনেট নেই — এন্ট্রি ফোনে জমা থাকবে</div>
+    <div id="maint" style="display:none;position:sticky;top:58px;z-index:40;padding:10px 16px;background:rgba(239,68,68,0.9);color:#fff;font-size:13px;font-weight:600;text-align:center;">🔧 সিস্টেম রক্ষণাবেক্ষণ চলছে</div>
     <div id="pend">
         <span id="pendTxt">০টি এন্ট্রি অপেক্ষা করছে</span>
         <button id="sync">🔄 পাঠান</button>
@@ -3834,6 +3835,13 @@
                 q("app").remove();
                 return;
             }
+
+            // Check maintenance status
+            NK.GET("/api/maintenance/status").then(function (status) {
+                if (status.active) {
+                    q("maint").style.display = "block";
+                }
+            }).catch(function () {});
 
             var u = r.me;
 
