@@ -912,6 +912,15 @@
             <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <div class="view" id="v-exp">
+            <div style="padding:14px;margin-bottom:14px;background:var(--card);border-radius:12px;">
+                <div style="display:grid;gap:10px;grid-template-columns:repeat(2,1fr);font-size:12px;">
+                    <div><label style="color:var(--muted);">ধরন</label><select id="expType" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:12px;"><option value="">সব</option><option value="SALARY">বেতন</option><option value="RENT">ভাড়া</option><option value="TRANSPORT">যাতায়াত</option><option value="UTILITIES">বিদ্যুৎ/জল</option><option value="OFFICE_SUPPLIES">অফিস</option><option value="MARKETING">বিজ্ঞাপন</option><option value="MISCELLANEOUS">বিবিধ</option></select></div>
+                </div>
+            </div>
+            <div id="expList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
     </div>
 
     <div class="tabs">
@@ -922,6 +931,7 @@
         <button data-v="cust"><i>🧑‍🤝‍🧑</i>গ্রাহক</button>
         <button data-v="od"><i>⛔</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
+        <button data-v="exp"><i>💸</i>খরচ</button>
     </div>
 </div>
 
@@ -3005,6 +3015,31 @@
 
             loadDash();
             loadNotif();
+
+            // Expense tab click
+            var expBtn = document.querySelector('button[data-v="exp"]');
+            if (expBtn) {
+                expBtn.addEventListener("click", function() {
+                    var type = q("expType").value;
+                    q("expList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+                    var url = type ? "/api/expenses?type=" + type : "/api/expenses";
+                    NK.GET(url).then(function(list) {
+                        var rows = NK.rows(list);
+                        var html = '';
+                        rows.forEach(function(r) {
+                            var date = NK.dt(r.date);
+                            var amt = NK.inr(r.amount);
+                            html += '<div class="row" style="padding:12px;border-bottom:1px solid var(--line);">';
+                            html += '<div><div style="font-size:13px;font-weight:600;">' + (r.description || r.type) + '</div>';
+                            html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date + '</div></div>';
+                            html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
+                            html += '</div>';
+                        });
+                        if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">কোনো খরচ নেই</div>';
+                        q("expList").innerHTML = html;
+                    }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">Error: ' + e.message + '</div>'; });
+                });
+            }
         });
 
     })();
