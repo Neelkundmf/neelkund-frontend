@@ -1261,6 +1261,29 @@
             }
         }
 
+        function excelDownload(url, fileName) {
+            try {
+                fetch(url)
+                    .then(r => r.blob())
+                    .then(blob => {
+                        var blobUrl = URL.createObjectURL(blob);
+                        var a = document.createElement("a");
+                        a.href = blobUrl;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 1500);
+                        toast(ltr("ফাইল ডাউনলোড হয়েছে ✓"), "ok");
+                    })
+                    .catch(e => {
+                        toast(ltr("ডাউনলোড করা গেল না") + ": " + NK.esc(e.message), "er");
+                    });
+            } catch (e) {
+                toast(ltr("ডাউনলোড করা গেল না") + ": " + e.message, "er");
+            }
+        }
+
         function todayStamp() {
             var d = new Date();
             return d.getFullYear() + "-" +
@@ -1596,7 +1619,8 @@
                 }
                 h += '</table></div>';
 
-                h += '<button class="rep-dl" id="repDl">' + ltr("⬇️ রিপোর্ট ডাউনলোড") + '</button>';
+                h += '<button class="rep-dl" id="repDl" style="background:#10B981;">' + ltr("📥 CSV রিপোর্ট") + '</button>';
+                h += '<button class="rep-dl" id="repXl" style="background:#3B82F6;">' + ltr("📊 Excel রিপোর্ট") + '</button>';
 
                 q("reportBox").innerHTML = h;
 
@@ -1657,6 +1681,10 @@
                     }
 
                     csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
+                });
+
+                q("repXl").addEventListener("click", function () {
+                    excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
                 });
 
             }).catch(function (e) {
