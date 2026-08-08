@@ -3635,6 +3635,23 @@
             q("prof").classList.remove("on");
         });
 
+        function maskSensitiveInfo(value, type, isAdmin) {
+            if (!value) return "—";
+            var strVal = String(value);
+            // Admin/Manager দেখায় full, Agent দেখায় masked
+            if (isAdmin) {
+                return NK.esc(strVal);
+            }
+            // Agent-এর জন্য star mask
+            if (type === "aadhar" && strVal.length >= 4) {
+                return "****" + strVal.slice(-4);
+            }
+            if (type === "pan" && strVal.length >= 4) {
+                return "****" + strVal.slice(-4);
+            }
+            return "****";
+        }
+
         function openCustomerProfile(customerId) {
             q("prof").classList.add("on");
             q("pfCid").textContent = ltr("লোড হচ্ছে...");
@@ -3643,6 +3660,8 @@
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
                 var c = p.customer || {};
                 var loans = p.loans || [];
+                var me = NK.me();
+                var isAdmin = me && (me.role === "ADMIN" || me.role === "PARTNER" || me.role === "MANAGER");
 
                 q("pfCid").textContent = c.customerCode || "—";
 
@@ -3651,7 +3670,7 @@
                 var h = "";
 
                 h += '<div class="pf-head">';
-                h += '<div class="pf-photo" id="pfPhoto"' +
+                h += '<div class="pf-photo" id="pfPhoto" style="cursor:pointer;position:relative;" title="' + ltr('টাচ করে বড় করুন') + '"' +
                     (c.photoUrl ? ' data-photo="' + customerId + '"' : '') + '>' + initial + '</div>';
                 h += '<div class="pf-info">';
                 h += '<div class="nm">' + NK.esc(c.fullName || "—") + '</div>';
@@ -3661,6 +3680,16 @@
                 if (c.address)
                     h += '<div class="li"><span>🏠</span><b>' + NK.esc(c.address) + '</b></div>';
                 h += '</div></div>';
+
+                // Aadhar/PAN details সহ star masking
+                h += '<div class="card" style="padding:12px;">';
+                h += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;"><b>📋 ' + ltr('নথিপত্র') + '</b></div>';
+                h += '<div class="li"><span>🆔</span><span style="font-size:13px;">' + ltr('আধার') + ': <b>' + maskSensitiveInfo(c.aadhaarNumber, "aadhar", isAdmin) + '</b></span></div>';
+                h += '<div class="li"><span>💳</span><span style="font-size:13px;">' + ltr('প্যান') + ': <b>' + maskSensitiveInfo(c.panNumber, "pan", isAdmin) + '</b></span></div>';
+                if (!isAdmin) {
+                    h += '<div style="font-size:11px;color:var(--amber);margin-top:6px;">⭐ ' + ltr('অতিরিক্ত বিবরণ এজেন্টের জন্য লুকানো') + '</div>';
+                }
+                h += '</div>';
 
                 if (c.mapsUrl) {
                     h += '<a href="' + NK.esc(c.mapsUrl) + '" target="_blank" rel="noopener" ' +
@@ -3728,12 +3757,28 @@
 
                 q("pfBody").innerHTML = h;
 
+                // Photo enlarge handler
                 var pe = q("pfPhoto");
                 if (pe && pe.getAttribute("data-photo")) {
                     NK.GET("/api/customers/" + pe.getAttribute("data-photo") + "/photo").then(function (blob) {
                         if (!blob) return;
                         pe.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
                         pe.textContent = "";
+
+                        // Photo click করে enlarge করা
+                        pe.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            var modal = document.createElement("div");
+                            modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;";
+                            var img = document.createElement("img");
+                            img.src = pe.style.backgroundImage.slice(5, -2); // url(...) থেকে url বের করা
+                            img.style.cssText = "max-width:90%;max-height:90%;border-radius:8px;";
+                            modal.appendChild(img);
+                            modal.addEventListener("click", function () {
+                                modal.remove();
+                            });
+                            document.body.appendChild(modal);
+                        });
                     }).catch(function () {});
                 }
 
