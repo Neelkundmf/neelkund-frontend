@@ -260,6 +260,7 @@
     <p class="sub">ফোন নম্বর আর পাসওয়ার্ড দিয়ে ঢুকুন</p>
 
     <div id="offline">📡 ইন্টারনেট নেই — সংযোগ দেখে নিন</div>
+    <div id="maintMsg" style="display:none;background:rgba(239,68,68,0.1);border:1.5px solid var(--red);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.6;color:#7f1d1d;"></div>
 
     <div class="msg" id="err"></div>
 
@@ -367,6 +368,21 @@
       }
       window.location.replace(NK.homeFor(user.role));
     }
+
+    /* ---- রক্ষণাবেক্ষণ স্ট্যাটাস ---- */
+    fetch("/api/maintenance/status")
+      .then(function (r) { return r.json(); })
+      .then(function (status) {
+        if (status.active) {
+          var msg = status.message || "সিস্টেম রক্ষণাবেক্ষণ চলছে। কিছুক্ষণ পর চেষ্টা করুন।";
+          var endTime = new Date(status.endTime);
+          msg += " · পুনরায় চেষ্টা: " + endTime.toLocaleTimeString("bn-BD");
+          q("maintMsg").textContent = "🔧 " + msg;
+          q("maintMsg").style.display = "block";
+          q("go").disabled = true;
+        }
+      })
+      .catch(function () {});
 
     /* ---- আগে থেকেই লগইন করা আছে? ---- */
     // Ensure user must login explicitly - clear any existing session
