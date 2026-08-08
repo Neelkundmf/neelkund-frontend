@@ -781,10 +781,8 @@
 </div>
 <script src="assets/js/nk.js?v=2"></script>
 <script>
-    // রক্ষণাবেক্ষণ মোড চেক
-    if (localStorage.getItem('maintenanceMode') === 'true') {
-        location.href = 'maintenance.html';
-    }
+    // রক্ষণাবেক্ষণ স্ট্যাটাস চেক (প্যানেল-এ দেখাবে)
+    // API-based maintenance - maintenance.html এখন ব্যবহার হবে না
 </script>
 <script>
     (function () {
@@ -2864,22 +2862,36 @@
         function loadSettings() {
             q("setList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
-            // Maintenance mode toggle
+            // Scheduled maintenance section
             var maintenanceHtml = '';
-            var isMaintenance = localStorage.getItem('maintenanceMode') === 'true';
-            maintenanceHtml += '<div class="card" style="padding:14px;background:' +
-                (isMaintenance ? 'rgba(239,68,68,0.1);border:1.5px solid var(--red);' : 'rgba(34,197,94,0.1);border:1.5px solid var(--green);') + '">';
-            maintenanceHtml += '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">🔧 ' + ltr('রক্ষণাবেক্ষণ মোড') + '</div>';
-            maintenanceHtml += '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">' +
-                (isMaintenance ? ltr('সিস্টেম বন্ধ — সব ব্যবহারকারী রক্ষণাবেক্ষণ পৃষ্ঠা দেখবেন') : ltr('সিস্টেম চালু — স্বাভাবিক কাজ চলছে')) + '</div>';
-            maintenanceHtml += '<button class="btn" id="maintToggle" style="width:100%;background:' +
-                (isMaintenance ? 'var(--red)' : 'var(--green)') + ';color:white;">' +
-                (isMaintenance ? ltr('🟢 চালু করুন') : ltr('🔴 বন্ধ করুন')) + '</button>';
+            maintenanceHtml += '<div class="card" style="padding:16px;background:rgba(99,102,241,0.1);border:1.5px solid var(--blue);">';
+            maintenanceHtml += '<div style="font-size:14px;font-weight:600;margin-bottom:12px;">🔧 ' + ltr('সময়সূচীবদ্ধ রক্ষণাবেক্ষণ') + '</div>';
+            maintenanceHtml += '<div id="maintStatus" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>';
+
+            maintenanceHtml += '<div style="display:grid;gap:12px;margin-bottom:12px;">';
+            maintenanceHtml += '<div>';
+            maintenanceHtml += '<label style="font-size:12px;color:var(--muted);">' + ltr('শুরু সময়') + '</label>';
+            maintenanceHtml += '<input type="datetime-local" id="maintStart" style="width:100%;min-height:40px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;">';
+            maintenanceHtml += '</div>';
+            maintenanceHtml += '<div>';
+            maintenanceHtml += '<label style="font-size:12px;color:var(--muted);">' + ltr('শেষ সময়') + '</label>';
+            maintenanceHtml += '<input type="datetime-local" id="maintEnd" style="width:100%;min-height:40px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;">';
+            maintenanceHtml += '</div>';
+            maintenanceHtml += '<div>';
+            maintenanceHtml += '<label style="font-size:12px;color:var(--muted);">' + ltr('বার্তা') + '</label>';
+            maintenanceHtml += '<input type="text" id="maintMsg" placeholder="' + ltr('ঐচ্ছিক...') + '" style="width:100%;min-height:40px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;">';
+            maintenanceHtml += '</div>';
+            maintenanceHtml += '</div>';
+
+            maintenanceHtml += '<div style="display:flex;gap:8px;">';
+            maintenanceHtml += '<button class="btn" id="maintSchedule" style="flex:1;background:var(--blue);color:white;">' + ltr('সময়সূচী করুন') + '</button>';
+            maintenanceHtml += '<button class="btn" id="maintCompleteBtn" style="flex:1;background:var(--green);color:white;display:none;">' + ltr('সম্পন্ন করুন') + '</button>';
+            maintenanceHtml += '</div>';
             maintenanceHtml += '</div>';
 
             NK.GET("/api/admin/settings").then(function (list) {
                 var rows = NK.rows(list);
-                var html = maintenanceHtml; // শুরুতে maintenance toggle
+                var html = maintenanceHtml; // শুরুতে maintenance section
 
                 rows.forEach(function (s) {
                     html += '<div class="card" style="padding:14px;">';
@@ -2901,15 +2913,62 @@
 
                 q("setList").innerHTML = html;
 
-                // Maintenance toggle handler
-                var maintBtn = q("maintToggle");
-                if (maintBtn) {
-                    maintBtn.addEventListener("click", function () {
-                        var current = localStorage.getItem('maintenanceMode') === 'true';
-                        var newVal = !current;
-                        localStorage.setItem('maintenanceMode', newVal);
-                        toast(newVal ? ltr('রক্ষণাবেক্ষণ মোড চালু হয়েছে') : ltr('রক্ষণাবেক্ষণ মোড বন্ধ হয়েছে'), "ok");
-                        setTimeout(function () { location.reload(); }, 1000);
+                // Maintenance status check
+                NK.GET("/api/maintenance/status").then(function (status) {
+                    var msg = '';
+                    if (status.active) {
+                        msg = ltr('🔴 চলছে: ') + NK.dt(new Date(status.startTime)) + ' → ' + NK.dt(new Date(status.endTime));
+                        q("maintCompleteBtn").style.display = "inline-flex";
+                    } else if (status.scheduled) {
+                        msg = ltr('⏰ আসছে: ') + NK.dt(new Date(status.startTime)) + ' → ' + NK.dt(new Date(status.endTime));
+                    } else {
+                        msg = ltr('✅ কোনো রক্ষণাবেক্ষণ নির্ধারিত নেই');
+                    }
+                    q("maintStatus").textContent = msg;
+                }).catch(function () {});
+
+                // Schedule button
+                var schedBtn = q("maintSchedule");
+                if (schedBtn) {
+                    schedBtn.addEventListener("click", function () {
+                        var start = q("maintStart").value;
+                        var end = q("maintEnd").value;
+                        var msg = q("maintMsg").value;
+
+                        if (!start || !end) {
+                            toast(ltr('শুরু এবং শেষ সময় দিন'), "er");
+                            return;
+                        }
+
+                        var startIso = new Date(start).toISOString();
+                        var endIso = new Date(end).toISOString();
+
+                        NK.POST("/api/maintenance/schedule", {
+                            startTime: startIso,
+                            endTime: endIso,
+                            autoExtendMinutes: 30,
+                            message: msg || null
+                        }).then(function () {
+                            toast(ltr('রক্ষণাবেক্ষণ সময়সূচী করা হয়েছে ✓'), "ok");
+                            setTimeout(function () { loadSettings(); }, 1000);
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                        });
+                    });
+                }
+
+                // Complete button
+                var completeBtn = q("maintCompleteBtn");
+                if (completeBtn) {
+                    completeBtn.addEventListener("click", function () {
+                        if (!confirm(ltr('রক্ষণাবেক্ষণ এখনই শেষ করবেন?'))) return;
+
+                        NK.POST("/api/maintenance/complete", {}).then(function () {
+                            toast(ltr('রক্ষণাবেক্ষণ সম্পন্ন হয়েছে ✓'), "ok");
+                            setTimeout(function () { loadSettings(); }, 1000);
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                        });
                     });
                 }
 
