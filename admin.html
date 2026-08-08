@@ -2870,47 +2870,45 @@
                     var now = new Date();
                     var mins = Math.floor((endTime - now) / 60000);
                     html = '<div class="card" style="padding:14px;background:rgba(239,68,68,0.1);border:1.5px solid var(--red);">';
-                    html += '<div style="font-size:13px;font-weight:600;color:var(--red);">🔴 ' + ltr('চলছে') + '</div>';
-                    html += '<div style="font-size:12px;color:var(--muted);margin-top:6px;">' + NK.dt(endTime) + ' পর্যন্ত · ' + mins + ' মিনিট বাকি</div>';
-                    html += '<button class="btn sm" id="completeBtn" style="margin-top:8px;background:var(--green);color:white;width:100%;">' + ltr('সম্পন্ন করুন') + '</button>';
+                    html += '<div style="font-size:13px;font-weight:600;color:var(--red);">🔴 চলছে</div>';
+                    html += '<div style="font-size:12px;color:var(--muted);margin-top:6px;">সময়: ' + NK.dtTime(endTime) + ' পর্যন্ত</div>';
+                    html += '<div style="font-size:12px;color:var(--red);margin-top:4px;font-weight:600;">⏱ ' + mins + ' মিনিট বাকি</div>';
+                    html += '<button class="btn sm" id="stopBtn" style="margin-top:10px;background:var(--green);color:white;width:100%;">● STOP</button>';
                     html += '</div>';
                 } else {
                     html = '<div class="card" style="padding:14px;">';
-                    html += '<div style="font-size:13px;font-weight:600;">🔧 ' + ltr('রক্ষণাবেক্ষণ সংনির্ধারণ') + '</div>';
+                    html += '<div style="font-size:13px;font-weight:600;">🔧 রক্ষণাবেক্ষণ শুরু করুন</div>';
                     html += '<div style="display:grid;gap:10px;margin-top:12px;">';
-                    html += '<div><label style="font-size:11px;color:var(--muted);">' + ltr('শুরু') + '</label>';
-                    html += '<input type="datetime-local" id="startTime" style="width:100%;min-height:36px;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;"></div>';
-                    html += '<div><label style="font-size:11px;color:var(--muted);">' + ltr('শেষ') + '</label>';
-                    html += '<input type="datetime-local" id="endTime" style="width:100%;min-height:36px;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;"></div>';
-                    html += '<div><label style="font-size:11px;color:var(--muted);">' + ltr('বার্তা') + '</label>';
-                    html += '<input type="text" id="message" placeholder="' + ltr('ঐচ্ছিক') + '" style="width:100%;min-height:36px;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;"></div>';
+                    html += '<div><label style="font-size:11px;color:var(--muted);">সময় (ঘণ্টা)</label>';
+                    html += '<select id="durationHours" style="width:100%;min-height:36px;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;">';
+                    html += '<option value="">নির্বাচন করুন</option>';
+                    html += '<option value="1">1 ঘণ্টা</option>';
+                    html += '<option value="2">2 ঘণ্টা</option>';
+                    html += '<option value="3">3 ঘণ্টা</option>';
+                    html += '<option value="4">4 ঘণ্টা</option>';
+                    html += '<option value="6">6 ঘণ্টা</option>';
+                    html += '<option value="8">8 ঘণ্টা</option>';
+                    html += '</select></div>';
                     html += '</div>';
-                    html += '<button class="btn sm" id="scheduleBtn" style="margin-top:10px;background:var(--blue);color:white;width:100%;">' + ltr('সংনির্ধারণ করুন') + '</button>';
+                    html += '<button class="btn sm" id="startBtn" style="margin-top:10px;background:var(--blue);color:white;width:100%;">▶ START</button>';
                     html += '</div>';
                 }
                 q("setList").innerHTML = html;
 
-                if (status.active && q("completeBtn")) {
-                    q("completeBtn").addEventListener("click", function() {
-                        if (!confirm(ltr('এখনই সম্পন্ন করবেন?'))) return;
-                        NK.POST("/api/maintenance/1/complete", {}).then(function() {
-                            toast(ltr('সম্পন্ন ✓'), "ok");
+                if (status.active && q("stopBtn")) {
+                    q("stopBtn").addEventListener("click", function() {
+                        if (!confirm("সাথে সাথে maintenance বন্ধ করবেন?")) return;
+                        NK.POST("/api/maintenance/stop", {}).then(function() {
+                            toast("বন্ধ হয়েছে ✓", "ok");
                             setTimeout(function() { loadSettings(); }, 1000);
                         }).catch(function(e) { toast(e.message, "er"); });
                     });
-                } else if (q("scheduleBtn")) {
-                    q("scheduleBtn").addEventListener("click", function() {
-                        var start = q("startTime").value;
-                        var end = q("endTime").value;
-                        if (!start || !end) { toast(ltr('সময় দিন'), "er"); return; }
-                        var msg = q("message").value;
-                        var payload = {
-                            startTime: new Date(start).toISOString(),
-                            endTime: new Date(end).toISOString(),
-                            message: msg || null
-                        };
-                        NK.POST("/api/maintenance/schedule", payload).then(function() {
-                            toast(ltr('সংনির্ধারিত ✓'), "ok");
+                } else if (q("startBtn")) {
+                    q("startBtn").addEventListener("click", function() {
+                        var hours = q("durationHours").value;
+                        if (!hours) { toast("সময় নির্বাচন করুন", "er"); return; }
+                        NK.POST("/api/maintenance/start?hours=" + hours, {}).then(function() {
+                            toast("শুরু হয়েছে ✓", "ok");
                             setTimeout(function() { loadSettings(); }, 1000);
                         }).catch(function(e) { toast(e.message, "er"); });
                     });

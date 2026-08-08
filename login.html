@@ -369,26 +369,22 @@
       window.location.replace(NK.homeFor(user.role));
     }
 
-    /* ---- রক্ষণাবেক্ষণ স্ট্যাটাস ---- */
-    fetch("https://neelkund-backend.onrender.com/api/maintenance/status")
-      .then(function (r) { return r.json(); })
-      .then(function (status) {
-        if (status.active) {
-          var msg = status.message || "সিস্টেম রক্ষণাবেক্ষণ চলছে। কিছুক্ষণ পর চেষ্টা করুন।";
-          var endTime = new Date(status.endTime);
-          msg += " · পুনরায় চেষ্টা: " + endTime.toLocaleTimeString("bn-BD");
-          q("maintMsg").textContent = "🔧 " + msg;
-          q("maintMsg").style.display = "block";
-          q("go").disabled = true;
-        }
-      })
-      .catch(function () {});
-
     /* ---- আগে থেকেই লগইন করা আছে? ---- */
     // Ensure user must login explicitly - clear any existing session
     NK.logout();
 
     NK.boot().then(function (r) {
+      // Check maintenance status
+      NK.GET("/api/maintenance/status").then(function (status) {
+        if (status.active) {
+          var endTime = new Date(status.endTime);
+          var time = endTime.toLocaleTimeString("bn-BD");
+          q("maintMsg").textContent = "🔧 সিস্টেম রক্ষণাবেক্ষণ চলছে · সময়: " + time + " পর্যন্ত";
+          q("maintMsg").style.display = "block";
+          q("go").disabled = true;
+        }
+      }).catch(function () {});
+
       if (r.ok && r.me) goHome(r.me);
     });
 
