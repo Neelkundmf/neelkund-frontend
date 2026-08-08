@@ -260,7 +260,6 @@
     <p class="sub">ফোন নম্বর আর পাসওয়ার্ড দিয়ে ঢুকুন</p>
 
     <div id="offline">📡 ইন্টারনেট নেই — সংযোগ দেখে নিন</div>
-    <div id="maintMsg" style="display:none;background:rgba(239,68,68,0.15);border:1.5px solid var(--red);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.5;"></div>
 
     <div class="msg" id="err"></div>
 
@@ -310,16 +309,6 @@
     "use strict";
 
     var q = function (id) { return document.getElementById(id); };
-
-    /* ---- রক্ষণাবেক্ষণ স্ট্যাটাস চেক ---- */
-    NK.GET("/api/maintenance/status").then(function (status) {
-      if (status.active) {
-        var remainingMin = Math.floor((new Date(status.endTime).getTime() - Date.now()) / 60000);
-        var msg = '🔧 ' + (status.message || 'সিস্টেম রক্ষণাবেক্ষণাধীন') + '\n⏰ ' + NK.dt(new Date(status.startTime)) + ' থেকে ' + NK.dt(new Date(status.endTime)) + '\n⏳ প্রায় ' + remainingMin + ' মিনিট বাকি';
-        q("maintMsg").textContent = msg;
-        q("maintMsg").style.display = "block";
-      }
-    }).catch(function () {});
 
     /* ---- ভাষা বাটন ---- */
     Array.prototype.forEach.call(q("langsw").querySelectorAll("button"), function (b) {
