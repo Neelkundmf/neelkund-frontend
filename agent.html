@@ -889,6 +889,66 @@
         .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
         .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
 
+        /* ---- দৈনিক রিপোর্ট ---- */
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .report-stat-card {
+            background: linear-gradient(135deg, #0F2942, #1B3B5C);
+            border-radius: 14px;
+            padding: 16px;
+            color: #fff;
+        }
+        .report-stat-card .l {
+            font-size: 12px;
+            opacity: .8;
+            margin-bottom: 6px;
+        }
+        .report-stat-card .v {
+            font-family: 'Manrope', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .report-list {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+        }
+        .report-list .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+        .report-list .item:last-child {
+            border-bottom: 0;
+        }
+        .report-list .name {
+            font-weight: 600;
+        }
+        .report-list .phone {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .report-list .due {
+            text-align: right;
+            font-weight: 700;
+        }
+        .report-list .due.paid {
+            color: #16A34A;
+        }
+        .report-list .due.unpaid {
+            color: var(--red);
+        }
+
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -1087,12 +1147,41 @@
             <div id="blackList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- --------- আমার গ্রাহক --------- -->
+        <div class="view" id="v-mycust">
+            <div class="search">
+                <span class="ic">🔍</span>
+                <input id="myq" type="search" placeholder="নাম / ফোন / CUST ID খুঁজুন">
+            </div>
+
+            <div class="chips" id="mytabs">
+                <button class="on" data-t="ACTIVE">চলমান</button>
+                <button data-t="COMPLETED">শোধ</button>
+                <button data-t="ALL">সব</button>
+            </div>
+
+            <div id="myList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- --------- দৈনিক রিপোর্ট --------- -->
+        <div class="view" id="v-report">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">📊 দৈনিক রিপোর্ট</h2>
+                <div id="reportStats" class="report-stats"></div>
+            </div>
+
+            <div id="reportBody"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <button class="btn block" id="reportDownload" style="margin:16px;">📥 দৈনিক রিপোর্ট ডাউনলোড করুন</button>
+        </div>
+
     </div>
 
     <div class="tabs">
         <button class="on" data-v="today"><i>📋</i>আজ</button>
         <button data-v="coll"><i>💰</i>কালেকশন</button>
-        <button data-v="cust"><i>👤</i>গ্রাহক</button>
+        <button data-v="mycust"><i>👥</i>আমার গ্রাহক</button>
+        <button data-v="report"><i>📊</i>রিপোর্ট</button>
         <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
@@ -1387,7 +1476,21 @@
             "কোনো লোন নেই": "No loans",
             "ক্লোজ:": "Closed:",
             "নতুন কোনো খবর নেই": "No new updates",
-            "কিস্তি": "Installments"
+            "কিস্তি": "Installments",
+            "আমার গ্রাহক": "My Customers",
+            "দৈনিক রিপোর্ট": "Daily Report",
+            "পরিশোধের অবস্থা": "Repayment Status",
+            "ব্ল্যাকলিস্ট": "Blacklisted",
+            "নতুন লোন দেওয়া যাবে না": "Cannot give a new loan",
+            "দিন বেশি দেয়নি": "days overdue",
+            "সিস্টেম অফিস সময়ের বাইরে বন্ধ (সকাল ৮টা - রাত ১০টা)": "System closed outside office hours (8am-10pm)",
+            "চলমান লোন": "Active Loans",
+            "আজ সংগৃহীত": "Collected Today",
+            "মোট বাকি": "Total Due",
+            "অ্যাডভান্স প্রাপ্য": "Advance Balance",
+            "অপরিশোধিত গ্রাহক": "Unpaid Customers",
+            "সব গ্রাহক শোধ করেছেন!": "All customers paid!",
+            "দৈনিক রিপোর্ট ডাউনলোড করুন": "Download Daily Report"
         };
 
         /** এই পাতার লেখার জন্য — ltr("গ্রাহকের কোড") */
@@ -1541,7 +1644,8 @@
          * পাতা বদল
          * ===================================================================== */
         var TITLES = {
-            today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", new: "নতুন গ্রাহক",
+            today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
+            report: "দৈনিক রিপোর্ট", new: "নতুন গ্রাহক",
             black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
         };
         var loaded = {};
@@ -1550,8 +1654,8 @@
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
-            today: loadToday, coll: refreshCollView, cust: loadCust,
-            black: loadBlack, sheet: loadSheet
+            today: loadToday, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
+            report: loadReport, black: loadBlack, sheet: loadSheet
         };
 
         function show(key) {
@@ -1573,6 +1677,8 @@
                 if (key === "today") loadToday();
                 if (key === "coll")  loadColl();
                 if (key === "cust")  loadCust();
+                if (key === "mycust") loadMyCust();
+                if (key === "report") loadReport();
                 if (key === "black") loadBlack();
                 if (key === "sheet") loadSheet();
             }
@@ -2115,14 +2221,37 @@
 
             var h = "";
             list.forEach(function (c) {
-                h += '<div class="colcard" data-pay="' + c.loanId +
-                    '" data-name="' + NK.esc(c.customerName) + '" data-amt="">';
+                // Color coding for payment delay
+                var daysLate = Number(c.daysLate || 0);
+                var delayClass = "";
+                var delayColor = "";
+                if (daysLate === 0) {
+                    delayColor = "";
+                } else if (daysLate === 1) {
+                    delayColor = "#FEF9E7";
+                    delayClass = "delay-1day";
+                } else if (daysLate >= 2) {
+                    delayColor = "#FEE2E2";
+                    delayClass = "delay-2plus";
+                }
+
+                h += '<div class="colcard ' + delayClass + '" data-pay="' + c.loanId +
+                    '" data-name="' + NK.esc(c.customerName) + '" data-amt=""' +
+                    (delayColor ? ' style="background:' + delayColor + ';"' : '') + '>';
 
                 h += '<div class="top">';
                 h += '<div><div class="nm">' + NK.esc(c.customerName) + '</div>' +
                     '<div class="ph">' + NK.esc(c.customerPhone || "—") +
                     (c.customerCode ? ' · ' + NK.esc(c.customerCode) : '') + '</div></div>';
-                h += '<div class="amt">' + ltr('লোন') + ' <b>' + NK.inr(c.loanAmount) + '</b>' +
+
+                var amtColor = "";
+                if (daysLate === 1) {
+                    amtColor = "color:#B45309;";
+                } else if (daysLate >= 2) {
+                    amtColor = "color:#B91C1C;";
+                }
+
+                h += '<div class="amt" style="' + amtColor + '">' + ltr('লোন') + ' <b>' + NK.inr(c.loanAmount) + '</b>' +
                     '<span class="emi">EMI ₹' + Number(c.emiAmount).toFixed(0) + '</span></div>';
                 h += '</div>';
 
@@ -3416,6 +3545,217 @@
         }
 
         /* =====================================================================
+         * আমার গ্রাহক
+         * ===================================================================== */
+        var MY_CUST_ALL = [];
+        var myCustTimer;
+
+        function loadMyCust(silent) {
+            if (silent !== true) {
+                q("myList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
+
+            NK.GET("/api/dashboard/agent-customers").then(function (data) {
+                MY_CUST_ALL = NK.rows(data);
+                drawMyCustList();
+            }).catch(function (e) {
+                q("myList").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawMyCustList() {
+            var s = (q("myq") ? q("myq").value.trim().toLowerCase() : "");
+            var filter = (q("mytabs") ? q("mytabs").querySelector(".on").getAttribute("data-t") : "ACTIVE");
+
+            var list = MY_CUST_ALL.filter(function (c) {
+                if (!s) {
+                    // status filter
+                    if (filter === "ACTIVE") return c.status === "ACTIVE";
+                    if (filter === "COMPLETED") return c.status === "COMPLETED" || c.status === "SETTLED";
+                    if (filter === "ALL") return true;
+                } else {
+                    // search filter
+                    var matches = (c.customerName || "").toLowerCase().indexOf(s) !== -1
+                        || (c.customerCode || "").toLowerCase().indexOf(s) !== -1
+                        || (c.customerPhone || "").indexOf(s) !== -1;
+                    if (!matches) return false;
+                    // then apply status filter
+                    if (filter === "ACTIVE") return c.status === "ACTIVE";
+                    if (filter === "COMPLETED") return c.status === "COMPLETED" || c.status === "SETTLED";
+                    return true;
+                }
+                return true;
+            });
+
+            var h = "";
+
+            if (!list.length) {
+                h += '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
+            } else {
+                list.slice(0, 500).forEach(function (x) {
+                    var dueAmt = Number(x.outstanding || 0);
+                    var advAmt = Number(x.advanceBalance || 0);
+
+                    h += '<div class="colcard" data-prof="' + x.customerId + '" style="cursor:pointer;">';
+                    h += '<div class="top">';
+                    h += '<div><div class="nm">' + NK.esc(x.customerName) + '</div>' +
+                        '<div class="ph">' + NK.esc(x.customerPhone || "—") + '</div></div>';
+                    h += '<div class="amt"><span>' + ltr('বাকি') + '</span><b>' + NK.inrShort(dueAmt) + '</b></div>';
+                    h += '</div>';
+
+                    if (x.activeLoans > 0) {
+                        h += '<div style="font-size:13px;color:var(--navy);margin-bottom:8px;">' +
+                            ltr('চলমান লোন') + ': ₹' + NK.inr(x.activeLoanAmount || 0) + '</div>';
+                    }
+
+                    if (advAmt > 0) {
+                        h += '<div style="font-size:13px;color:var(--green);margin-bottom:8px;">' +
+                            ltr('অ্যাডভান্স') + ': ₹' + NK.inr(advAmt) + '</div>';
+                    }
+
+                    h += '</div>';
+                });
+            }
+
+            q("myList").innerHTML = h;
+
+            // Search functionality
+            if (q("myq")) {
+                q("myq").addEventListener("input", function () {
+                    clearTimeout(myCustTimer);
+                    myCustTimer = setTimeout(drawMyCustList, 300);
+                });
+            }
+
+            // Tab filtering
+            Array.prototype.forEach.call(q("mytabs").querySelectorAll("button"), function (b) {
+                b.addEventListener("click", function () {
+                    Array.prototype.forEach.call(q("mytabs").querySelectorAll("button"), function (x) {
+                        x.classList.remove("on");
+                    });
+                    b.classList.add("on");
+                    drawMyCustList();
+                });
+            });
+
+            // Profile click
+            Array.prototype.forEach.call(q("myList").querySelectorAll("[data-prof]"), function (el) {
+                el.addEventListener("click", function () {
+                    openCustomerProfile(el.getAttribute("data-prof"));
+                });
+            });
+        }
+
+        /* =====================================================================
+         * দৈনিক রিপোর্ট
+         * ===================================================================== */
+        function loadReport(silent) {
+            if (silent !== true) {
+                q("reportBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+                q("reportStats").innerHTML = '';
+            }
+
+            NK.GET("/api/dashboard/agent-daily-report").then(function (data) {
+                drawDailyReport(data);
+            }).catch(function (e) {
+                q("reportBody").innerHTML =
+                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawDailyReport(data) {
+            var collected = Number(data.collectedAmount || 0);
+            var totalDue = Number(data.totalDue || 0);
+            var advReceived = Number(data.advanceReceived || 0);
+            var unpaidCount = Number(data.unpaidCount || 0);
+            var unpaidList = data.unpaidCustomers || [];
+
+            // Stats cards
+            var statsHtml = '';
+            statsHtml += '<div class="report-stat-card">' +
+                '<div class="l">' + ltr('আজ সংগৃহীত') + '</div>' +
+                '<div class="v">₹' + NK.inrShort(collected) + '</div>' +
+                '</div>';
+
+            statsHtml += '<div class="report-stat-card">' +
+                '<div class="l">' + ltr('মোট বাকি') + '</div>' +
+                '<div class="v">₹' + NK.inrShort(totalDue) + '</div>' +
+                '</div>';
+
+            statsHtml += '<div class="report-stat-card">' +
+                '<div class="l">' + ltr('অ্যাডভান্স প্রাপ্য') + '</div>' +
+                '<div class="v">₹' + NK.inrShort(advReceived) + '</div>' +
+                '</div>';
+
+            statsHtml += '<div class="report-stat-card">' +
+                '<div class="l">' + ltr('অপরিশোধিত গ্রাহক') + '</div>' +
+                '<div class="v">' + unpaidCount + '</div>' +
+                '</div>';
+
+            q("reportStats").innerHTML = statsHtml;
+
+            // Unpaid list
+            var h = '';
+            if (!unpaidList.length) {
+                h += '<div class="card"><div class="empty">' + ltr('সব গ্রাহক শোধ করেছেন!') + '</div></div>';
+            } else {
+                h += '<div class="report-list">';
+                unpaidList.forEach(function (x) {
+                    var dueAmt = Number(x.dueAmount || 0);
+                    var daysLate = Number(x.daysLate || 0);
+                    var statusClass = daysLate === 0 ? 'paid' : (daysLate >= 2 ? 'unpaid' : '');
+
+                    h += '<div class="item">';
+                    h += '<div>';
+                    h += '<div class="name">' + NK.esc(x.customerName) + '</div>';
+                    h += '<div class="phone">' + NK.esc(x.customerPhone) + '</div>';
+                    h += '</div>';
+                    h += '<div class="due ' + statusClass + '">₹' + NK.inr(dueAmt) + '</div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+            }
+
+            q("reportBody").innerHTML = h;
+
+            // Download button
+            q("reportDownload").onclick = function () {
+                downloadDailyReport(data);
+            };
+        }
+
+        function downloadDailyReport(data) {
+            var collected = Number(data.collectedAmount || 0);
+            var totalDue = Number(data.totalDue || 0);
+            var advReceived = Number(data.advanceReceived || 0);
+            var unpaidCount = Number(data.unpaidCount || 0);
+            var unpaidList = data.unpaidCustomers || [];
+
+            var csv = "তারিখ,মেট্রিক,মূল্য\n";
+            var today = new Date().toISOString().split('T')[0];
+
+            csv += today + ",আজ সংগৃহীত,₹" + NK.inr(collected) + "\n";
+            csv += today + ",মোট বাকি,₹" + NK.inr(totalDue) + "\n";
+            csv += today + ",অ্যাডভান্স প্রাপ্য,₹" + NK.inr(advReceived) + "\n";
+            csv += today + ",অপরিশোধিত গ্রাহক," + unpaidCount + "\n\n";
+
+            csv += "গ্রাহক নাম,ফোন,বাকি পরিমাণ,দেরি (দিন)\n";
+            unpaidList.forEach(function (x) {
+                csv += NK.esc(x.customerName) + "," +
+                    x.customerPhone + "," +
+                    NK.inr(Number(x.dueAmount || 0)) + "," +
+                    (x.daysLate || 0) + "\n";
+            });
+
+            var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "দৈনিক_রিপোর্ট_" + today + ".csv";
+            link.click();
+        }
+
+        /* =====================================================================
          * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
          * ===================================================================== */
         q("lxClose").addEventListener("click", function () {
@@ -3673,6 +4013,16 @@
 
                 var h = "";
 
+                // Blacklist warning
+                if (c.isBlacklisted || (p.daysOverdue && Number(p.daysOverdue) > 120)) {
+                    var daysOD = Number(p.daysOverdue || 0);
+                    h += '<div style="background:var(--red-soft);border:2px solid var(--red);border-radius:12px;padding:12px;margin-bottom:14px;text-align:center;">';
+                    h += '<div style="color:var(--red);font-weight:800;font-size:15px;">⛔ ' + ltr('ব্ল্যাকলিস্ট') + '</div>';
+                    h += '<div style="color:var(--red);font-size:12px;margin-top:4px;">' + ltr('নতুন লোন দেওয়া যাবে না') + '</div>';
+                    h += '<div style="color:var(--red);font-size:12.5px;margin-top:6px;">' + daysOD + ltr(' দিন বেশি দেয়নি') + '</div>';
+                    h += '</div>';
+                }
+
                 h += '<div class="pf-head">';
                 h += '<div class="pf-photo" id="pfPhoto" style="cursor:pointer;position:relative;" title="' + ltr('টাচ করে বড় করুন') + '"' +
                     (c.photoUrl ? ' data-photo="' + customerId + '"' : '') + '>' + initial + '</div>';
@@ -3742,9 +4092,24 @@
                 if (!loans.length) {
                     h += '<div class="card"><div class="empty">' + ltr('কোনো লোন নেই') + '</div></div>';
                 } else {
+                    h += '<div class="pf-loans-title">' + ltr('পরিশোধের অবস্থা') + '</div>';
                     h += '<div class="pf-loans">';
                     loans.forEach(function (l) {
-                        var bg = l.gradeColor || l.stageColor || "#64748B";
+                        var status = l.status || "";
+                        var repayColor = "#64748B"; // default muted
+
+                        // Color coding based on repayment status
+                        if (l.repaymentStatus === "EARLY") {
+                            repayColor = "#2563EB"; // blue
+                        } else if (l.repaymentStatus === "ON_TIME" || status === "CLOSED") {
+                            repayColor = "#16A34A"; // green
+                        } else if (l.repaymentStatus === "ONE_DAY_LATE") {
+                            repayColor = "#FEF9E7"; // yellow background with yellow/orange text
+                        } else if (l.repaymentStatus === "VERY_LATE" || (l.daysOverdue && Number(l.daysOverdue) >= 46)) {
+                            repayColor = "#FEE2E2"; // red
+                        }
+
+                        var bg = l.gradeColor || l.stageColor || repayColor;
                         h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
                         h += '<div class="cyc">' + (NK.getLang() === "en"
                             ? "Loan #" + l.cycle
@@ -3858,6 +4223,15 @@
             q("gate").remove();
             q("app").style.display = "block";
             q("who").textContent = u.fullName + " · " + ltr("এজেন্ট");
+
+            // Access time warning (8am-10pm only)
+            var now = new Date();
+            var hour = now.getHours();
+            var hasEarlyLateAccess = u.canAccessBeforeOfficeHours || u.canAccessAfterOfficeHours;
+            if ((hour < 8 || hour >= 22) && !hasEarlyLateAccess) {
+                toast(ltr("🔐 সিস্টেম অফিস সময়ের বাইরে বন্ধ (সকাল ৮টা - রাত ১০টা)"), "in");
+            }
+
             net();
             drawPend();
             loadMkt();

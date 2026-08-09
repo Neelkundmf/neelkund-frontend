@@ -582,6 +582,19 @@
         </div>
 
 
+        <!-- ---------------- সব গ্রাহক এক্সপোর্ট ---------------- -->
+        <div class="view" id="v-export">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">সব গ্রাহক এক্সপোর্ট</h2>
+                <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">
+                    CSV ফরম্যাটে সব গ্রাহকের তথ্য ডাউনলোড করুন
+                </p>
+                <button class="btn block" id="exp_go">📥 সব গ্রাহক ডাউনলোড করুন</button>
+            </div>
+
+            <div id="expBody"></div>
+        </div>
+
         <!-- ---------------- লগইন লগ ---------------- -->
         <div class="view" id="v-log">
             <div id="logList"><div class="loading">লোড হচ্ছে...</div></div>
@@ -759,6 +772,7 @@
             <button data-go="perm"><i>🔐</i>পারমিশন</button>
             <button data-go="access"><i>⏰</i>অ্যাক্সেস</button>
             <button data-go="import"><i>📥</i>ইম্পোর্ট</button>
+            <button data-go="export"><i>📥</i>গ্রাহক এক্সপোর্ট</button>
             <button data-go="report"><i>📋</i>রিপোর্ট</button>
             <button data-go="log"><i>🔑</i>লগইন লগ</button>
             <button data-go="logout"><i>🚪</i>লগ আউট</button>
@@ -1173,7 +1187,8 @@
             od: loadOd, branch: loadBranch, market: loadMarket, team: loadTeam,
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
-            profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport
+            profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
+            export: loadExport
         };
 
         /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
@@ -3864,6 +3879,59 @@
         q("dl_od").addEventListener("click", function () {
             download("/api/export/od-customers", "od-customers.csv");
         });
+
+        /* =====================================================================
+         * সব গ্রাহক এক্সপোর্ট
+         * ===================================================================== */
+        function loadExport() {
+            q("expBody").innerHTML = "";
+
+            q("exp_go").addEventListener("click", function () {
+                exportAllCustomers();
+            });
+        }
+
+        function exportAllCustomers() {
+            toast(ltr('নামানো হচ্ছে...'), "in");
+
+            NK.GET("/api/customers?page=0&size=10000").then(function (r) {
+                var customers = NK.rows(r);
+
+                var lines = [["নাম", "ফোন", "শেষ লোন", "অবস্থা", "পরিশোধ দিন", "সাইকেল"]];
+
+                customers.forEach(function (c) {
+                    var status = c.status === "ACTIVE" ? "চলমান" : (c.status === "COMPLETED" ? "শোধ" : c.status);
+                    var repayDays = c.repaymentDaysAverage || "—";
+                    var cycle = c.cycleNumber || 1;
+
+                    lines.push([
+                        c.customerName || "",
+                        c.customerPhone || "",
+                        c.lastLoanAmount || "—",
+                        status,
+                        String(repayDays),
+                        String(cycle)
+                    ]);
+                });
+
+                var csv = lines.map(function (row) {
+                    return row.map(function (cell) {
+                        return '"' + String(cell).replace(/"/g, '""') + '"';
+                    }).join(",");
+                }).join("\n");
+
+                var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "সব_গ্রাহক_" + new Date().toISOString().split('T')[0] + ".csv";
+                link.click();
+
+                toast(ltr('নামানো হয়েছে ✓'), "ok");
+            }).catch(function (e) {
+                toast(NK.esc(e.message), "er");
+            });
+        }
+
         /* =====================================================================
    * এজেন্টের প্রোফাইল
    * ===================================================================== */

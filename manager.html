@@ -3009,6 +3009,14 @@
             q("app").style.display = "block";
             q("who").textContent = u.fullName + " · " + ltr("ম্যানেজার");
 
+            // Access time warning (8am-10pm only)
+            var now = new Date();
+            var hour = now.getHours();
+            var hasEarlyLateAccess = u.canAccessBeforeOfficeHours || u.canAccessAfterOfficeHours;
+            if ((hour < 8 || hour >= 22) && !hasEarlyLateAccess) {
+                toast(ltr("🔐 সিস্টেম অফিস সময়ের বাইরে বন্ধ (সকাল ৮টা - রাত ১০টা)"), "in");
+            }
+
             /* অনুরোধের ট্যাবে জায়গা করি */
             var rt = document.querySelector('.tabs button[data-v="req"]');
             if (rt) rt.style.position = "relative";
