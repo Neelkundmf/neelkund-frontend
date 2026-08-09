@@ -1878,7 +1878,11 @@
             show(e.state.view);
         }
     });
-    history.pushState(null, null, window.location.pathname);
+
+    // Initialize history for first page load (will be set after CURRENT_VIEW is ready)
+    setTimeout(function() {
+        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+    }, 0);
 </script>
 <script>
     if ("serviceWorker" in navigator) {

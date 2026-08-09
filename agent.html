@@ -1545,6 +1545,9 @@
             }
         });
 
+        // Initialize history for first page load
+        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+
         function toast(m, kind) {
             var t = document.createElement("div");
             t.className = "tst " + (kind || "in");
