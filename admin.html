@@ -1275,6 +1275,7 @@
                 q("ttl").textContent = b.textContent.trim();
                 q("backbar").classList.add("on");
                 window.scrollTo(0, 0);
+                history.pushState({ view: go }, null, window.location.pathname);
 
                 var f = LOADERS[go];
                 if (f) f();
@@ -4494,10 +4495,25 @@
     })();
 </script>
 <script>
+    // Back button handling - restore previous view
     window.addEventListener("popstate", function (e) {
-        history.pushState(null, null, window.location.pathname);
+        if (e.state && e.state.view) {
+            CURRENT_VIEW = e.state.view;
+            var v = document.getElementById("v-" + e.state.view);
+            if (v) {
+                Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
+                    x.classList.remove("on");
+                });
+                v.classList.add("on");
+                document.getElementById("ttl").textContent = e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
+            }
+        }
     });
-    history.pushState(null, null, window.location.pathname);
+
+    // Initialize history for first page load
+    setTimeout(function() {
+        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+    }, 0);
 </script>
 <script>
     if ("serviceWorker" in navigator) {
