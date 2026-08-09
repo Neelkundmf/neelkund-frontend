@@ -4496,21 +4496,50 @@
 </script>
 <script>
     // Back button handling - restore previous view
-    window.addEventListener("popstate", function (e) {
-        if (e.state && e.state.view) {
-            CURRENT_VIEW = e.state.view;
-            var v = document.getElementById("v-" + e.state.view);
-            if (v) {
-                Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
-                    x.classList.remove("on");
-                });
-                v.classList.add("on");
-                document.getElementById("ttl").textContent = e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
-                window.scrollTo(0, 0);
+    // Back button handling with dashboard double-press exit
+    var backPressCount = 0;
+    var backPressTimer = null;
 
-                // Call loader function if exists
-                var f = LOADERS[e.state.view];
-                if (f) f();
+    window.addEventListener("popstate", function (e) {
+        // Dashboard protection - double back to exit
+        if (CURRENT_VIEW === "dash") {
+            backPressCount++;
+
+            if (backPressCount === 1) {
+                toast(ltr("আরও একবার টিপুন এক্সিট করতে"), "in");
+
+                backPressTimer = setTimeout(function() {
+                    backPressCount = 0;
+                }, 2000);
+
+                // Prevent leaving dashboard
+                history.pushState({ view: "dash" }, null, window.location.pathname);
+            } else if (backPressCount === 2) {
+                // Double press - allow app exit
+                clearTimeout(backPressTimer);
+                backPressCount = 0;
+                // Let browser handle back (exit app)
+            }
+        } else {
+            // Normal back navigation
+            backPressCount = 0;
+            if (backPressTimer) clearTimeout(backPressTimer);
+
+            if (e.state && e.state.view) {
+                CURRENT_VIEW = e.state.view;
+                var v = document.getElementById("v-" + e.state.view);
+                if (v) {
+                    Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
+                        x.classList.remove("on");
+                    });
+                    v.classList.add("on");
+                    document.getElementById("ttl").textContent = e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
+                    window.scrollTo(0, 0);
+
+                    // Call loader function if exists
+                    var f = LOADERS[e.state.view];
+                    if (f) f();
+                }
             }
         }
     });
