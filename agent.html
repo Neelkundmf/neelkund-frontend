@@ -3623,6 +3623,7 @@
             // Search functionality
             if (q("myq")) {
                 q("myq").addEventListener("input", function () {
+                    q("myList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
                     clearTimeout(myCustTimer);
                     myCustTimer = setTimeout(drawMyCustList, 300);
                 });
@@ -3635,6 +3636,7 @@
                         x.classList.remove("on");
                     });
                     b.classList.add("on");
+                    q("myList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
                     drawMyCustList();
                 });
             });

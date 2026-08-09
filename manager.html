@@ -2695,6 +2695,7 @@
         }
 
         q("bcq").addEventListener("input", function () {
+            q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             clearTimeout(bcTimer);
             bcTimer = setTimeout(drawBcList, 300);
         });
