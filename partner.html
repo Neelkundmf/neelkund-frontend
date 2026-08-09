@@ -135,7 +135,7 @@
 <div id="app" style="display:none;">
 
     <div class="topbar">
-        <div class="logo"><img src="assets/logo.png" alt=""></div>
+        <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
         <div class="ttl">
             <b id="ttl">ড্যাশবোর্ড</b>
             <span id="who">—</span>
@@ -667,10 +667,12 @@
             b.addEventListener("click", function () { show(b.getAttribute("data-v")); });
         });
 
-        /* ---- আরও মেনু ---- */
-        q("moreBtn").addEventListener("click", function () {
+        /* ---- আরও মেনু / লোগো মেনু ---- */
+        function openMenu() {
             q("sheet").classList.add("on");
-        });
+        }
+        q("moreBtn").addEventListener("click", openMenu);
+        q("logoBtn").addEventListener("click", openMenu);
         q("sheetBg").addEventListener("click", function () {
             q("sheet").classList.remove("on");
         });
