@@ -1338,6 +1338,7 @@
 
             q("ttl").textContent = NK.tr(TITLES[key]);
             window.scrollTo(0, 0);
+            history.pushState({ view: key }, null, window.location.pathname);
 
             if (!loaded[key]) {
                 loaded[key] = true;
@@ -3054,8 +3055,11 @@
     })();
 </script>
 <script>
+    // Back button handling - restore previous view
     window.addEventListener("popstate", function (e) {
-        history.pushState(null, null, window.location.pathname);
+        if (e.state && e.state.view) {
+            show(e.state.view);
+        }
     });
     history.pushState(null, null, window.location.pathname);
 </script>

@@ -1063,6 +1063,8 @@
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
 
+                <div class="fld"><label>ভোটার আইডি নম্বর</label><input id="n_voter_id" maxlength="12"></div>
+
                 <div style="margin-top:20px;">
                     <label style="font-weight:600; display:block; margin-bottom:8px;">🎫 ভোটার আইডির ছবি (ঐচ্ছিক)</label>
                     <div class="pic-row">
@@ -1534,12 +1536,14 @@
         }
         window.addEventListener("pageshow", applyLocalLang);
 
-        window.addEventListener("popstate", function (e) {
-            history.pushState(null, null, window.location.pathname);
-        });
-        history.pushState(null, null, window.location.pathname);
-
         var q = function (id) { return document.getElementById(id); };
+
+        // Back button handling - restore previous view
+        window.addEventListener("popstate", function (e) {
+            if (e.state && e.state.view) {
+                show(e.state.view);
+            }
+        });
 
         function toast(m, kind) {
             var t = document.createElement("div");
@@ -1671,6 +1675,7 @@
 
             q("ttl").textContent = NK.tr(TITLES[key]);
             window.scrollTo(0, 0);
+            history.pushState({ view: key }, null, window.location.pathname);
 
             if (!loaded[key]) {
                 loaded[key] = true;
@@ -3149,9 +3154,23 @@
             q("np_aadb").classList.add("req");
         }
 
+        q("n_name").addEventListener("input", function () {
+            this.value = this.value.replace(/\b\w/g, function(char) {
+                return char.toUpperCase();
+            }).replace(/\b[a-z]/g, function(char) {
+                return char.toUpperCase();
+            });
+        });
         q("n_gph").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
+        // Clear field error styling on input
+        ["n_name","n_phone","n_aad","n_pan","n_voter_id"].forEach(function(id) {
+            q(id).addEventListener("input", function() {
+                this.style.borderColor = "";
+            });
+        });
+
         q("n_go").addEventListener("click", function () {
             hide("nMsg");
 
@@ -3159,6 +3178,11 @@
                 sendOldCustomerLoan(DUP);
                 return;
             }
+
+            // Clear all field errors first
+            ["n_name","n_phone","n_aad","n_pan","n_voter_id"].forEach(function(id) {
+                q(id).style.borderColor = "";
+            });
 
             // Field-level validation with specific error messages
             var name = q("n_name").value.trim();
@@ -3169,6 +3193,7 @@
             // Validate name
             if (!name) {
                 say("nMsg", ltr("নাম দিতে হবে"), false);
+                q("n_name").style.borderColor = "#ef4444";
                 return;
             }
             if (!/^[a-zA-Z\s]+$/.test(name)) {
@@ -3179,26 +3204,31 @@
             // Validate phone
             if (!phone) {
                 say("nMsg", ltr("ফোন নম্বর দিতে হবে"), false);
+                q("n_phone").style.borderColor = "#ef4444";
                 return;
             }
             if (!/^\d{10}$/.test(phone)) {
                 say("nMsg", ltr("ফোন নম্বর ঠিক ১০ ডিজিট হতে হবে"), false);
+                q("n_phone").style.borderColor = "#ef4444";
                 return;
             }
 
             // Validate aadhaar
             if (!aad) {
                 say("nMsg", ltr("আধার নম্বর দিতে হবে"), false);
+                q("n_aad").style.borderColor = "#ef4444";
                 return;
             }
             if (!/^\d{12}$/.test(aad)) {
                 say("nMsg", ltr("আধার নম্বর ঠিক ১২ ডিজিট হতে হবে"), false);
+                q("n_aad").style.borderColor = "#ef4444";
                 return;
             }
 
             // Validate PAN (optional, but if given must be valid)
             if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
                 say("nMsg", ltr("PAN ফরম্যাট ভুল (যেমন: AAAAA1234A)"), false);
+                q("n_pan").style.borderColor = "#ef4444";
                 return;
             }
 
@@ -3220,6 +3250,7 @@
                 phone: q("n_phone").value.trim(),
                 aadhaar: q("n_aad").value.trim(),
                 pan: q("n_pan").value.trim().toUpperCase() || null,
+                voterId: q("n_voter_id").value.trim() || null,
                 address: q("n_addr").value.trim() || null,
                 guarantorName: q("n_guar").value.trim() || null,
 
