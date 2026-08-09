@@ -4506,6 +4506,11 @@
                 });
                 v.classList.add("on");
                 document.getElementById("ttl").textContent = e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
+                window.scrollTo(0, 0);
+
+                // Call loader function if exists
+                var f = LOADERS[e.state.view];
+                if (f) f();
             }
         }
     });
