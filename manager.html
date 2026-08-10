@@ -1639,13 +1639,11 @@
 
                     csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
                 });
-                }
 
                 var repXlBtn = q("repXl");
                 if (repXlBtn) repXlBtn.addEventListener("click", function () {
                     excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
                 });
-                }
 
             }).catch(function (e) {
                 q("reportBox").innerHTML =
@@ -2650,7 +2648,6 @@
                     openCustomerProfile(el.getAttribute("data-prof"));
                 });
             });
-        }
 
         var bcqEl = q("bcq");
         if (bcqEl) bcqEl.addEventListener("input", function () {
