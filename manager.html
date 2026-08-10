@@ -3088,6 +3088,9 @@
             }
         });
 
+        // Expose CURRENT_VIEW to global scope for external script access
+        window.CURRENT_VIEW = CURRENT_VIEW;
+
     })();
 </script>
 <script>
@@ -3149,11 +3152,8 @@
 
     // Initialize history for first page load (will be set after CURRENT_VIEW is ready)
     setTimeout(function() {
-        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+        history.replaceState({ view: window.CURRENT_VIEW }, null, window.location.pathname);
     }, 0);
-
-    // Expose CURRENT_VIEW to global scope for external script access
-    window.CURRENT_VIEW = CURRENT_VIEW;
 </script>
 <script>
     if ("serviceWorker" in navigator) {
