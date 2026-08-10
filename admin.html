@@ -1406,6 +1406,8 @@
             q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             window.scrollTo(0, 0);
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "amount", panelId: amt });
+
             NK.GET("/api/loans?page=0&size=1000").then(function (r) {
                 AMT_LOANS = NK.rows(r).filter(function (l) {
                     return Number(l.principal) === AMT_VAL;
@@ -1499,6 +1501,8 @@
             q("pTitle").textContent = name || ltr("ব্রাঞ্চ");
             q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             window.scrollTo(0, 0);
+
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "branch", panelId: id });
 
             drawBranch();
 
@@ -1759,8 +1763,7 @@
 
         function loadCust(silent) {
             var s = q("cq").value.trim();
-            var path = "/api/customers/list?tab=" + cTab +
-                (s ? "&search=" + encodeURIComponent(s) : "");
+            var path = "/api/customers?page=0&size=10000";
 
             if (silent !== true) {
                 q("cList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
@@ -1768,6 +1771,16 @@
 
             NK.GET(path).then(function (list) {
                 var rows = NK.rows(list);
+
+                // Filter by search term (name, phone, or code)
+                if (s) {
+                    rows = rows.filter(function (c) {
+                        var searchLower = s.toLowerCase();
+                        return (c.fullName && c.fullName.toLowerCase().includes(searchLower)) ||
+                               (c.phone && c.phone.includes(s)) ||
+                               (c.customerCode && c.customerCode.toLowerCase().includes(searchLower));
+                    });
+                }
 
                 if (!rows.length) {
                     q("cList").innerHTML = ltr('<div class="card"><div class="empty">কেউ নেই</div></div>');
@@ -1780,8 +1793,9 @@
 
                 rows.slice(0, cShow).forEach(function (c) {
                     var f = FLAG_BN[c.flag] || ["—", "n"];
+                    var custId = c.customerId || c.id;
 
-                    html += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
+                    html += '<div class="item" data-cust="' + NK.esc(custId) + '">';
                     html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
 
                     html += '<div class="mid">';
@@ -1791,7 +1805,7 @@
                     html += '</div>';
 
                     html += '<div class="end">';
-                    html += '<b>' + NK.inrShort(c.outstanding) + '</b>';
+                    html += '<b>' + NK.inrShort(c.outstanding || 0) + '</b>';
                     html += '<span class="b ' + f[1] + '">' + NK.esc(c.daysLabel || f[0]) + '</span>';
                     html += '</div>';
 
@@ -2286,7 +2300,12 @@
                 loadBranch();
                 loadBranches();
             }).catch(function (e) {
-                say("brMsg", e.message, false);
+                NK.highlightFieldErrors(e);
+                var msg = e.message;
+                if (e.fieldErrors) {
+                    msg += NK.formatFieldErrors(e.fieldErrors);
+                }
+                say("brMsg", msg, false);
             }).then(function () {
                 b.disabled = false;
                 b.textContent = ltr("ব্রাঞ্চ তৈরি করুন");
@@ -2356,7 +2375,12 @@
                 q("mk_code").value = "";
                 loadMarket();
             }).catch(function (e) {
-                say("mkMsg", e.message, false);
+                NK.highlightFieldErrors(e);
+                var msg = e.message;
+                if (e.fieldErrors) {
+                    msg += NK.formatFieldErrors(e.fieldErrors);
+                }
+                say("mkMsg", msg, false);
             }).then(function () {
                 b.disabled = false;
                 b.textContent = ltr("মার্কেট তৈরি করুন");
@@ -2635,7 +2659,12 @@
                 resetPics();
                 loadTeam();
             }).catch(function (e) {
-                say("tmMsg", e.message, false);
+                NK.highlightFieldErrors(e);
+                var msg = e.message;
+                if (e.fieldErrors) {
+                    msg += NK.formatFieldErrors(e.fieldErrors);
+                }
+                say("tmMsg", msg, false);
             }).then(function () {
                 b.disabled = false;
                 b.textContent = ltr("কর্মী তৈরি করুন");
@@ -4093,6 +4122,8 @@
             q("pxCid").textContent = ltr('লোড হচ্ছে...');
             q("pxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
                 var c = p.customer || {};
                 var loans = p.loans || [];
@@ -4259,6 +4290,8 @@
             q("lxSm").textContent = ltr('লোন #') + loanId;
             q("lxTitle").textContent = ltr('লোড হচ্ছে...');
             q("lxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
                 q("lxTitle").textContent = NK.inr(d.principal) + ltr(' এর লোন');
@@ -4501,8 +4534,10 @@
     var backPressTimer = null;
 
     window.addEventListener("popstate", function (e) {
+        if (!e.state || !e.state.view) return;
+
         // Dashboard protection - double back to exit
-        if (CURRENT_VIEW === "dash") {
+        if (e.state.view === "dash" && !e.state.panel) {
             backPressCount++;
 
             if (backPressCount === 1) {
@@ -4514,33 +4549,57 @@
 
                 // Prevent leaving dashboard
                 history.pushState({ view: "dash" }, null, window.location.pathname);
+                return;
             } else if (backPressCount === 2) {
                 // Double press - allow app exit
                 clearTimeout(backPressTimer);
                 backPressCount = 0;
                 // Let browser handle back (exit app)
+                return;
             }
-        } else {
-            // Normal back navigation
+        }
+
+        // Reset double-press counter for non-dashboard views
+        if (e.state.view !== "dash") {
             backPressCount = 0;
             if (backPressTimer) clearTimeout(backPressTimer);
+        }
 
-            if (e.state && e.state.view) {
-                CURRENT_VIEW = e.state.view;
-                var v = document.getElementById("v-" + e.state.view);
-                if (v) {
-                    Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
-                        x.classList.remove("on");
-                    });
-                    v.classList.add("on");
-                    document.getElementById("ttl").textContent = e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
-                    window.scrollTo(0, 0);
+        // Switch to the correct view
+        CURRENT_VIEW = e.state.view;
+        var v = document.getElementById("v-" + e.state.view);
+        if (v) {
+            Array.prototype.forEach.call(document.querySelectorAll(".view"), function (x) {
+                x.classList.remove("on");
+            });
+            v.classList.add("on");
+            document.getElementById("ttl").textContent = TITLES[e.state.view] ? NK.tr(TITLES[e.state.view]) : e.state.view.charAt(0).toUpperCase() + e.state.view.slice(1);
+            window.scrollTo(0, 0);
 
-                    // Call loader function if exists
-                    var f = LOADERS[e.state.view];
-                    if (f) f();
-                }
+            // Call loader function if exists
+            var f = LOADERS[e.state.view];
+            if (f) f();
+        }
+
+        // Restore nested panel state if exists
+        if (e.state.panel && e.state.panelId) {
+            if (e.state.panel === "customer") {
+                openCustomer(e.state.panelId);
+            } else if (e.state.panel === "loan") {
+                openLoanDetail(e.state.panelId);
+            } else if (e.state.panel === "amount") {
+                openAmount(Number(e.state.panelId));
+            } else if (e.state.panel === "branch") {
+                openBranch(e.state.panelId);
             }
+        } else {
+            // Close all nested panels
+            q("profX").classList.remove("on");
+            q("loanX").classList.remove("on");
+            q("prof").classList.remove("on");
+            q("backbar").classList.remove("on");
+            clearInterval(BR_TIMER);
+            BR_ID = null;
         }
     });
 

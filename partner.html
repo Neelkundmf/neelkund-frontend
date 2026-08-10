@@ -1697,6 +1697,8 @@
             q("pBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             window.scrollTo(0, 0);
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
                 var c = p.customer || {};
                 var h = "";
@@ -1877,8 +1879,10 @@
     var backPressTimer = null;
 
     window.addEventListener("popstate", function (e) {
+        if (!e.state || !e.state.view) return;
+
         // Dashboard protection - double back to exit
-        if (CURRENT_VIEW === "dash") {
+        if (e.state.view === "dash" && !e.state.panel) {
             backPressCount++;
 
             if (backPressCount === 1) {
@@ -1890,20 +1894,33 @@
 
                 // Prevent leaving dashboard
                 history.pushState({ view: "dash" }, null, window.location.pathname);
+                return;
             } else if (backPressCount === 2) {
                 // Double press - allow app exit
                 clearTimeout(backPressTimer);
                 backPressCount = 0;
                 // Let browser handle back (exit app)
+                return;
             }
-        } else {
-            // Normal back navigation
+        }
+
+        // Reset double-press counter for non-dashboard views
+        if (e.state.view !== "dash") {
             backPressCount = 0;
             if (backPressTimer) clearTimeout(backPressTimer);
+        }
 
-            if (e.state && e.state.view) {
-                show(e.state.view);
+        // Switch view
+        show(e.state.view);
+
+        // Restore nested panel state if exists
+        if (e.state.panel && e.state.panelId) {
+            if (e.state.panel === "customer") {
+                openCustomer(e.state.panelId);
             }
+        } else {
+            // Close all nested panels
+            q("prof").classList.remove("on");
         }
     });
 

@@ -1543,8 +1543,10 @@
         var backPressTimer = null;
 
         window.addEventListener("popstate", function (e) {
+            if (!e.state || !e.state.view) return;
+
             // Dashboard protection - double back to exit
-            if (CURRENT_VIEW === "today") {
+            if (e.state.view === "today" && !e.state.panel) {
                 backPressCount++;
 
                 if (backPressCount === 1) {
@@ -1556,20 +1558,36 @@
 
                     // Prevent leaving dashboard
                     history.pushState({ view: "today" }, null, window.location.pathname);
+                    return;
                 } else if (backPressCount === 2) {
                     // Double press - allow app exit
                     clearTimeout(backPressTimer);
                     backPressCount = 0;
                     // Let browser handle back (exit app)
+                    return;
                 }
-            } else {
-                // Normal back navigation
+            }
+
+            // Reset double-press counter for non-today views
+            if (e.state.view !== "today") {
                 backPressCount = 0;
                 if (backPressTimer) clearTimeout(backPressTimer);
+            }
 
-                if (e.state && e.state.view) {
-                    show(e.state.view);
+            // Switch view
+            show(e.state.view);
+
+            // Restore nested panel state if exists
+            if (e.state.panel && e.state.panelId) {
+                if (e.state.panel === "loan") {
+                    openLoanDetail(e.state.panelId);
+                } else if (e.state.panel === "customer") {
+                    openCustomerProfile(e.state.panelId);
                 }
+            } else {
+                // Close all nested panels
+                q("loanX").classList.remove("on");
+                q("prof").classList.remove("on");
             }
         });
 
@@ -3855,6 +3873,8 @@
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
             q("lxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
                 q("lxTitle").textContent = NK.inr(d.principal) + " " + ltr("এর লোন");
                 q("lxSm").textContent = ltr("লোন") + " #" + d.loanId +
@@ -4068,6 +4088,8 @@
             q("prof").classList.add("on");
             q("pfCid").textContent = ltr("লোড হচ্ছে...");
             q("pfBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
 
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
                 var c = p.customer || {};

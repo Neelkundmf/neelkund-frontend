@@ -170,6 +170,10 @@
     function mkErr(status, body) {
         var e = new Error(msgFor(status, body));
         e.status = status;
+        // Capture field-level errors from API response
+        if (body && body.errors && typeof body.errors === 'object') {
+            e.fieldErrors = body.errors;
+        }
         return e;
     }
 
@@ -302,6 +306,115 @@
         if (Array.isArray(r)) return r;
         return r.content || r.items || [];
     }
+
+    /* ---------------- ফিল্ড এরর হাইলাইট করা ---------------- */
+
+    /**
+     * API field name থেকে HTML input id বের করা
+     * fullName -> n_name, phone -> n_phone, aadhaar -> n_aad ইত্যাদি
+     */
+    function getFieldIdForError(apiFieldName) {
+        var mapping = {
+            // গ্রাহক সৃষ্টি (agent.html)
+            'fullName': 'n_name',
+            'phone': 'n_phone',
+            'aadhaar': 'n_aad',
+            'pan': 'n_pan',
+            'voterId': 'n_voter_id',
+            'address': 'n_addr',
+            'fatherOrHusband': 'n_fh',
+            'dateOfBirth': 'n_dob',
+            'gender': 'n_gen',
+            'permanentAddress': 'n_perm',
+            'businessAddress': 'n_bad',
+            'businessType': 'n_btype',
+            'guarantorName': 'n_guar',
+            'guarantorPhone': 'n_gph',
+            'guarantorAddress': 'n_gad',
+            'customerCode': 'n_code',
+            'principal': 'n_amt',
+            // কর্মী সৃষ্টি (admin.html)
+            'password': 'tm_pass',
+            'role': 'tm_role',
+            'branchId': 'tm_br',
+            'area': 'tm_area',
+            'marketId': 'tm_mk',
+            'monthlySalary': 'tm_sal',
+            'joinedDate': 'tm_join',
+            'currentAddress': 'tm_curr',
+            'emergencyName': 'tm_en',
+            'emergencyPhone': 'tm_ep',
+            'bloodGroup': 'tm_bg',
+            // লোন রিকোয়েস্ট ফিল্ড
+            'customerId': 'l_cust',
+            // ইউজার ফিল্ড
+            'newPassword': 'pwd_new',
+            'passwordRepeat': 'pwd_repeat',
+            'currentPassword': 'pwd_curr'
+        };
+        return mapping[apiFieldName] || null;
+    }
+
+    /**
+     * ফর্মের ফিল্ডগুলো হাইলাইট করা — যেখানে এরর আছে
+     * @param {Object} error - API থেকে আসা error অবজেক্ট
+     * @param {string} containerId - যে container-এ খুঁজব (optional)
+     */
+    function highlightFieldErrors(error, containerId) {
+        if (!error || !error.fieldErrors) return;
+
+        var container = document;
+        if (containerId) {
+            var el = document.getElementById(containerId);
+            if (el) container = el;
+        }
+
+        var fieldErrors = error.fieldErrors;
+
+        // সব input/select/textarea থেকে লাল রঙ মোছা
+        Array.prototype.forEach.call(document.querySelectorAll('input, select, textarea'), function (el) {
+            el.style.borderColor = '';
+            el.style.backgroundColor = '';
+        });
+
+        // যেখানে এরর আছে, সেখানে লাল করা
+        Object.keys(fieldErrors).forEach(function (apiField) {
+            var fieldId = getFieldIdForError(apiField);
+            if (fieldId) {
+                var el = document.getElementById(fieldId);
+                if (el) {
+                    el.style.borderColor = '#ef4444';
+                    el.style.borderWidth = '2px';
+                    el.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+                }
+            }
+        });
+    }
+
+    /**
+     * ফিল্ড এরর ম্যাসেজ বাংলায় ফরম্যাট করা
+     * @param {Object} fieldErrors - API থেকে আসা field errors অবজেক্ট
+     * @returns {string} HTML string
+     */
+    function formatFieldErrors(fieldErrors) {
+        if (!fieldErrors || typeof fieldErrors !== 'object') return '';
+
+        var errors = [];
+        Object.keys(fieldErrors).forEach(function (field) {
+            var msg = fieldErrors[field];
+            errors.push(msg);
+        });
+
+        if (errors.length === 0) return '';
+
+        var html = '<ul style="margin:8px 0;padding-left:20px;">';
+        errors.forEach(function (err) {
+            html += '<li style="color:#ef4444;margin:4px 0;font-size:13px;">' + esc(err) + '</li>';
+        });
+        html += '</ul>';
+        return html;
+    }
+
     /* ---------------- ব্যাকগ্রাউন্ডে গেলে ঝাপসা ---------------- */
 
     function initPrivacy() {
@@ -450,6 +563,34 @@
        ভাষা ঠিক থাকে */
     window.addEventListener("pageshow", applyLang);
 
+    /* ================== Navigation History (Back Button) ================== */
+
+    var navStack = [];  // স্ট্যাক: [{ view, panel, panelId, ... }]
+
+    function pushNavState(state) {
+        navStack.push(state);
+        history.pushState(state, null, window.location.pathname);
+    }
+
+    function replaceNavState(state) {
+        navStack[navStack.length - 1] = state;
+        history.replaceState(state, null, window.location.pathname);
+    }
+
+    function getNavStack() {
+        return navStack.slice();  // কপি রিটার্ন করি
+    }
+
+    function setNavStack(stack) {
+        navStack = stack.slice();
+    }
+
+    function clearNavStack() {
+        navStack = [];
+    }
+
+    /* ================ (End Navigation History) ================== */
+
     /* ---------------- বাইরে যা দেব ---------------- */
 
     window.NK = {
@@ -481,7 +622,17 @@
         inrShort: inrShort,
         dt: dt,
         dtTime: dtTime,
-        rows: rows
+        rows: rows,
+
+        pushNavState: pushNavState,
+        replaceNavState: replaceNavState,
+        getNavStack: getNavStack,
+        setNavStack: setNavStack,
+        clearNavStack: clearNavStack,
+
+        // ফিল্ড এরর হ্যান্ডলিং
+        highlightFieldErrors: highlightFieldErrors,
+        formatFieldErrors: formatFieldErrors
     };
 
 })(window);

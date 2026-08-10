@@ -1800,6 +1800,8 @@
             q("pxCid").textContent = ltr("লোড হচ্ছে...");
             q("pxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
+
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
                 var c = p.customer || {};
                 var loans = p.loans || [];
@@ -2134,6 +2136,8 @@
             q("lxSm").textContent = ltr("লোন #") + loanId;
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
             q("lxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
                 q("lxTitle").textContent = NK.inr(d.principal) + " " + ltr("এর লোন");
@@ -2838,6 +2842,8 @@
             q("pBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             window.scrollTo(0, 0);
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
                 var c = p.customer || {};
                 var h = "";
@@ -3082,8 +3088,10 @@
     var backPressTimer = null;
 
     window.addEventListener("popstate", function (e) {
+        if (!e.state || !e.state.view) return;
+
         // Dashboard protection - double back to exit
-        if (CURRENT_VIEW === "dash") {
+        if (e.state.view === "dash" && !e.state.panel) {
             backPressCount++;
 
             if (backPressCount === 1) {
@@ -3095,20 +3103,39 @@
 
                 // Prevent leaving dashboard
                 history.pushState({ view: "dash" }, null, window.location.pathname);
+                return;
             } else if (backPressCount === 2) {
                 // Double press - allow app exit
                 clearTimeout(backPressTimer);
                 backPressCount = 0;
                 // Let browser handle back (exit app)
+                return;
             }
-        } else {
-            // Normal back navigation
+        }
+
+        // Reset double-press counter for non-dashboard views
+        if (e.state.view !== "dash") {
             backPressCount = 0;
             if (backPressTimer) clearTimeout(backPressTimer);
+        }
 
-            if (e.state && e.state.view) {
-                show(e.state.view);
+        // Switch view
+        show(e.state.view);
+
+        // Restore nested panel state if exists
+        if (e.state.panel && e.state.panelId) {
+            if (e.state.panel === "customerProfile") {
+                openCustomerProfile(e.state.panelId);
+            } else if (e.state.panel === "loan") {
+                openLoanDetail(e.state.panelId);
+            } else if (e.state.panel === "customer") {
+                openCustomer(e.state.panelId);
             }
+        } else {
+            // Close all nested panels
+            q("profX").classList.remove("on");
+            q("loanX").classList.remove("on");
+            q("prof").classList.remove("on");
         }
     });
 
