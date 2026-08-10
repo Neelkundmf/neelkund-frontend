@@ -762,10 +762,130 @@
         .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
         .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
 
+        /* ---- গ্রাহক স্বাক্ষর ---- */
+        .sig-capture {
+            padding: 16px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .sig-preview {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .sig-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        #sigCanvas {
+            display: block !important;
+            margin: 12px 0;
+            border: 2px solid #0F2942 !important;
+        }
+
         .pf-remark-edit textarea {
             width: 100%; border: 1.5px solid var(--line); border-radius: 8px;
             padding: 10px; font-size: 13.5px; font-family: 'Hind Siliguri', sans-serif;
             resize: vertical; min-height: 60px; margin-bottom: 10px;
+        }
+
+        /* ---- বিতরণ (Disbursement) ---- */
+        .disb-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+            margin-bottom: 14px;
+        }
+        .disb-table thead {
+            background: var(--navy);
+            color: #fff;
+        }
+        .disb-table th {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .disb-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+        }
+        .disb-table tr:last-child td { border-bottom: 0; }
+        .disb-table th.r, .disb-table td.r { text-align: right; }
+
+        .disb-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+        .disb-status.pending { background: #FEF9E7; color: #B45309; }
+        .disb-status.approved { background: #DBEAFE; color: #1D4ED8; }
+        .disb-status.rejected { background: #FEE2E2; color: #B91C1C; }
+        .disb-status.completed { background: #ECFDF5; color: #047857; }
+
+        .disb-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .disb-actions button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 0;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .disb-actions .approve {
+            background: #16A34A;
+            color: #fff;
+        }
+        .disb-actions .reject {
+            background: #DC2626;
+            color: #fff;
+        }
+        .disb-actions button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .disb-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .disb-pagination button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .disb-pagination button:hover {
+            background: var(--paper);
+        }
+        .disb-pagination button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
         }
     </style>
     <link rel="manifest" href="manifest.json">
@@ -806,6 +926,26 @@
         <!-- ---------------- ড্যাশবোর্ড ---------------- -->
         <div class="view on" id="v-dash">
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <!-- কালেকশন লিস্ট -->
+            <div class="card" style="margin-top:24px;">
+                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>গ্রাহক</th>
+                            <th>ফোন</th>
+                            <th>এজেন্ট</th>
+                            <th>অঙ্ক</th>
+                            <th>অবস্থা</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collListBody">
+                        <tr><td colspan="6" class="loading">লোড হচ্ছে...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <!-- ---------------- এজেন্ট ---------------- -->
         <div class="view" id="v-agent">
@@ -883,6 +1023,11 @@
             <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- ---------------- বিতরণ (Disbursement) ---------------- -->
+        <div class="view" id="v-disb">
+            <div id="disbList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
         <div class="view" id="v-exp">
             <div style="padding:14px;margin-bottom:14px;background:var(--card);border-radius:12px;">
                 <div style="display:grid;gap:10px;grid-template-columns:repeat(2,1fr);font-size:12px;">
@@ -899,6 +1044,7 @@
         <button data-v="agent"><i>👥</i>এজেন্ট</button>
         <button data-v="report"><i>📄</i>রিপোর্ট</button>
         <button data-v="req"><i>📝</i><span id="reqTabLbl">অনুরোধ</span><span class="dot" id="rdot" style="display:none;"></span></button>
+        <button data-v="disb"><i>💰</i><span id="disbTabLbl">বিতরণ</span><span class="dot" id="ddot" style="display:none;"></span></button>
         <button data-v="cust"><i>🧑‍🤝‍🧑</i>গ্রাহক</button>
         <button data-v="od"><i>⛔</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
@@ -1181,7 +1327,33 @@
             "শোধ করেন": "repays",
             "দিনে শোধ": "days to repay",
             "অনুরোধ": "Request",
-            "লোনের বিস্তারিত": "Loan Details"
+            "লোনের বিস্তারিত": "Loan Details",
+
+            /* বিতরণ (Disbursement) */
+            "বিতরণ": "Disbursement",
+            "বিতরণ তালিকা": "Disbursement List",
+            "অনুমোদিত ✓": "Approved ✓",
+            "নাকচ করা হয়েছে": "Rejected",
+            "নাকচের কারণ:": "Rejection reason:",
+            "বিতরণ অনুমোদন করবেন?": "Approve this disbursement?",
+            "বিতরণ অনুমোদিত ✓": "Disbursement approved ✓",
+            "বিতরণ নাকচ করা হল": "Disbursement rejected",
+            "✓ অনুমোদন করুন": "✓ Approve",
+            "✗ নাকচ করুন": "✗ Reject",
+            "অনুমোদন নোটস (ঐচ্ছিক)": "Approval notes (optional)",
+            "এখানে কোনো নিলাম অপেক্ষা করছে না": "No disbursements pending",
+            "লোন আইডি": "Loan ID",
+            "গ্রাহকের নাম": "Customer Name",
+            "অঙ্ক": "Amount",
+            "এজেন্টের নাম": "Agent Name",
+            "অবস্থা": "Status",
+            "আরও লোড করুন": "Load more",
+            "পূর্ববর্তী": "Previous",
+            "পরবর্তী": "Next",
+            "PENDING": "Pending",
+            "APPROVED": "Approved",
+            "REJECTED": "Rejected",
+            "COMPLETED": "Completed"
         };
 
         function ltr(bn) {
@@ -1207,6 +1379,7 @@
                 sh_print: "🖨️ প্রিন্ট করুন",
                 bcBoxesTitle: "অঙ্ক অনুযায়ী",
                 reqTabLbl: "অনুরোধ",
+                disbTabLbl: "বিতরণ",
                 pxHeaderTitle: "কাস্টমার প্রোফাইল",
                 pTitle: "প্রোফাইল",
                 lxSm: "লোন",
@@ -1297,7 +1470,7 @@
 
         var TITLES = {
             dash: "ড্যাশবোর্ড", agent: "এজেন্ট", report: "আজকের রিপোর্ট",
-            req: "লোনের অনুরোধ", sheet: "কাগজ", cust: "গ্রাহক",
+            req: "লোনের অনুরোধ", disb: "বিতরণ", sheet: "কাগজ", cust: "গ্রাহক",
             od: "ব্ল্যাকলিস্ট (১২০+ দিন)"
         };
         var loaded = {};
@@ -1309,7 +1482,7 @@
         /* auto-refresh শুধু এই view-গুলোতে — "এজেন্ট" ট্যাবে ভেতরে ধাপে-ধাপে
            (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
-            dash: loadDash, req: loadReq, sheet: loadSheet,
+            dash: loadDash, req: loadReq, disb: loadDisb, sheet: loadSheet,
             cust: loadCust, od: loadOd
         };
 
@@ -1335,6 +1508,7 @@
                 if (key === "agent")  loadAgents();
                 if (key === "report") loadReport();
                 if (key === "req")    loadReq();
+                if (key === "disb")   loadDisb();
                 if (key === "sheet")  loadSheet();
                 if (key === "cust")   loadCust();
                 if (key === "od")     loadOd();
@@ -1716,12 +1890,79 @@
 
                 q("dash").innerHTML = h;
 
+                // Load collection list at bottom
+                loadCollectionList();
+
             }).catch(function (e) {
                 q("dash").innerHTML =
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
+        /* =====================================================================
+         * সাম্প্রতিক কালেকশন লিস্ট
+         * ===================================================================== */
+        var collectionListRefreshInterval = null;
+
+        function loadCollectionList() {
+            var table = q("collListBody");
+            if (!table) return; // Element doesn't exist
+
+            NK.GET("/api/collections/recent?limit=50").then(function (list) {
+                if (!list || !list.length) {
+                    table.innerHTML = '<tr><td colspan="6" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    return;
+                }
+
+                var html = "";
+                list.forEach(function (item) {
+                    var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
+                    var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
+                    var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+
+                    html += "<tr>";
+                    html += "<td>" + (item.paymentDate || "—") + "</td>";
+                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
+                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
+                    html += "<td>" + NK.esc(item.agentName || "—") + "</td>";
+                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
+                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
+                    html += "</tr>";
+                });
+
+                table.innerHTML = html;
+            }).catch(function (e) {
+                table.innerHTML = '<tr><td colspan="6" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+            });
+        }
+
+        // Auto-refresh collection list every 30 seconds
+        function startCollectionListRefresh() {
+            if (collectionListRefreshInterval) clearInterval(collectionListRefreshInterval);
+            collectionListRefreshInterval = setInterval(function () {
+                if (CURRENT_VIEW === "dash") {
+                    loadCollectionList();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function stopCollectionListRefresh() {
+            if (collectionListRefreshInterval) {
+                clearInterval(collectionListRefreshInterval);
+                collectionListRefreshInterval = null;
+            }
+        }
+
+        // Start auto-refresh when dashboard is loaded
+        window.addEventListener("focus", function () {
+            if (CURRENT_VIEW === "dash") {
+                startCollectionListRefresh();
+            }
+        });
+
+        window.addEventListener("blur", function () {
+            stopCollectionListRefresh();
+        });
 
         /* =====================================================================
          * লোনের অনুরোধ
@@ -2221,13 +2462,212 @@
                     cur = new Date(yy, mm + 1, 1);
                 }
 
+                // ব্যাচ ৩ — গ্রাহক স্বাক্ষর সেকশন
+                h += '<div class="ld-title">✍️ ' + ltr('গ্রাহক স্বাক্ষর') + '</div>';
+                if (d.customerSignaturePath && d.customerSignedAt) {
+                    h += '<div class="ld-box">';
+                    h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
+                    h += '<div class="sig-preview">';
+                    h += '<img src="' + d.customerSignaturePath + '" alt="গ্রাহক স্বাক্ষর">';
+                    h += '</div>';
+                    h += '</div>';
+                } else if (d.approvalStatus === "APPROVED") {
+                    h += '<div class="sig-capture" id="sigCaptureSection">';
+                    h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
+                    h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
+                    h += '<button id="sigFileToggle" class="btn sm" style="flex:1">📤 ফাইল আপলোড</button>';
+                    h += '</div>';
+                    h += '<div id="sigCanvasContainer" style="display:none;">';
+                    h += '<canvas id="sigCanvas" style="border:1px solid #ccc;border-radius:8px;display:block;margin:12px 0;width:100%;height:200px;background:#fff;cursor:crosshair;"></canvas>';
+                    h += '<div style="display:flex;gap:8px;">';
+                    h += '<button id="sigClearCanvas" class="btn ghost sm" style="flex:1">মুছে ফেলুন</button>';
+                    h += '<button id="sigSubmitCanvas" class="btn sm" style="flex:1;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                    h += '<div id="sigFileContainer" style="display:none;">';
+                    h += '<input type="file" id="sigFileInput" accept="image/*" style="display:block;margin:12px 0;padding:8px;border:1px solid #ccc;border-radius:8px;width:100%;">';
+                    h += '<button id="sigSubmitFile" class="btn sm" style="width:100%;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                } else {
+                    h += '<div class="card"><div class="empty">' + ltr('শুধু অনুমোদিত লোনের জন্য স্বাক্ষর সংরক্ষণ করা যায়') + '</div></div>';
+                }
+
                 q("lxBody").innerHTML = h;
+
+                // ব্যাচ ৩ — স্বাক্ষর ক্যাপচার ইভেন্ট হ্যান্ডলার
+                var sigCanvasToggle = q("sigCanvasToggle");
+                var sigFileToggle = q("sigFileToggle");
+                var sigCanvasContainer = q("sigCanvasContainer");
+                var sigFileContainer = q("sigFileContainer");
+                var sigClearCanvas = q("sigClearCanvas");
+                var sigSubmitCanvas = q("sigSubmitCanvas");
+                var sigSubmitFile = q("sigSubmitFile");
+
+                if (sigCanvasToggle) {
+                    sigCanvasToggle.addEventListener("click", function () {
+                        sigCanvasContainer.style.display = "block";
+                        sigFileContainer.style.display = "none";
+                        initSignatureCanvas();
+                    });
+                }
+                if (sigFileToggle) {
+                    sigFileToggle.addEventListener("click", function () {
+                        sigFileContainer.style.display = "block";
+                        sigCanvasContainer.style.display = "none";
+                    });
+                }
+                if (sigClearCanvas) {
+                    sigClearCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (canvas) {
+                            var ctx = canvas.getContext("2d");
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    });
+                }
+                if (sigSubmitCanvas) {
+                    sigSubmitCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (!canvas) return;
+                        var dataUrl = canvas.toDataURL("image/png");
+                        submitSignature(loanId, dataUrl, null);
+                    });
+                }
+                if (sigSubmitFile) {
+                    sigSubmitFile.addEventListener("click", function () {
+                        var fileInput = q("sigFileInput");
+                        if (!fileInput || !fileInput.files.length) {
+                            toast(ltr("ফাইল বেছে নিন"), "er");
+                            return;
+                        }
+                        submitSignature(loanId, null, fileInput.files[0]);
+                    });
+                }
 
             }).catch(function (e) {
                 q("lxTitle").textContent = ltr("লোন #") + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        /* =====================================================================
+         * ব্যাচ ৩ — স্বাক্ষর ক্যাপচার সাপোর্ট
+         * ===================================================================== */
+        var sigIsDrawing = false;
+
+        function initSignatureCanvas() {
+            var canvas = q("sigCanvas");
+            if (!canvas) return;
+
+            // Fix canvas resolution
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvas.addEventListener("mousedown", function (e) {
+                sigIsDrawing = true;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("mousemove", function (e) {
+                if (!sigIsDrawing) return;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("mouseup", function () {
+                sigIsDrawing = false;
+            });
+
+            canvas.addEventListener("mouseleave", function () {
+                sigIsDrawing = false;
+            });
+
+            // Touch support for mobile
+            canvas.addEventListener("touchstart", function (e) {
+                e.preventDefault();
+                sigIsDrawing = true;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("touchmove", function (e) {
+                e.preventDefault();
+                if (!sigIsDrawing) return;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("touchend", function () {
+                sigIsDrawing = false;
+            });
+        }
+
+        function submitSignature(loanId, base64Data, file) {
+            var btn = base64Data ? q("sigSubmitCanvas") : q("sigSubmitFile");
+            if (!btn) return;
+
+            btn.disabled = true;
+            btn.textContent = ltr("পাঠাচ্ছি...");
+
+            var formData = new FormData();
+            if (base64Data) {
+                formData.append("signature", base64Data);
+            } else if (file) {
+                formData.append("file", file);
+            }
+
+            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
+            fetch("/api/loans/" + loanId + "/sign-customer", {
+                method: "PUT",
+                body: formData,
+                headers: {
+                    "Authorization": "Bearer " + NK.getToken()
+                }
+            })
+                .then(function (res) {
+                    if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
+                    return res.json();
+                })
+                .then(function (data) {
+                    toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
+                    setTimeout(function () {
+                        openLoanDetail(loanId);
+                    }, 500);
+                })
+                .catch(function (e) {
+                    toast(NK.esc(e.message), "er");
+                    btn.disabled = false;
+                    btn.textContent = base64Data ? "✓ জমা দিন" : "✓ জমা দিন";
+                });
         }
 
         function pfRow(label, value) {
@@ -2372,6 +2812,179 @@
             });
         }
 
+        /* =====================================================================
+         * বিতরণ (Disbursement) — অনুমোদন
+         * ===================================================================== */
+        var DISB_PAGE = 0;
+        var DISB_SIZE = 20;
+
+        function loadDisb(silent) {
+            if (silent !== true) {
+                q("disbList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
+
+            var url = "/api/disbursements/manager/pending?page=" + DISB_PAGE + "&size=" + DISB_SIZE;
+
+            NK.GET(url).then(function (resp) {
+                var list = NK.rows(resp && resp.content ? resp.content : []);
+                var totalElements = resp && resp.totalElements ? resp.totalElements : 0;
+                var totalPages = resp && resp.totalPages ? resp.totalPages : 1;
+
+                if (!list.length) {
+                    q("disbList").innerHTML = '<div class="card"><div class="empty">' +
+                        ltr("এখানে কোনো নিলাম অপেক্ষা করছে না") + '</div></div>';
+                    return;
+                }
+
+                var h = '<table class="disb-table">';
+                h += '<thead><tr>';
+                h += '<th>' + ltr("তারিখ") + '</th>';
+                h += '<th>' + ltr("লোন আইডি") + '</th>';
+                h += '<th>' + ltr("গ্রাহকের নাম") + '</th>';
+                h += '<th class="r">' + ltr("অঙ্ক") + '</th>';
+                h += '<th>' + ltr("এজেন্টের নাম") + '</th>';
+                h += '<th>' + ltr("অবস্থা") + '</th>';
+                h += '<th>' + ltr("ক্রিয়া") + '</th>';
+                h += '</tr></thead>';
+                h += '<tbody>';
+
+                list.forEach(function (d) {
+                    var statusMap = {
+                        PENDING: { label: ltr("অপেক্ষা") || "PENDING", cls: "pending" },
+                        APPROVED: { label: ltr("অনুমোদিত ✓") || "APPROVED", cls: "approved" },
+                        REJECTED: { label: ltr("নাকচ করা হয়েছে") || "REJECTED", cls: "rejected" },
+                        COMPLETED: { label: ltr("সম্পন্ন") || "COMPLETED", cls: "completed" }
+                    };
+                    var status = statusMap[d.status] || { label: d.status, cls: "" };
+
+                    h += '<tr>';
+                    h += '<td>' + (d.createdAt ? NK.dt(d.createdAt) : "—") + '</td>';
+                    h += '<td><b>' + NK.esc(d.loanId || "—") + '</b></td>';
+                    h += '<td>' + NK.esc(d.customerName || "—") + '</td>';
+                    h += '<td class="r"><b>' + NK.inr(d.amount || 0) + '</b></td>';
+                    h += '<td>' + NK.esc(d.agentName || "—") + '</td>';
+                    h += '<td><span class="disb-status ' + status.cls + '">' + NK.esc(status.label) + '</span></td>';
+
+                    h += '<td>';
+                    if (d.status === "PENDING") {
+                        h += '<div class="disb-actions">';
+                        h += '<button class="approve" data-disb-id="' + d.id + '" data-disb-type="approve">' +
+                            ltr("✓") + '</button>';
+                        h += '<button class="reject" data-disb-id="' + d.id + '" data-disb-type="reject">' +
+                            ltr("✗") + '</button>';
+                        h += '</div>';
+                    } else {
+                        h += '<span style="font-size:11px;color:var(--muted);">—</span>';
+                    }
+                    h += '</td>';
+
+                    h += '</tr>';
+                });
+
+                h += '</tbody>';
+                h += '</table>';
+
+                /* পেজিনেশন */
+                if (totalPages > 1) {
+                    h += '<div class="disb-pagination">';
+                    if (DISB_PAGE > 0) {
+                        h += '<button id="disbPrev">' + ltr("পূর্ববর্তী") + '</button>';
+                    }
+                    h += '<span style="align-self:center;font-size:12px;color:var(--muted);">' +
+                        (DISB_PAGE + 1) + ' / ' + totalPages + '</span>';
+                    if (DISB_PAGE < totalPages - 1) {
+                        h += '<button id="disbNext">' + ltr("পরবর্তী") + '</button>';
+                    }
+                    h += '</div>';
+                }
+
+                q("disbList").innerHTML = h;
+
+                /* অনুমোদন বাটন */
+                Array.prototype.forEach.call(q("disbList").querySelectorAll("[data-disb-type='approve']"), function (b) {
+                    b.addEventListener("click", function () {
+                        var disbId = b.getAttribute("data-disb-id");
+                        if (!confirm(ltr("বিতরণ অনুমোদন করবেন?"))) return;
+                        approveDisbursement(disbId, b);
+                    });
+                });
+
+                /* নাকচ বাটন */
+                Array.prototype.forEach.call(q("disbList").querySelectorAll("[data-disb-type='reject']"), function (b) {
+                    b.addEventListener("click", function () {
+                        var disbId = b.getAttribute("data-disb-id");
+                        var reason = prompt(ltr("নাকচের কারণ:"));
+                        if (!reason || !reason.trim()) {
+                            toast(ltr("কারণ লিখতেই হবে"), "er");
+                            return;
+                        }
+                        rejectDisbursement(disbId, reason.trim(), b);
+                    });
+                });
+
+                /* পেজিনেশন বাটন */
+                var prevBtn = q("disbPrev");
+                if (prevBtn) {
+                    prevBtn.addEventListener("click", function () {
+                        if (DISB_PAGE > 0) {
+                            DISB_PAGE--;
+                            loadDisb();
+                            window.scrollTo(0, 0);
+                        }
+                    });
+                }
+
+                var nextBtn = q("disbNext");
+                if (nextBtn) {
+                    nextBtn.addEventListener("click", function () {
+                        if (DISB_PAGE < totalPages - 1) {
+                            DISB_PAGE++;
+                            loadDisb();
+                            window.scrollTo(0, 0);
+                        }
+                    });
+                }
+
+            }).catch(function (e) {
+                q("disbList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function approveDisbursement(disbId, btn) {
+            btn.disabled = true;
+            var originalText = btn.textContent;
+            btn.textContent = "...";
+
+            NK.PATCH("/api/disbursements/manager/" + disbId + "/approve", {})
+                .then(function () {
+                    toast(ltr("বিতরণ অনুমোদিত ✓"), "ok");
+                    DISB_PAGE = 0;
+                    loadDisb();
+                })
+                .catch(function (e) {
+                    toast(e.message, "er");
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                });
+        }
+
+        function rejectDisbursement(disbId, reason, btn) {
+            btn.disabled = true;
+            var originalText = btn.textContent;
+            btn.textContent = "...";
+
+            NK.PATCH("/api/disbursements/manager/" + disbId + "/reject", { rejectionReason: reason })
+                .then(function () {
+                    toast(ltr("বিতরণ নাকচ করা হল"), "ok");
+                    DISB_PAGE = 0;
+                    loadDisb();
+                })
+                .catch(function (e) {
+                    toast(e.message, "er");
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                });
+        }
 
         /* =====================================================================
          * কাগজ

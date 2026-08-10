@@ -207,6 +207,32 @@
         .ld-cell.miss  { background: #FEE2E2; color: #B91C1C; }
         .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
         .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
+
+        /* ---- গ্রাহক স্বাক্ষর ---- */
+        .sig-capture {
+            padding: 16px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .sig-preview {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .sig-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        #sigCanvas {
+            display: block !important;
+            margin: 12px 0;
+            border: 2px solid #0F2942 !important;
+        }
     </style>
 </head>
 <body>
@@ -256,6 +282,26 @@
             <div id="branchBoxes"></div>
             <div id="dash">
                 <div class="loading">লোড হচ্ছে...</div>
+            </div>
+
+            <!-- কালেকশন লিস্ট -->
+            <div class="card" style="margin-top:24px;">
+                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>গ্রাহক</th>
+                            <th>ফোন</th>
+                            <th>এজেন্ট</th>
+                            <th>অঙ্ক</th>
+                            <th>অবস্থা</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collListBody">
+                        <tr><td colspan="6" class="loading">লোড হচ্ছে...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -1386,6 +1432,9 @@
                         });
                     });
 
+                // Load collection list at bottom
+                loadCollectionList();
+
             }).catch(function (e) {
                 q("dash").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
@@ -2207,6 +2256,70 @@
             }).catch(function () { return []; });
         }
 
+        /* =====================================================================
+         * সাম্প্রতিক কালেকশন লিস্ট
+         * ===================================================================== */
+        var collectionListRefreshInterval = null;
+
+        function loadCollectionList() {
+            var table = q("collListBody");
+            if (!table) return; // Element doesn't exist
+
+            NK.GET("/api/collections/recent?limit=50").then(function (list) {
+                if (!list || !list.length) {
+                    table.innerHTML = '<tr><td colspan="6" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    return;
+                }
+
+                var html = "";
+                list.forEach(function (item) {
+                    var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
+                    var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
+                    var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+
+                    html += "<tr>";
+                    html += "<td>" + (item.paymentDate || "—") + "</td>";
+                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
+                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
+                    html += "<td>" + NK.esc(item.agentName || "—") + "</td>";
+                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
+                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
+                    html += "</tr>";
+                });
+
+                table.innerHTML = html;
+            }).catch(function (e) {
+                table.innerHTML = '<tr><td colspan="6" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+            });
+        }
+
+        // Auto-refresh collection list every 30 seconds
+        function startCollectionListRefresh() {
+            if (collectionListRefreshInterval) clearInterval(collectionListRefreshInterval);
+            collectionListRefreshInterval = setInterval(function () {
+                if (CURRENT_VIEW === "dash") {
+                    loadCollectionList();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function stopCollectionListRefresh() {
+            if (collectionListRefreshInterval) {
+                clearInterval(collectionListRefreshInterval);
+                collectionListRefreshInterval = null;
+            }
+        }
+
+        // Start auto-refresh when dashboard is loaded
+        window.addEventListener("focus", function () {
+            if (CURRENT_VIEW === "dash") {
+                startCollectionListRefresh();
+            }
+        });
+
+        window.addEventListener("blur", function () {
+            stopCollectionListRefresh();
+        });
 
         /* =====================================================================
          * OD তালিকা
@@ -4423,7 +4536,88 @@
                     cur = new Date(yy, mm + 1, 1);
                 }
 
+                // ব্যাচ ৩ — গ্রাহক স্বাক্ষর সেকশন
+                h += '<div class="ld-title">✍️ ' + ltr('গ্রাহক স্বাক্ষর') + '</div>';
+                if (d.customerSignaturePath && d.customerSignedAt) {
+                    h += '<div class="ld-box">';
+                    h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
+                    h += '<div class="sig-preview">';
+                    h += '<img src="' + d.customerSignaturePath + '" alt="গ্রাহক স্বাক্ষর">';
+                    h += '</div>';
+                    h += '</div>';
+                } else if (d.approvalStatus === "APPROVED") {
+                    h += '<div class="sig-capture" id="sigCaptureSection">';
+                    h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
+                    h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
+                    h += '<button id="sigFileToggle" class="btn sm" style="flex:1">📤 ফাইল আপলোড</button>';
+                    h += '</div>';
+                    h += '<div id="sigCanvasContainer" style="display:none;">';
+                    h += '<canvas id="sigCanvas" style="border:1px solid #ccc;border-radius:8px;display:block;margin:12px 0;width:100%;height:200px;background:#fff;cursor:crosshair;"></canvas>';
+                    h += '<div style="display:flex;gap:8px;">';
+                    h += '<button id="sigClearCanvas" class="btn ghost sm" style="flex:1">মুছে ফেলুন</button>';
+                    h += '<button id="sigSubmitCanvas" class="btn sm" style="flex:1;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                    h += '<div id="sigFileContainer" style="display:none;">';
+                    h += '<input type="file" id="sigFileInput" accept="image/*" style="display:block;margin:12px 0;padding:8px;border:1px solid #ccc;border-radius:8px;width:100%;">';
+                    h += '<button id="sigSubmitFile" class="btn sm" style="width:100%;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                } else {
+                    h += '<div class="card"><div class="empty">' + ltr('শুধু অনুমোদিত লোনের জন্য স্বাক্ষর সংরক্ষণ করা যায়') + '</div></div>';
+                }
+
                 q("lxBody").innerHTML = h;
+
+                // ব্যাচ ৩ — স্বাক্ষর ক্যাপচার ইভেন্ট হ্যান্ডলার
+                var sigCanvasToggle = q("sigCanvasToggle");
+                var sigFileToggle = q("sigFileToggle");
+                var sigCanvasContainer = q("sigCanvasContainer");
+                var sigFileContainer = q("sigFileContainer");
+                var sigClearCanvas = q("sigClearCanvas");
+                var sigSubmitCanvas = q("sigSubmitCanvas");
+                var sigSubmitFile = q("sigSubmitFile");
+
+                if (sigCanvasToggle) {
+                    sigCanvasToggle.addEventListener("click", function () {
+                        sigCanvasContainer.style.display = "block";
+                        sigFileContainer.style.display = "none";
+                        initSignatureCanvas();
+                    });
+                }
+                if (sigFileToggle) {
+                    sigFileToggle.addEventListener("click", function () {
+                        sigFileContainer.style.display = "block";
+                        sigCanvasContainer.style.display = "none";
+                    });
+                }
+                if (sigClearCanvas) {
+                    sigClearCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (canvas) {
+                            var ctx = canvas.getContext("2d");
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    });
+                }
+                if (sigSubmitCanvas) {
+                    sigSubmitCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (!canvas) return;
+                        var dataUrl = canvas.toDataURL("image/png");
+                        submitSignature(loanId, dataUrl, null);
+                    });
+                }
+                if (sigSubmitFile) {
+                    sigSubmitFile.addEventListener("click", function () {
+                        var fileInput = q("sigFileInput");
+                        if (!fileInput || !fileInput.files.length) {
+                            toast(ltr("ফাইল বেছে নিন"), "er");
+                            return;
+                        }
+                        submitSignature(loanId, null, fileInput.files[0]);
+                    });
+                }
 
             }).catch(function (e) {
                 q("lxTitle").textContent = ltr('লোন #') + loanId;
@@ -4431,6 +4625,125 @@
                     NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* =====================================================================
+         * ব্যাচ ৩ — স্বাক্ষর ক্যাপচার সাপোর্ট
+         * ===================================================================== */
+        var sigIsDrawing = false;
+
+        function initSignatureCanvas() {
+            var canvas = q("sigCanvas");
+            if (!canvas) return;
+
+            // Fix canvas resolution
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvas.addEventListener("mousedown", function (e) {
+                sigIsDrawing = true;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("mousemove", function (e) {
+                if (!sigIsDrawing) return;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("mouseup", function () {
+                sigIsDrawing = false;
+            });
+
+            canvas.addEventListener("mouseleave", function () {
+                sigIsDrawing = false;
+            });
+
+            // Touch support for mobile
+            canvas.addEventListener("touchstart", function (e) {
+                e.preventDefault();
+                sigIsDrawing = true;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("touchmove", function (e) {
+                e.preventDefault();
+                if (!sigIsDrawing) return;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("touchend", function () {
+                sigIsDrawing = false;
+            });
+        }
+
+        function submitSignature(loanId, base64Data, file) {
+            var btn = base64Data ? q("sigSubmitCanvas") : q("sigSubmitFile");
+            if (!btn) return;
+
+            btn.disabled = true;
+            btn.textContent = ltr("পাঠাচ্ছি...");
+
+            var formData = new FormData();
+            if (base64Data) {
+                formData.append("signature", base64Data);
+            } else if (file) {
+                formData.append("file", file);
+            }
+
+            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
+            fetch("/api/loans/" + loanId + "/sign-customer", {
+                method: "PUT",
+                body: formData,
+                headers: {
+                    "Authorization": "Bearer " + NK.getToken()
+                }
+            })
+                .then(function (res) {
+                    if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
+                    return res.json();
+                })
+                .then(function (data) {
+                    toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
+                    setTimeout(function () {
+                        openLoanDetail(loanId);
+                    }, 500);
+                })
+                .catch(function (e) {
+                    toast(NK.esc(e.message), "er");
+                    btn.disabled = false;
+                    btn.textContent = base64Data ? "✓ জমা দিন" : "✓ জমা দিন";
+                });
+        }
+
         function pfRow(label, value) {
             if (value === null || value === undefined || value === "") return "";
             return '<div class="r"><span>' + NK.esc(label) + '</span><b>' +

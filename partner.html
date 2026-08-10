@@ -154,6 +154,26 @@
             </div>
             <div id="fund"></div>
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <!-- কালেকশন লিস্ট -->
+            <div class="card" style="margin-top:24px;">
+                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>গ্রাহক</th>
+                            <th>ফোন</th>
+                            <th>এজেন্ট</th>
+                            <th>অঙ্ক</th>
+                            <th>অবস্থা</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collListBody">
+                        <tr><td colspan="6" class="loading">লোড হচ্ছে...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- ---------------- গ্রাহক ---------------- -->
@@ -755,12 +775,80 @@
 
                 q("dash").innerHTML = h;
 
+                // Load collection list at bottom
+                loadCollectionList();
+
             }).catch(function (e) {
                 q("dash").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
         q("br").addEventListener("change", loadDash);
+
+        /* =====================================================================
+         * সাম্প্রতিক কালেকশন লিস্ট
+         * ===================================================================== */
+        var collectionListRefreshInterval = null;
+
+        function loadCollectionList() {
+            var table = q("collListBody");
+            if (!table) return; // Element doesn't exist
+
+            NK.GET("/api/collections/recent?limit=50").then(function (list) {
+                if (!list || !list.length) {
+                    table.innerHTML = '<tr><td colspan="6" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    return;
+                }
+
+                var html = "";
+                list.forEach(function (item) {
+                    var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
+                    var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
+                    var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+
+                    html += "<tr>";
+                    html += "<td>" + (item.paymentDate || "—") + "</td>";
+                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
+                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
+                    html += "<td>" + NK.esc(item.agentName || "—") + "</td>";
+                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
+                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
+                    html += "</tr>";
+                });
+
+                table.innerHTML = html;
+            }).catch(function (e) {
+                table.innerHTML = '<tr><td colspan="6" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+            });
+        }
+
+        // Auto-refresh collection list every 30 seconds
+        function startCollectionListRefresh() {
+            if (collectionListRefreshInterval) clearInterval(collectionListRefreshInterval);
+            collectionListRefreshInterval = setInterval(function () {
+                if (CURRENT_VIEW === "dash") {
+                    loadCollectionList();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function stopCollectionListRefresh() {
+            if (collectionListRefreshInterval) {
+                clearInterval(collectionListRefreshInterval);
+                collectionListRefreshInterval = null;
+            }
+        }
+
+        // Start auto-refresh when dashboard is loaded
+        window.addEventListener("focus", function () {
+            if (CURRENT_VIEW === "dash") {
+                startCollectionListRefresh();
+            }
+        });
+
+        window.addEventListener("blur", function () {
+            stopCollectionListRefresh();
+        });
 
         /* =====================================================================
            * ফান্ডের জীবন্ত হিসাব
