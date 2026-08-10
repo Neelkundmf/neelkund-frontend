@@ -889,6 +889,32 @@
         .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
         .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
 
+        /* ---- গ্রাহক স্বাক্ষর ---- */
+        .sig-capture {
+            padding: 16px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .sig-preview {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .sig-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        #sigCanvas {
+            display: block !important;
+            margin: 12px 0;
+            border: 2px solid #0F2942 !important;
+        }
+
         /* ---- দৈনিক রিপোর্ট ---- */
         .report-stats {
             display: grid;
@@ -949,6 +975,118 @@
             color: var(--red);
         }
 
+        /* ---- বিতরণ স্ট্যাটাস ব্যাজ ---- */
+        .disb-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: none;
+        }
+        .disb-badge.pending {
+            background: #FEF9E7;
+            color: #B45309;
+        }
+        .disb-badge.approved {
+            background: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .disb-badge.rejected {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+        .disb-badge.completed {
+            background: #ECFDF5;
+            color: #047857;
+        }
+
+        /* ---- বিতরণ টেবিল ---- */
+        .disb-table {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+            margin-bottom: 14px;
+        }
+        .disb-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .disb-table thead {
+            background: var(--paper);
+            border-bottom: 1px solid var(--line);
+        }
+        .disb-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+        .disb-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+        .disb-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+        .disb-table .amt {
+            font-weight: 700;
+            color: var(--navy);
+        }
+        .disb-table .time {
+            font-size: 12.5px;
+            color: var(--muted);
+        }
+
+        /* ---- বিতরণ অ্যাকশন বাটন ---- */
+        .disb-action-btn {
+            background: #16A34A;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .12s;
+        }
+        .disb-action-btn:active {
+            transform: scale(.96);
+        }
+        .disb-action-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        /* ---- বিতরণ নোটস/কারণ ---- */
+        .disb-notes {
+            max-width: 300px;
+            font-size: 12px;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .disb-notes.error {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        /* ---- খালি স্ক্রিন ---- */
+        .disb-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+        }
+        .disb-empty .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: .6;
+        }
+
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -995,6 +1133,25 @@
             <div id="mkt"></div>
             <div id="amtDash"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <!-- কালেকশন লিস্ট -->
+            <div class="card" style="margin-top:24px;">
+                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>তারিখ</th>
+                            <th>গ্রাহক</th>
+                            <th>ফোন</th>
+                            <th>অঙ্ক</th>
+                            <th>অবস্থা</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collListBody">
+                        <tr><td colspan="5" class="loading">লোড হচ্ছে...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <!-- ---------------- কালেকশন ---------------- -->
         <div class="view" id="v-coll">
@@ -1177,6 +1334,23 @@
             <button class="btn block" id="reportDownload" style="margin:16px;">📥 দৈনিক রিপোর্ট ডাউনলোড করুন</button>
         </div>
 
+        <!-- --------- বিতরণ --------- -->
+        <div class="view" id="v-disb">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">💰 আমার বিতরণ</h2>
+                <div id="disbStats" class="report-stats"></div>
+            </div>
+
+            <div id="disbBody"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <!-- Pagination -->
+            <div id="disbPagination" style="display:flex; gap:10px; justify-content:center; margin:16px; align-items:center;">
+                <button class="btn" id="disbPrevBtn" style="flex:0; width:80px;">← আগে</button>
+                <span id="disbPageInfo" style="flex:1; text-align:center; font-size:14px;">পাতা ১</span>
+                <button class="btn" id="disbNextBtn" style="flex:0; width:80px;">পরে →</button>
+            </div>
+        </div>
+
     </div>
 
     <div class="tabs">
@@ -1184,6 +1358,7 @@
         <button data-v="coll"><i>💰</i>কালেকশন</button>
         <button data-v="mycust"><i>👥</i>আমার গ্রাহক</button>
         <button data-v="report"><i>📊</i>রিপোর্ট</button>
+        <button data-v="disb"><i>💸</i>বিতরণ</button>
         <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
@@ -1492,7 +1667,34 @@
             "অ্যাডভান্স প্রাপ্য": "Advance Balance",
             "অপরিশোধিত গ্রাহক": "Unpaid Customers",
             "সব গ্রাহক শোধ করেছেন!": "All customers paid!",
-            "দৈনিক রিপোর্ট ডাউনলোড করুন": "Download Daily Report"
+            "দৈনিক রিপোর্ট ডাউনলোড করুন": "Download Daily Report",
+            "আমার বিতরণ": "My Disbursements",
+            "সময়": "Time",
+            "লোন আইডি": "Loan ID",
+            "গ্রাহক নাম": "Customer Name",
+            "অঙ্ক": "Amount",
+            "অবস্থা": "Status",
+            "অপেক্ষমান": "Awaiting",
+            "অনুমোদিত": "Approved",
+            "প্রত্যাখ্যাত": "Rejected",
+            "সম্পন্ন": "Completed",
+            "✓ সম্পন্ন": "✓ Mark Completed",
+            "ম্যানেজারের মন্তব্য": "Manager's Notes",
+            "বাতিলের কারণ": "Rejection Reason",
+            "সম্পন্ন সময়": "Completed At",
+            "বিতরণ সম্পন্ন হয়েছে": "Disbursement completed",
+            "কোনো বিতরণ নেই": "No disbursements",
+            "পাতা": "Page",
+            "← আগে": "← Prev",
+            "পরে →": "Next →",
+            "বিতরণ": "Disbursements",
+            "আজকের বিতরণ": "Today's Disbursements",
+            "মোট বিতরণযোগ্য": "Total Disburse",
+            "অনুমোদিত সংখ্যা": "Approved Count",
+            "সম্পন্ন সংখ্যা": "Completed Count",
+            "সম্পন্ন করা যায়নি": "Cannot complete",
+            "বিতরণ আপডেট হয়েছে": "Disbursement updated",
+            "ত্রুটি": "Error"
         };
 
         /** এই পাতার লেখার জন্য — ltr("গ্রাহকের কোড") */
@@ -1698,17 +1900,18 @@
          * ===================================================================== */
         var TITLES = {
             today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
-            report: "দৈনিক রিপোর্ট", new: "নতুন গ্রাহক",
+            report: "দৈনিক রিপোর্ট", disb: "বিতরণ", new: "নতুন গ্রাহক",
             black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
         };
         var loaded = {};
         var CURRENT_VIEW = "today";
+        var disbState = { page: 0, pageSize: 20, allData: [] };
 
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
             today: loadToday, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
-            report: loadReport, black: loadBlack, sheet: loadSheet
+            report: loadReport, disb: loadDisb, black: loadBlack, sheet: loadSheet
         };
 
         function show(key) {
@@ -1733,6 +1936,7 @@
                 if (key === "cust")  loadCust();
                 if (key === "mycust") loadMyCust();
                 if (key === "report") loadReport();
+                if (key === "disb") loadDisb();
                 if (key === "black") loadBlack();
                 if (key === "sheet") loadSheet();
             }
@@ -2616,10 +2820,77 @@
                 q("today").innerHTML = h;
                 bindPay(q("today"));
 
+                // Load collection list at bottom
+                loadCollectionList();
+
             }).catch(function (e) {
                 q("today").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* =====================================================================
+         * সাম্প্রতিক কালেকশন লিস্ট
+         * ===================================================================== */
+        var collectionListRefreshInterval = null;
+
+        function loadCollectionList() {
+            var table = q("collListBody");
+            if (!table) return; // Element doesn't exist
+
+            NK.GET("/api/collections/recent?limit=50").then(function (list) {
+                if (!list || !list.length) {
+                    table.innerHTML = '<tr><td colspan="5" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    return;
+                }
+
+                var html = "";
+                list.forEach(function (item) {
+                    var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
+                    var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
+                    var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+
+                    html += "<tr>";
+                    html += "<td>" + (item.paymentDate || "—") + "</td>";
+                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
+                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
+                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
+                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
+                    html += "</tr>";
+                });
+
+                table.innerHTML = html;
+            }).catch(function (e) {
+                table.innerHTML = '<tr><td colspan="5" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+            });
+        }
+
+        // Auto-refresh collection list every 30 seconds
+        function startCollectionListRefresh() {
+            if (collectionListRefreshInterval) clearInterval(collectionListRefreshInterval);
+            collectionListRefreshInterval = setInterval(function () {
+                if (CURRENT_VIEW === "today") {
+                    loadCollectionList();
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function stopCollectionListRefresh() {
+            if (collectionListRefreshInterval) {
+                clearInterval(collectionListRefreshInterval);
+                collectionListRefreshInterval = null;
+            }
+        }
+
+        // Start auto-refresh when dashboard is loaded
+        window.addEventListener("focus", function () {
+            if (CURRENT_VIEW === "today") {
+                startCollectionListRefresh();
+            }
+        });
+
+        window.addEventListener("blur", function () {
+            stopCollectionListRefresh();
+        });
 
         function bindPay(box) {
             Array.prototype.forEach.call(box.querySelectorAll("[data-pay]"), function (el) {
@@ -4023,6 +4294,37 @@
                     h += '</div>';
                 }
 
+                // ব্যাচ ৩ — গ্রাহক স্বাক্ষর সেকশন
+                h += '<div class="ld-title">✍️ ' + ltr('গ্রাহক স্বাক্ষর') + '</div>';
+                if (d.customerSignaturePath && d.customerSignedAt) {
+                    h += '<div class="ld-box">';
+                    h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
+                    h += '<div class="sig-preview">';
+                    h += '<img src="' + d.customerSignaturePath + '" alt="গ্রাহক স্বাক্ষর">';
+                    h += '</div>';
+                    h += '</div>';
+                } else if (d.approvalStatus === "APPROVED") {
+                    h += '<div class="sig-capture" id="sigCaptureSection">';
+                    h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
+                    h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
+                    h += '<button id="sigFileToggle" class="btn sm" style="flex:1">📤 ফাইল আপলোড</button>';
+                    h += '</div>';
+                    h += '<div id="sigCanvasContainer" style="display:none;">';
+                    h += '<canvas id="sigCanvas" style="border:1px solid #ccc;border-radius:8px;display:block;margin:12px 0;width:100%;height:200px;background:#fff;cursor:crosshair;"></canvas>';
+                    h += '<div style="display:flex;gap:8px;">';
+                    h += '<button id="sigClearCanvas" class="btn ghost sm" style="flex:1">মুছে ফেলুন</button>';
+                    h += '<button id="sigSubmitCanvas" class="btn sm" style="flex:1;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                    h += '<div id="sigFileContainer" style="display:none;">';
+                    h += '<input type="file" id="sigFileInput" accept="image/*" style="display:block;margin:12px 0;padding:8px;border:1px solid #ccc;border-radius:8px;width:100%;">';
+                    h += '<button id="sigSubmitFile" class="btn sm" style="width:100%;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
+                    h += '</div>';
+                    h += '</div>';
+                } else {
+                    h += '<div class="card"><div class="empty">' + ltr('শুধু অনুমোদিত লোনের জন্য স্বাক্ষর সংরক্ষণ করা যায়') + '</div></div>';
+                }
+
                 q("lxBody").innerHTML = h;
 
                 Array.prototype.forEach.call(q("lxBody").querySelectorAll("[data-reverse]"), function (b) {
@@ -4045,11 +4347,179 @@
                             });
                     });
                 });
+
+                // ব্যাচ ৩ — স্বাক্ষর ক্যাপচার ইভেন্ট হ্যান্ডলার
+                var sigCanvasToggle = q("sigCanvasToggle");
+                var sigFileToggle = q("sigFileToggle");
+                var sigCanvasContainer = q("sigCanvasContainer");
+                var sigFileContainer = q("sigFileContainer");
+                var sigClearCanvas = q("sigClearCanvas");
+                var sigSubmitCanvas = q("sigSubmitCanvas");
+                var sigSubmitFile = q("sigSubmitFile");
+
+                if (sigCanvasToggle) {
+                    sigCanvasToggle.addEventListener("click", function () {
+                        sigCanvasContainer.style.display = "block";
+                        sigFileContainer.style.display = "none";
+                        initSignatureCanvas();
+                    });
+                }
+                if (sigFileToggle) {
+                    sigFileToggle.addEventListener("click", function () {
+                        sigFileContainer.style.display = "block";
+                        sigCanvasContainer.style.display = "none";
+                    });
+                }
+                if (sigClearCanvas) {
+                    sigClearCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (canvas) {
+                            var ctx = canvas.getContext("2d");
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    });
+                }
+                if (sigSubmitCanvas) {
+                    sigSubmitCanvas.addEventListener("click", function () {
+                        var canvas = q("sigCanvas");
+                        if (!canvas) return;
+                        var dataUrl = canvas.toDataURL("image/png");
+                        submitSignature(loanId, dataUrl, null);
+                    });
+                }
+                if (sigSubmitFile) {
+                    sigSubmitFile.addEventListener("click", function () {
+                        var fileInput = q("sigFileInput");
+                        if (!fileInput || !fileInput.files.length) {
+                            toast(ltr("ফাইল বেছে নিন"), "er");
+                            return;
+                        }
+                        submitSignature(loanId, null, fileInput.files[0]);
+                    });
+                }
             }).catch(function (e) {
                 q("lxTitle").textContent = ltr("লোন") + " #" + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        /* =====================================================================
+         * ব্যাচ ৩ — স্বাক্ষর ক্যাপচার সাপোর্ট
+         * ===================================================================== */
+        var sigIsDrawing = false;
+
+        function initSignatureCanvas() {
+            var canvas = q("sigCanvas");
+            if (!canvas) return;
+
+            // Fix canvas resolution
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvas.addEventListener("mousedown", function (e) {
+                sigIsDrawing = true;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("mousemove", function (e) {
+                if (!sigIsDrawing) return;
+                var rect = canvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("mouseup", function () {
+                sigIsDrawing = false;
+            });
+
+            canvas.addEventListener("mouseleave", function () {
+                sigIsDrawing = false;
+            });
+
+            // Touch support for mobile
+            canvas.addEventListener("touchstart", function (e) {
+                e.preventDefault();
+                sigIsDrawing = true;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("touchmove", function (e) {
+                e.preventDefault();
+                if (!sigIsDrawing) return;
+                var touch = e.touches[0];
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;
+                var y = touch.clientY - rect.top;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#000";
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            });
+
+            canvas.addEventListener("touchend", function () {
+                sigIsDrawing = false;
+            });
+        }
+
+        function submitSignature(loanId, base64Data, file) {
+            var btn = base64Data ? q("sigSubmitCanvas") : q("sigSubmitFile");
+            if (!btn) return;
+
+            btn.disabled = true;
+            btn.textContent = ltr("পাঠাচ্ছি...");
+
+            var formData = new FormData();
+            if (base64Data) {
+                formData.append("signature", base64Data);
+            } else if (file) {
+                formData.append("file", file);
+            }
+
+            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
+            fetch("/api/loans/" + loanId + "/sign-customer", {
+                method: "PUT",
+                body: formData,
+                headers: {
+                    "Authorization": "Bearer " + NK.getToken()
+                }
+            })
+                .then(function (res) {
+                    if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
+                    return res.json();
+                })
+                .then(function (data) {
+                    toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
+                    setTimeout(function () {
+                        openLoanDetail(loanId);
+                    }, 500);
+                })
+                .catch(function (e) {
+                    toast(NK.esc(e.message), "er");
+                    btn.disabled = false;
+                    btn.textContent = base64Data ? "✓ জমা দিন" : "✓ জমা দিন";
+                });
         }
 
         /* =====================================================================
@@ -4253,6 +4723,217 @@
                     NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* =====================================================================
+         * বিতরণ
+         * ===================================================================== */
+        function loadDisb() {
+            q("disbBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            NK.GET("/api/disbursements/agent/today").then(function (response) {
+                // Handle both array response (direct from API) and wrapped response
+                disbState.allData = Array.isArray(response) ? response : (response.disbursements || []);
+                disbState.page = 0;
+                drawDisbStats(disbState.allData);
+                drawDisbList();
+            }).catch(function (e) {
+                q("disbBody").innerHTML = '<div class="disb-empty"><div class="icon">⚠️</div><p>' +
+                    NK.esc(e.message) + '</p></div>';
+            });
+        }
+
+        function drawDisbStats(disbursements) {
+            // Calculate stats from the disbursements array
+            var totalAmount = 0;
+            var approvedCount = 0;
+            var completedCount = 0;
+
+            disbursements.forEach(function (disb) {
+                var statusLower = (disb.status || '').toLowerCase();
+                if (statusLower === 'approved' || statusLower === 'completed') {
+                    totalAmount += (disb.amount || 0);
+                }
+                if (statusLower === 'approved') {
+                    approvedCount++;
+                }
+                if (statusLower === 'completed') {
+                    completedCount++;
+                }
+            });
+
+            var h = '';
+
+            h += '<div class="report-stat-card">';
+            h += '<div class="l">' + ltr("আজকের বিতরণ") + '</div>';
+            h += '<div class="v">' + NK.inr(totalAmount) + '</div>';
+            h += '</div>';
+
+            h += '<div class="report-stat-card">';
+            h += '<div class="l">' + ltr("অনুমোদিত সংখ্যা") + '</div>';
+            h += '<div class="v">' + approvedCount + '</div>';
+            h += '</div>';
+
+            h += '<div class="report-stat-card">';
+            h += '<div class="l">' + ltr("সম্পন্ন সংখ্যা") + '</div>';
+            h += '<div class="v">' + completedCount + '</div>';
+            h += '</div>';
+
+            h += '<div class="report-stat-card">';
+            h += '<div class="l">' + ltr("মোট সংখ্যা") + '</div>';
+            h += '<div class="v">' + (disbursements.length || 0) + '</div>';
+            h += '</div>';
+
+            q("disbStats").innerHTML = h;
+        }
+
+        function getStatusBadge(status) {
+            var statusLower = (status || '').toLowerCase();
+            var badgeClass = 'disb-badge ';
+            var badgeText = status;
+
+            if (statusLower === 'pending') {
+                badgeClass += 'pending';
+                badgeText = ltr("অপেক্ষমান");
+            } else if (statusLower === 'approved') {
+                badgeClass += 'approved';
+                badgeText = ltr("অনুমোদিত");
+            } else if (statusLower === 'rejected') {
+                badgeClass += 'rejected';
+                badgeText = ltr("প্রত্যাখ্যাত");
+            } else if (statusLower === 'completed') {
+                badgeClass += 'completed';
+                badgeText = ltr("সম্পন্ন");
+            }
+
+            return '<span class="' + badgeClass + '">' + NK.esc(badgeText) + '</span>';
+        }
+
+        function drawDisbList() {
+            var start = disbState.page * disbState.pageSize;
+            var end = start + disbState.pageSize;
+            var pageData = disbState.allData.slice(start, end);
+
+            if (pageData.length === 0 && disbState.allData.length === 0) {
+                q("disbBody").innerHTML = '<div class="disb-empty"><div class="icon">💰</div><p>' +
+                    ltr("কোনো বিতরণ নেই") + '</p></div>';
+                q("disbPagination").style.display = 'none';
+                return;
+            }
+
+            var h = '<div class="disb-table"><table><thead><tr>';
+            h += '<th>' + ltr("সময়") + '</th>';
+            h += '<th>' + ltr("লোন আইডি") + '</th>';
+            h += '<th>' + ltr("গ্রাহক নাম") + '</th>';
+            h += '<th>' + ltr("অঙ্ক") + '</th>';
+            h += '<th>' + ltr("অবস্থা") + '</th>';
+            h += '<th>—</th>';
+            h += '</tr></thead><tbody>';
+
+            pageData.forEach(function (disb) {
+                var statusLower = (disb.status || '').toLowerCase();
+                var canAction = statusLower === 'approved';
+
+                h += '<tr>';
+                h += '<td class="time">' + (disb.createdAt ? NK.dtTime(disb.createdAt) : '—') + '</td>';
+                h += '<td><strong>' + NK.esc(disb.loanId || '—') + '</strong></td>';
+                h += '<td>' + NK.esc(disb.customerName || '—') + '</td>';
+                h += '<td class="amt">₹' + NK.inr(disb.amount || 0) + '</td>';
+                h += '<td>' + getStatusBadge(disb.status) + '</td>';
+                h += '<td style="text-align:right;">';
+
+                if (canAction) {
+                    h += '<button class="disb-action-btn" onclick="markDisbursementCompleted(' +
+                        disb.id + ', event)" data-disb-id="' + disb.id + '">' +
+                        ltr("✓ সম্পন্ন") + '</button>';
+                }
+
+                h += '</td>';
+                h += '</tr>';
+
+                // Show manager notes if present
+                if (disb.managerNotes && statusLower !== 'completed') {
+                    h += '<tr style="background:var(--paper);">';
+                    h += '<td colspan="6">';
+                    h += '<div class="disb-notes">' + NK.esc("📝 " + disb.managerNotes) + '</div>';
+                    h += '</td></tr>';
+                }
+
+                // Show rejection reason if present
+                if (disb.rejectionReason && statusLower === 'rejected') {
+                    h += '<tr style="background:#FEF2F2;">';
+                    h += '<td colspan="6">';
+                    h += '<div class="disb-notes error">' + NK.esc("❌ " + disb.rejectionReason) + '</div>';
+                    h += '</td></tr>';
+                }
+
+                // Show completion time if present
+                if (disb.completedAt && statusLower === 'completed') {
+                    h += '<tr style="background:var(--green-soft);">';
+                    h += '<td colspan="6">';
+                    h += '<div class="disb-notes" style="color:#047857; font-weight:600;">' +
+                        ltr("সম্পন্ন সময়") + ': ' + NK.dtTime(disb.completedAt) + '</div>';
+                    h += '</td></tr>';
+                }
+            });
+
+            h += '</tbody></table></div>';
+
+            q("disbBody").innerHTML = h;
+
+            // Update pagination
+            var totalPages = Math.ceil(disbState.allData.length / disbState.pageSize);
+            q("disbPageInfo").textContent = ltr("পাতা") + ' ' + (disbState.page + 1) + ' / ' + totalPages;
+            q("disbPrevBtn").disabled = disbState.page === 0;
+            q("disbNextBtn").disabled = (disbState.page + 1) >= totalPages;
+            q("disbPagination").style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        function markDisbursementCompleted(disbId, e) {
+            if (e) e.preventDefault();
+
+            var btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳...';
+
+            NK.PATCH("/api/disbursements/agent/" + disbId + "/mark-completed", {})
+                .then(function (response) {
+                    btn.disabled = false;
+                    toast(ltr("বিতরণ আপডেট হয়েছে"), "ok");
+                    loadDisb(); // Reload the list
+                })
+                .catch(function (e) {
+                    btn.disabled = false;
+                    btn.textContent = ltr("✓ সম্পন্ন");
+                    toast(ltr("সম্পন্ন করা যায়নি") + ": " + e.message, "er");
+                });
+        }
+
+        // Pagination handlers
+        q("disbPrevBtn").addEventListener("click", function () {
+            if (disbState.page > 0) {
+                disbState.page--;
+                drawDisbList();
+                window.scrollTo(0, 0);
+            }
+        });
+
+        q("disbNextBtn").addEventListener("click", function () {
+            var totalPages = Math.ceil(disbState.allData.length / disbState.pageSize);
+            if ((disbState.page + 1) < totalPages) {
+                disbState.page++;
+                drawDisbList();
+                window.scrollTo(0, 0);
+            }
+        });
+
+        // Auto-refresh disbursement view every 15 seconds
+        setInterval(function () {
+            if (CURRENT_VIEW !== "disb") return;
+            if (document.visibilityState !== "visible") return;
+            var ae = document.activeElement;
+            if (ae && (ae.tagName === "BUTTON")) return; // Don't refresh while clicking
+            loadDisb(true);
+        }, 15000);
 
         /* =====================================================================
          * নোটিফিকেশন
