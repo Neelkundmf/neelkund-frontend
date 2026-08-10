@@ -3186,11 +3186,10 @@
         }
 
         q("n_name").addEventListener("input", function () {
-            this.value = this.value.replace(/\b\w/g, function(char) {
-                return char.toUpperCase();
-            }).replace(/\b[a-z]/g, function(char) {
-                return char.toUpperCase();
-            });
+            var val = this.value.trim();
+            if (val.length > 0) {
+                this.value = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+            }
         });
         q("n_gph").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
@@ -3349,7 +3348,12 @@
                     }, 3000);
                 })
                 .catch(function (e) {
-                    say("nMsg", e.message, false);
+                    NK.highlightFieldErrors(e);
+                    var msg = e.message;
+                    if (e.fieldErrors) {
+                        msg += NK.formatFieldErrors(e.fieldErrors);
+                    }
+                    say("nMsg", msg, false);
                     toast(e.message, "er");
                 })
                 .then(function () {
@@ -4253,6 +4257,28 @@
             });
         });
 
+        /* ===== Logo Click Menu ===== */
+        function openMenu() {
+            q("sheet").classList.toggle("on");
+        }
+
+        q("logoBtn").addEventListener("click", openMenu);
+        q("sheetBg").addEventListener("click", function () {
+            q("sheet").classList.remove("on");
+        });
+
+        Array.prototype.forEach.call(q("sheet").querySelectorAll(".menu-grid button"), function (b) {
+            b.addEventListener("click", function () {
+                var go = b.getAttribute("data-go");
+                q("sheet").classList.remove("on");
+
+                if (go === "logout") {
+                    NK.logout();
+                    window.location.replace("login.html");
+                    return;
+                }
+            });
+        });
 
         /* =====================================================================
          * শুরু
@@ -4410,3 +4436,15 @@
 </script>
 </body>
 </html>
+<!-- ================= MENU SHEET (Logo Click) ================= -->
+<div id="sheet">
+    <div class="bg" id="sheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>আরও</h3>
+
+        <div class="menu-grid">
+            <button data-go="logout"><i>🚪</i>লগ আউট</button>
+        </div>
+    </div>
+</div>

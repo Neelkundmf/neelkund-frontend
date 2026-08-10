@@ -2976,6 +2976,28 @@
             });
         });
 
+        /* ===== Logo Click Menu ===== */
+        function openMenu() {
+            q("sheet").classList.toggle("on");
+        }
+
+        q("logoBtn").addEventListener("click", openMenu);
+        q("sheetBg").addEventListener("click", function () {
+            q("sheet").classList.remove("on");
+        });
+
+        Array.prototype.forEach.call(q("sheet").querySelectorAll(".menu-grid button"), function (b) {
+            b.addEventListener("click", function () {
+                var go = b.getAttribute("data-go");
+                q("sheet").classList.remove("on");
+
+                if (go === "logout") {
+                    NK.logout();
+                    window.location.replace("login.html");
+                    return;
+                }
+            });
+        });
 
         /* =====================================================================
          * শুরু
@@ -3104,3 +3126,15 @@
 </script>
 </body>
 </html>
+<!-- ================= MENU SHEET (Logo Click) ================= -->
+<div id="sheet">
+    <div class="bg" id="sheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>আরও</h3>
+
+        <div class="menu-grid">
+            <button data-go="logout"><i>🚪</i>লগ আউট</button>
+        </div>
+    </div>
+</div>
