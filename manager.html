@@ -921,6 +921,11 @@
             <div id="expList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- ---------------- Disbursements (Today) ---------------- -->
+        <div class="view" id="v-disb">
+            <div id="disbList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
     </div>
 
     <div class="tabs">
@@ -932,6 +937,7 @@
         <button data-v="od"><i>⛔</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
         <button data-v="exp"><i>💸</i>খরচ</button>
+        <button data-v="disb"><i>💰</i>Disbursements</button>
     </div>
 </div>
 
@@ -1313,7 +1319,7 @@
         var TITLES = {
             dash: "ড্যাশবোর্ড", agent: "এজেন্ট", report: "আজকের রিপোর্ট",
             req: "লোনের অনুরোধ", sheet: "কাগজ", cust: "গ্রাহক",
-            od: "ব্ল্যাকলিস্ট (১২০+ দিন)"
+            od: "ব্ল্যাকলিস্ট (১২০+ দিন)", disb: "আজকের Disbursements"
         };
         var loaded = {};
         var CURRENT_VIEW = "dash";
@@ -1322,7 +1328,7 @@
            (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
             dash: loadDash, req: loadReq, sheet: loadSheet,
-            cust: loadCust, od: loadOd
+            cust: loadCust, od: loadOd, disb: loadDisb
         };
 
         function show(key) {
@@ -1349,6 +1355,7 @@
                 if (key === "sheet")  loadSheet();
                 if (key === "cust")   loadCust();
                 if (key === "od")     loadOd();
+                if (key === "disb")   loadDisb();
             }
         }
 
@@ -1418,15 +1425,21 @@
             });
         }
 
-        q("agBack").addEventListener("click", function () {
-            q("agMktWrap").style.display = "none";
-            q("agListWrap").style.display = "block";
-        });
+        var agBack = q("agBack");
+        if (agBack) {
+            agBack.addEventListener("click", function () {
+                q("agMktWrap").style.display = "none";
+                q("agListWrap").style.display = "block";
+            });
+        }
 
-        q("agDetBack").addEventListener("click", function () {
-            q("agDetWrap").style.display = "none";
-            q("agMktWrap").style.display = "block";
-        });
+        var agDetBack = q("agDetBack");
+        if (agDetBack) {
+            agDetBack.addEventListener("click", function () {
+                q("agDetWrap").style.display = "none";
+                q("agMktWrap").style.display = "block";
+            });
+        }
         function openAgentMarkets(agentId, agentName) {
             AG_ID = agentId;
             AG_NAME = agentName || ltr("এজেন্ট");
@@ -1517,32 +1530,35 @@
 
             q("agDetBody").innerHTML = h;
 
-            q("agExcel").addEventListener("click", function () {
-                var rows = [];
-                rows.push([ltr("NEELKUND — এজেন্টের মার্কেট রিপোর্ট")]);
-                rows.push([ltr("এজেন্ট"), AG_NAME]);
-                rows.push([ltr("তারিখ"), todayStamp()]);
-                rows.push([]);
-                rows.push([ltr("মার্কেট"), ltr("আজ ওঠার কথা"), ltr("আজ উঠেছে"), ltr("OD গ্রাহক"), ltr("চলমান গ্রাহক")]);
+            var agExcel = q("agExcel");
+            if (agExcel) {
+                agExcel.addEventListener("click", function () {
+                    var rows = [];
+                    rows.push([ltr("NEELKUND — এজেন্টের মার্কেট রিপোর্ট")]);
+                    rows.push([ltr("এজেন্ট"), AG_NAME]);
+                    rows.push([ltr("তারিখ"), todayStamp()]);
+                    rows.push([]);
+                    rows.push([ltr("মার্কেট"), ltr("আজ ওঠার কথা"), ltr("আজ উঠেছে"), ltr("OD গ্রাহক"), ltr("চলমান গ্রাহক")]);
 
-                var tDue = 0, tCol = 0, tOd = 0, tAct = 0;
-                (AG_MKTS || []).forEach(function (x) {
-                    rows.push([
-                        x.marketName || "",
-                        Number(x.todayDue || 0),
-                        Number(x.todayCollected || 0),
-                        Number(x.odCustomers || 0),
-                        Number(x.activeCustomers || 0)
-                    ]);
-                    tDue += Number(x.todayDue || 0);
-                    tCol += Number(x.todayCollected || 0);
-                    tOd  += Number(x.odCustomers || 0);
-                    tAct += Number(x.activeCustomers || 0);
+                    var tDue = 0, tCol = 0, tOd = 0, tAct = 0;
+                    (AG_MKTS || []).forEach(function (x) {
+                        rows.push([
+                            x.marketName || "",
+                            Number(x.todayDue || 0),
+                            Number(x.todayCollected || 0),
+                            Number(x.odCustomers || 0),
+                            Number(x.activeCustomers || 0)
+                        ]);
+                        tDue += Number(x.todayDue || 0);
+                        tCol += Number(x.todayCollected || 0);
+                        tOd  += Number(x.odCustomers || 0);
+                        tAct += Number(x.activeCustomers || 0);
+                    });
+                    rows.push([ltr("মোট"), tDue, tCol, tOd, tAct]);
+
+                    csvDownload("NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
                 });
-                rows.push([ltr("মোট"), tDue, tCol, tOd, tAct]);
-
-                csvDownload("NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
-            });
+            }
         }
         /* =====================================================================
          * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB · Disbursement টেবিল
@@ -1640,68 +1656,74 @@
 
                 q("reportBox").innerHTML = h;
 
-                q("repDl").addEventListener("click", function () {
-                    var rows = [];
-                    rows.push([ltr("NEELKUND — আজকের রিপোর্ট")]);
-                    rows.push([ltr("তারিখ"), todayStamp()]);
-                    rows.push([]);
+                var repDl = q("repDl");
+                if (repDl) {
+                    repDl.addEventListener("click", function () {
+                        var rows = [];
+                        rows.push([ltr("NEELKUND — আজকের রিপোর্ট")]);
+                        rows.push([ltr("তারিখ"), todayStamp()]);
+                        rows.push([]);
 
-                    rows.push([ltr("এজেন্ট অনুযায়ী")]);
-                    rows.push([ltr("এজেন্ট"), ltr("আজ ওঠার কথা"), ltr("আজ উঠল"), ltr("OD উঠল")]);
-                    if (!agents.length) {
-                        rows.push([ltr("আজ কোনো এজেন্টের হিসাব নেই")]);
-                    } else {
-                        agents.forEach(function (a) {
+                        rows.push([ltr("এজেন্ট অনুযায়ী")]);
+                        rows.push([ltr("এজেন্ট"), ltr("আজ ওঠার কথা"), ltr("আজ উঠল"), ltr("OD উঠল")]);
+                        if (!agents.length) {
+                            rows.push([ltr("আজ কোনো এজেন্টের হিসাব নেই")]);
+                        } else {
+                            agents.forEach(function (a) {
+                                rows.push([
+                                    a.agentName || "",
+                                    Number(a.todayDue || 0),
+                                    Number(a.todayCollected || 0),
+                                    Number(a.odCollected || 0)
+                                ]);
+                            });
+                        }
+                        rows.push([]);
+
+                        rows.push([ltr("ব্রাঞ্চের মোট হিসাব")]);
+                        rows.push([ltr("আজ ওঠার কথা"), Number(br.todayCollection || 0)]);
+                        rows.push([ltr("আজ উঠল"), Number(br.todayCollected || 0)]);
+                        rows.push([ltr("আজ OD উঠল"), Number(br.todayOdCollected || 0)]);
+                        rows.push([ltr("ব্ল্যাকলিস্ট OD উঠল"), Number(br.todayBlacklistCollected || 0)]);
+                        rows.push([ltr("ব্রাঞ্চ OD গ্রাহক (জন)"), Number(br.branchOdCustomers || 0)]);
+                        rows.push([ltr("ব্রাঞ্চ OD টাকা"), Number(br.branchOdAmount || 0)]);
+                        rows.push([]);
+
+                        rows.push([ltr("আজকের বিতরণ (DB)")]);
+                        rows.push([ltr("নতুন গ্রাহক"), Number(db.todayNewDb || 0)]);
+                        rows.push([ltr("পুরনো (আবার)"), Number(db.todayRepeatDb || 0)]);
+                        rows.push([ltr("মোট DB"), Number(db.totalDb || 0)]);
+                        rows.push([ltr("আজ বিতরণ"), Number(db.todayAmount || 0)]);
+                        rows.push([]);
+
+                        rows.push([ltr("এই মাসের বিতরণ (এজেন্ট অনুযায়ী)")]);
+                        rows.push([ltr("এজেন্ট"), "ID", "2k", "4k", "6k", "8k", "10k", ltr("মোট")]);
+                        if (!drows.length) {
+                            rows.push([ltr("এই মাসে বিতরণ নেই")]);
+                        } else {
+                            drows.forEach(function (r) {
+                                rows.push([
+                                    r.agentName || "", r.agentId,
+                                    r.c2000, r.c4000, r.c6000, r.c8000, r.c10000, r.totalNo
+                                ]);
+                            });
                             rows.push([
-                                a.agentName || "",
-                                Number(a.todayDue || 0),
-                                Number(a.todayCollected || 0),
-                                Number(a.odCollected || 0)
+                                ltr("মোট"), "—",
+                                ds.total2000, ds.total4000, ds.total6000,
+                                ds.total8000, ds.total10000, ds.grandTotal
                             ]);
-                        });
-                    }
-                    rows.push([]);
+                        }
 
-                    rows.push([ltr("ব্রাঞ্চের মোট হিসাব")]);
-                    rows.push([ltr("আজ ওঠার কথা"), Number(br.todayCollection || 0)]);
-                    rows.push([ltr("আজ উঠল"), Number(br.todayCollected || 0)]);
-                    rows.push([ltr("আজ OD উঠল"), Number(br.todayOdCollected || 0)]);
-                    rows.push([ltr("ব্ল্যাকলিস্ট OD উঠল"), Number(br.todayBlacklistCollected || 0)]);
-                    rows.push([ltr("ব্রাঞ্চ OD গ্রাহক (জন)"), Number(br.branchOdCustomers || 0)]);
-                    rows.push([ltr("ব্রাঞ্চ OD টাকা"), Number(br.branchOdAmount || 0)]);
-                    rows.push([]);
+                        csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
+                    });
+                }
 
-                    rows.push([ltr("আজকের বিতরণ (DB)")]);
-                    rows.push([ltr("নতুন গ্রাহক"), Number(db.todayNewDb || 0)]);
-                    rows.push([ltr("পুরনো (আবার)"), Number(db.todayRepeatDb || 0)]);
-                    rows.push([ltr("মোট DB"), Number(db.totalDb || 0)]);
-                    rows.push([ltr("আজ বিতরণ"), Number(db.todayAmount || 0)]);
-                    rows.push([]);
-
-                    rows.push([ltr("এই মাসের বিতরণ (এজেন্ট অনুযায়ী)")]);
-                    rows.push([ltr("এজেন্ট"), "ID", "2k", "4k", "6k", "8k", "10k", ltr("মোট")]);
-                    if (!drows.length) {
-                        rows.push([ltr("এই মাসে বিতরণ নেই")]);
-                    } else {
-                        drows.forEach(function (r) {
-                            rows.push([
-                                r.agentName || "", r.agentId,
-                                r.c2000, r.c4000, r.c6000, r.c8000, r.c10000, r.totalNo
-                            ]);
-                        });
-                        rows.push([
-                            ltr("মোট"), "—",
-                            ds.total2000, ds.total4000, ds.total6000,
-                            ds.total8000, ds.total10000, ds.grandTotal
-                        ]);
-                    }
-
-                    csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
-                });
-
-                q("repXl").addEventListener("click", function () {
-                    excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
-                });
+                var repXl = q("repXl");
+                if (repXl) {
+                    repXl.addEventListener("click", function () {
+                        excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
+                    });
+                }
 
             }).catch(function (e) {
                 q("reportBox").innerHTML =
@@ -1790,9 +1812,12 @@
          * ===================================================================== */
         var PROFILE_CUST = null;
 
-        q("pxClose").addEventListener("click", function () {
-            q("profX").classList.remove("on");
-        });
+        var pxClose = q("pxClose");
+        if (pxClose) {
+            pxClose.addEventListener("click", function () {
+                q("profX").classList.remove("on");
+            });
+        }
 
         function openCustomerProfile(customerId) {
             PROFILE_CUST = customerId;
@@ -2107,9 +2132,12 @@
         /* =====================================================================
          * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
          * ===================================================================== */
-        q("lxClose").addEventListener("click", function () {
-            q("loanX").classList.remove("on");
-        });
+        var lxClose = q("lxClose");
+        if (lxClose) {
+            lxClose.addEventListener("click", function () {
+                q("loanX").classList.remove("on");
+            });
+        }
 
         var LD_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
@@ -2425,6 +2453,57 @@
             });
         }
 
+        /* =====================================================================
+         * Disbursements (আজকের)
+         * ===================================================================== */
+        function loadDisb(silent) {
+            if (silent !== true) {
+                q("disbList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
+
+            NK.GET("/api/disbursements/manager/today").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("disbList").innerHTML = '<div class="card"><div class="empty">' + ltr("✓ আজ কোনো disbursement নেই") + '</div></div>';
+                    return;
+                }
+
+                var h = "";
+                var totalAmount = 0;
+
+                rows.forEach(function (d) {
+                    totalAmount += Number(d.amount) || 0;
+
+                    h += '<div class="card" style="border-left:4px solid var(--green);margin-bottom:12px;">';
+                    h += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">';
+                    h += '<div>';
+                    h += '<div style="font-weight:600;font-size:15px;">' + NK.esc(d.customerName) + '</div>';
+                    h += '<div style="font-size:12px;color:var(--muted);margin-top:4px;">';
+                    h += ltr("এজেন্ট") + ': ' + NK.esc(d.agentName) + ' · ' + ltr("লোন ID") + ': ' + d.loanId;
+                    h += '</div>';
+                    h += '</div>';
+                    h += '<div style="text-align:right;">';
+                    h += '<div style="font-weight:800;font-size:16px;color:var(--green);">' + NK.inr(d.amount) + '</div>';
+                    h += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + d.status + '</div>';
+                    h += '</div>';
+                    h += '</div>';
+                    h += '</div>';
+                });
+
+                var header = '<div class="card" style="background:var(--paper);margin-bottom:16px;">';
+                header += '<div style="display:flex;justify-content:space-between;">';
+                header += '<div><span style="color:var(--muted);font-size:12px;">' + ltr("মোট") + '</span><br><b style="font-size:16px;color:var(--navy);">' + rows.length + ' ' + ltr("জন") + '</b></div>';
+                header += '<div style="text-align:right;"><span style="color:var(--muted);font-size:12px;">' + ltr("মোট টাকা") + '</span><br><b style="font-size:18px;color:var(--green);">' + NK.inr(totalAmount) + '</b></div>';
+                header += '</div>';
+                header += '</div>';
+
+                q("disbList").innerHTML = header + h;
+
+            }).catch(function (e) {
+                q("disbList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
 
         /* =====================================================================
          * কাগজ
@@ -2577,8 +2656,11 @@
             });
         }
 
-        q("sh_ag").addEventListener("change", showSheet);
-        q("sh_d").addEventListener("change", showSheet);
+        var shAg = q("sh_ag");
+        if (shAg) shAg.addEventListener("change", showSheet);
+
+        var shD = q("sh_d");
+        if (shD) shD.addEventListener("change", showSheet);
 
         Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (b) {
             b.addEventListener("click", function () {
@@ -2591,9 +2673,12 @@
             });
         });
 
-        q("sh_print").addEventListener("click", function () {
-            window.print();
-        });
+        var shPrint = q("sh_print");
+        if (shPrint) {
+            shPrint.addEventListener("click", function () {
+                window.print();
+            });
+        }
 
 
         /* =====================================================================
@@ -2699,11 +2784,14 @@
             });
         }
 
-        q("bcq").addEventListener("input", function () {
-            q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-            clearTimeout(bcTimer);
-            bcTimer = setTimeout(drawBcList, 300);
-        });
+        var bcq = q("bcq");
+        if (bcq) {
+            bcq.addEventListener("input", function () {
+                    q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+                    clearTimeout(bcTimer);
+                    bcTimer = setTimeout(drawBcList, 300);
+                });
+        }
 
 
         /* =====================================================================
@@ -2824,9 +2912,12 @@
                 '<b style="text-align:right;">' + NK.esc(String(value)) + '</b></div>';
         }
 
-        q("pClose").addEventListener("click", function () {
-            q("prof").classList.remove("on");
-        });
+        var pClose = q("pClose");
+        if (pClose) {
+            pClose.addEventListener("click", function () {
+                q("prof").classList.remove("on");
+            });
+        }
 
         function bindCust() {
             Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
@@ -2969,26 +3060,32 @@
             }).catch(function () {});
         }
 
-        q("bell").addEventListener("click", function () {
-            NK.GET("/api/notifications").then(function (n) {
-                if (!n.items || !n.items.length) {
-                    toast(ltr("নতুন কোনো খবর নেই"), "in");
-                    return;
-                }
-                n.items.forEach(function (it) {
-                    toast(it.title + " — " + it.message,
-                        it.severity === "URGENT" ? "er" : "in");
+        var bell = q("bell");
+        if (bell) {
+            bell.addEventListener("click", function () {
+                NK.GET("/api/notifications").then(function (n) {
+                    if (!n.items || !n.items.length) {
+                        toast(ltr("নতুন কোনো খবর নেই"), "in");
+                        return;
+                    }
+                    n.items.forEach(function (it) {
+                        toast(it.title + " — " + it.message,
+                            it.severity === "URGENT" ? "er" : "in");
+                    });
                 });
             });
-        });
+        }
 
         /* ===== Logo Click Menu ===== */
         function openMenu() {
             q("sheet").classList.toggle("on");
         }
 
-        q("logoBtn").addEventListener("click", openMenu);
-        q("sheetBg").addEventListener("click", function () {
+        var logoBtn = q("logoBtn");
+        if (logoBtn) logoBtn.addEventListener("click", openMenu);
+
+        var sheetBg = q("sheetBg");
+        if (sheetBg) sheetBg.addEventListener("click", function () {
             q("sheet").classList.remove("on");
         });
 
@@ -3080,69 +3177,71 @@
             }
         });
 
-    })();
-</script>
-<script>
-    // Back button handling with dashboard double-press exit
-    var backPressCount = 0;
-    var backPressTimer = null;
+        /* ===== Back button handling with dashboard double-press exit ===== */
+        var backPressCount = 0;
+        var backPressTimer = null;
 
-    window.addEventListener("popstate", function (e) {
-        if (!e.state || !e.state.view) return;
+        window.addEventListener("popstate", function (e) {
+            if (!e.state || !e.state.view) return;
 
-        // Dashboard protection - double back to exit
-        if (e.state.view === "dash" && !e.state.panel) {
-            backPressCount++;
+            // Dashboard protection - double back to exit
+            if (e.state.view === "dash" && !e.state.panel) {
+                backPressCount++;
 
-            if (backPressCount === 1) {
-                toast(ltr("আরও একবার টিপুন এক্সিট করতে"), "in");
+                if (backPressCount === 1) {
+                    toast(ltr("আরও একবার টিপুন এক্সিট করতে"), "in");
 
-                backPressTimer = setTimeout(function() {
+                    backPressTimer = setTimeout(function() {
+                        backPressCount = 0;
+                    }, 2000);
+
+                    // Prevent leaving dashboard
+                    history.pushState({ view: "dash" }, null, window.location.pathname);
+                    return;
+                } else if (backPressCount === 2) {
+                    // Double press - allow app exit
+                    clearTimeout(backPressTimer);
                     backPressCount = 0;
-                }, 2000);
+                    // Let browser handle back (exit app)
+                    return;
+                }
+            }
 
-                // Prevent leaving dashboard
-                history.pushState({ view: "dash" }, null, window.location.pathname);
-                return;
-            } else if (backPressCount === 2) {
-                // Double press - allow app exit
-                clearTimeout(backPressTimer);
+            // Reset double-press counter for non-dashboard views
+            if (e.state.view !== "dash") {
                 backPressCount = 0;
-                // Let browser handle back (exit app)
-                return;
+                if (backPressTimer) clearTimeout(backPressTimer);
             }
-        }
 
-        // Reset double-press counter for non-dashboard views
-        if (e.state.view !== "dash") {
-            backPressCount = 0;
-            if (backPressTimer) clearTimeout(backPressTimer);
-        }
+            // Switch view
+            show(e.state.view);
 
-        // Switch view
-        show(e.state.view);
-
-        // Restore nested panel state if exists
-        if (e.state.panel && e.state.panelId) {
-            if (e.state.panel === "customerProfile") {
-                openCustomerProfile(e.state.panelId);
-            } else if (e.state.panel === "loan") {
-                openLoanDetail(e.state.panelId);
-            } else if (e.state.panel === "customer") {
-                openCustomer(e.state.panelId);
+            // Restore nested panel state if exists
+            if (e.state.panel && e.state.panelId) {
+                if (e.state.panel === "customerProfile") {
+                    openCustomerProfile(e.state.panelId);
+                } else if (e.state.panel === "loan") {
+                    openLoanDetail(e.state.panelId);
+                } else if (e.state.panel === "customer") {
+                    openCustomer(e.state.panelId);
+                }
+            } else {
+                // Close all nested panels
+                q("profX").classList.remove("on");
+                q("loanX").classList.remove("on");
+                q("prof").classList.remove("on");
             }
-        } else {
-            // Close all nested panels
-            q("profX").classList.remove("on");
-            q("loanX").classList.remove("on");
-            q("prof").classList.remove("on");
-        }
-    });
+        });
 
-    // Initialize history for first page load (will be set after CURRENT_VIEW is ready)
-    setTimeout(function() {
-        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
-    }, 0);
+        // Initialize history for first page load (will be set after CURRENT_VIEW is ready)
+        setTimeout(function() {
+            history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+        }, 0);
+
+        /* ===== Expose to window ===== */
+        window.CURRENT_VIEW = CURRENT_VIEW;
+
+    })();
 </script>
 <script>
     if ("serviceWorker" in navigator) {
