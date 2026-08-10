@@ -421,35 +421,6 @@
             margin-top: 4px;
         }
 
-        /* Disbursement টেবিল */
-        .rep-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .rep-tbl {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12.5px;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .rep-tbl th, .rep-tbl td {
-            padding: 9px 8px;
-            text-align: center;
-            border-bottom: 1px solid var(--line);
-            white-space: nowrap;
-        }
-        .rep-tbl th {
-            background: var(--navy);
-            color: #fff;
-            font-weight: 700;
-            font-size: 11.5px;
-        }
-        .rep-tbl td.nm { text-align: left; font-weight: 600; }
-        .rep-tbl tr:last-child td {
-            font-weight: 800;
-            background: #F0F5FF;
-            border-bottom: 0;
-        }
-        .rep-tbl .tot-col { font-weight: 800; color: var(--navy); }
 
         /* ডাউনলোড */
         .rep-dl {
@@ -972,6 +943,20 @@
     </div>
 </div>
 
+<!-- ================= সাইড মেনু ================= -->
+<div id="sheet">
+    <div class="bg" id="sheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>আরও</h3>
+
+        <div class="menu-grid">
+            <button data-go="profile"><i>🪪</i>প্রোফাইল</button>
+            <button data-go="logout"><i>🚪</i>লগ আউট</button>
+        </div>
+    </div>
+</div>
+
 <script src="assets/js/nk.js"></script>
 <script>
     // API-based maintenance - localStorage check removed
@@ -1318,6 +1303,9 @@
         var loaded = {};
         var CURRENT_VIEW = "dash";
 
+        // Expose CURRENT_VIEW globally (will be updated as view changes)
+        window.CURRENT_VIEW = CURRENT_VIEW;
+
         /* auto-refresh শুধু এই view-গুলোতে — "এজেন্ট" ট্যাবে ভেতরে ধাপে-ধাপে
            (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
@@ -1327,6 +1315,7 @@
 
         function show(key) {
             CURRENT_VIEW = key;
+            window.CURRENT_VIEW = CURRENT_VIEW;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
                 v.classList.remove("on");
             });
@@ -1519,7 +1508,8 @@
 
             q("agDetBody").innerHTML = h;
 
-            q("agExcel").addEventListener("click", function () {
+            var agExcelBtn = q("agExcel");
+            if (agExcelBtn) agExcelBtn.addEventListener("click", function () {
                 var rows = [];
                 rows.push([ltr("NEELKUND — এজেন্টের মার্কেট রিপোর্ট")]);
                 rows.push([ltr("এজেন্ট"), AG_NAME]);
@@ -1545,9 +1535,10 @@
 
                 csvDownload("NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
             });
+            }
         }
         /* =====================================================================
-         * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB · Disbursement টেবিল
+         * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB
          * ===================================================================== */
         function loadReport() {
             q("reportBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -1555,13 +1546,11 @@
             Promise.all([
                 NK.GET("/api/dashboard/agent-today-report"),
                 NK.GET("/api/dashboard/branch-today-report"),
-                NK.GET("/api/dashboard/today-db-report"),
-                NK.GET("/api/dashboard/disbursement-table")
+                NK.GET("/api/dashboard/today-db-report")
             ]).then(function (res) {
                 var ag = res[0];
                 var br = res[1];
                 var db = res[2];
-                var ds = res[3];
 
                 var h = "";
 
@@ -1604,45 +1593,13 @@
                 h += '<div class="cell"><div class="l">' + ltr("আজ বিতরণ") + '</div><div class="v">' + NK.inrShort(db.todayAmount) + '</div></div>';
                 h += '</div>';
 
-                h += '<div class="rep-sec">' + ltr("📊 এই মাসের বিতরণ (এজেন্ট অনুযায়ী)") + '</div>';
-                h += '<div class="rep-tbl-wrap"><table class="rep-tbl">';
-                h += '<tr><th>' + ltr("এজেন্ট") + '</th><th>ID</th><th>2k</th><th>4k</th><th>6k</th>' +
-                    '<th>8k</th><th>10k</th><th>' + ltr("মোট") + '</th></tr>';
-
-                var drows = (ds && ds.rows) ? ds.rows : [];
-                if (!drows.length) {
-                    h += '<tr><td colspan="8">' + ltr("এই মাসে বিতরণ নেই") + '</td></tr>';
-                } else {
-                    drows.forEach(function (r) {
-                        h += '<tr>';
-                        h += '<td class="nm">' + NK.esc(r.agentName) + '</td>';
-                        h += '<td>' + r.agentId + '</td>';
-                        h += '<td>' + r.c2000 + '</td>';
-                        h += '<td>' + r.c4000 + '</td>';
-                        h += '<td>' + r.c6000 + '</td>';
-                        h += '<td>' + r.c8000 + '</td>';
-                        h += '<td>' + r.c10000 + '</td>';
-                        h += '<td class="tot-col">' + r.totalNo + '</td>';
-                        h += '</tr>';
-                    });
-                    h += '<tr>';
-                    h += '<td class="nm">' + ltr("মোট") + '</td><td>—</td>';
-                    h += '<td>' + ds.total2000 + '</td>';
-                    h += '<td>' + ds.total4000 + '</td>';
-                    h += '<td>' + ds.total6000 + '</td>';
-                    h += '<td>' + ds.total8000 + '</td>';
-                    h += '<td>' + ds.total10000 + '</td>';
-                    h += '<td>' + ds.grandTotal + '</td>';
-                    h += '</tr>';
-                }
-                h += '</table></div>';
-
                 h += '<button class="rep-dl" id="repDl" style="background:#10B981;">' + ltr("📥 CSV রিপোর্ট") + '</button>';
                 h += '<button class="rep-dl" id="repXl" style="background:#3B82F6;">' + ltr("📊 Excel রিপোর্ট") + '</button>';
 
                 q("reportBox").innerHTML = h;
 
-                q("repDl").addEventListener("click", function () {
+                var repDlBtn = q("repDl");
+                if (repDlBtn) repDlBtn.addEventListener("click", function () {
                     var rows = [];
                     rows.push([ltr("NEELKUND — আজকের রিপোর্ট")]);
                     rows.push([ltr("তারিখ"), todayStamp()]);
@@ -1680,30 +1637,15 @@
                     rows.push([ltr("আজ বিতরণ"), Number(db.todayAmount || 0)]);
                     rows.push([]);
 
-                    rows.push([ltr("এই মাসের বিতরণ (এজেন্ট অনুযায়ী)")]);
-                    rows.push([ltr("এজেন্ট"), "ID", "2k", "4k", "6k", "8k", "10k", ltr("মোট")]);
-                    if (!drows.length) {
-                        rows.push([ltr("এই মাসে বিতরণ নেই")]);
-                    } else {
-                        drows.forEach(function (r) {
-                            rows.push([
-                                r.agentName || "", r.agentId,
-                                r.c2000, r.c4000, r.c6000, r.c8000, r.c10000, r.totalNo
-                            ]);
-                        });
-                        rows.push([
-                            ltr("মোট"), "—",
-                            ds.total2000, ds.total4000, ds.total6000,
-                            ds.total8000, ds.total10000, ds.grandTotal
-                        ]);
-                    }
-
                     csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
                 });
+                }
 
-                q("repXl").addEventListener("click", function () {
+                var repXlBtn = q("repXl");
+                if (repXlBtn) repXlBtn.addEventListener("click", function () {
                     excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
                 });
+                }
 
             }).catch(function (e) {
                 q("reportBox").innerHTML =
@@ -1978,20 +1920,23 @@
                 });
 
                 /* Remark সংরক্ষণ */
-                q("pxSave").addEventListener("click", function () {
-                    var btn = q("pxSave");
-                    btn.disabled = true; btn.textContent = ltr("সংরক্ষণ হচ্ছে...");
-                    NK.PATCH("/api/customers/" + customerId + "/flag", {
-                        flag: pickedFlag,
-                        reason: q("pxReason").value.trim()
-                    }).then(function () {
-                        toast(ltr("Remark সংরক্ষিত হয়েছে ✓"), "ok");
-                        openCustomerProfile(customerId);   // রিফ্রেশ
-                    }).catch(function (e) {
-                        toast(e.message, "er");
-                        btn.disabled = false; btn.textContent = ltr("Remark সংরক্ষণ করুন");
+                var pxSaveBtn = q("pxSave");
+                if (pxSaveBtn) {
+                    pxSaveBtn.addEventListener("click", function () {
+                        var btn = q("pxSave");
+                        btn.disabled = true; btn.textContent = ltr("সংরক্ষণ হচ্ছে...");
+                        NK.PATCH("/api/customers/" + customerId + "/flag", {
+                            flag: pickedFlag,
+                            reason: q("pxReason").value.trim()
+                        }).then(function () {
+                            toast(ltr("Remark সংরক্ষিত হয়েছে ✓"), "ok");
+                            openCustomerProfile(customerId);   // রিফ্রেশ
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                            btn.disabled = false; btn.textContent = ltr("Remark সংরক্ষণ করুন");
+                        });
                     });
-                });
+                }
 
                 /* লোন ট্যাব */
                 Array.prototype.forEach.call(q("pxBody").querySelectorAll("[data-loan]"), function (el) {
@@ -2581,8 +2526,11 @@
             });
         }
 
-        q("sh_ag").addEventListener("change", showSheet);
-        q("sh_d").addEventListener("change", showSheet);
+        var shAgEl = q("sh_ag");
+        if (shAgEl) shAgEl.addEventListener("change", showSheet);
+
+        var shDEl = q("sh_d");
+        if (shDEl) shDEl.addEventListener("change", showSheet);
 
         Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (b) {
             b.addEventListener("click", function () {
@@ -2595,7 +2543,8 @@
             });
         });
 
-        q("sh_print").addEventListener("click", function () {
+        var shPrintBtn = q("sh_print");
+        if (shPrintBtn) shPrintBtn.addEventListener("click", function () {
             window.print();
         });
 
@@ -2703,11 +2652,13 @@
             });
         }
 
-        q("bcq").addEventListener("input", function () {
+        var bcqEl = q("bcq");
+        if (bcqEl) bcqEl.addEventListener("input", function () {
             q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             clearTimeout(bcTimer);
             bcTimer = setTimeout(drawBcList, 300);
         });
+        }
 
 
         /* =====================================================================
@@ -2792,15 +2743,15 @@
 
             q("odList").innerHTML = h;
 
-            if (q("blq")) {
-                q("blq").addEventListener("input", function () {
+            var blqEl = q("blq");
+            if (blqEl) {
+                blqEl.addEventListener("input", function () {
                     clearTimeout(blTimer);
                     blTimer = setTimeout(drawBlList, 300);
                 });
                 if (s) {
-                    var el = q("blq");
-                    el.focus();
-                    el.setSelectionRange(el.value.length, el.value.length);
+                    blqEl.focus();
+                    blqEl.setSelectionRange(blqEl.value.length, blqEl.value.length);
                 }
             }
 
@@ -2995,8 +2946,11 @@
             q("sheet").classList.toggle("on");
         }
 
-        q("logoBtn").addEventListener("click", openMenu);
-        q("sheetBg").addEventListener("click", function () {
+        var logoBtnEl = q("logoBtn");
+        if (logoBtnEl) logoBtnEl.addEventListener("click", openMenu);
+
+        var sheetBgEl = q("sheetBg");
+        if (sheetBgEl) sheetBgEl.addEventListener("click", function () {
             q("sheet").classList.remove("on");
         });
 
@@ -3088,9 +3042,6 @@
             }
         });
 
-        // Expose CURRENT_VIEW to global scope for external script access
-        window.CURRENT_VIEW = CURRENT_VIEW;
-
     })();
 </script>
 <script>
@@ -3164,15 +3115,3 @@
 </script>
 </body>
 </html>
-<!-- ================= MENU SHEET (Logo Click) ================= -->
-<div id="sheet">
-    <div class="bg" id="sheetBg"></div>
-    <div class="panel">
-        <div class="grip"></div>
-        <h3>আরও</h3>
-
-        <div class="menu-grid">
-            <button data-go="logout"><i>🚪</i>লগ আউট</button>
-        </div>
-    </div>
-</div>
