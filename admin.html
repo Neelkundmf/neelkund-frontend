@@ -2519,12 +2519,11 @@
                 q("mk_br").innerHTML = brOpts(false);
 
                 var mgs = TEAM.filter(function (u) { return u.role === "MANAGER"; });
-                window.BRANCH_MANAGER_MAP = {}; // Store branch->manager mapping
+                var o = ltr('<option value="">— নেই —</option>');
                 mgs.forEach(function (m) {
-                    if (m.branchId) {
-                        BRANCH_MANAGER_MAP[m.branchId] = m.id; // Map branchId to managerId
-                    }
+                    o += '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.fullName) + '</option>';
                 });
+                q("mk_mg").innerHTML = o;
 
                 return NK.GET("/api/markets");
             }).then(function (list) {
