@@ -1483,7 +1483,7 @@
            (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
             dash: loadDash, req: loadReq, disb: loadDisb, sheet: loadSheet,
-            cust: loadCust, od: loadOd
+            cust: loadCust, od: loadOd, report: loadReport
         };
 
         function show(key) {
@@ -1709,7 +1709,6 @@
 
                 csvDownload("NEELKUND-" + ltr("এজেন্ট") + "-" + AG_NAME + "-" + todayStamp() + ".csv", rows);
             });
-            }
         }
         /* =====================================================================
          * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB
@@ -1747,16 +1746,20 @@
 
                 h += '<div class="rep-sec">' + ltr("🏦 ব্রাঞ্চের মোট হিসাব") + '</div>';
                 h += '<div class="rep-branch">';
-                h += '<div class="line"><span class="l">' + ltr("আজ ওঠার কথা") + '</span><span class="v">' +
-                    NK.inr(br.todayCollection) + '</span></div>';
-                h += '<div class="line"><span class="l">' + ltr("আজ উঠল") + '</span><span class="v g">' +
-                    NK.inr(br.todayCollected) + '</span></div>';
-                h += '<div class="line"><span class="l">' + ltr("আজ OD উঠল") + '</span><span class="v">' +
-                    NK.inr(br.todayOdCollected) + '</span></div>';
-                h += '<div class="line"><span class="l">' + ltr("ব্ল্যাকলিস্ট OD উঠল") + '</span><span class="v">' +
-                    NK.inr(br.todayBlacklistCollected) + '</span></div>';
-                h += '<div class="line"><span class="l">' + ltr("ব্রাঞ্চ OD গ্রাহক") + '</span><span class="v r">' +
-                    br.branchOdCustomers + ' ' + ltr("জন") + ' · ' + NK.inrShort(br.branchOdAmount) + '</span></div>';
+                if (br) {
+                    h += '<div class="line"><span class="l">' + ltr("আজ ওঠার কথা") + '</span><span class="v">' +
+                        NK.inr(br.todayCollection || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("আজ উঠল") + '</span><span class="v g">' +
+                        NK.inr(br.todayCollected || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("আজ OD উঠল") + '</span><span class="v">' +
+                        NK.inr(br.todayOdCollected || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("ব্ল্যাকলিস্ট OD উঠল") + '</span><span class="v">' +
+                        NK.inr(br.todayBlacklistCollected || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("ব্রাঞ্চ OD গ্রাহক") + '</span><span class="v r">' +
+                        (br.branchOdCustomers || 0) + ' ' + ltr("জন") + ' · ' + NK.inrShort(br.branchOdAmount || 0) + '</span></div>';
+                } else {
+                    h += '<div class="card"><div class="empty">' + ltr("কোনো ডেটা নেই") + '</div></div>';
+                }
                 h += '</div>';
 
                 h += '<div class="rep-sec">' + ltr("📦 আজকের বিতরণ (DB)") + '</div>';
@@ -3268,7 +3271,6 @@
             clearTimeout(bcTimer);
             bcTimer = setTimeout(drawBcList, 300);
         });
-        }
 
 
         /* =====================================================================
