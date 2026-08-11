@@ -2301,13 +2301,11 @@
             }
             if (mkBox) mkBox.style.display = "";
 
-            var opts = ltr('<option value="">— নেই —</option>');
+            var opts = ltr('<option value="">— মার্কেট বেছে নিন —</option>');
             MARKETS.forEach(function (m) {
                 if (!brId || String(m.branchId) === String(brId)) {
-                    opts += '<option value="' + NK.esc(m.id) +
-                        '" data-mgr="' + NK.esc(m.managerId || "") + '">' +
-                        NK.esc(m.name) +
-                        (m.managerName ? ' · ' + NK.esc(m.managerName) : '') + '</option>';
+                    opts += '<option value="' + NK.esc(m.id) + '">' +
+                        NK.esc(m.name) + '</option>';
                 }
             });
             q("tm_mk").innerHTML = opts;
