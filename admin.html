@@ -303,6 +303,7 @@
             </div>
             <div id="fund"></div>
             <div id="branchBoxes"></div>
+            <div id="marketList"></div>
             <div id="dash">
                 <div class="loading">লোড হচ্ছে...</div>
             </div>
@@ -1615,7 +1616,10 @@
                 });
         }
 
-        q("br").addEventListener("change", loadDash);
+        q("br").addEventListener("change", function() {
+            loadDash();
+            loadMarkets();
+        });
         /* ---------------- একটা ব্রাঞ্চ আলাদা পাতায় (live) ---------------- */
         var BR_TIMER = null;
         var BR_ID = null;
@@ -1753,11 +1757,95 @@
             });
         }
 
+        /* ---------------- মার্কেট বক্স — লাইভ হিসাব সহ ---------------- */
+        var MK_TIMER = null;
+
+        function loadMarkets() {
+            drawMarkets();
+            clearInterval(MK_TIMER);
+            MK_TIMER = setInterval(drawMarkets, 30000);
+        }
+
+        function drawMarkets() {
+            var branchId = q("br").value;
+            NK.GET("/api/markets" + (branchId ? "?branchId=" + branchId : "")).then(function (d) {
+                if (!d || !d.length) {
+                    q("marketList").innerHTML = "";
+                    return;
+                }
+
+                var h = ltr('<h2 style="margin:18px 0 12px;">মার্কেট <span style="font-size:12px;color:var(--muted);font-weight:400;">· লাইভ</span></h2>');
+                h += '<div class="brgrid">';
+
+                d.forEach(function (m) {
+                    h += '<div class="brbox" data-market="' + NK.esc(m.id) +
+                        '" data-name="' + NK.esc(m.name) + '">';
+
+                    h += '<div class="bh"><b>' + NK.esc(m.name) + '</b>' +
+                        ltr('<span class="live"><i></i>লাইভ</span></div>');
+
+                    h += '<div class="cap">' + NK.esc(m.code || "") + '</div>';
+
+                    h += ltr('<div class="brrow"><span>গ্রাহক</span><b>') +
+                        m.customerCount + '</b></div>';
+                    h += ltr('<div class="brrow"><span>চলমান লোন</span><b>') +
+                        (m.managerName ? NK.esc(m.managerName) : "-") + '</b></div>';
+
+                    h += '</div>';
+                });
+
+                h += '</div>';
+                q("marketList").innerHTML = h;
+
+                Array.prototype.forEach.call(
+                    q("marketList").querySelectorAll("[data-market]"), function (el) {
+                        el.addEventListener("click", function () {
+                            openMarketDetail(el.getAttribute("data-market"));
+                        });
+                    });
+            }).catch(function () {
+                q("marketList").innerHTML = "";
+            });
+        }
+
+        function openMarketDetail(id) {
+            q("prof").classList.add("on");
+            q("pTitle").textContent = ltr("মার্কেট বিস্তারিত");
+            q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            window.scrollTo(0, 0);
+
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "market", panelId: id });
+
+            NK.GET("/api/markets/" + id + "/details").then(function (d) {
+                var h = "";
+
+                h += '<div class="card">';
+                h += ltr('<h3 style="margin-bottom:12px;">') + NK.esc(d.name) + '</h3>';
+                h += ltr('<div class="split" style="margin-bottom:16px;">');
+                h += ltr('<div><div class="l">ব্রাঞ্চ</div><div class="v">') + NK.esc(d.branchName) + '</div></div>';
+                h += ltr('<div><div class="l">গ্রাহক</div><div class="v">') + d.customerCount + '</div></div>';
+                h += ltr('<div><div class="l">চলমান লোন</div><div class="v">') + d.activeLoansCount + '</div></div>';
+                h += '</div>';
+
+                h += ltr('<div class="split">');
+                h += ltr('<div><div class="l">বাকি টাকা</div><div class="v">') + NK.inr(d.outstandingAmount) + '</div></div>';
+                h += ltr('<div><div class="l">আজ জমা</div><div class="v g">') + NK.inr(d.todayCollection) + '</div></div>';
+                h += ltr('<div><div class="l">OD</div><div class="v r">') + d.odCustomersCount + '</div></div>';
+                h += '</div></div>';
+
+                q("pBody").innerHTML = h;
+            }).catch(function (e) {
+                q("pBody").innerHTML = '<div class="card"><div class="empty">' +
+                    NK.esc(e.message) + '</div></div>';
+            });
+        }
+
         /* ---------------- সব জায়গায় পিছনে বোতাম ---------------- */
         function backToDash() {
             /* কোনো প্রোফাইল/ব্রাঞ্চ পাতা খোলা থাকলে বন্ধ করি */
             q("prof").classList.remove("on");
             clearInterval(BR_TIMER);
+            clearInterval(MK_TIMER);
             BR_ID = null;
 
             show("dash");
@@ -5047,6 +5135,7 @@
             loadDash();
             loadBranches();
             loadBranchBoxes();
+            loadMarkets();
             loadNotif();
             startFund();
         });
@@ -5117,6 +5206,8 @@
                 openAmount(Number(e.state.panelId));
             } else if (e.state.panel === "branch") {
                 openBranch(e.state.panelId);
+            } else if (e.state.panel === "market") {
+                openMarketDetail(e.state.panelId);
             }
         } else {
             // Close all nested panels
@@ -5125,6 +5216,7 @@
             q("prof").classList.remove("on");
             q("backbar").classList.remove("on");
             clearInterval(BR_TIMER);
+            clearInterval(MK_TIMER);
             BR_ID = null;
         }
     });

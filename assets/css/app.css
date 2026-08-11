@@ -1081,3 +1081,92 @@ body {
     padding-top: 10px;
 }
 .amtbox .amtout b { color: var(--red); font-size: 14px; }
+
+/* =========================================================================
+   মার্কেট অনুযায়ী — floating গ্রিড লেআউট
+   ========================================================================= */
+
+.mkgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.mkbox {
+    position: relative;
+    background: linear-gradient(150deg, #1F5F3F, #0F3D24);
+    color: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(15,61,36,.28);
+    transition: transform .18s, box-shadow .18s;
+    animation: mkFloat 5s ease-in-out infinite;
+}
+.mkbox:active { transform: scale(.98); }
+.mkbox:hover { box-shadow: 0 12px 28px rgba(15,61,36,.38); }
+.mkbox:nth-child(2n) { animation-delay: -1.6s; }
+.mkbox:nth-child(3n) { animation-delay: -3.1s; }
+
+@keyframes mkFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+}
+
+.mkbox .mh {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.mkbox .mh b {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.mkbox .mbr {
+    font-size: 10px;
+    color: rgba(255,255,255,.5);
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mkbox .big {
+    font-family: 'Manrope', sans-serif;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+.mkbox .cap {
+    font-size: 11px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 12px;
+}
+
+.mkbox .mkrow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-top: 1px solid rgba(255,255,255,.12);
+}
+
+.mkbox .mkrow span {
+    color: rgba(255,255,255,.6);
+}
+
+.mkbox .mkrow b {
+    font-weight: 700;
+}
