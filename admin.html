@@ -2725,20 +2725,14 @@
                 mgEl.removeAttribute("data-mgr-id");
                 return;
             }
-            mgEl.value = ltr("খুঁজছি...");
-            NK.GET("/api/admin/branches/" + branchId).then(function (b) {
-                if (b && b.branch && b.branch.managerId) {
-                    var mgr = TEAM.find(function (m) { return m.id == b.branch.managerId; });
-                    mgEl.value = mgr ? mgr.fullName : "";
-                    mgEl.setAttribute("data-mgr-id", b.branch.managerId);
-                } else {
-                    mgEl.value = "";
-                    mgEl.removeAttribute("data-mgr-id");
-                }
-            }).catch(function () {
+            var mgr = TEAM.find(function (m) { return m.role === "MANAGER" && m.branchId === branchId; });
+            if (mgr) {
+                mgEl.value = mgr.fullName;
+                mgEl.setAttribute("data-mgr-id", mgr.id);
+            } else {
                 mgEl.value = "";
                 mgEl.removeAttribute("data-mgr-id");
-            });
+            }
         });
         q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
