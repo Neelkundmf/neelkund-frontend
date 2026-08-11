@@ -420,7 +420,7 @@
                 <div class="msg" id="mkMsg"></div>
 
                 <div class="fld"><label>নাম *</label><input id="mk_name"><div class="error-msg" id="err_mk_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>কোড</label><input id="mk_code" maxlength="10" style="text-transform:uppercase"><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>কোড</label><div style="display:flex;gap:8px;"><input id="mk_code" maxlength="10" style="text-transform:uppercase;flex:1;"><button type="button" class="btn sm" id="mk_auto" style="flex-shrink:0;">Auto</button></div><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select><div class="error-msg" id="err_mk_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
 
@@ -2551,6 +2551,31 @@
                 q("mkList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        q("mk_auto").addEventListener("click", function () {
+            var name = q("mk_name").value.trim();
+            if (!name) {
+                toast(ltr("নাম লিখুন আগে"), "er");
+                return;
+            }
+            var prefix = name.substring(0, 2).toUpperCase();
+            var list = q("mkList").querySelectorAll("[data-mk]");
+            var nums = [];
+            list.forEach(function (el) {
+                var code = el.getAttribute("data-mk");
+                if (code && code.startsWith(prefix + "-")) {
+                    var num = parseInt(code.substring(3));
+                    if (!isNaN(num)) nums.push(num);
+                }
+            });
+            var next = 1;
+            if (nums.length > 0) {
+                nums.sort(function (a, b) { return a - b; });
+                next = nums[nums.length - 1] + 1;
+            }
+            var suggested = prefix + "-" + String(next).padStart(2, "0");
+            q("mk_code").value = suggested;
+        });
 
         q("mk_go").addEventListener("click", function () {
             hide("mkMsg");
