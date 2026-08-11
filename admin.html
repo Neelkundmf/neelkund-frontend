@@ -2719,15 +2719,26 @@
         q("tm_role").addEventListener("change", fillMarketsForBranch);
         q("mk_br").addEventListener("change", function () {
             var branchId = Number(this.value);
-            if (branchId && BRANCH_MANAGER_MAP && BRANCH_MANAGER_MAP[branchId]) {
-                var managerId = BRANCH_MANAGER_MAP[branchId];
-                var mgr = TEAM.find(function (m) { return m.id == managerId; });
-                q("mk_mg").value = mgr ? mgr.fullName : "";
-                q("mk_mg").setAttribute("data-mgr-id", managerId);
-            } else {
-                q("mk_mg").value = "";
-                q("mk_mg").removeAttribute("data-mgr-id");
+            var mgEl = q("mk_mg");
+            if (!branchId) {
+                mgEl.value = "";
+                mgEl.removeAttribute("data-mgr-id");
+                return;
             }
+            mgEl.value = ltr("খুঁজছি...");
+            NK.GET("/api/admin/branches/" + branchId).then(function (b) {
+                if (b && b.branch && b.branch.managerId) {
+                    var mgr = TEAM.find(function (m) { return m.id == b.branch.managerId; });
+                    mgEl.value = mgr ? mgr.fullName : "";
+                    mgEl.setAttribute("data-mgr-id", b.branch.managerId);
+                } else {
+                    mgEl.value = "";
+                    mgEl.removeAttribute("data-mgr-id");
+                }
+            }).catch(function () {
+                mgEl.value = "";
+                mgEl.removeAttribute("data-mgr-id");
+            });
         });
         q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
