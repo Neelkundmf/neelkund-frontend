@@ -422,7 +422,7 @@
                 <div class="fld"><label>নাম *</label><input id="mk_name"><div class="error-msg" id="err_mk_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>কোড</label><div style="display:flex;gap:8px;"><input id="mk_code" maxlength="10" style="text-transform:uppercase;flex:1;"><button type="button" class="btn sm" id="mk_auto" style="flex-shrink:0;">Auto</button></div><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select><div class="error-msg" id="err_mk_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>ম্যানেজার</label><input id="mk_mg" readonly style="background:var(--paper);cursor:not-allowed;"></div>
+                <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
 
                 <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
             </div>
@@ -2593,8 +2593,7 @@
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> তৈরি হচ্ছে...');
 
-            var mgEl = q("mk_mg");
-            var mgId = mgEl.getAttribute("data-mgr-id");
+            var mgId = q("mk_mg").value;
 
             NK.POST("/api/markets", {
                 name: q("mk_name").value.trim(),
@@ -2717,23 +2716,6 @@
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
         q("tm_role").addEventListener("change", fillMarketsForBranch);
-        q("mk_br").addEventListener("change", function () {
-            var branchId = Number(this.value);
-            var mgEl = q("mk_mg");
-            if (!branchId) {
-                mgEl.value = "";
-                mgEl.removeAttribute("data-mgr-id");
-                return;
-            }
-            var mgr = TEAM.find(function (m) { return m.role === "MANAGER" && m.branchId === branchId; });
-            if (mgr) {
-                mgEl.value = mgr.fullName;
-                mgEl.setAttribute("data-mgr-id", mgr.id);
-            } else {
-                mgEl.value = "";
-                mgEl.removeAttribute("data-mgr-id");
-            }
-        });
         q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("tm_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
