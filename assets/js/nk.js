@@ -632,7 +632,369 @@
 
         // ফিল্ড এরর হ্যান্ডলিং
         highlightFieldErrors: highlightFieldErrors,
-        formatFieldErrors: formatFieldErrors
+        formatFieldErrors: formatFieldErrors,
+
+        /* ================== Validation Framework (Part 1/2) ==================
+           CSS স্টাইলিং (কোডে যোগ করবেন):
+           - Red border: border: 2px solid #ff4444
+           - Error text: color: #ff4444, font-size: 12px, margin-top: 4px
+           ================================================================== */
+
+        validate: {
+            /**
+             * একটা form-এর সব ফিল্ড যাচাই করা
+             * @param {string} formId - form element-এর ID
+             * @returns {boolean} - সব ফিল্ড valid হলে true
+             */
+            validateForm: function(formId) {
+                var form = document.getElementById(formId);
+                if (!form) return false;
+
+                var isValid = true;
+                var requiredFields = form.querySelectorAll('[data-required="true"]');
+
+                requiredFields.forEach(function(field) {
+                    var fieldId = field.id;
+                    var value = field.value ? field.value.trim() : '';
+                    var rules = {
+                        required: true,
+                        type: field.getAttribute('data-validate-type') || 'text',
+                        minLength: field.getAttribute('data-min-length'),
+                        maxLength: field.getAttribute('data-max-length'),
+                        pattern: field.getAttribute('data-validate-pattern')
+                    };
+
+                    if (!NK.validate.validateField(fieldId, value, rules)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            },
+
+            /**
+             * একটা ফিল্ড যাচাই করা
+             * @param {string} fieldId - input element-এর ID
+             * @param {string} value - ফিল্ডের value
+             * @param {Object} rules - validation rules
+             *        rules.required: boolean
+             *        rules.type: 'text'|'email'|'phone'|'number'|'aadhar'|'pan'|'date'
+             *        rules.minLength: number
+             *        rules.maxLength: number
+             *        rules.pattern: regex pattern string
+             * @returns {boolean} - valid হলে true, invalid হলে false
+             */
+            validateField: function(fieldId, value, rules) {
+                rules = rules || {};
+                var isValid = true;
+                var errorMsg = '';
+
+                // required চেক
+                if (rules.required && (!value || value === '')) {
+                    isValid = false;
+                    errorMsg = 'এই ফিল্ড বাধ্যতামূলক।';
+                    NK.validate.showError(fieldId, errorMsg);
+                    return false;
+                }
+
+                if (!value) {
+                    NK.validate.clearError(fieldId);
+                    return true;
+                }
+
+                // type অনুযায়ী যাচাই
+                if (rules.type) {
+                    switch (rules.type) {
+                        case 'email':
+                            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailRegex.test(value)) {
+                                isValid = false;
+                                errorMsg = 'বৈধ ইমেল দিন। (অর্থ: name@example.com)';
+                            }
+                            break;
+                        case 'phone':
+                            var phoneRegex = /^[0-9]{10}$/;
+                            if (!phoneRegex.test(value)) {
+                                isValid = false;
+                                errorMsg = '১০ সংখ্যার ফোন নম্বর দিন।';
+                            }
+                            break;
+                        case 'number':
+                            if (isNaN(value) || value === '') {
+                                isValid = false;
+                                errorMsg = 'সংখ্যা দিন।';
+                            }
+                            break;
+                        case 'aadhar':
+                            var aadharRegex = /^[0-9]{12}$/;
+                            if (!aadharRegex.test(value)) {
+                                isValid = false;
+                                errorMsg = '১২ সংখ্যার আধার নম্বর দিন।';
+                            }
+                            break;
+                        case 'pan':
+                            var panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                            if (!panRegex.test(value)) {
+                                isValid = false;
+                                errorMsg = 'বৈধ PAN দিন। (উদা: AAAAA1234A)';
+                            }
+                            break;
+                        case 'date':
+                            var d = new Date(value);
+                            if (isNaN(d.getTime())) {
+                                isValid = false;
+                                errorMsg = 'বৈধ তারিখ দিন।';
+                            }
+                            break;
+                    }
+                }
+
+                // minLength/maxLength চেক
+                if (isValid && rules.minLength && value.length < parseInt(rules.minLength)) {
+                    isValid = false;
+                    errorMsg = 'কমপক্ষে ' + rules.minLength + ' অক্ষর দিন।';
+                }
+
+                if (isValid && rules.maxLength && value.length > parseInt(rules.maxLength)) {
+                    isValid = false;
+                    errorMsg = 'সর্বোচ্চ ' + rules.maxLength + ' অক্ষর দিন।';
+                }
+
+                // custom pattern চেক
+                if (isValid && rules.pattern) {
+                    try {
+                        var regex = new RegExp(rules.pattern);
+                        if (!regex.test(value)) {
+                            isValid = false;
+                            errorMsg = 'ফর্ম্যাট ঠিক নয়।';
+                        }
+                    } catch (e) {
+                        // ignore invalid regex
+                    }
+                }
+
+                if (!isValid) {
+                    NK.validate.showError(fieldId, errorMsg);
+                } else {
+                    NK.validate.clearError(fieldId);
+                }
+
+                return isValid;
+            },
+
+            /**
+             * ফিল্ডে error দেখানো (লাল বর্ডার + error ম্যাসেজ)
+             * CSS: border: 2px solid #ff4444; error-text color: #ff4444, font-size: 12px, margin-top: 4px
+             * @param {string} fieldId - input element-এর ID
+             * @param {string} msg - error ম্যাসেজ
+             */
+            showError: function(fieldId, msg) {
+                var el = document.getElementById(fieldId);
+                if (!el) return;
+
+                // input/select/textarea-এ লাল বর্ডার
+                el.style.borderColor = '#ff4444';
+                el.style.borderWidth = '2px';
+                el.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+
+                // error ম্যাসেজ দেখানো (যদি container থাকে)
+                var container = el.parentElement;
+                if (container) {
+                    var existingError = container.querySelector('[data-error-for="' + fieldId + '"]');
+                    if (existingError) {
+                        existingError.textContent = msg;
+                    } else {
+                        var errorDiv = document.createElement('div');
+                        errorDiv.setAttribute('data-error-for', fieldId);
+                        errorDiv.style.cssText = 'color: #ff4444; font-size: 12px; margin-top: 4px; margin-left: 0;';
+                        errorDiv.textContent = msg;
+                        container.appendChild(errorDiv);
+                    }
+                }
+            },
+
+            /**
+             * ফিল্ড থেকে error সরানো
+             * @param {string} fieldId - input element-এর ID
+             */
+            clearError: function(fieldId) {
+                var el = document.getElementById(fieldId);
+                if (!el) return;
+
+                // লাল স্টাইল মোছা
+                el.style.borderColor = '';
+                el.style.borderWidth = '';
+                el.style.backgroundColor = '';
+
+                // error ম্যাসেজ মোছা
+                var container = el.parentElement;
+                if (container) {
+                    var errorDiv = container.querySelector('[data-error-for="' + fieldId + '"]');
+                    if (errorDiv) {
+                        errorDiv.remove();
+                    }
+                }
+            },
+
+            /**
+             * একটা form-এর সব ফিল্ড valid কিনা চেক করা
+             * @param {string} formId - form element-এর ID
+             * @returns {boolean} - সব ফিল্ড valid হলে true
+             */
+            isFormValid: function(formIdOrFieldArray) {
+                var requiredFields = [];
+
+                if (Array.isArray(formIdOrFieldArray)) {
+                    requiredFields = formIdOrFieldArray.map(function(fieldId) {
+                        return document.getElementById(fieldId);
+                    }).filter(function(el) { return el !== null; });
+                } else {
+                    var form = document.getElementById(formIdOrFieldArray);
+                    if (!form) return false;
+                    requiredFields = Array.from(form.querySelectorAll('[data-required="true"]'));
+                }
+
+                var isValid = true;
+                requiredFields.forEach(function(field) {
+                    if (!field) return;
+                    var errorDiv = field.parentElement.querySelector('[data-error-for="' + field.id + '"]');
+                    if (errorDiv || field.style.borderColor === '#ff4444') {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            },
+
+            /**
+             * পূর্বনির্ধারিত validation rules (Part 2/2)
+             */
+            rules: {
+                required: function(value) { return value.trim() !== ''; },
+                phone: function(value) { return /^\d{10}$/.test(value); },
+                name: function(value) { return value.trim().length >= 2 && !/\s{2,}/.test(value); },
+                email: function(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); },
+                number: function(value) { return !isNaN(value) && value !== ''; },
+                code: function(value) { return /^[A-Z0-9]{2,10}$/.test(value); }
+            },
+
+            /**
+             * Validation ম্যাসেজ বাংলায় (Part 2/2)
+             */
+            messages: {
+                required: "এটা অবশ্যই দিতে হবে।",
+                phone: "१० সংখ्यার ফোন नाम्बर दিन।",
+                name: "नाम कमपक्षे २ अक्षर, कोनो अतिरिक्त स्पेस नय।",
+                email: "सठिक इमेइल ठिकाना दिन।",
+                number: "शुधु सङ्ख्या दिन।",
+                code: "कोड: २-१० बडहाटेर अक्षर/सङ्ख्या।"
+            },
+
+            /**
+             * সব ফিল্ডের validation rules এর mapping
+             * ফরম্যাট: fieldId: ["required", "name", "phone", "email", "number", "code", "aadhar", "pan", "date"]
+             * এই rules array থেকে validateField-এর rules object তৈরি করা যায়
+             */
+            fieldRules: {
+                /* ===================== ব্রাঞ্চ ফর্ম ===================== */
+                "br_name": ["required", "name"],
+                "br_code": ["required", "code"],
+                "br_digits": ["required", "number"],
+                "br_start": ["required", "number"],
+                "br_pattern": [],
+                "br_addr": [],
+
+                /* ===================== মার্কেট ফর্ম ===================== */
+                "mk_name": ["required", "name"],
+                "mk_code": ["code"],
+                "mk_br": ["required"],
+                "mk_mg": [],
+
+                /* ===================== কর্মী / টিম সদস্য ফর্ম ===================== */
+                "tm_name": ["required", "name"],
+                "tm_phone": ["required", "phone"],
+                "tm_pass": ["required"],
+                "tm_role": ["required"],
+                "tm_br": [],
+                "tm_area": [],
+                "tm_mk": [],
+                "tm_sal": [],
+                "tm_code": [],
+                "tm_aad": ["aadhar"],
+                "tm_pan": ["pan"],
+                "tm_join": [],
+                "tm_fh": [],
+                "tm_dob": [],
+                "tm_gen": [],
+                "tm_bg": [],
+                "tm_perm": [],
+                "tm_curr": [],
+                "tm_en": [],
+                "tm_ep": ["phone"],
+
+                /* ===================== তহবিল জমা (Fund Deposit) ===================== */
+                "fd_type": ["required"],
+                "fd_src": ["required"],
+                "fd_p": [],
+                "fd_iname": [],
+                "fd_br": [],
+                "fd_amt": ["required", "number"],
+                "fd_date": ["required"],
+                "fd_note": [],
+
+                /* ===================== খরচ (Expense) ===================== */
+                "ex_cat": ["required"],
+                "ex_br": [],
+                "ex_amt": ["required", "number"],
+                "ex_date": ["required"],
+                "ex_desc": [],
+
+                /* ===================== অনুমতি (Permission) ===================== */
+                "pm_role": ["required"],
+
+                /* ===================== বেতন (Salary) ===================== */
+                "sl_u": ["required"],
+                "sl_m": ["required"],
+                "sl_base": ["required", "number"],
+                "sl_com": ["number"],
+                "sl_f": [],
+
+                /* ===================== প্রোফাইল / সদস্য সম্পাদনা ===================== */
+                "pf_name": [],
+                "pf_area": [],
+                "pf_aad": ["aadhar"],
+                "pf_pan": ["pan"],
+                "pf_join": [],
+                "pf_sal": [],
+                "pf_code": [],
+                "pf_np": [],
+
+                /* ===================== অ্যাক্সেস নিয়ন্ত্রণ (Access Control) ===================== */
+                "ac_role": ["required"],
+                "ac_s": ["required", "number"],
+                "ac_e": ["required", "number"],
+
+                /* ===================== ছুটি (Holiday) ===================== */
+                "ho_d": ["required"],
+                "ho_n": [],
+
+                /* ===================== খোঁজ / ফিল্টার ===================== */
+                "cq": [],
+                "lq": [],
+                "cd": [],
+                "kq": [],
+                "rp_m": [],
+                "br": [],
+                "ag": [],
+                "pf_u": [],
+                "im_f": [],
+
+                /* ===================== ডাইনামিক ফিল্ড ===================== */
+                "durationHours": [],
+                "pf_file": [],
+                "sigFileInput": []
+            }
+        }
     };
 
 })(window);

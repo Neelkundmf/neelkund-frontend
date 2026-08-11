@@ -233,6 +233,28 @@
             margin: 12px 0;
             border: 2px solid #0F2942 !important;
         }
+
+        /* Form validation error styling */
+        input.error-field,
+        select.error-field,
+        textarea.error-field {
+            border: 2px solid #ff4444 !important;
+            background-color: #fff5f5;
+        }
+
+        .error-msg {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* When error is shown */
+        .error-field:focus {
+            outline: none;
+            border: 2px solid #ff4444 !important;
+            box-shadow: 0 0 4px rgba(255, 68, 68, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -277,6 +299,7 @@
                 <select id="br">
                     <option value="">সব ব্রাঞ্চ</option>
                 </select>
+                <div class="error-msg" id="err_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
             <div id="fund"></div>
             <div id="branchBoxes"></div>
@@ -313,6 +336,7 @@
             <div class="search">
                 <span class="ic">🔍</span>
                 <input id="cq" type="search" placeholder="নাম / ফোন / আইডি দিয়ে খুঁজুন">
+                <div class="error-msg" id="err_cq" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div class="chips" id="ctabs">
@@ -332,6 +356,7 @@
             <div class="search">
                 <span class="ic">🔍</span>
                 <input id="lq" type="search" placeholder="গ্রাহকের নাম খুঁজুন">
+                <div class="error-msg" id="err_lq" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div class="chips" id="ltabs">
@@ -350,11 +375,13 @@
             <div class="fld">
                 <label>এজেন্ট বাছুন</label>
                 <select id="ag"><option value="">— বাছুন —</option></select>
+                <div class="error-msg" id="err_ag" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div class="fld">
                 <label>তারিখ</label>
                 <input id="cd" type="date">
+                <div class="error-msg" id="err_cd" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div id="collBox"><div class="empty">উপরে এজেন্ট বাছুন</div></div>
@@ -372,12 +399,12 @@
                 <h2 style="margin-bottom:14px;">নতুন ব্রাঞ্চ</h2>
                 <div class="msg" id="brMsg"></div>
 
-                <div class="fld"><label>নাম *</label><input id="br_name"></div>
-                <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"></div>
-                <div class="fld"><label>কোডের ছাঁচ (ঐচ্ছিক)</label><input id="br_pattern" maxlength="40" placeholder="যেমন PTL/25-A/"><div class="hint">ফাঁকা রাখলে পুরনো নিয়ম: কোড-নম্বর (যেমন PTL-000001)</div></div>
-                <div class="fld"><label>নম্বর কত অঙ্কের</label><input id="br_digits" type="number" min="3" max="9" value="6"><div class="hint">৬ হলে 000001</div></div>
-                <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"></div>
-                <div class="fld"><label>ঠিকানা</label><input id="br_addr"></div>
+                <div class="fld"><label>নাম *</label><input id="br_name"><div class="error-msg" id="err_br_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"><div class="error-msg" id="err_br_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>কোডের ছাঁচ (ঐচ্ছিক)</label><input id="br_pattern" maxlength="40" placeholder="যেমন PTL/25-A/"><div class="hint">ফাঁকা রাখলে পুরনো নিয়ম: কোড-নম্বর (যেমন PTL-000001)</div><div class="error-msg" id="err_br_pattern" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>নম্বর কত অঙ্কের</label><input id="br_digits" type="number" min="3" max="9" value="6"><div class="hint">৬ হলে 000001</div><div class="error-msg" id="err_br_digits" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"><div class="error-msg" id="err_br_start" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>ঠিকানা</label><input id="br_addr"><div class="error-msg" id="err_br_addr" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
 
                 <button class="btn block" id="br_go">ব্রাঞ্চ তৈরি করুন</button>
             </div>
@@ -392,9 +419,9 @@
                 <h2 style="margin-bottom:14px;">নতুন মার্কেট</h2>
                 <div class="msg" id="mkMsg"></div>
 
-                <div class="fld"><label>নাম *</label><input id="mk_name"></div>
-                <div class="fld"><label>কোড</label><input id="mk_code" maxlength="10" style="text-transform:uppercase"></div>
-                <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select></div>
+                <div class="fld"><label>নাম *</label><input id="mk_name"><div class="error-msg" id="err_mk_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>কোড</label><input id="mk_code" maxlength="10" style="text-transform:uppercase"><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select><div class="error-msg" id="err_mk_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
 
                 <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
@@ -415,8 +442,11 @@
                 <div class="msg" id="tmMsg"></div>
 
                 <div class="fld"><label>নাম *</label><input id="tm_name"></div>
+                <div class="error-msg" id="err_tm_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>ফোন *</label><input id="tm_phone" type="tel" inputmode="numeric" maxlength="10"></div>
+                <div class="error-msg" id="err_tm_phone" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>পাসওয়ার্ড *</label><input id="tm_pass" type="text"><div class="hint">কমপক্ষে ৮ অক্ষর · প্রথম লগইনে সে নিজে বদলাবে</div></div>
+                <div class="error-msg" id="err_tm_pass" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>পদ *</label>
                     <select id="tm_role">
@@ -426,17 +456,24 @@
                         <option value="ADMIN">অ্যাডমিন</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_tm_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>ব্রাঞ্চ</label><select id="tm_br"><option value="">— নেই —</option></select></div>
+                <div class="error-msg" id="err_tm_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>এলাকা</label><input id="tm_area"></div>
+                <div class="error-msg" id="err_tm_area" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>মার্কেট</label><select id="tm_mk"><option value="">— নেই —</option></select></div>
+                <div class="error-msg" id="err_tm_mk" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
+                <div class="error-msg" id="err_tm_sal" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন</div></div>
+                <div class="error-msg" id="err_tm_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="pic-row">
                     <div class="fld"><label>আধার নম্বর *</label><input id="tm_aad" inputmode="numeric" maxlength="12"></div>
                     <button type="button" class="pic-btn req" id="tp_aad">📷</button>
                     <button type="button" class="pic-btn req" id="tp_aadb">📷</button>
                 </div>
+                <div class="error-msg" id="err_tm_aad" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="hint" style="margin:-10px 0 14px;">আধারের ছবি — সামনে ও পিছন (বাধ্যতামূলক)</div>
 
                 <div class="pic-row">
@@ -444,10 +481,15 @@
                     <button type="button" class="pic-btn" id="tp_pan">📷</button>
                     <button type="button" class="pic-btn" id="tp_panb">📷</button>
                 </div>
+                <div class="error-msg" id="err_tm_pan" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
-                <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div><div class="fld"><label>বাবা / স্বামীর নাম</label><input id="tm_fh"></div>
+                <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div>
+                <div class="error-msg" id="err_tm_join" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
+                <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="tm_fh"></div>
+                <div class="error-msg" id="err_tm_fh" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>জন্মতারিখ</label><input id="tm_dob" type="date"></div>
+                <div class="error-msg" id="err_tm_dob" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>লিঙ্গ</label>
                     <select id="tm_gen">
@@ -457,6 +499,7 @@
                         <option value="OTHER">অন্য</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_tm_gen" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>রক্তের গ্রুপ</label>
                     <select id="tm_bg">
@@ -471,13 +514,18 @@
                         <option value="O-">O−</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_tm_bg" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>স্থায়ী ঠিকানা</label><input id="tm_perm"></div>
+                <div class="error-msg" id="err_tm_perm" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>বর্তমান ঠিকানা</label><input id="tm_curr"></div>
+                <div class="error-msg" id="err_tm_curr" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <h3 style="margin:18px 0 12px;" id="tm_ech">জরুরি যোগাযোগ</h3>
                 <div class="fld"><label>নাম</label><input id="tm_en"></div>
+                <div class="error-msg" id="err_tm_en" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>ফোন</label><input id="tm_ep" type="tel" inputmode="numeric" maxlength="10"></div>
+                <div class="error-msg" id="err_tm_ep" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
             </div>
@@ -498,6 +546,7 @@
                         <option value="WITHDRAWAL">তোলা</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_fd_type" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>কে দিল *</label>
                     <select id="fd_src">
@@ -506,14 +555,21 @@
                         <option value="INTERNAL">ব্যবসার নিজের টাকা</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_fd_src" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld" id="fd_pbox"><label>কোন পার্টনার</label><select id="fd_p"></select></div>
+                <div class="error-msg" id="err_fd_p" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld" id="fd_ibox" style="display:none;"><label>বিনিয়োগকারীর নাম</label><input id="fd_iname"></div>
+                <div class="error-msg" id="err_fd_iname" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>ব্রাঞ্চ</label><select id="fd_br"><option value="">সব ব্রাঞ্চ</option></select></div>
+                <div class="error-msg" id="err_fd_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>অঙ্ক *</label><input id="fd_amt" type="number" inputmode="numeric"></div>
+                <div class="error-msg" id="err_fd_amt" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>তারিখ *</label><input id="fd_date" type="date"></div>
+                <div class="error-msg" id="err_fd_date" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>নোট</label><input id="fd_note"></div>
+                <div class="error-msg" id="err_fd_note" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="fd_go">সংরক্ষণ করুন</button>
             </div>
@@ -540,11 +596,16 @@
                         <option value="MISCELLANEOUS">বিবিধ</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_ex_cat" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>ব্রাঞ্চ</label><select id="ex_br"><option value="">সব ব্রাঞ্চ</option></select></div>
+                <div class="error-msg" id="err_ex_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>অঙ্ক *</label><input id="ex_amt" type="number" inputmode="numeric"></div>
+                <div class="error-msg" id="err_ex_amt" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>তারিখ *</label><input id="ex_date" type="date"></div>
+                <div class="error-msg" id="err_ex_date" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>বিবরণ</label><input id="ex_desc"></div>
+                <div class="error-msg" id="err_ex_desc" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="ex_go">খরচ যোগ করুন</button>
             </div>
@@ -596,6 +657,7 @@
                         <option value="AGENT">এজেন্ট</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_pm_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="pm_save">সংরক্ষণ করুন</button>
             </div>
@@ -620,6 +682,7 @@
                     <label>Excel ফাইল বাছুন</label>
                     <input id="im_f" type="file" accept=".xlsx,.xls" multiple>
                 </div>
+                <div class="error-msg" id="err_im_f" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="im_go">তুলুন</button>
             </div>
@@ -652,9 +715,13 @@
                 <div class="msg" id="slMsg"></div>
 
                 <div class="fld"><label>কর্মী *</label><select id="sl_u"></select></div>
+                <div class="error-msg" id="err_sl_u" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>মাস *</label><input id="sl_m" type="month"></div>
+                <div class="error-msg" id="err_sl_m" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>মূল বেতন *</label><input id="sl_base" type="number" inputmode="numeric"></div>
+                <div class="error-msg" id="err_sl_base" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>কমিশন</label><input id="sl_com" type="number" inputmode="numeric" value="0"></div>
+                <div class="error-msg" id="err_sl_com" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="sl_go">বেতন যোগ করুন</button>
             </div>
@@ -664,6 +731,7 @@
                     <label>মাস দেখুন</label>
                     <input id="sl_f" type="month">
                 </div>
+                <div class="error-msg" id="err_sl_f" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div id="slList"><div class="empty">উপরে একটা মাস বাছুন</div></div>
@@ -677,6 +745,7 @@
                 <div class="fld" style="margin:0;">
                     <select id="pf_u"><option value="">— বাছুন —</option></select>
                 </div>
+                <div class="error-msg" id="err_pf_u" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div id="pfBox"><div class="empty">উপরে একজন কর্মী বাছুন</div></div>
@@ -688,6 +757,7 @@
             <div class="search">
                 <span class="ic">🔍</span>
                 <input id="kq" type="search" placeholder="গ্রাহক খুঁজুন">
+                <div class="error-msg" id="err_kq" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div id="kList"><div class="loading">লোড হচ্ছে...</div></div>
@@ -712,9 +782,12 @@
                         <option value="MANAGER">ম্যানেজার</option>
                     </select>
                 </div>
+                <div class="error-msg" id="err_ac_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <div class="fld"><label>শুরু (ঘন্টা ০–২৩) *</label><input id="ac_s" type="number" min="0" max="23" value="8"></div>
+                <div class="error-msg" id="err_ac_s" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>শেষ (ঘন্টা ০–২৩) *</label><input id="ac_e" type="number" min="0" max="23" value="20"></div>
+                <div class="error-msg" id="err_ac_e" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="ac_go">বসান</button>
             </div>
@@ -724,7 +797,9 @@
                 <div class="msg" id="hoMsg"></div>
 
                 <div class="fld"><label>তারিখ *</label><input id="ho_d" type="date"></div>
+                <div class="error-msg" id="err_ho_d" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>কারণ</label><input id="ho_n" placeholder="যেমন দুর্গাপূজা"></div>
+                <div class="error-msg" id="err_ho_n" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="ho_go">ছুটি যোগ করুন</button>
             </div>
@@ -746,6 +821,7 @@
                 <div class="fld" style="margin:0;">
                     <input id="rp_m" type="month">
                 </div>
+                <div class="error-msg" id="err_rp_m" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
             </div>
 
             <div id="rpBox"><div class="loading">লোড হচ্ছে...</div></div>
@@ -2392,6 +2468,15 @@
 
         q("br_go").addEventListener("click", function () {
             hide("brMsg");
+
+            // Clear errors first
+            ["br_name", "br_code", "br_pattern", "br_digits", "br_start", "br_addr"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["br_name", "br_code"])) {
+                return; // Stop submission
+            }
+
             var b = q("br_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> তৈরি হচ্ছে...');
@@ -2469,6 +2554,15 @@
 
         q("mk_go").addEventListener("click", function () {
             hide("mkMsg");
+
+            // Clear errors first
+            ["mk_name", "mk_code", "mk_br"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["mk_name", "mk_br"])) {
+                return; // Stop submission
+            }
+
             var b = q("mk_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> তৈরি হচ্ছে...');
@@ -2696,6 +2790,14 @@
         q("tm_go").addEventListener("click", function () {
             hide("tmMsg");
 
+            // Clear errors first
+            ["tm_name", "tm_phone", "tm_pass", "tm_aad", "tm_ep", "tm_role", "tm_br"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["tm_name", "tm_phone", "tm_pass", "tm_role"])) {
+                return; // Stop submission
+            }
+
             /* ---- ঘর ধরে ধরে যাচাই ---- */
             function bad(id, msg) {
                 var el = q(id);
@@ -2843,6 +2945,15 @@
 
         q("fd_go").addEventListener("click", function () {
             hide("fdMsg");
+
+            // Clear errors first
+            ["fd_type", "fd_src", "fd_amt", "fd_date"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["fd_type", "fd_src", "fd_amt"])) {
+                return; // Stop submission
+            }
+
             var b = q("fd_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> সংরক্ষণ হচ্ছে...');
@@ -2937,6 +3048,15 @@
 
         q("ex_go").addEventListener("click", function () {
             hide("exMsg");
+
+            // Clear errors first
+            ["ex_cat", "ex_amt", "ex_date"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["ex_cat", "ex_amt"])) {
+                return; // Stop submission
+            }
+
             var b = q("ex_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> যোগ হচ্ছে...');
@@ -3049,6 +3169,7 @@
                     html += '<option value="6">6 ঘণ্টা</option>';
                     html += '<option value="8">8 ঘণ্টা</option>';
                     html += '</select></div>';
+                    html += '<div class="error-msg" id="err_durationHours" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
                     html += '</div>';
                     html += '<button class="btn sm" id="startBtn" style="margin-top:10px;background:var(--blue);color:white;width:100%;">▶ START</button>';
                     html += '</div>';
@@ -3159,6 +3280,14 @@
         q("pm_role").addEventListener("change", loadPerm);
 
         q("pm_save").addEventListener("click", function () {
+            // Clear errors first
+            ["pm_role"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["pm_role"])) {
+                return; // Stop submission
+            }
+
             var role = q("pm_role").value;
             var picked = [];
 
@@ -3385,6 +3514,15 @@
 
         q("sl_go").addEventListener("click", function () {
             hide("slMsg");
+
+            // Clear errors first
+            ["sl_u", "sl_m", "sl_base"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["sl_u", "sl_m", "sl_base"])) {
+                return; // Stop submission
+            }
+
             var b = q("sl_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> যোগ হচ্ছে...');
@@ -3458,18 +3596,25 @@
             }
             html += ltr('<div class="fld"><label>নাম</label><input id="pf_name" value="') +
                 NK.esc(u.fullName) + '"></div>';
+            html += '<div class="error-msg" id="err_pf_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>এলাকা</label><input id="pf_area" value="') +
                 NK.esc(u.area || "") + '"></div>';
+            html += '<div class="error-msg" id="err_pf_area" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>আধার নম্বর</label><input id="pf_aad" maxlength="12" ') +
                 'inputmode="numeric" placeholder="' + NK.esc(u.aadhaarMasked || ltr("১২ সংখ্যা")) + '"></div>';
+            html += '<div class="error-msg" id="err_pf_aad" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>প্যান নম্বর</label><input id="pf_pan" maxlength="10" ') +
                 'style="text-transform:uppercase" placeholder="' + NK.esc(u.panMasked || "ABCDE1234F") + '"></div>';
+            html += '<div class="error-msg" id="err_pf_pan" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>জয়েনিং তারিখ</label><input id="pf_join" type="date" value="') +
                 NK.esc(u.joinedDate || "") + '"></div>';
+            html += '<div class="error-msg" id="err_pf_join" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>মাসিক বেতন</label><input id="pf_sal" type="number" value="') +
                 NK.esc(u.monthlySalary || "") + '"></div>';
+            html += '<div class="error-msg" id="err_pf_sal" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<div class="fld"><label>কর্মীর কোড</label><input id="pf_code" maxlength="30" value="') +
                 NK.esc(u.staffCode || "") + ltr('" placeholder="যেমন EMP-001/A"></div>');
+            html += '<div class="error-msg" id="err_pf_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
 
             /* KYC ছবি */
             html += '<div style="margin:18px 0;">';
@@ -3504,6 +3649,7 @@
             html += ltr('<div class="fld"><label>নতুন পাসওয়ার্ড</label>') +
                 ltr('<input id="pf_np" type="text" placeholder="কমপক্ষে ৮ অক্ষর">') +
                 ltr('<div class="hint">কর্মী পরের বার লগইন করলেই নিজে বদলাবে</div></div>');
+            html += '<div class="error-msg" id="err_pf_np" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
             html += ltr('<button class="btn danger block" id="pf_reset">রিসেট করুন</button>');
             html += '</div>';
 
@@ -3583,6 +3729,14 @@
             });
             /* সংরক্ষণ */
             q("pf_save").addEventListener("click", function () {
+                // Clear errors first
+                ["pf_name", "pf_area", "pf_aad", "pf_pan", "pf_join", "pf_sal", "pf_code"].forEach(id => NK.validate.clearError(id));
+
+                // Validate
+                if (!NK.validate.isFormValid(["pf_name", "pf_area", "pf_sal"])) {
+                    return; // Stop submission
+                }
+
                 var b = q("pf_save");
                 b.disabled = true;
                 b.innerHTML = ltr('<span class="spin"></span> সংরক্ষণ হচ্ছে...');
@@ -3614,6 +3768,14 @@
 
             /* পাসওয়ার্ড রিসেট */
             q("pf_reset").addEventListener("click", function () {
+                // Clear errors first
+                ["pf_np"].forEach(id_tmp => NK.validate.clearError(id_tmp));
+
+                // Validate
+                if (!NK.validate.isFormValid(["pf_np"])) {
+                    return; // Stop submission
+                }
+
                 var np = q("pf_np").value;
                 if (!np || np.length < 8) {
                     toast(ltr("কমপক্ষে ৮ অক্ষরের পাসওয়ার্ড দিন"), "er");
@@ -3860,6 +4022,15 @@
 
         q("ac_go").addEventListener("click", function () {
             hide("acMsg");
+
+            // Clear errors first
+            ["ac_role", "ac_s", "ac_e"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["ac_role", "ac_s", "ac_e"])) {
+                return; // Stop submission
+            }
+
             var b = q("ac_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> বসানো হচ্ছে...');
@@ -3882,6 +4053,15 @@
 
         q("ho_go").addEventListener("click", function () {
             hide("hoMsg");
+
+            // Clear errors first
+            ["ho_d"].forEach(id => NK.validate.clearError(id));
+
+            // Validate
+            if (!NK.validate.isFormValid(["ho_d"])) {
+                return; // Stop submission
+            }
+
             var b = q("ho_go");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> যোগ হচ্ছে...');
@@ -4282,6 +4462,7 @@
                 h += '</div>';
                 h += ltr('<textarea id="pxReason" placeholder="নোট লিখুন (যেমন: দেরি করে, সাবধান)">') +
                     NK.esc(c.flagReason || "") + '</textarea>';
+                h += '<div class="error-msg" id="err_pxReason" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
                 h += ltr('<button class="btn block" id="pxSave">Remark সংরক্ষণ করুন</button>');
                 h += '</div>';
 
@@ -4350,6 +4531,14 @@
                 });
 
                 q("pxSave").addEventListener("click", function () {
+                    // Clear errors first
+                    ["pxReason"].forEach(fid => NK.validate.clearError(fid));
+
+                    // Validate
+                    if (!NK.validate.isFormValid(["pxReason"])) {
+                        return; // Stop submission
+                    }
+
                     var btn = q("pxSave");
                     btn.disabled = true; btn.textContent = ltr('সংরক্ষণ হচ্ছে...');
                     NK.PATCH("/api/customers/" + id + "/flag", {
@@ -4560,6 +4749,7 @@
                     h += '</div>';
                     h += '<div id="sigFileContainer" style="display:none;">';
                     h += '<input type="file" id="sigFileInput" accept="image/*" style="display:block;margin:12px 0;padding:8px;border:1px solid #ccc;border-radius:8px;width:100%;">';
+                    h += '<div class="error-msg" id="err_sigFileInput" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
                     h += '<button id="sigSubmitFile" class="btn sm" style="width:100%;background:#16A34A;color:#fff;">✓ জমা দিন</button>';
                     h += '</div>';
                     h += '</div>';
