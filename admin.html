@@ -2519,15 +2519,12 @@
                 q("mk_br").innerHTML = brOpts(false);
 
                 var mgs = TEAM.filter(function (u) { return u.role === "MANAGER"; });
-                var o = ltr('<option value="">— নেই —</option>');
                 window.BRANCH_MANAGER_MAP = {}; // Store branch->manager mapping
                 mgs.forEach(function (m) {
-                    o += '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.fullName) + '</option>';
                     if (m.branchId) {
                         BRANCH_MANAGER_MAP[m.branchId] = m.id; // Map branchId to managerId
                     }
                 });
-                q("mk_mg").innerHTML = o;
 
                 return NK.GET("/api/markets");
             }).then(function (list) {
@@ -2725,7 +2722,7 @@
             if (branchId && BRANCH_MANAGER_MAP && BRANCH_MANAGER_MAP[branchId]) {
                 var managerId = BRANCH_MANAGER_MAP[branchId];
                 var mgr = TEAM.find(function (m) { return m.id == managerId; });
-                q("mk_mg").value = mgr ? NK.esc(mgr.fullName) : "";
+                q("mk_mg").value = mgr ? mgr.fullName : "";
                 q("mk_mg").setAttribute("data-mgr-id", managerId);
             } else {
                 q("mk_mg").value = "";
