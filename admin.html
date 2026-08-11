@@ -2520,8 +2520,12 @@
 
                 var mgs = TEAM.filter(function (u) { return u.role === "MANAGER"; });
                 var o = ltr('<option value="">— নেই —</option>');
+                window.BRANCH_MANAGER_MAP = {}; // Store branch->manager mapping
                 mgs.forEach(function (m) {
                     o += '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.fullName) + '</option>';
+                    if (m.branchId) {
+                        BRANCH_MANAGER_MAP[m.branchId] = m.id; // Map branchId to managerId
+                    }
                 });
                 q("mk_mg").innerHTML = o;
 
@@ -2715,6 +2719,14 @@
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
         q("tm_role").addEventListener("change", fillMarketsForBranch);
+        q("mk_br").addEventListener("change", function () {
+            var branchId = Number(this.value);
+            if (branchId && BRANCH_MANAGER_MAP && BRANCH_MANAGER_MAP[branchId]) {
+                q("mk_mg").value = BRANCH_MANAGER_MAP[branchId];
+            } else {
+                q("mk_mg").value = "";
+            }
+        });
         q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("tm_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
