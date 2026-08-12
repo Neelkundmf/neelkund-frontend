@@ -4962,12 +4962,13 @@
             q("sheet").classList.toggle("on");
         }
 
-        q("logoBtn").addEventListener("click", openMenu);
-        q("sheetBg").addEventListener("click", function () {
+        if (q("logoBtn")) q("logoBtn").addEventListener("click", openMenu);
+        if (q("sheetBg")) q("sheetBg").addEventListener("click", function () {
             q("sheet").classList.remove("on");
         });
 
-        Array.prototype.forEach.call(q("sheet").querySelectorAll(".menu-grid button"), function (b) {
+        var sheet = q("sheet");
+        if (sheet) Array.prototype.forEach.call(sheet.querySelectorAll(".menu-grid button"), function (b) {
             b.addEventListener("click", function () {
                 var go = b.getAttribute("data-go");
                 q("sheet").classList.remove("on");

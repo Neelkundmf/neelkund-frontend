@@ -80,7 +80,7 @@ self.addEventListener("fetch", function (e) {
         e.respondWith(
             caches.match(req).then(function (hit) {
                 var network = fetch(req).then(function (res) {
-                    if (res && res.ok) {
+                    if (res && res.ok && res.status !== 206) {
                         var copy = res.clone();
                         caches.open(VER).then(function (c) { c.put(req, copy); });
                     }
