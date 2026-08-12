@@ -2061,71 +2061,33 @@
         }
 
         function drawMkt() {
-            if (!MKT) return;
-
-            var h = "";
-
-            /* ---- মোট ---- */
-            h += '<div class="target" style="margin-bottom:10px;">';
-            h += '<div class="t">💰 ' + ltr("আমার মার্কেটে পড়ে আছে") + '</div>';
-            h += '<div class="n">' + NK.inr(MKT.totalOutstanding) + '</div>';
-
-            h += '<div class="sub" style="margin-top:8px;">';
-            h += '<span>' + MKT.activeCustomers + ' ' + ltr('গ্রাহক') + '</span>';
-            h += '<span>OD ' + MKT.odCustomers + ' ' + ltr('জন') + ' · ' +
-                NK.inrShort(MKT.odOutstanding) + '</span>';
-            h += '</div>';
-            h += '</div>';
-
-            /* ---- একাধিক মার্কেট হলে ট্যাব ---- */
-            if (MKT.markets && MKT.markets.length > 1) {
-
-                h += '<div class="chips" id="mtabs">';
-                h += '<button class="' + (mktPick === null ? 'on' : '') +
-                    '" data-m="">' + ltr('সব') + '</button>';
-
-                MKT.markets.forEach(function (m) {
-                    h += '<button class="' + (String(mktPick) === String(m.marketId) ? 'on' : '') +
-                        '" data-m="' + (m.marketId || "") + '">' +
-                        NK.esc(m.marketName) + '</button>';
-                });
-
-                h += '</div>';
-
-                /* বাছা মার্কেটের হিসাব */
-                var sel = null;
-                if (mktPick !== null) {
-                    sel = MKT.markets.filter(function (m) {
-                        return String(m.marketId) === String(mktPick);
-                    })[0];
-                }
-
-                if (sel) {
-                    h += '<div class="stats">';
-                    h += st(ltr("গ্রাহক"), sel.activeCustomers);
-                    h += st(ltr("পড়ে আছে"), NK.inrShort(sel.outstanding), "r");
-                    h += st(ltr("আজ ওঠার কথা"), NK.inrShort(sel.todayDue));
-                    h += st(ltr("আজ উঠল"), NK.inrShort(sel.todayCollected), "g");
-                    h += '</div>';
-                } else {
-                    /* সব মার্কেটের তালিকা */
-                    h += '<div class="list" style="margin-bottom:14px;">';
-
-                    MKT.markets.forEach(function (m) {
-                        h += '<div class="item" data-mkt="' + (m.marketId || "") +
-                            '" data-mname="' + NK.esc(m.marketName) + '">';
-                        h += '<div class="av">🏬</div>';
-                        h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
-                            '<span>' + m.activeCustomers + ' ' + ltr('গ্রাহক') +
-                            (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span></div>';
-                        h += '<div class="end"><b>' + NK.inrShort(m.outstanding) + '</b>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে দেখুন ›') + '</span></div>';
-                        h += '</div>';
-                    });
-
-                    h += '</div>';
-                }
+            if (!MKT || !MKT.markets || !MKT.markets.length) {
+                q("mkt").innerHTML = '';
+                return;
             }
+
+            var h = '';
+
+            /* Simple list like admin */
+            h += '<div class="card">';
+            h += '<h2 style="margin-bottom:14px;">আমার মার্কেট</h2>';
+            h += '<div class="list">';
+
+            MKT.markets.forEach(function (m) {
+                h += '<div class="item" data-mkt="' + (m.marketId || "") +
+                    '" data-mname="' + NK.esc(m.marketName) + '" style="cursor:pointer;">';
+                h += '<div class="row">';
+                h += '<span style="font-weight:600;">' + NK.esc(m.marketName) + '</span>';
+                h += '<span style="color:var(--muted);font-size:12px;">' +
+                    m.activeCustomers + ' ' + ltr('গ্রাহক') +
+                    (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span>';
+                h += '</div>';
+                h += '<div style="font-weight:700;color:var(--ink);">' + NK.inr(m.outstanding) + '</div>';
+                h += '</div>';
+            });
+
+            h += '</div>';
+            h += '</div>';
 
             q("mkt").innerHTML = h;
 
