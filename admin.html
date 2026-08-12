@@ -5233,5 +5233,30 @@
         });
     }
 </script>
+
+<!-- Auto-fix Cloudflare broken cache detection -->
+<script>
+(function() {
+    var checkInterval = setInterval(function() {
+        if (typeof CURRENT_VIEW !== 'undefined' && typeof window.CURRENT_VIEW !== 'undefined') {
+            clearInterval(checkInterval);
+            return;
+        }
+        if (document.readyState === 'complete') {
+            clearInterval(checkInterval);
+            var reloadAttempts = parseInt(sessionStorage.getItem('nk_reload_attempts') || '0');
+            if (reloadAttempts < 2) {
+                sessionStorage.setItem('nk_reload_attempts', String(reloadAttempts + 1));
+                var nonce = Math.random().toString(36).substring(7);
+                window.location.href = window.location.pathname + '?fix=' + Date.now() + '&n=' + nonce;
+            } else {
+                sessionStorage.removeItem('nk_reload_attempts');
+                console.error('Admin dashboard broken - Cloudflare cache issue');
+            }
+        }
+    }, 100);
+    setTimeout(function() { clearInterval(checkInterval); }, 5000);
+})();
+</script>
 </body>
 </html>
