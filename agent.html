@@ -4935,18 +4935,21 @@
         });
 
         var sheet = q("sheet");
-        if (sheet) Array.prototype.forEach.call(sheet.querySelectorAll(".menu-grid button"), function (b) {
-            b.addEventListener("click", function () {
-                var go = b.getAttribute("data-go");
-                q("sheet").classList.remove("on");
+        if (sheet) {
+            var buttons = sheet.querySelectorAll(".menu-grid button");
+            Array.prototype.forEach.call(buttons, function (b) {
+                b.addEventListener("click", function () {
+                    var go = b.getAttribute("data-go");
+                    if (q("sheet")) q("sheet").classList.remove("on");
 
-                if (go === "logout") {
-                    NK.logout();
-                    window.location.replace("login.html");
-                    return;
-                }
+                    if (go === "logout") {
+                        NK.logout();
+                        window.location.replace("login.html");
+                        return;
+                    }
+                });
             });
-        });
+        }
 
         /* =====================================================================
          * শুরু
