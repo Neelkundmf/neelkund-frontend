@@ -2061,8 +2061,13 @@
         }
 
         function drawMkt() {
-            if (!MKT || !MKT.markets || !MKT.markets.length) {
-                q("mkt").innerHTML = '';
+            if (!MKT) {
+                q("mkt").innerHTML = '<div class="card"><div class="empty">লোড হচ্ছে...</div></div>';
+                return;
+            }
+
+            if (!MKT.markets || !MKT.markets.length) {
+                q("mkt").innerHTML = '<div class="card"><div class="empty">কোনো মার্কেট নেই</div></div>';
                 return;
             }
 
