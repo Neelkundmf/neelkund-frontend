@@ -1240,7 +1240,13 @@
                 </div>
                 <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="n_fh"></div>
 
-                <div class="fld"><label>জন্মতারিখ</label><input id="n_dob" type="date"></div>
+                <div class="fld">
+                    <label>জন্মতারিখ</label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input id="n_dob_input" type="text" placeholder="DDMMYYYY" maxlength="8" inputmode="numeric" style="flex:1;">
+                        <input id="n_dob" type="date" style="width:auto; cursor:pointer;" title="ক্যালেন্ডার থেকে তারিখ বাছুন">
+                    </div>
+                </div>
 
                 <div class="fld"><label>লিঙ্গ</label>
                     <select id="n_gen">
@@ -3440,10 +3446,36 @@
 
         // n_name: No transformation - allow spaces as-is
 
-        // n_dob: Auto-open date picker when user inputs
-        q("n_dob").addEventListener("input", function () {
+        // n_dob_input: Format DDMMYYYY input and sync with calendar
+        q("n_dob_input").addEventListener("input", function () {
+            var val = this.value.replace(/\D/g, "").slice(0, 8);
+            this.value = val;
+
+            // Auto-convert DDMMYYYY to YYYY-MM-DD for date field
+            if (val.length === 8) {
+                var dd = val.slice(0, 2);
+                var mm = val.slice(2, 4);
+                var yyyy = val.slice(4, 8);
+
+                // Validate date
+                if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+                    q("n_dob").value = yyyy + "-" + mm + "-" + dd;
+                } else {
+                    q("n_dob").value = "";
+                }
+            } else {
+                q("n_dob").value = "";
+            }
+        });
+
+        // n_dob: Sync calendar back to text field when changed
+        q("n_dob").addEventListener("change", function () {
             if (this.value) {
-                this.click();
+                var parts = this.value.split("-");
+                var yyyy = parts[0];
+                var mm = parts[1];
+                var dd = parts[2];
+                q("n_dob_input").value = dd + mm + yyyy;
             }
         });
 
