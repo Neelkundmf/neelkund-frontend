@@ -14,6 +14,8 @@
   "lang": "bn",
   "dir": "ltr",
 
+  "permissions": ["geolocation"],
+
   "icons": [
     {
       "src": "assets/logo.png",
