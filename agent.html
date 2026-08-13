@@ -1340,6 +1340,20 @@
             <button class="btn block" id="reportDownload" style="margin:16px;">📥 দৈনিক রিপোর্ট ডাউনলোড করুন</button>
         </div>
 
+        <!-- --------- মার্কেট বিস্তারিত (Premium Dashboard) --------- -->
+        <div class="view" id="v-market-detail">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 0.5px solid var(--border); background: var(--surface-1);">
+                <button id="mktDetailBack" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; color: var(--text-primary);">←</button>
+                <div style="flex: 1;">
+                    <div id="mktDetailTitle" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-primary);">মার্কেট</div>
+                    <small id="mktDetailInfo" style="color: var(--text-secondary); font-size: 12px;"></small>
+                </div>
+            </div>
+            <div id="mktDetailContent" style="padding: 16px;">
+                <div class="loading">লোড হচ্ছে...</div>
+            </div>
+        </div>
+
         <!-- --------- বিতরণ --------- -->
         <div class="view" id="v-disb">
             <div class="card">
@@ -1897,6 +1911,12 @@
 
         q("sync").addEventListener("click", syncNow);
 
+        /* Back button for Market Detail */
+        q("mktDetailBack").addEventListener("click", function() {
+            q("v-market-detail").classList.remove("on");
+            q("v-today").classList.add("on");
+            CURRENT_VIEW = "today";
+        });
 
         /* =====================================================================
          * পাতা বদল
@@ -2123,7 +2143,7 @@
                     if (mktId) {
                         var mkt = MKT.markets.find(function(m) { return m.marketId == mktId; });
                         if (mkt) {
-                            openAmtPage(mktId, mkt.marketName);
+                            openMarketDetailPage(mktId, mkt.marketName);
                         }
                     }
                 });
@@ -2158,6 +2178,59 @@
                     q("amtBody").innerHTML =
                         '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
                 });
+        }
+
+        function openMarketDetailPage(marketId, marketName) {
+            q("mktDetailTitle").textContent = marketName || "মার্কেট";
+            q("mktDetailInfo").textContent = "বিস্তারিত তথ্য লোড হচ্ছে...";
+            q("mktDetailContent").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+
+            q("v-today").classList.remove("on");
+            q("v-market-detail").classList.add("on");
+            CURRENT_VIEW = "market-detail";
+
+            NK.GET("/api/markets/" + marketId + "/comprehensive-details")
+                .then(function (d) {
+                    renderMarketDetail(d, marketName);
+                })
+                .catch(function (e) {
+                    q("mktDetailContent").innerHTML =
+                        '<div class="card"><div class="empty">❌ ' + NK.esc(e.message) + '</div></div>';
+                });
+        }
+
+        function renderMarketDetail(data, marketName) {
+            var d = data || {};
+            var h = '';
+
+            h += '<div style="background: linear-gradient(135deg, #E6F1FB 0%, #B5D4F4 100%); border-radius: 16px; border: 1px solid #90CAF9; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(55,138,221,0.15);">';
+            h += '<div style="display: inline-block; background: #185FA5; color: white; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 16px;">📊 এই মাসের হিসেব</div>';
+            h += '<div style="margin-bottom: 16px;"><div style="display: inline-block; background: #0C447C; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 8px;">মোট বিনিয়োগ</div><div style="font-size: 28px; font-weight: 800; color: #0C447C; margin-top: 8px;">' + NK.inr(d.investment || 0) + '</div></div>';
+            h += '<div style="margin-bottom: 16px; border-top: 2px solid rgba(55,138,221,0.2); padding-top: 14px;"><div style="display: inline-block; background: #0F6E56; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 8px;">✓ উঠেছে</div><div style="font-size: 28px; font-weight: 800; color: #0F6E56; margin-top: 8px;">' + NK.inr(d.collection || 0) + '</div></div>';
+            h += '<div style="border-top: 2px solid rgba(55,138,221,0.2); padding-top: 14px;"><div style="display: inline-block; background: #A32D2D; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 8px;">⏳ পড়ে আছে</div><div style="font-size: 28px; font-weight: 800; color: #A32D2D; margin-top: 8px;">' + NK.inr((d.investment || 0) - (d.collection || 0)) + '</div></div>';
+            h += '</div>';
+
+            h += '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">';
+            h += '<div style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(25,118,210,0.12); border: 1px solid #90CAF9;"><div style="display: inline-block; background: #0D47A1; color: white; padding: 5px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-bottom: 8px;">👥 গ্রাহক</div><div style="font-size: 28px; font-weight: 800; color: #0D47A1; margin-top: 8px;">' + (d.totalCustomers || 0) + '</div></div>';
+            h += '<div style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(56,142,60,0.12); border: 1px solid #81C784;"><div style="display: inline-block; background: #1B5E20; color: white; padding: 5px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-bottom: 8px;">📈 চলমান</div><div style="font-size: 28px; font-weight: 800; color: #1B5E20; margin-top: 8px;">' + (d.runningLoans || 0) + '</div></div>';
+            h += '<div style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(230,124,115,0.12); border: 1px solid #FFAB91;"><div style="display: inline-block; background: #BF360C; color: white; padding: 5px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-bottom: 8px;">⚠️ বাকি</div><div style="font-size: 28px; font-weight: 800; color: #BF360C; margin-top: 8px;">' + (d.overdueLoanCount || 0) + '</div></div>';
+            h += '<div style="background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(211,47,47,0.12); border: 1px solid #EF5350;"><div style="display: inline-block; background: #B71C1C; color: white; padding: 5px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-bottom: 8px;">🔴 OD</div><div style="font-size: 28px; font-weight: 800; color: #B71C1C; margin-top: 8px;">' + (d.odCustomerCount || 0) + '</div></div>';
+            h += '</div>';
+
+            h += '<div style="background: linear-gradient(135deg, #F5F5F5 0%, #EEEEEE 100%); border-radius: 16px; border: 1px solid #BDBDBD; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"><h3 style="margin-top: 0; color: #212121; font-size: 14px; font-weight: 700;">🔴 OD গ্রাহক (120+ দিন)</h3>';
+
+            if (d.odCustomers && d.odCustomers.length > 0) {
+                h += '<table style="width: 100%; font-size: 12px;"><thead><tr style="border-bottom: 2px solid #BDBDBD;"><th style="text-align: left; padding: 8px 0; color: #212121; font-weight: 700;">নাম</th><th style="text-align: left; padding: 8px 0; color: #212121; font-weight: 700;">বাকি</th><th style="text-align: left; padding: 8px 0; color: #212121; font-weight: 700;">দিন</th></tr></thead><tbody>';
+                d.odCustomers.forEach(function(cust) {
+                    h += '<tr style="border-bottom: 1px solid #E0E0E0; background: #FFFDE7;"><td style="padding: 8px 0; font-weight: 600;">' + NK.esc(cust.customerName || 'N/A') + '</td><td style="padding: 8px 0;">₹' + (cust.outstandingAmount || 0) + '</td><td style="padding: 8px 0; background: #FFCDD2; color: #D32F2F; font-weight: 800; border-radius: 4px; padding: 4px 8px; display: inline-block;">' + (cust.overdueDays || 0) + '</td></tr>';
+                });
+                h += '</tbody></table>';
+            } else {
+                h += '<div style="text-align: center; padding: 16px; color: #666;">কোনো OD গ্রাহক নেই</div>';
+            }
+            h += '</div>';
+
+            q("mktDetailContent").innerHTML = h;
         }
 
         function drawAmtBoxes(d) {
