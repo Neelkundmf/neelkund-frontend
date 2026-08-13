@@ -2072,45 +2072,60 @@
                 return;
             }
 
-            if (!MKT.markets || !MKT.markets.length) {
-                q("mkt").innerHTML = '<div class="card"><div class="empty">কোনো মার্কেট নেই</div></div>';
-                return;
-            }
-
             var h = '';
-
-            /* Simple list like admin */
             h += '<div class="card">';
             h += '<h2 style="margin-bottom:14px;">আমার মার্কেট</h2>';
-            h += '<div class="list">';
 
-            MKT.markets.forEach(function (m) {
-                h += '<div class="item" data-mkt="' + (m.marketId || "") +
-                    '" data-mname="' + NK.esc(m.marketName) + '" style="cursor:pointer;">';
-                h += '<div class="row">';
-                h += '<span style="font-weight:600;">' + NK.esc(m.marketName) + '</span>';
-                h += '<span style="color:var(--muted);font-size:12px;">' +
-                    m.activeCustomers + ' ' + ltr('গ্রাহক') +
-                    (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span>';
-                h += '</div>';
-                h += '<div style="font-weight:700;color:var(--ink);">' + NK.inr(m.outstanding) + '</div>';
-                h += '</div>';
-            });
+            // Dropdown for market selection
+            h += '<div style="margin-bottom:16px;">';
+            h += '<select id="mktDropdown" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:14px;background:var(--bg);color:var(--ink);">';
 
+            if (!MKT.markets || !MKT.markets.length) {
+                h += '<option value="">আপনার অধীনে কোনো মার্কেট বসানো নেই।</option>';
+            } else {
+                h += '<option value="">মার্কেট নির্বাচন করুন</option>';
+                MKT.markets.forEach(function (m) {
+                    h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
+                        NK.esc(m.marketName) + '</option>';
+                });
+            }
+
+            h += '</select>';
             h += '</div>';
+
+            // Market details list
+            if (MKT.markets && MKT.markets.length) {
+                h += '<div class="list">';
+                MKT.markets.forEach(function (m) {
+                    h += '<div class="item" data-mkt="' + (m.marketId || "") +
+                        '" data-mname="' + NK.esc(m.marketName) + '" style="cursor:pointer;">';
+                    h += '<div class="row">';
+                    h += '<span style="font-weight:600;">' + NK.esc(m.marketName) + '</span>';
+                    h += '<span style="color:var(--muted);font-size:12px;">' +
+                        m.activeCustomers + ' ' + ltr('গ্রাহক') +
+                        (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span>';
+                    h += '</div>';
+                    h += '<div style="font-weight:700;color:var(--ink);">' + NK.inr(m.outstanding) + '</div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+            }
+
             h += '</div>';
 
             q("mkt").innerHTML = h;
 
-            /* ট্যাবে ক্লিক */
-            var tabs = q("mkt").querySelector("#mtabs");
-            if (tabs) {
-                Array.prototype.forEach.call(tabs.querySelectorAll("[data-m]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var v = b.getAttribute("data-m");
-                        mktPick = v ? v : null;
-                        drawMkt();
-                    });
+            /* Dropdown change event */
+            var dropdown = q("mktDropdown");
+            if (dropdown && MKT.markets && MKT.markets.length) {
+                dropdown.addEventListener("change", function () {
+                    var mktId = dropdown.value;
+                    if (mktId) {
+                        var mkt = MKT.markets.find(function(m) { return m.marketId == mktId; });
+                        if (mkt) {
+                            openAmtPage(mktId, mkt.marketName);
+                        }
+                    }
                 });
             }
 
