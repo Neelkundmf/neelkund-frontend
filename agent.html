@@ -1204,7 +1204,7 @@
                     <button type="button" class="pic-btn" id="n_auto" style="width:auto;padding:0 14px;font-size:13px;font-weight:700;">অটো</button>
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">খালি রাখলে সিস্টেম নিজে বসাবে</div>
-                <div class="fld"><label>পুরো নাম *</label><input id="n_name"></div>
+                <div class="fld"><label>পুরো নাম *</label><input id="n_name" type="text" autocomplete="off" spellcheck="false"></div>
                 <div class="fld"><label>ফোন নম্বর *</label><input id="n_phone" type="tel" inputmode="numeric" maxlength="10"></div>
                 <div class="pic-row">
                     <div class="fld"><label>আধার নম্বর *</label><input id="n_aad" inputmode="numeric" maxlength="12"></div>
@@ -3438,12 +3438,7 @@
             q("np_aadb").classList.add("req");
         }
 
-        q("n_name").addEventListener("input", function () {
-            var val = this.value.trim();
-            if (val.length > 0) {
-                this.value = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
-            }
-        });
+        // n_name: No transformation - allow spaces as-is
         q("n_gph").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
@@ -3528,8 +3523,12 @@
 
             var newCust = null;
 
+            // Capitalize name for display
+            var capitalizedName = q("n_name").value.trim().split(/\s+/).map(function(word) {
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            }).join(" ");
             NK.POST("/api/customers", {
-                fullName: q("n_name").value.trim(),
+                fullName: capitalizedName,
                 phone: q("n_phone").value.trim(),
                 aadhaar: q("n_aad").value.trim(),
                 pan: q("n_pan").value.trim().toUpperCase() || null,
