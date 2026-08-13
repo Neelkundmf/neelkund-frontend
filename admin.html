@@ -5223,7 +5223,8 @@
 
     // Initialize history for first page load
     setTimeout(function() {
-        history.replaceState({ view: CURRENT_VIEW }, null, window.location.pathname);
+        var view = typeof CURRENT_VIEW !== 'undefined' ? CURRENT_VIEW : 'dash';
+        history.replaceState({ view: view }, null, window.location.pathname);
     }, 0);
 </script>
 <script>
