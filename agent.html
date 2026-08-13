@@ -3439,6 +3439,14 @@
         }
 
         // n_name: No transformation - allow spaces as-is
+
+        // n_dob: Auto-open date picker when user inputs
+        q("n_dob").addEventListener("input", function () {
+            if (this.value) {
+                this.click();
+            }
+        });
+
         q("n_gph").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
