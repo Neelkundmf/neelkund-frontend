@@ -2080,10 +2080,13 @@
         var mktPick = null;   // null = সব মার্কেট
 
         function loadMkt() {
-            NK.GET("/api/agent/my-markets").then(function (d) {
-                MKT = d;
+            NK.GET("/api/markets").then(function (d) {
+                MKT = { markets: d || [] };
                 drawMkt();
-            }).catch(function () {});
+            }).catch(function () {
+                MKT = { markets: [] };
+                drawMkt();
+            });
         }
 
         function drawMkt() {
@@ -2094,16 +2097,14 @@
 
             var h = '';
             h += '<div class="card">';
-            h += '<h2 style="margin-bottom:14px;">আমার মার্কেট</h2>';
+            h += '<h2 style="margin-bottom:14px;">মার্কেট নির্বাচন করুন</h2>';
 
-            // Dropdown for market selection
+            // Dropdown for market selection - always show
             h += '<div style="margin-bottom:16px;">';
             h += '<select id="mktDropdown" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:14px;background:var(--bg);color:var(--ink);">';
+            h += '<option value="">— বাছুন —</option>';
 
-            if (!MKT.markets || !MKT.markets.length) {
-                h += '<option value="">আপনার অধীনে কোনো মার্কেট বসানো নেই।</option>';
-            } else {
-                h += '<option value="">মার্কেট নির্বাচন করুন</option>';
+            if (MKT.markets && MKT.markets.length) {
                 MKT.markets.forEach(function (m) {
                     h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
                         NK.esc(m.marketName) + '</option>';
@@ -2112,24 +2113,6 @@
 
             h += '</select>';
             h += '</div>';
-
-            // Market details list
-            if (MKT.markets && MKT.markets.length) {
-                h += '<div class="list">';
-                MKT.markets.forEach(function (m) {
-                    h += '<div class="item" data-mkt="' + (m.marketId || "") +
-                        '" data-mname="' + NK.esc(m.marketName) + '" style="cursor:pointer;">';
-                    h += '<div class="row">';
-                    h += '<span style="font-weight:600;">' + NK.esc(m.marketName) + '</span>';
-                    h += '<span style="color:var(--muted);font-size:12px;">' +
-                        m.activeCustomers + ' ' + ltr('গ্রাহক') +
-                        (m.odCustomers ? ' · ' + m.odCustomers + ' OD' : '') + '</span>';
-                    h += '</div>';
-                    h += '<div style="font-weight:700;color:var(--ink);">' + NK.inr(m.outstanding) + '</div>';
-                    h += '</div>';
-                });
-                h += '</div>';
-            }
 
             h += '</div>';
 
