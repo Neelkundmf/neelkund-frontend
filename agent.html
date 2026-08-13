@@ -2080,8 +2080,9 @@
         var mktPick = null;   // null = সব মার্কেট
 
         function loadMkt() {
-            NK.GET("/api/agent/my-markets").then(function (d) {
-                MKT = d;
+            var agentId = NK.me().id;
+            NK.GET("/api/markets/agent/" + agentId).then(function (d) {
+                MKT = { markets: d || [] };
                 drawMkt();
             }).catch(function () {
                 MKT = { markets: [] };
