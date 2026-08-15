@@ -2880,10 +2880,10 @@
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
         q("tm_aad").addEventListener("input", function () {
-            q("tm_ep").addEventListener("input", function () {
-                this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
-            });
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
+        });
+        q("tm_ep").addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
         /* ---- ফর্মে ছবি ধরে রাখা (এখনো সার্ভারে যায়নি) ---- */
         var TPICS = {};   // { SELFIE: File, AADHAAR: File, ... }
@@ -5029,6 +5029,11 @@
             var ctx = canvas.getContext("2d");
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // প্যানেল বারবার খুললেও যেন লিসেনার একবারই বসে — নাহলে প্রতিবার
+            // toggle করলে আগেরগুলোর সাথে যোগ হয়ে জমতে থাকে (মেমরি লিক)
+            if (canvas.dataset.sigInit === "1") return;
+            canvas.dataset.sigInit = "1";
 
             canvas.addEventListener("mousedown", function (e) {
                 sigIsDrawing = true;

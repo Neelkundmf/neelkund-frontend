@@ -2586,6 +2586,11 @@
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // প্যানেল বারবার খুললেও যেন লিসেনার একবারই বসে — নাহলে প্রতিবার
+            // toggle করলে আগেরগুলোর সাথে যোগ হয়ে জমতে থাকে (মেমরি লিক)
+            if (canvas.dataset.sigInit === "1") return;
+            canvas.dataset.sigInit = "1";
+
             canvas.addEventListener("mousedown", function (e) {
                 sigIsDrawing = true;
                 var rect = canvas.getBoundingClientRect();
