@@ -231,9 +231,16 @@
             padding: 16px 18px;
             margin-bottom: 14px;
             color: #fff;
-            box-shadow: 0 10px 26px rgba(15,41,66,.22);
+            box-shadow: 0 14px 32px rgba(15,41,66,.28), 0 4px 10px rgba(15,41,66,.14);
             cursor: pointer;
             transition: transform .15s, box-shadow .15s;
+            animation: amtCardFloat 5s ease-in-out infinite;
+        }
+        .amtcard:nth-child(2n) { animation-delay: -1.6s; }
+        .amtcard:nth-child(3n) { animation-delay: -3.2s; }
+        @keyframes amtCardFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-8px); }
         }
         .amtcard:active {
             transform: scale(.98);
@@ -2467,10 +2474,11 @@
 
             /* ৫টা রঙিন floating বক্স */
             (d.boxes || []).forEach(function (b, i) {
-                h += '<div class="amtcard c' + (i % 5) + '">';
+                h += '<div class="amtcard c' + (i % 5) + '" data-amt="' + b.amount + '">';
 
                 h += '<div class="ah">';
                 h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
+                h += '<div class="arrow">›</div>';
                 h += '</div>';
 
                 h += '<div class="amini">';
@@ -2488,6 +2496,33 @@
             });
 
             q("amtDash").innerHTML = h;
+
+            /* বক্সে ক্লিক → গ্রাহক তালিকা (মার্কেট একটাই হলে সরাসরি, একাধিক হলে আগে মার্কেট বাছতে বলা হবে) */
+            Array.prototype.forEach.call(q("amtDash").querySelectorAll("[data-amt]"), function (el) {
+                el.addEventListener("click", function () {
+                    openAmtDashCustomers(el.getAttribute("data-amt"));
+                });
+            });
+        }
+
+        function openAmtDashCustomers(amount) {
+            NK.GET("/api/agent/my-markets").then(function (d) {
+                var mkts = (d && d.markets) ? d.markets : [];
+                if (!mkts.length) {
+                    toast(ltr("আপনার অধীনে কোনো মার্কেট বসানো নেই"), "er");
+                    return;
+                }
+                if (mkts.length === 1) {
+                    AMT_MKT = mkts[0].marketId;
+                    AMT_MNAME = mkts[0].marketName || ltr("মার্কেট");
+                    q("amtPage").classList.add("on");
+                    openAmtCustomers(amount);
+                } else {
+                    toast(ltr("আপনার একাধিক মার্কেট আছে — আগে মার্কেট ট্যাব থেকে মার্কেট বেছে নিন"), "in");
+                }
+            }).catch(function (e) {
+                toast(e.message, "er");
+            });
         }
         /* =====================================================================
           * কালেকশন — মার্কেট বাছা → কাস্টমার তালিকা → শেষ ৭ দিন
