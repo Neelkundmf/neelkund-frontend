@@ -3426,14 +3426,6 @@
             q("prof").classList.remove("on");
         });
 
-        function bindCust() {
-            Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
-                el.addEventListener("click", function () {
-                    openCustomer(el.getAttribute("data-cust"));
-                });
-            });
-        }
-
         var P_REQ_ID = 0;
         function openCustomer(id) {
             var myReq = ++P_REQ_ID;
