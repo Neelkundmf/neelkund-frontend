@@ -4712,10 +4712,10 @@
             }
             // Agent-এর জন্য star mask
             if (type === "aadhar" && strVal.length >= 4) {
-                return "****" + strVal.slice(-4);
+                return "****" + NK.esc(strVal.slice(-4));
             }
             if (type === "pan" && strVal.length >= 4) {
-                return "****" + strVal.slice(-4);
+                return "****" + NK.esc(strVal.slice(-4));
             }
             return "****";
         }
