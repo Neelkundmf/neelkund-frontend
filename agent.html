@@ -4549,6 +4549,21 @@
                     sigSubmitCanvas.addEventListener("click", function () {
                         var canvas = q("sigCanvas");
                         if (!canvas) return;
+                        // Check if canvas is empty (has actual drawing)
+                        var ctx = canvas.getContext("2d");
+                        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        var data = imageData.data;
+                        var hasDrawing = false;
+                        for (var i = 3; i < data.length; i += 4) {
+                            if (data[i] > 0) {  // Check alpha channel
+                                hasDrawing = true;
+                                break;
+                            }
+                        }
+                        if (!hasDrawing) {
+                            toast(ltr("স্বাক্ষর তুলুন"), "er");
+                            return;
+                        }
                         var dataUrl = canvas.toDataURL("image/png");
                         submitSignature(loanId, dataUrl, null);
                     });
