@@ -3198,7 +3198,9 @@
         function nCalc() {
             var p = Number(q("n_amt").value || 0);
             var total = Math.round(p * 1.15);
-            var emi = (total / 46).toFixed(2);
+            // ব্যাকএন্ড দৈনিক EMI-তে RoundingMode.DOWN (ছেঁটে ফেলা) ব্যবহার করে —
+            // .toFixed(2) রাউন্ড করে দেয়, তাই মিল রাখতে Math.floor দিয়ে ছেঁটে ফেলছি
+            var emi = (Math.floor((total / 46) * 100) / 100).toFixed(2);
             q("n_calc").innerHTML =
                 ltr('আসল') + ' ₹' + p + ' · ' + ltr('মোট ফেরত') + ' ₹' + total + ' · ' + ltr('দৈনিক') + ' ₹' + emi;
         }
