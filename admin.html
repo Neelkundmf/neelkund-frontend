@@ -1661,8 +1661,11 @@
             BR_TIMER = setInterval(drawBranch, 30000);
         }
 
+        var BR_DRAW_BUSY = false;
         function drawBranch() {
             if (!BR_ID) return;
+            if (BR_DRAW_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
+            BR_DRAW_BUSY = true;
 
             NK.GET("/api/dashboard?branchId=" + BR_ID).then(function (d) {
                 console.log("BRANCH DATA:", JSON.stringify(d, null, 2));
@@ -1719,7 +1722,9 @@
                 h += '</div>';
 
                 q("pBody").innerHTML = h;
+                BR_DRAW_BUSY = false;
             }).catch(function (e) {
+                BR_DRAW_BUSY = false;
                 q("pBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
@@ -1733,8 +1738,13 @@
             BBOX_TIMER = setInterval(drawBranchBoxes, 30000);
         }
 
+        var BBOX_DRAW_BUSY = false;
         function drawBranchBoxes() {
+            if (BBOX_DRAW_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
+            BBOX_DRAW_BUSY = true;
+
             NK.GET("/api/dashboard/branch-summary").then(function (d) {
+                BBOX_DRAW_BUSY = false;
                 if (!d || !d.branches || !d.branches.length) {
                     q("branchBoxes").innerHTML = "";
                     return;
@@ -1775,6 +1785,7 @@
                         });
                     });
             }).catch(function () {
+                BBOX_DRAW_BUSY = false;
                 q("branchBoxes").innerHTML = "";
             });
         }
@@ -1788,9 +1799,13 @@
             MK_TIMER = setInterval(drawMarkets, 30000);
         }
 
+        var MK_DRAW_BUSY = false;
         function drawMarkets() {
+            if (MK_DRAW_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
+            MK_DRAW_BUSY = true;
             var branchId = q("br").value;
             NK.GET("/api/markets/all").then(function (d) {
+                MK_DRAW_BUSY = false;
                 if (!d || !d.length) {
                     q("marketList").innerHTML = "";
                     return;
@@ -1826,6 +1841,7 @@
                         });
                     });
             }).catch(function () {
+                MK_DRAW_BUSY = false;
                 q("marketList").innerHTML = "";
             });
         }
@@ -1886,15 +1902,21 @@
         var fundTimer = null;
         var fundTick = null;
 
+        var FUND_LOAD_BUSY = false;
         function loadFund() {
+            if (FUND_LOAD_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
+            FUND_LOAD_BUSY = true;
             var b = q("br").value;
 
             NK.GET("/api/funds/live" + (b ? "?branchId=" + b : ""))
                 .then(function (d) {
+                    FUND_LOAD_BUSY = false;
                     FUND = d;
                     drawFund();
                 })
-                .catch(function () {});
+                .catch(function () {
+                    FUND_LOAD_BUSY = false;
+                });
         }
 
         function drawFund() {
