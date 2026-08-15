@@ -2940,13 +2940,14 @@
             var br = q("tm_br").value;
             var sal = q("tm_sal").value;
 
+            var selectedMarkets = Array.from(q("tm_mk").selectedOptions).map(function(opt) { return Number(opt.value); }).filter(function(id) { return id; });
             NK.POST("/api/admin/users", {
                 fullName: name,
                 phone: phone,
                 password: pass,
                 role: q("tm_role").value,
                 branchId: br ? Number(br) : null,
-                marketId: q("tm_mk").value ? Number(q("tm_mk").value) : null,
+                marketIds: selectedMarkets.length > 0 ? selectedMarkets : null,
                 area: q("tm_area").value.trim() || null,
                 monthlySalary: sal ? Number(sal) : null,
                 aadhaar: aad || null,
