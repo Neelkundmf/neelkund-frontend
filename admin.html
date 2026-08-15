@@ -3313,10 +3313,12 @@
          * সেটিংস
          * ===================================================================== */
         function loadSettings() {
+            if (!q("setList")) return; // এই ভিউ এখন খোলা নেই
             q("setList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
             // Maintenance status
             NK.GET("/api/maintenance/status").then(function (status) {
+                if (!q("setList")) return; // এই ভিউ এখন খোলা নেই
                 var html = '';
                 if (status.active) {
                     var endTime = new Date(status.endTime);
@@ -3370,6 +3372,7 @@
             }).catch(function() {});
 
             NK.GET("/api/admin/settings").then(function (list) {
+                if (!q("setList")) return; // এই ভিউ এখন খোলা নেই
                 var rows = NK.rows(list);
                 var html = "";
 
@@ -3397,6 +3400,7 @@
                     b.addEventListener("click", function () {
                         var key = b.getAttribute("data-save");
                         var inp = q("setList").querySelector('[data-k="' + key + '"]');
+                        if (!inp) return;
 
                         b.disabled = true;
                         b.textContent = "...";
@@ -3416,6 +3420,7 @@
                 });
 
             }).catch(function (e) {
+                if (!q("setList")) return;
                 q("setList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
@@ -4107,7 +4112,9 @@
                 Array.prototype.forEach.call(q("acReq").querySelectorAll("[data-ap]"), function (b) {
                     b.addEventListener("click", function () {
                         var id = b.getAttribute("data-ap");
-                        var h = q("acReq").querySelector('[data-h="' + id + '"]').value;
+                        var hInp = q("acReq").querySelector('[data-h="' + id + '"]');
+                        if (!hInp) return;
+                        var h = hInp.value;
 
                         b.disabled = true;
 

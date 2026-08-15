@@ -2154,15 +2154,18 @@
 
                 /* রং বাছা */
                 var pickedFlag = c.flag || "GREEN";
-                Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (btn) {
-                    btn.addEventListener("click", function () {
-                        pickedFlag = btn.getAttribute("data-f");
-                        Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (x) {
-                            x.classList.remove("on");
+                var pxColorsEl = q("pxColors");
+                if (pxColorsEl) {
+                    Array.prototype.forEach.call(pxColorsEl.querySelectorAll("[data-f]"), function (btn) {
+                        btn.addEventListener("click", function () {
+                            pickedFlag = btn.getAttribute("data-f");
+                            Array.prototype.forEach.call(pxColorsEl.querySelectorAll("[data-f]"), function (x) {
+                                x.classList.remove("on");
+                            });
+                            btn.classList.add("on");
                         });
-                        btn.classList.add("on");
                     });
-                });
+                }
 
                 /* Remark সংরক্ষণ */
                 var pxSaveBtn = q("pxSave");
@@ -2194,8 +2197,11 @@
                 var voterUploadBtn = q("pxUploadVoter");
                 if (voterUploadBtn) {
                     voterUploadBtn.addEventListener("click", function() {
-                        var front = q("pxVoterFront").files[0];
-                        var back = q("pxVoterBack").files[0];
+                        var frontEl = q("pxVoterFront");
+                        var backEl = q("pxVoterBack");
+                        if (!frontEl || !backEl) return;
+                        var front = frontEl.files[0];
+                        var back = backEl.files[0];
 
                         if (!front && !back) {
                             toast("কমপক্ষে একটি ফাইল নির্বাচন করুন", "er");
@@ -3186,9 +3192,11 @@
         var bcTimer = null;
 
         function loadCust(silent) {
+            if (!q("bcList")) return; // এই ভিউ এখন খোলা নেই
+
             if (silent !== true) {
                 q("bcList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-                q("bcBoxes").innerHTML = "";
+                if (q("bcBoxes")) q("bcBoxes").innerHTML = "";
             }
 
             NK.GET("/api/dashboard/branch-customers").then(function (d) {
@@ -3196,6 +3204,7 @@
                 drawBcBoxes(d.boxes || []);
                 drawBcList();
             }).catch(function (e) {
+                if (!q("bcList")) return;
                 q("bcList").innerHTML =
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
@@ -3212,11 +3221,13 @@
                 h += '</div>';
             });
             h += '</div>';
-            q("bcBoxes").innerHTML = h;
+            if (q("bcBoxes")) q("bcBoxes").innerHTML = h;
         }
 
         function drawBcList() {
-            var s = q("bcq").value.trim().toLowerCase();
+            if (!q("bcList")) return; // এই ভিউ এখন খোলা নেই
+            var bcqEl = q("bcq");
+            var s = bcqEl ? bcqEl.value.trim().toLowerCase() : "";
 
             var list = BC_ALL.filter(function (c) {
                 if (!s) return true;
@@ -3292,6 +3303,8 @@
         var blTimer = null;
 
         function loadOd(silent) {
+            if (!q("odList")) return; // এই ভিউ এখন খোলা নেই
+
             if (silent !== true) {
                 q("odList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
@@ -3300,13 +3313,16 @@
                 BL_ALL = NK.rows(list);
                 drawBlList();
             }).catch(function (e) {
+                if (!q("odList")) return;
                 q("odList").innerHTML =
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
         function drawBlList() {
-            var s = (q("blq") ? q("blq").value.trim().toLowerCase() : "");
+            if (!q("odList")) return; // এই ভিউ এখন খোলা নেই
+            var blqElBefore = q("blq");
+            var s = (blqElBefore ? blqElBefore.value.trim().toLowerCase() : "");
 
             var list = BL_ALL.filter(function (c) {
                 if (!s) return true;
@@ -3328,7 +3344,7 @@
 
             h += '<div class="search"><span class="ic">🔍</span>' +
                 '<input id="blq" type="search" placeholder="' + ltr("নাম / আইডি / ফোন খুঁজুন") + '" value="' +
-                (s ? NK.esc(q("blq").value) : "") + '"></div>';
+                (s ? NK.esc(blqElBefore.value) : "") + '"></div>';
 
             if (!list.length) {
                 h += '<div class="card"><div class="empty">' + ltr("কেউ নেই") + '</div></div>';
