@@ -4889,7 +4889,11 @@
                             });
                             document.body.appendChild(modal);
                         });
-                    }).catch(function () {});
+                    }).catch(function (e) {
+                        pe.textContent = "❌ " + ltr("ছবি আসেনি");
+                        pe.style.color = "#ff4444";
+                        console.error("Photo load failed:", e);
+                    });
                 }
 
                 /* লোন ট্যাবে টাচ — বিস্তারিত পাতা */
