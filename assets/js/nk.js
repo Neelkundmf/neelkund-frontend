@@ -207,6 +207,7 @@
 
     function logout() {
         clearAll();
+        window.location.href = "login.html";
     }
 
     /* ---------------- পাতা খোলার সময় ---------------- */
