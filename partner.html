@@ -2806,6 +2806,8 @@
                             });
                     });
                 });
+            }).catch(function (e) {
+                q("tmList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
@@ -5079,6 +5081,9 @@
                     toast(it.title + " — " + it.message,
                         it.severity === "URGENT" ? "er" : "in");
                 });
+            }).catch(function (e) {
+                console.error("notifications load failed:", e);
+                toast(ltr("খবর লোড করা যায়নি"), "er");
             });
         });
         /* KYC ছবি পাঠানো */
