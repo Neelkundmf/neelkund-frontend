@@ -2840,7 +2840,7 @@
                 q("disbList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
-            var url = "/api/disbursements/manager/pending?page=" + DISB_PAGE + "&size=" + DISB_SIZE;
+            var url = "/api/disbursements/manager/pending?page=" + DISB_PAGE + "&limit=" + DISB_SIZE;
 
             NK.GET(url).then(function (resp) {
                 var list = NK.rows(resp && resp.content ? resp.content : []);

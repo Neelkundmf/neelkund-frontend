@@ -1991,8 +1991,10 @@
            * ===================================================================== */
 
         var cTab = "ACTIVE";
-        var cShow = 50;
+        var cPage = 0;
         var cTimer = null;
+        var cLoading = false;
+        var cHasMore = false;
 
         var FLAG_BN = {
             GREEN: [ltr("সবুজ"), "g"], BLUE: [ltr("অগ্রিম"), "b"],
@@ -2000,36 +2002,39 @@
         };
 
         function loadCust(silent) {
+            if (cLoading) return;
+
             var s = q("cq").value.trim();
-            var path = "/api/customers?page=0&size=10000";
+            var path = "/api/customers?page=" + cPage + "&size=50";
+            if (s) path += "&search=" + encodeURIComponent(s);
 
             if (silent !== true) {
                 q("cList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             }
 
-            NK.GET(path).then(function (list) {
-                var rows = NK.rows(list);
-
-                // Filter by search term (name, phone, or code)
-                if (s) {
-                    rows = rows.filter(function (c) {
-                        var searchLower = s.toLowerCase();
-                        return (c.fullName && c.fullName.toLowerCase().includes(searchLower)) ||
-                               (c.phone && c.phone.includes(s)) ||
-                               (c.customerCode && c.customerCode.toLowerCase().includes(searchLower));
-                    });
-                }
+            cLoading = true;
+            NK.GET(path).then(function (resp) {
+                var rows = NK.rows(resp);
 
                 if (!rows.length) {
-                    q("cList").innerHTML = ltr('<div class="card"><div class="empty">কেউ নেই</div></div>');
+                    if (cPage === 0) {
+                        q("cList").innerHTML = ltr('<div class="card"><div class="empty">কেউ নেই</div></div>');
+                    } else {
+                        if (q("cMore")) q("cMore").style.display = "none";
+                    }
+                    cHasMore = false;
+                    cLoading = false;
                     return;
                 }
 
-                var html = '<div class="list">';
+                var html = '';
+                if (cPage === 0) html = '<div class="list">';
+                else {
+                    var existingList = q("cList").querySelector(".list");
+                    if (existingList) html = existingList.innerHTML;
+                }
 
-                CUST_ROWS = rows;
-
-                rows.slice(0, cShow).forEach(function (c) {
+                rows.forEach(function (c) {
                     var f = FLAG_BN[c.flag] || ["—", "n"];
                     var custId = c.customerId || c.id;
 
@@ -2052,17 +2057,18 @@
 
                 html += '</div>';
 
-                if (rows.length > cShow) {
-                    html += '<button class="btn ghost block" id="cMore" ' +
-                        ltr('style="margin-top:12px;">আরও দেখুন (') +
-                        (rows.length - cShow) + ltr(' জন বাকি)</button>');
+                cHasMore = rows.length >= 50;
+                var moreBtn = '';
+                if (cHasMore) {
+                    moreBtn = '<button class="btn ghost block" id="cMore" ' +
+                        ltr('style="margin-top:12px;">আরও দেখুন</button>');
                 }
 
-                q("cList").innerHTML = html;
+                q("cList").innerHTML = html + moreBtn;
                 if (q("cMore")) {
                     q("cMore").addEventListener("click", function () {
-                        cShow += 50;
-                        drawCust();
+                        cPage++;
+                        loadCust(true);
                     });
                 }
                 Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
@@ -2071,9 +2077,12 @@
                     });
                 });
 
+                cLoading = false;
+
             }).catch(function (e) {
                 q("cList").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
+                cLoading = false;
             });
         }
 
@@ -2084,7 +2093,7 @@
                 });
                 b.classList.add("on");
                 cTab = b.getAttribute("data-t");
-                cShow = 50;
+                cPage = 0;
                 loadCust();
             });
         });
@@ -2140,7 +2149,7 @@
         }
         q("cq").addEventListener("input", function () {
             clearTimeout(cTimer);
-            cShow = 50;
+            cPage = 0;
             cTimer = setTimeout(loadCust, 400);
         });
 
@@ -4366,7 +4375,7 @@
         function exportAllCustomers() {
             toast(ltr('নামানো হচ্ছে...'), "in");
 
-            NK.GET("/api/customers?page=0&size=10000").then(function (r) {
+            NK.GET("/api/customers?page=0&size=5000").then(function (r) {
                 var customers = NK.rows(r);
 
                 var lines = [["নাম", "ফোন", "শেষ লোন", "অবস্থা", "পরিশোধ দিন", "সাইকেল"]];
