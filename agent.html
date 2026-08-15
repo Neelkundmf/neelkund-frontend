@@ -299,6 +299,15 @@
             font-weight: 800;
         }
 
+        /* ড্যাশবোর্ডের বক্সগুলো গ্রিড আকারে (অ্যাডমিনের মতো ছোট-ছোট বক্স, ২ কলামে) */
+        .amtdashgrid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .amtdashgrid .amtcard { margin-bottom: 0; }
+
         /* ৫টা রঙ */
         .amtcard.c0 { background: linear-gradient(135deg, #2563EB, #3B82F6); }
         .amtcard.c1 { background: linear-gradient(135deg, #7C3AED, #A855F7); }
@@ -2472,7 +2481,8 @@
             h += '</div>';
             h += '</div>';
 
-            /* ৫টা রঙিন floating বক্স */
+            /* ৫টা রঙিন floating বক্স — গ্রিড আকারে */
+            h += '<div class="amtdashgrid">';
             (d.boxes || []).forEach(function (b, i) {
                 h += '<div class="amtcard c' + (i % 5) + '" data-amt="' + b.amount + '">';
 
@@ -2494,6 +2504,7 @@
 
                 h += '</div>';
             });
+            h += '</div>';
 
             q("amtDash").innerHTML = h;
 
