@@ -4740,9 +4740,9 @@
             q("pfCid").textContent = ltr("লোড হচ্ছে...");
             q("pfBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
-
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
+                // Push nav state AFTER API response to avoid race condition
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
                 var c = p.customer || {};
                 var loans = p.loans || [];
                 var me = NK.me();
