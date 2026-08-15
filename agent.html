@@ -5136,22 +5136,20 @@
             q("sheet").classList.remove("on");
         });
 
-        var sheet = q("sheet");
-        if (sheet) {
-            var buttons = sheet.querySelectorAll(".menu-grid button");
-            Array.prototype.forEach.call(buttons, function (b) {
-                b.addEventListener("click", function () {
-                    var go = b.getAttribute("data-go");
-                    if (q("sheet")) q("sheet").classList.remove("on");
+        Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) {
+            b.addEventListener("click", function () {
+                var go = b.getAttribute("data-go");
+                if (q("sheet")) q("sheet").classList.remove("on");
 
-                    if (go === "logout") {
-                        NK.logout();
+                if (go === "logout") {
+                    NK.logout();
+                    setTimeout(function() {
                         window.location.href = "login.html";
-                        return;
-                    }
-                });
+                    }, 100);
+                    return;
+                }
             });
-        }
+        });
 
         /* =====================================================================
          * শুরু
