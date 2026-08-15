@@ -5136,15 +5136,6 @@
             q("sheet").classList.remove("on");
         });
 
-        // Logout button handler
-        var logoutBtn = document.querySelector("[data-go='logout']");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", function () {
-                NK.logout();
-                window.location.href = "login.html";
-            });
-        }
-
         /* =====================================================================
          * শুরু
          * ===================================================================== */
@@ -5312,6 +5303,17 @@
         </div>
     </div>
 </div>
+
+<script>
+// Logout button handler - runs AFTER all HTML is loaded
+var logoutBtn = document.querySelector("[data-go='logout']");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+        NK.logout();
+        window.location.href = "login.html";
+    });
+}
+</script>
 
 </body>
 </html>
