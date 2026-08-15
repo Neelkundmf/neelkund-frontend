@@ -1934,7 +1934,11 @@
         /* Market Detail Dropdown Change */
         if (q("mktDetailDropdown")) {
             q("mktDetailDropdown").addEventListener("change", function() {
-                if (this.value) updateMarketDashboard(this.value);
+                if (this.value) {
+                    var selectedText = this.options[this.selectedIndex].text;
+                    q("mktDetailTitle").textContent = selectedText;
+                    updateMarketDashboard(this.value);
+                }
             });
         }
 
@@ -2235,6 +2239,7 @@
 
         function renderMarketDashboard(d) {
             d = d || {};
+            q("mktDetailTitle").textContent = d.name || '-';
             q("mktBranch").textContent = d.branchName || '-';
             q("mktCode").textContent = d.code || '-';
             q("mktManager").textContent = d.managerName || '-';
