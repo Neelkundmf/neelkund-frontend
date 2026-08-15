@@ -4869,7 +4869,7 @@
                     h += '<div class="ld-box">';
                     h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
                     h += '<div class="sig-preview">';
-                    h += '<img src="' + d.customerSignaturePath + '" alt="গ্রাহক স্বাক্ষর">';
+                    h += '<img src="' + NK.esc(d.customerSignaturePath) + '" alt="গ্রাহক স্বাক্ষর">';
                     h += '</div>';
                     h += '</div>';
                 } else if (d.approvalStatus === "APPROVED") {
