@@ -2192,7 +2192,9 @@
                 q("lList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             }
 
-            NK.GET("/api/loans?page=0&size=300").then(function (r) {
+            // সার্চ/ফিল্টার এই তালিকার মধ্যেই হয় (নিচে drawLoans-এ) — তাই ৩০০-র বেশি
+            // লোন থাকলে পুরনো/বাকি লোনগুলো সার্চে খুঁজে পাওয়া যেত না
+            NK.GET("/api/loans?page=0&size=3000").then(function (r) {
                 LOANS = NK.rows(r);
                 drawLoans();
             }).catch(function (e) {
@@ -3998,7 +4000,9 @@
 
         function loadKyc() {
             var s = q("kq").value.trim();
-            var path = "/api/customers?page=0&size=60";
+            // সার্চ করলে বেশি গ্রাহকের মধ্যে থেকে খোঁজা হয় — নাহলে প্রথম ৬০ জনের
+            // বাইরে কেউ থাকলে "কেউ নেই" দেখাত, যদিও গ্রাহক আসলে ছিল
+            var path = "/api/customers?page=0&size=" + (s ? 3000 : 60);
 
             q("kList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
