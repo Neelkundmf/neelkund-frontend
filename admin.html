@@ -1981,7 +1981,10 @@
                         NK.esc(b.name) + '</option>';
                 });
                 q("br").innerHTML = opts;
-            }).catch(function () {});
+            }).catch(function (e) {
+                console.error("ব্রাঞ্চ লোড ব্যর্থ:", e);
+                q("br").innerHTML = '<option value="">— ত্রুটি: লোড ব্যর্থ —</option>';
+            });
         }
         /* =====================================================================
            * গ্রাহক
@@ -2247,7 +2250,10 @@
                         NK.esc(a.fullName) + '</option>';
                 });
                 q("ag").innerHTML = opts;
-            }).catch(function () {});
+            }).catch(function (e) {
+                console.error("এজেন্ট লোড ব্যর্থ:", e);
+                q("ag").innerHTML = '<option value="">— ত্রুটি: লোড ব্যর্থ —</option>';
+            });
 
             if (!q("cd").value) {
                 q("cd").value = new Date().toISOString().slice(0, 10);
