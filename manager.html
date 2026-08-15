@@ -2058,13 +2058,13 @@
                 if (c.aadhaarPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (সামনে)</div>';
-                    h += '<img src="' + NK.esc(c.aadhaarPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<div id="kycImg_AADHAAR" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                 }
                 if (c.aadhaarBackPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (পিছনে)</div>';
-                    h += '<img src="' + NK.esc(c.aadhaarBackPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<div id="kycImg_AADHAAR_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                 }
 
@@ -2072,13 +2072,13 @@
                 if (c.panPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (সামনে)</div>';
-                    h += '<img src="' + NK.esc(c.panPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<div id="kycImg_PAN" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                 }
                 if (c.panBackPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (পিছনে)</div>';
-                    h += '<img src="' + NK.esc(c.panBackPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<div id="kycImg_PAN_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                 }
 
@@ -2158,6 +2158,31 @@
                         pe.textContent = "";
                     }).catch(function () {});
                 }
+
+                /* KYC ডকুমেন্ট ছবি — auth লাগে, তাই সরাসরি <img src> দিয়ে হয় না,
+                   pxPhoto-র মতো blob এনে দেখাতে হয় */
+                [
+                    { url: c.aadhaarPhotoUrl ? "/api/customers/" + customerId + "/document?type=AADHAAR" : null, id: "kycImg_AADHAAR" },
+                    { url: c.aadhaarBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=AADHAAR_BACK" : null, id: "kycImg_AADHAAR_BACK" },
+                    { url: c.panPhotoUrl ? "/api/customers/" + customerId + "/document?type=PAN" : null, id: "kycImg_PAN" },
+                    { url: c.panBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=PAN_BACK" : null, id: "kycImg_PAN_BACK" }
+                ].forEach(function (doc) {
+                    if (!doc.url) return;
+                    var el = q(doc.id);
+                    if (!el) return;
+                    NK.GET(doc.url).then(function (blob) {
+                        var el2 = q(doc.id);
+                        if (!el2 || !blob) return;
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        img.style.cssText = "width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);";
+                        img.addEventListener("click", function () { window.viewPhoto(img.src); });
+                        el2.replaceWith(img);
+                    }).catch(function () {
+                        var el2 = q(doc.id);
+                        if (el2) el2.textContent = ltr("ছবি লোড করা যায়নি");
+                    });
+                });
 
                 /* রং বাছা */
                 var pickedFlag = c.flag || "GREEN";
@@ -2493,7 +2518,7 @@
                     h += '<div class="ld-box">';
                     h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
                     h += '<div class="sig-preview">';
-                    h += '<img src="' + NK.esc(d.customerSignaturePath) + '" alt="গ্রাহক স্বাক্ষর">';
+                    h += '<div id="sigPreviewImg" style="min-height:60px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                     h += '</div>';
                 } else if (d.approvalStatus === "APPROVED") {
@@ -2519,6 +2544,25 @@
                 }
 
                 q("lxBody").innerHTML = h;
+
+                /* গ্রাহকের স্বাক্ষর — auth লাগে বলে সরাসরি <img src> দিয়ে হয় না,
+                   blob এনে দেখাতে হয় (pxPhoto-র মতো) */
+                var sigPreviewEl = q("sigPreviewImg");
+                if (sigPreviewEl) {
+                    NK.GET("/api/loans/" + loanId + "/signature").then(function (blob) {
+                        if (myReq !== LX_REQ_ID) return;
+                        var el = q("sigPreviewImg");
+                        if (!el || !blob) return;
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        img.alt = "গ্রাহক স্বাক্ষর";
+                        el.replaceWith(img);
+                    }).catch(function () {
+                        if (myReq !== LX_REQ_ID) return;
+                        var el = q("sigPreviewImg");
+                        if (el) el.textContent = ltr("স্বাক্ষর লোড করা যায়নি");
+                    });
+                }
 
                 // ব্যাচ ৩ — স্বাক্ষর ক্যাপচার ইভেন্ট হ্যান্ডলার
                 var sigCanvasToggle = q("sigCanvasToggle");
