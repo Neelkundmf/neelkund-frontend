@@ -1982,9 +1982,10 @@
         });
 
         var PX_REQ_ID = 0;
-        function openCustomerProfile(customerId) {
+        function openCustomerProfile(customerId, loanRequestId) {
             var myReq = ++PX_REQ_ID;
             PROFILE_CUST = customerId;
+            window.selectedLoanRequestId = loanRequestId || null;
             q("profX").classList.add("on");
             q("pxCid").textContent = ltr("লোড হচ্ছে...");
             q("pxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -2087,8 +2088,8 @@
 
                 h += '</div>';
 
-                /* Approve/Reject বাটন */
-                if (true) { /* Manager approval section */
+                /* Approve/Reject বাটন — শুধু pending loan request থেকে প্রোফাইল খোলা হলে দেখাবে */
+                if (window.selectedLoanRequestId) {
                     h += '<div style="margin-top:20px; display:flex; gap:10px;">';
                     h += '<button class="btn block" id="pxApproveLoan" style="background:var(--green); color:#fff; font-weight:700;">✓ লোন অনুমোদন করুন</button>';
                     h += '<button class="btn block" id="pxRejectLoan" style="background:var(--red); color:#fff; font-weight:700;">✗ নাকচ করুন</button>';
@@ -2263,7 +2264,8 @@
                             .then(function() {
                                 toast("লোন অনুমোদন সম্পন্ন ✓", "ok");
                                 q("profX").classList.remove("on");
-                                loadPendingLoans();
+                                loadReq();
+                                loadNotif();
                             })
                             .catch(function(e) {
                                 toast("ত্রুটি: " + e.message, "er");
@@ -2287,7 +2289,8 @@
                             .then(function() {
                                 toast("লোন নাকচ করা হয়েছে", "ok");
                                 q("profX").classList.remove("on");
-                                loadPendingLoans();
+                                loadReq();
+                                loadNotif();
                             })
                             .catch(function(e) {
                                 toast("ত্রুটি: " + e.message, "er");
@@ -2724,7 +2727,7 @@
 
                     h += '<div class="req">';
 
-                    h += '<div class="top" data-prof="' + r.customerId + '" style="cursor:pointer;">';
+                    h += '<div class="top" data-prof="' + r.customerId + '" data-req="' + r.id + '" style="cursor:pointer;">';
                     h += '<div style="display:flex;align-items:center;gap:11px;">';
                     h += '<div style="width:42px;height:42px;border-radius:50%;flex-shrink:0;' +
                         'background:linear-gradient(135deg,#2563EB,#0EA5A4);color:#fff;' +
@@ -2775,7 +2778,8 @@
                 Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-prof]"), function (el) {
                     el.addEventListener("click", function () {
                         var custId = el.getAttribute("data-prof");
-                        openCustomerProfile(custId);
+                        var reqId = el.getAttribute("data-req");
+                        openCustomerProfile(custId, reqId);
                     });
                 });
 
