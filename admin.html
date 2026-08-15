@@ -5249,97 +5249,112 @@
     }, 0);
 
     // Agent Markets Management
-    var AM_AGENTS = [];
-    var AM_MARKETS = [];
-    var AM_AGENT_ID = null;
-    var AM_SELECTED = new Set();
+    setTimeout(function() {
+        var AM_AGENTS = [];
+        var AM_MARKETS = [];
+        var AM_AGENT_ID = null;
+        var AM_SELECTED = new Set();
 
-    function loadAgentMarkets() {
-        q("amMsg").textContent = "";
-        Promise.all([
-            NK.GET("/api/admin/users"),
-            NK.GET("/api/markets/all")
-        ]).then(function(results) {
-            var allUsers = NK.rows(results[0]) || [];
-            AM_AGENTS = allUsers.filter(function(u) { return u.role === "AGENT"; });
-            AM_MARKETS = results[1] || [];
+        function loadAgentMarkets() {
+            var msgEl = document.getElementById("amMsg");
+            if (msgEl) msgEl.textContent = "";
+            Promise.all([
+                NK.GET("/api/admin/users"),
+                NK.GET("/api/markets/all")
+            ]).then(function(results) {
+                var allUsers = NK.rows(results[0]) || [];
+                AM_AGENTS = allUsers.filter(function(u) { return u.role === "AGENT"; });
+                AM_MARKETS = results[1] || [];
 
-            var dd = q("am_agent");
-            dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
-            AM_AGENTS.forEach(function(a) {
-                var opt = document.createElement("option");
-                opt.value = a.id;
-                opt.textContent = a.fullName + " (" + a.phone + ")";
-                dd.appendChild(opt);
+                var dd = document.getElementById("am_agent");
+                if (!dd) return;
+                dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                AM_AGENTS.forEach(function(a) {
+                    var opt = document.createElement("option");
+                    opt.value = a.id;
+                    opt.textContent = a.fullName + " (" + a.phone + ")";
+                    dd.appendChild(opt);
+                });
+            }).catch(function(e) {
+                var msgEl = document.getElementById("amMsg");
+                if (msgEl) msgEl.textContent = "ত্রুটি: " + NK.esc(e.message);
             });
-        }).catch(function(e) {
-            q("amMsg").textContent = "ত্রুটি: " + NK.esc(e.message);
-        });
-    }
-
-    q("am_agent").addEventListener("change", function() {
-        AM_AGENT_ID = this.value ? Number(this.value) : null;
-        if (!AM_AGENT_ID) {
-            q("amMarketsBox").style.display = "none";
-            return;
         }
 
-        NK.GET("/api/admin/users/" + AM_AGENT_ID + "/markets").then(function(existingMarkets) {
-            AM_SELECTED = new Set(existingMarkets || []);
-            renderMarketsList();
-            q("amMarketsBox").style.display = "block";
-        }).catch(function() {
-            AM_SELECTED = new Set();
-            renderMarketsList();
-            q("amMarketsBox").style.display = "block";
-        });
-    });
-
-    function renderMarketsList() {
-        var html = "";
-        AM_MARKETS.forEach(function(m) {
-            var isSelected = AM_SELECTED.has(m.id);
-            html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:6px;border:1px solid ' + (isSelected ? '#5b4ef5' : '#e0e0e0') + ';background:' + (isSelected ? '#f0edff' : '#fff') + ';">';
-            html += '<input type="checkbox" data-mkt="' + m.id + '" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer;">';
-            html += '<span style="flex:1;">' + NK.esc(m.name) + '</span>';
-            html += '</label>';
-        });
-        q("amMarketsList").innerHTML = html;
-
-        Array.prototype.forEach.call(q("amMarketsList").querySelectorAll("input"), function(cb) {
-            cb.addEventListener("change", function() {
-                var mktId = Number(this.getAttribute("data-mkt"));
-                if (this.checked) {
-                    AM_SELECTED.add(mktId);
-                } else {
-                    AM_SELECTED.delete(mktId);
+        var agentSel = document.getElementById("am_agent");
+        if (agentSel) {
+            agentSel.addEventListener("change", function() {
+                AM_AGENT_ID = this.value ? Number(this.value) : null;
+                var box = document.getElementById("amMarketsBox");
+                if (!AM_AGENT_ID) {
+                    if (box) box.style.display = "none";
+                    return;
                 }
-            });
-        });
-    }
 
-    q("am_save").addEventListener("click", function() {
-        if (!AM_AGENT_ID) {
-            q("amMsg").textContent = "এজেন্ট বেছে নিন।";
-            return;
+                NK.GET("/api/admin/users/" + AM_AGENT_ID + "/markets").then(function(existingMarkets) {
+                    AM_SELECTED = new Set(existingMarkets || []);
+                    renderMarketsList();
+                    if (box) box.style.display = "block";
+                }).catch(function() {
+                    AM_SELECTED = new Set();
+                    renderMarketsList();
+                    if (box) box.style.display = "block";
+                });
+            });
         }
 
-        var marketIds = Array.from(AM_SELECTED);
-        q("amMsg").textContent = "সংরক্ষণ হচ্ছে...";
+        function renderMarketsList() {
+            var html = "";
+            AM_MARKETS.forEach(function(m) {
+                var isSelected = AM_SELECTED.has(m.id);
+                html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:6px;border:1px solid ' + (isSelected ? '#5b4ef5' : '#e0e0e0') + ';background:' + (isSelected ? '#f0edff' : '#fff') + ';">';
+                html += '<input type="checkbox" data-mkt="' + m.id + '" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer;">';
+                html += '<span style="flex:1;">' + NK.esc(m.name) + '</span>';
+                html += '</label>';
+            });
+            var listEl = document.getElementById("amMarketsList");
+            if (listEl) {
+                listEl.innerHTML = html;
+                Array.prototype.forEach.call(listEl.querySelectorAll("input"), function(cb) {
+                    cb.addEventListener("change", function() {
+                        var mktId = Number(this.getAttribute("data-mkt"));
+                        if (this.checked) {
+                            AM_SELECTED.add(mktId);
+                        } else {
+                            AM_SELECTED.delete(mktId);
+                        }
+                    });
+                });
+            }
+        }
 
-        NK.PUT("/api/admin/users/" + AM_AGENT_ID + "/markets", marketIds).then(function() {
-            q("amMsg").textContent = "✓ সংরক্ষিত হয়েছে!";
-            setTimeout(function() {
-                q("amMsg").textContent = "";
-            }, 2000);
-        }).catch(function(e) {
-            q("amMsg").textContent = "ত্রুটি: " + NK.esc(e.message);
-        });
-    });
+        var saveBtn = document.getElementById("am_save");
+        if (saveBtn) {
+            saveBtn.addEventListener("click", function() {
+                if (!AM_AGENT_ID) {
+                    var msgEl = document.getElementById("amMsg");
+                    if (msgEl) msgEl.textContent = "এজেন্ট বেছে নিন।";
+                    return;
+                }
 
-    // Add to view loaders
-    if (typeof LOADERS === 'undefined') LOADERS = {};
-    LOADERS["agent-markets"] = loadAgentMarkets;
+                var marketIds = Array.from(AM_SELECTED);
+                var msgEl = document.getElementById("amMsg");
+                if (msgEl) msgEl.textContent = "সংরক্ষণ হচ্ছে...";
+
+                NK.PUT("/api/admin/users/" + AM_AGENT_ID + "/markets", marketIds).then(function() {
+                    if (msgEl) msgEl.textContent = "✓ সংরক্ষিত হয়েছে!";
+                    setTimeout(function() {
+                        if (msgEl) msgEl.textContent = "";
+                    }, 2000);
+                }).catch(function(e) {
+                    if (msgEl) msgEl.textContent = "ত্রুটি: " + NK.esc(e.message);
+                });
+            });
+        }
+
+        if (typeof LOADERS === 'undefined') LOADERS = {};
+        LOADERS["agent-markets"] = loadAgentMarkets;
+    }, 100);
 
 </script>
 <script>
