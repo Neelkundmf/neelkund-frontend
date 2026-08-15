@@ -5257,10 +5257,11 @@
     function loadAgentMarkets() {
         q("amMsg").textContent = "";
         Promise.all([
-            NK.GET("/api/admin/users?role=AGENT"),
+            NK.GET("/api/admin/users"),
             NK.GET("/api/markets/all")
         ]).then(function(results) {
-            AM_AGENTS = NK.rows(results[0]);
+            var allUsers = NK.rows(results[0]) || [];
+            AM_AGENTS = allUsers.filter(function(u) { return u.role === "AGENT"; });
             AM_MARKETS = results[1] || [];
 
             var dd = q("am_agent");
