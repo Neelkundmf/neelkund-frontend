@@ -1919,14 +1919,14 @@
 
             NK.GET("/api/collections/recent?limit=50").then(function (list) {
                 if (!list || !list.length) {
-                    table.innerHTML = '<tr><td colspan="6" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    table.innerHTML = '<tr><td colspan="6" class="empty">' + ltr("কোনো কালেকশন নেই") + '</td></tr>';
                     return;
                 }
 
                 var html = "";
                 list.forEach(function (item) {
                     var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
-                    var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
+                    var statusText = item.status === "PAID" ? ltr("দিয়েছে") : (item.status === "OVERDUE" ? ltr("দেরী") : ltr("সতর্কতা"));
                     var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
 
                     html += "<tr>";
@@ -2236,7 +2236,7 @@
                         var back = backEl.files[0];
 
                         if (!front && !back) {
-                            toast("কমপক্ষে একটি ফাইল নির্বাচন করুন", "er");
+                            toast(ltr("কমপক্ষে একটি ফাইল নির্বাচন করুন"), "er");
                             return;
                         }
 
@@ -2286,7 +2286,7 @@
                 var approveLoanBtn = q("pxApproveLoan");
                 if (approveLoanBtn) {
                     approveLoanBtn.addEventListener("click", function() {
-                        if (!confirm("এই লোন অনুমোদন করবেন?")) return;
+                        if (!confirm(ltr("এই লোন অনুমোদন করবেন?"))) return;
 
                         approveLoanBtn.disabled = true;
                         approveLoanBtn.textContent = "অনুমোদন করা হচ্ছে...";
@@ -2310,7 +2310,7 @@
                 var rejectLoanBtn = q("pxRejectLoan");
                 if (rejectLoanBtn) {
                     rejectLoanBtn.addEventListener("click", function() {
-                        var reason = prompt("নাকচের কারণ লিখুন:");
+                        var reason = prompt(ltr("নাকচের কারণ লিখুন:"));
                         if (!reason) return;
 
                         rejectLoanBtn.disabled = true;
@@ -3717,9 +3717,9 @@
                             html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
                             html += '</div>';
                         });
-                        if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">কোনো খরচ নেই</div>';
+                        if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">' + ltr("কোনো খরচ নেই") + '</div>';
                         q("expList").innerHTML = html;
-                    }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">Error: ' + e.message + '</div>'; });
+                    }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>'; });
                 });
             }
         });
