@@ -4308,7 +4308,9 @@
                 (tone || "") + '">' + NK.esc(String(value)) + '</b></div>';
         }
 
+        var LX_REQ_ID = 0;
         function openLoanDetail(loanId) {
+            var myReq = ++LX_REQ_ID;
             q("loanX").classList.add("on");
             q("lxSm").textContent = ltr("লোন") + " #" + loanId;
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
@@ -4317,6 +4319,8 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
+                // দ্রুত একাধিক লোনে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = NK.inr(d.principal) + " " + ltr("এর লোন");
                 q("lxSm").textContent = ltr("লোন") + " #" + d.loanId +
                     (d.agentName ? " · " + d.agentName : "");
@@ -4583,6 +4587,7 @@
                     });
                 }
             }).catch(function (e) {
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = ltr("লোন") + " #" + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
@@ -4739,12 +4744,16 @@
             return "****";
         }
 
+        var PF_REQ_ID = 0;
         function openCustomerProfile(customerId) {
+            var myReq = ++PF_REQ_ID;
             q("prof").classList.add("on");
             q("pfCid").textContent = ltr("লোড হচ্ছে...");
             q("pfBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
+                // দ্রুত একাধিক গ্রাহকে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
+                if (myReq !== PF_REQ_ID) return;
                 // Push nav state AFTER API response to avoid race condition
                 NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
                 var c = p.customer || {};
@@ -4908,6 +4917,7 @@
                 });
 
             }).catch(function (e) {
+                if (myReq !== PF_REQ_ID) return;
                 q("pfBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });

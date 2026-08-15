@@ -1981,7 +1981,9 @@
             q("profX").classList.remove("on");
         });
 
+        var PX_REQ_ID = 0;
         function openCustomerProfile(customerId) {
+            var myReq = ++PX_REQ_ID;
             PROFILE_CUST = customerId;
             q("profX").classList.add("on");
             q("pxCid").textContent = ltr("লোড হচ্ছে...");
@@ -1990,6 +1992,7 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
 
             NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
+                if (myReq !== PX_REQ_ID) return;
                 var c = p.customer || {};
                 var loans = p.loans || [];
 
@@ -2289,6 +2292,7 @@
                 }
 
             }).catch(function (e) {
+                if (myReq !== PX_REQ_ID) return;
                 q("pxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
@@ -2322,7 +2326,9 @@
                 (tone || "") + '">' + NK.esc(String(value)) + '</b></div>';
         }
 
+        var LX_REQ_ID = 0;
         function openLoanDetail(loanId) {
+            var myReq = ++LX_REQ_ID;
             q("loanX").classList.add("on");
             q("lxSm").textContent = ltr("লোন #") + loanId;
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
@@ -2331,6 +2337,7 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = NK.inr(d.principal) + " " + ltr("এর লোন");
                 q("lxSm").textContent = ltr("লোন #") + d.loanId +
                     (d.agentName ? " · " + d.agentName : "");
@@ -2549,6 +2556,7 @@
                 }
 
             }).catch(function (e) {
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = ltr("লোন #") + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
@@ -3405,7 +3413,9 @@
             });
         }
 
+        var P_REQ_ID = 0;
         function openCustomer(id) {
+            var myReq = ++P_REQ_ID;
             q("prof").classList.add("on");
             q("pTitle").textContent = ltr("গ্রাহক");
             q("pBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -3414,6 +3424,7 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
 
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
+                if (myReq !== P_REQ_ID) return;
                 var c = p.customer || {};
                 var h = "";
 
@@ -3511,6 +3522,7 @@
                 q("pBody").innerHTML = h;
 
             }).catch(function (e) {
+                if (myReq !== P_REQ_ID) return;
                 q("pBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });

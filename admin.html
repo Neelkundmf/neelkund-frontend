@@ -3807,8 +3807,10 @@
             q("pfBox").innerHTML = html;
             if (q("pf_salperm")) {
                 q("pf_salperm").addEventListener("click", function () {
-                    var v = this.getAttribute("data-v");
-                    this.disabled = true;
+                    var btn = this;
+                    var v = btn.getAttribute("data-v");
+                    if (btn.disabled) return; // একবারে একটাই request চলবে
+                    btn.disabled = true;
                     NK.PATCH("/api/admin/users/" + id + "/salary-permission?allowed=" + v)
                         .then(function () {
                             toast(ltr("বদলানো হয়েছে ✓"), "ok");
@@ -3818,6 +3820,7 @@
                         })
                         .catch(function (e) {
                             toast(e.message, "er");
+                            btn.disabled = false;
                         });
                 });
             }
@@ -4564,12 +4567,17 @@
             q("profX").classList.remove("on");
         });
 
+        var PX_REQ_ID = 0;
         function openCustomer(id) {
+            var myReq = ++PX_REQ_ID;
             q("profX").classList.add("on");
             q("pxCid").textContent = ltr('লোড হচ্ছে...');
             q("pxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
+                // দ্রুত একাধিক গ্রাহকে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
+                if (myReq !== PX_REQ_ID) return;
+
                 // Push nav state AFTER API response to avoid race condition
                 NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
 
@@ -4715,6 +4723,7 @@
                 });
 
             }).catch(function (e) {
+                if (myReq !== PX_REQ_ID) return;
                 q("pxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
@@ -4742,7 +4751,9 @@
                 (tone || "") + '">' + NK.esc(String(value)) + '</b></div>';
         }
 
+        var LX_REQ_ID = 0;
         function openLoanDetail(loanId) {
+            var myReq = ++LX_REQ_ID;
             q("loanX").classList.add("on");
             q("lxSm").textContent = ltr('লোন #') + loanId;
             q("lxTitle").textContent = ltr('লোড হচ্ছে...');
@@ -4751,6 +4762,7 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = NK.inr(d.principal) + ltr(' এর লোন');
                 q("lxSm").textContent = ltr('লোন #') + d.loanId +
                     (d.agentName ? " · " + d.agentName : "");
@@ -4965,6 +4977,7 @@
                 }
 
             }).catch(function (e) {
+                if (myReq !== LX_REQ_ID) return;
                 q("lxTitle").textContent = ltr('লোন #') + loanId;
                 q("lxBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
