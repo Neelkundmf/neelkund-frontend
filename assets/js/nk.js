@@ -566,9 +566,13 @@
     /* ================== Navigation History (Back Button) ================== */
 
     var navStack = [];  // স্ট্যাক: [{ view, panel, panelId, ... }]
+    var NAV_STACK_MAX = 50; // অনেকক্ষণ ধরে ব্যবহার করলে যেন মেমরিতে অসীম জমে না যায়
 
     function pushNavState(state) {
         navStack.push(state);
+        if (navStack.length > NAV_STACK_MAX) {
+            navStack = navStack.slice(navStack.length - NAV_STACK_MAX);
+        }
         history.pushState(state, null, window.location.pathname);
     }
 
