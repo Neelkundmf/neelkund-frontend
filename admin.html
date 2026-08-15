@@ -431,6 +431,25 @@
             <div id="mkList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- এজেন্ট মার্কেট সেটিংস -->
+        <div class="view" id="v-agent-markets">
+            <div class="card">
+                <h2 style="margin-bottom:14px;">এজেন্ট মার্কেট সেটিংস</h2>
+                <div class="msg" id="amMsg"></div>
+
+                <div class="fld"><label>এজেন্ট *</label>
+                    <select id="am_agent">
+                        <option value="">— এজেন্ট বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div id="amMarketsBox" style="display:none;">
+                    <div style="margin:16px 0; font-weight:600; font-size:14px;">মার্কেট বেছে নিন:</div>
+                    <div id="amMarketsList" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;"></div>
+                    <button class="btn block" id="am_save">সংরক্ষণ করুন</button>
+                </div>
+            </div>
+        </div>
 
         <!-- ---------------- টিম ---------------- -->
         <div class="view" id="v-team">
@@ -884,6 +903,7 @@
             <button data-go="branch"><i>🏢</i>ব্রাঞ্চ</button>
             <button data-go="market"><i>🏬</i>মার্কেট</button>
             <button data-go="team"><i>👥</i>টিম</button>
+            <button data-go="agent-markets"><i>🗂️</i>এজেন্ট মার্কেট</button>
             <button data-go="money"><i>🏦</i>ফান্ড</button>
             <button data-go="expense"><i>💸</i>খরচ</button>
             <button data-go="salary"><i>💰</i>বেতন</button>
@@ -5227,6 +5247,99 @@
         var view = typeof CURRENT_VIEW !== 'undefined' ? CURRENT_VIEW : 'dash';
         history.replaceState({ view: view }, null, window.location.pathname);
     }, 0);
+
+    // Agent Markets Management
+    var AM_AGENTS = [];
+    var AM_MARKETS = [];
+    var AM_AGENT_ID = null;
+    var AM_SELECTED = new Set();
+
+    function loadAgentMarkets() {
+        q("amMsg").textContent = "";
+        Promise.all([
+            NK.GET("/api/admin/users?role=AGENT"),
+            NK.GET("/api/markets/all")
+        ]).then(function(results) {
+            AM_AGENTS = NK.rows(results[0]);
+            AM_MARKETS = results[1] || [];
+
+            var dd = q("am_agent");
+            dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+            AM_AGENTS.forEach(function(a) {
+                var opt = document.createElement("option");
+                opt.value = a.id;
+                opt.textContent = a.fullName + " (" + a.phone + ")";
+                dd.appendChild(opt);
+            });
+        }).catch(function(e) {
+            q("amMsg").textContent = "ত্রুটি: " + NK.esc(e.message);
+        });
+    }
+
+    q("am_agent").addEventListener("change", function() {
+        AM_AGENT_ID = this.value ? Number(this.value) : null;
+        if (!AM_AGENT_ID) {
+            q("amMarketsBox").style.display = "none";
+            return;
+        }
+
+        NK.GET("/api/admin/users/" + AM_AGENT_ID + "/markets").then(function(existingMarkets) {
+            AM_SELECTED = new Set(existingMarkets || []);
+            renderMarketsList();
+            q("amMarketsBox").style.display = "block";
+        }).catch(function() {
+            AM_SELECTED = new Set();
+            renderMarketsList();
+            q("amMarketsBox").style.display = "block";
+        });
+    });
+
+    function renderMarketsList() {
+        var html = "";
+        AM_MARKETS.forEach(function(m) {
+            var isSelected = AM_SELECTED.has(m.id);
+            html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:6px;border:1px solid ' + (isSelected ? '#5b4ef5' : '#e0e0e0') + ';background:' + (isSelected ? '#f0edff' : '#fff') + ';">';
+            html += '<input type="checkbox" data-mkt="' + m.id + '" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer;">';
+            html += '<span style="flex:1;">' + NK.esc(m.name) + '</span>';
+            html += '</label>';
+        });
+        q("amMarketsList").innerHTML = html;
+
+        Array.prototype.forEach.call(q("amMarketsList").querySelectorAll("input"), function(cb) {
+            cb.addEventListener("change", function() {
+                var mktId = Number(this.getAttribute("data-mkt"));
+                if (this.checked) {
+                    AM_SELECTED.add(mktId);
+                } else {
+                    AM_SELECTED.delete(mktId);
+                }
+            });
+        });
+    }
+
+    q("am_save").addEventListener("click", function() {
+        if (!AM_AGENT_ID) {
+            q("amMsg").textContent = "এজেন্ট বেছে নিন।";
+            return;
+        }
+
+        var marketIds = Array.from(AM_SELECTED);
+        q("amMsg").textContent = "সংরক্ষণ হচ্ছে...";
+
+        NK.PUT("/api/admin/users/" + AM_AGENT_ID + "/markets", marketIds).then(function() {
+            q("amMsg").textContent = "✓ সংরক্ষিত হয়েছে!";
+            setTimeout(function() {
+                q("amMsg").textContent = "";
+            }, 2000);
+        }).catch(function(e) {
+            q("amMsg").textContent = "ত্রুটি: " + NK.esc(e.message);
+        });
+    });
+
+    // Add to view loaders
+    if (typeof LOADERS === 'undefined') LOADERS = {};
+    LOADERS["agent-markets"] = loadAgentMarkets;
+
 </script>
 <script>
     if ("serviceWorker" in navigator) {
