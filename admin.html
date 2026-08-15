@@ -5354,6 +5354,16 @@
 
         if (typeof LOADERS === 'undefined') LOADERS = {};
         LOADERS["agent-markets"] = loadAgentMarkets;
+
+        // Direct handler for menu button
+        setTimeout(function() {
+            var btn = document.querySelector('button[data-go="agent-markets"]');
+            if (btn) {
+                btn.addEventListener("click", function() {
+                    loadAgentMarkets();
+                });
+            }
+        }, 200);
     }, 100);
 
 </script>
