@@ -4395,12 +4395,16 @@
         /* =====================================================================
          * সব গ্রাহক এক্সপোর্ট
          * ===================================================================== */
+        var expBtnBound = false;
         function loadExport() {
             q("expBody").innerHTML = "";
 
-            q("exp_go").addEventListener("click", function () {
-                exportAllCustomers();
-            });
+            if (!expBtnBound) {
+                expBtnBound = true;
+                q("exp_go").addEventListener("click", function () {
+                    exportAllCustomers();
+                });
+            }
         }
 
         function exportAllCustomers() {
