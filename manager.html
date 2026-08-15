@@ -2051,13 +2051,13 @@
                 if (c.aadhaarPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (সামনে)</div>';
-                    h += '<img src="' + c.aadhaarPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<img src="' + NK.esc(c.aadhaarPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
                     h += '</div>';
                 }
                 if (c.aadhaarBackPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (পিছনে)</div>';
-                    h += '<img src="' + c.aadhaarBackPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<img src="' + NK.esc(c.aadhaarBackPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
                     h += '</div>';
                 }
 
@@ -2065,13 +2065,13 @@
                 if (c.panPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (সামনে)</div>';
-                    h += '<img src="' + c.panPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<img src="' + NK.esc(c.panPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
                     h += '</div>';
                 }
                 if (c.panBackPhotoUrl) {
                     h += '<div style="margin-bottom:15px;">';
                     h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (পিছনে)</div>';
-                    h += '<img src="' + c.panBackPhotoUrl + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
+                    h += '<img src="' + NK.esc(c.panBackPhotoUrl) + '" onclick="viewPhoto(this.src)" style="width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);">';
                     h += '</div>';
                 }
 

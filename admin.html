@@ -2791,16 +2791,16 @@
 
                     html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
                     html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
-                    html += '<div class="mid" data-agent="' + u.id + '"><b>' + NK.esc(u.fullName) + '</b>' +
+                    html += '<div class="mid" data-agent="' + NK.esc(u.id) + '"><b>' + NK.esc(u.fullName) + '</b>' +
                         '<span>' + NK.esc(u.phone) +
                         (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
                     html += '<div class="end"><span class="b n">' +
                         (ROLE_BN2[u.role] || u.role) + '</span>' +
                         (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
                         '<div style="margin-top:6px;display:flex;gap:6px;">' +
-                        '<button class="btn ghost sm" data-en="' + u.id + '" data-v="' +
+                        '<button class="btn ghost sm" data-en="' + NK.esc(u.id) + '" data-v="' +
                         (off ? 'true' : 'false') + '">' + (off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
-                        '<button class="btn sm danger" data-del="' + u.id + '">' + ltr('মুছুন') + '</button>' +
+                        '<button class="btn sm danger" data-del="' + NK.esc(u.id) + '">' + ltr('মুছুন') + '</button>' +
                         '</div></div>';
                     html += '</div>';
                 });
@@ -4096,11 +4096,11 @@
                         '<span>' + NK.esc(r.userPhone) + ' · ' + NK.dtTime(r.requestedAt) + '</span></div>';
 
                     html += '<div style="width:100%;display:flex;gap:6px;margin-top:10px;">';
-                    html += '<input type="number" value="2" min="1" max="24" data-h="' + r.id +
+                    html += '<input type="number" value="2" min="1" max="24" data-h="' + NK.esc(r.id) +
                         '" style="width:70px;min-height:38px;padding:6px 10px;border:1.5px solid var(--line);' +
                         'border-radius:8px;font-size:14px;">';
-                    html += '<button class="btn sm success" data-ap="' + r.id + ltr('" style="flex:1;">অনুমতি</button>');
-                    html += '<button class="btn sm danger" data-rj="' + r.id + ltr('" style="flex:1;">নাকচ</button>');
+                    html += '<button class="btn sm success" data-ap="' + NK.esc(r.id) + ltr('" style="flex:1;">অনুমতি</button>');
+                    html += '<button class="btn sm danger" data-rj="' + NK.esc(r.id) + ltr('" style="flex:1;">নাকচ</button>');
                     html += '</div>';
 
                     html += '</div>';
@@ -4688,7 +4688,7 @@
                     h += '<div class="pf-loans">';
                     loans.forEach(function (l) {
                         var bg = l.gradeColor || l.stageColor || "#64748B";
-                        h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
+                        h += '<div class="pf-loan" data-loan="' + NK.esc(l.loanId) + '" style="background:' + bg + ';">';
                         h += '<div class="cyc">' + l.cycle + ltr(' নম্বর লোন</div>');
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
@@ -5376,7 +5376,7 @@
             AM_MARKETS.forEach(function(m) {
                 var isSelected = AM_SELECTED.has(m.id);
                 html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:6px;border:1px solid ' + (isSelected ? '#5b4ef5' : '#e0e0e0') + ';background:' + (isSelected ? '#f0edff' : '#fff') + ';">';
-                html += '<input type="checkbox" data-mkt="' + m.id + '" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer;">';
+                html += '<input type="checkbox" data-mkt="' + NK.esc(m.id) + '" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer;">';
                 html += '<span style="flex:1;">' + NK.esc(m.name) + '</span>';
                 html += '</label>';
             });
