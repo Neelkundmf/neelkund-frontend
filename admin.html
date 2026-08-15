@@ -1394,7 +1394,9 @@
 
                 if (go === "logout") {
                     NK.logout();
-                    window.location.replace("login.html");
+                    setTimeout(function() {
+                        window.location.href = "login.html";
+                    }, 100);
                     return;
                 }
 
@@ -4509,7 +4511,10 @@
                         img.src = URL.createObjectURL(blob);
                         q("aPic").innerHTML = "";
                         q("aPic").appendChild(img);
-                    }).catch(function () {});
+                    }).catch(function (e) {
+                        q("aPic").innerHTML = '<div style="color:#ff9800;font-size:20px;text-align:center;">⚠️</div>';
+                        console.error("Photo load failed:", e);
+                    });
                 }
 
             }).catch(function (e) {
