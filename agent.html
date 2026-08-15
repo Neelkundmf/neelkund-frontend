@@ -4385,7 +4385,7 @@
                 Object.keys(payMap).forEach(function (k) {
                     if (allDates.indexOf(k) === -1) allDates.push(k);
                 });
-                allDates.sort();
+                allDates.sort(function (a, b) { return new Date(a) - new Date(b); });
 
                 var first = new Date(allDates[0] + "T00:00:00");
                 var last = new Date(allDates[allDates.length - 1] + "T00:00:00");
