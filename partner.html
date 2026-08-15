@@ -4087,7 +4087,9 @@
                 Array.prototype.forEach.call(q("acReq").querySelectorAll("[data-ap]"), function (b) {
                     b.addEventListener("click", function () {
                         var id = b.getAttribute("data-ap");
-                        var h = q("acReq").querySelector('[data-h="' + id + '"]').value;
+                        var hInp = q("acReq").querySelector('[data-h="' + id + '"]');
+                        if (!hInp) return;
+                        var h = hInp.value;
 
                         b.disabled = true;
 
