@@ -2079,6 +2079,13 @@
         var MKT = null;
         var mktPick = null;   // null = সব মার্কেট
 
+        window.debugMkt = function() {
+            console.log("MKT:", MKT);
+            console.log("Markets count:", MKT && MKT.markets ? MKT.markets.length : 0);
+            loadMkt();
+            console.log("Called loadMkt()");
+        };
+
         function loadMkt() {
             NK.GET("/api/markets/all").then(function (d) {
                 MKT = { markets: d || [] };
