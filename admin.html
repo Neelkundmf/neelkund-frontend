@@ -4552,9 +4552,10 @@
             q("pxCid").textContent = ltr('লোড হচ্ছে...');
             q("pxBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
-
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
+                // Push nav state AFTER API response to avoid race condition
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+
                 var c = p.customer || {};
                 var loans = p.loans || [];
 
