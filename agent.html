@@ -5142,10 +5142,8 @@
                 if (q("sheet")) q("sheet").classList.remove("on");
 
                 if (go === "logout") {
-                    NK.logout();
-                    setTimeout(function() {
-                        window.location.href = "login.html";
-                    }, 100);
+                    try { NK.logout(); } catch(e) {}
+                    window.location.href = "login.html";
                     return;
                 }
             });
