@@ -3567,19 +3567,6 @@
             q("sheet").classList.remove("on");
         });
 
-        Array.prototype.forEach.call(q("sheet").querySelectorAll(".menu-grid button"), function (b) {
-            b.addEventListener("click", function () {
-                var go = b.getAttribute("data-go");
-                q("sheet").classList.remove("on");
-
-                if (go === "logout") {
-                    NK.logout();
-                    window.location.href = "login.html";
-                    return;
-                }
-            });
-        });
-
         /* =====================================================================
          * শুরু
          * ===================================================================== */
@@ -3726,5 +3713,17 @@
         });
     }
 </script>
+
+<script>
+// Logout button handler - runs AFTER all HTML is loaded
+var logoutBtn = document.querySelector("[data-go='logout']");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+        NK.logout();
+        window.location.href = "login.html";
+    });
+}
+</script>
+
 </body>
 </html>
