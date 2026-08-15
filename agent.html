@@ -3194,13 +3194,23 @@
         q("n_aad").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
+        /* ---- অ্যাডমিনের সেটিংস থেকে মার্কআপ/মেয়াদ আনি — সেটিংস বদলালে এই
+           প্রিভিউও বদলাবে, আগে ১৫%/৪৬ দিন সরাসরি কোডে বসানো ছিল ---- */
+        var LOAN_MARKUP_MULT = 1.15;
+        var LOAN_TENURE_DAYS = 46;
+        NK.GET("/api/admin/settings/loan-calc").then(function (s) {
+            if (s && s.markupMultiplier) LOAN_MARKUP_MULT = Number(s.markupMultiplier);
+            if (s && s.tenureDays) LOAN_TENURE_DAYS = Number(s.tenureDays);
+            nCalc();
+        }).catch(function () { /* fallback সংখ্যা দিয়েই চলবে */ });
+
         /* ---- লোন অঙ্ক বদলালে হিসাব দেখাই ---- */
         function nCalc() {
             var p = Number(q("n_amt").value || 0);
-            var total = Math.round(p * 1.15);
+            var total = Math.round(p * LOAN_MARKUP_MULT);
             // ব্যাকএন্ড দৈনিক EMI-তে RoundingMode.DOWN (ছেঁটে ফেলা) ব্যবহার করে —
             // .toFixed(2) রাউন্ড করে দেয়, তাই মিল রাখতে Math.floor দিয়ে ছেঁটে ফেলছি
-            var emi = (Math.floor((total / 46) * 100) / 100).toFixed(2);
+            var emi = (Math.floor((total / LOAN_TENURE_DAYS) * 100) / 100).toFixed(2);
             q("n_calc").innerHTML =
                 ltr('আসল') + ' ₹' + p + ' · ' + ltr('মোট ফেরত') + ' ₹' + total + ' · ' + ltr('দৈনিক') + ' ₹' + emi;
         }
