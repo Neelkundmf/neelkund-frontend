@@ -2234,7 +2234,7 @@
                         if (front) {
                             var fd = new FormData();
                             fd.append("file", front);
-                            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=VOTER_ID", fd)
+                            NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID", fd)
                                 .then(onUploadComplete)
                                 .catch(function(e) {
                                     toast("আপলোড ব্যর্থ: " + e.message, "er");
@@ -2246,7 +2246,7 @@
                         if (back) {
                             var fd = new FormData();
                             fd.append("file", back);
-                            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=VOTER_ID_BACK", fd)
+                            NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID_BACK", fd)
                                 .then(onUploadComplete)
                                 .catch(function(e) {
                                     toast("আপলোড ব্যর্থ: " + e.message, "er");
