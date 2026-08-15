@@ -3668,7 +3668,7 @@
                             var date = NK.dt(r.date);
                             var amt = NK.inr(r.amount);
                             html += '<div class="row" style="padding:12px;border-bottom:1px solid var(--line);">';
-                            html += '<div><div style="font-size:13px;font-weight:600;">' + (r.description || r.type) + '</div>';
+                            html += '<div><div style="font-size:13px;font-weight:600;">' + NK.esc(r.description || r.type) + '</div>';
                             html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date + '</div></div>';
                             html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
                             html += '</div>';
