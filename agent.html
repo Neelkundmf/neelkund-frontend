@@ -1342,21 +1342,34 @@
 
         <!-- --------- মার্কেট প্রিমিয়াম ড্যাশবোর্ড --------- -->
         <div class="view" id="v-market-detail">
-            <div style="background: #f8fafc; padding: 15px; overflow-y: auto; height: 100vh;">
-                <div style="max-width: 500px; margin: auto;">
-                    <div style="background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 16px;">
+            <div style="background: linear-gradient(135deg, #1a1f3a 0%, #2d2e4a 100%); padding: 20px; overflow-y: auto; height: 100vh;">
+                <div style="max-width: 550px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #5b4ef5 0%, #7c5cef 100%); color: white; padding: 24px; border-radius: 24px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                            <div>
-                                <button id="mktDetailBack" style="background: none; border: none; font-size: 24px; cursor: pointer; margin-bottom: 8px;">←</button>
-                                <h2 id="mktDetailTitle" style="margin: 0; font-size: 1.2rem;">মার্কেট</h2>
-                                <small id="mktDetailInfo" style="color: #64748b; font-size: 12px;">Agent Dashboard</small>
+                            <div style="flex: 1;">
+                                <button id="mktDetailBack" style="background: none; border: none; font-size: 24px; cursor: pointer; color: white; margin-bottom: 8px;">←</button>
+                                <div style="font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    🏬 <span id="mktDetailTitle">মার্কেট</span>
+                                </div>
+                                <small id="mktDetailInfo" style="color: rgba(255,255,255,0.8); font-size: 12px;">Agent Dashboard</small>
                             </div>
                         </div>
-                        <select id="mktDetailDropdown" style="border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; background: #fff; font-size: 14px;">
-                            <option value="">মার্কেট নির্বাচন করুন</option>
-                        </select>
+                        <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; margin-bottom: 12px; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                            <div><div style="font-weight: 700; text-transform: uppercase; font-size: 10px; opacity: 0.8;">Branch</div><div id="mktBranch" style="font-weight: 600;">-</div></div>
+                            <div><div style="font-weight: 700; text-transform: uppercase; font-size: 10px; opacity: 0.8;">Code</div><div id="mktCode" style="font-weight: 600;">-</div></div>
+                            <div><div style="font-weight: 700; text-transform: uppercase; font-size: 10px; opacity: 0.8;">Manager</div><div id="mktManager" style="font-weight: 600;">-</div></div>
+                        </div>
+                        <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; display: flex; justify-content: space-between; font-size: 12px;">
+                            <span>👤 Agent: <span id="mktAgent">-</span></span>
+                            <span>ID: <span id="mktAgentId">-</span></span>
+                        </div>
                     </div>
-                    <div id="mktDetailContent"></div>
+
+                    <select id="mktDetailDropdown" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; background: white; cursor: pointer; margin-bottom: 20px;">
+                        <option value="">মার্কেট নির্বাচন করুন</option>
+                    </select>
+
+                    <div id="mktDetailContent" style="min-height: 100px;"></div>
                 </div>
             </div>
         </div>
@@ -2222,33 +2235,59 @@
 
         function renderMarketDashboard(d) {
             d = d || {};
-            var h = '';
+            q("mktBranch").textContent = d.branchName || '-';
+            q("mktCode").textContent = d.code || '-';
+            q("mktManager").textContent = d.managerName || '-';
+            q("mktAgent").textContent = NK.me().fullName || 'Agent';
+            q("mktAgentId").textContent = NK.me().id || '-';
 
-            h += '<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-bottom:16px;">';
-            h += '<div style="font-size:0.75rem;color:#64748b;text-transform:uppercase;margin-bottom:8px;">Total Investment (Running Month)</div>';
-            h += '<div style="font-size:1.4rem;font-weight:800;color:#2563eb;margin-bottom:15px;">' + NK.inr(d.totalInvestment || 0) + '</div>';
-            h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-            h += '<div><div style="font-size:0.75rem;color:#64748b;text-transform:uppercase;">Collected</div><div style="color:#10b981;font-weight:700;font-size:1.2rem;margin-top:4px;">' + NK.inr(d.totalCollected || 0) + '</div></div>';
-            h += '<div><div style="font-size:0.75rem;color:#64748b;text-transform:uppercase;">Outstanding</div><div style="color:#ef4444;font-weight:700;font-size:1.2rem;margin-top:4px;">' + NK.inr(d.totalOutstanding || 0) + '</div></div>';
+            var h = '';
+            h += '<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-bottom:20px;">';
+            h += '<div style="border-left:4px solid #5b4ef5;padding:16px;margin-bottom:16px;">';
+            h += '<div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:4px;">এই মাসের বিনিয়োগ</div>';
+            h += '<div style="font-size:28px;font-weight:800;color:#1e293b;margin:8px 0;">' + NK.inr(d.totalInvestment || 0) + '</div>';
+            h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">';
+            h += '<div><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;">উঠেছে</div><div style="color:#10b981;font-weight:700;font-size:18px;margin-top:6px;">' + NK.inr(d.totalCollected || 0) + '</div></div>';
+            h += '<div><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;">পড়ে আছে</div><div style="color:#ef4444;font-weight:700;font-size:18px;margin-top:6px;">' + NK.inr(d.totalOutstanding || 0) + '</div></div>';
             h += '</div></div>';
 
-            h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">';
-            h += '<div style="background:#f1f5f9;padding:12px;border-radius:12px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#2563eb;">' + (d.totalCustomers || 0) + '</div><div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;text-transform:uppercase;">Total</div></div>';
-            h += '<div style="background:#f1f5f9;padding:12px;border-radius:12px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#2563eb;">' + (d.runningCustomers || 0) + '</div><div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;text-transform:uppercase;">Running</div></div>';
-            h += '<div style="background:#f1f5f9;padding:12px;border-radius:12px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#2563eb;">' + (d.overdueCustomers || 0) + '</div><div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;text-transform:uppercase;">OD</div></div>';
+            h += '<div style="background:#fef3c7;padding:12px;border-radius:12px;margin-bottom:16px;font-weight:700;color:#d97706;font-size:13px;">⚡ আজকের বিতরণ</div>';
+
+            h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
+            h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#5b4ef5;">' + (d.totalCustomers || 0) + '</div><div style="font-size:12px;color:#64748b;margin-top:6px;font-weight:600;">মোট কালেকশন</div></div>';
+            h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#5b4ef5;">' + (d.runningCustomers || 0) + '</div><div style="font-size:12px;color:#64748b;margin-top:6px;font-weight:600;">চলমান</div></div>';
+            h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#5b4ef5;">' + (d.overdueCustomers || 0) + '</div><div style="font-size:12px;color:#64748b;margin-top:6px;font-weight:600;">ব্যর্থ/বিফল</div></div>';
+            h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#5b4ef5;">' + (d.odCustomers ? d.odCustomers.length : 0) + '</div><div style="font-size:12px;color:#64748b;margin-top:6px;font-weight:600;">OD গ্রাহক</div></div>';
             h += '</div>';
 
-            h += '<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">';
-            h += '<h3 style="margin-top:0;font-size:1rem;">🔴 OD Customer List (120+ Days)</h3>';
+            h += '<div style="font-weight:700;margin-bottom:12px;font-size:14px;color:#1e293b;">লোনের স্তর অনুযায়ী গ্রাহক</div>';
+            var loanTiers = [{amt:2000,color:'#ec4899'},{amt:4000,color:'#8b5cf6'},{amt:6000,color:'#0ea5e9'},{amt:8000,color:'#10b981'},{amt:10000,color:'#f59e0b'}];
+            loanTiers.forEach(function(tier) {
+                h += '<div style="border-left:4px solid '+tier.color+';padding:14px;border-radius:8px;background:#f8fafc;margin-bottom:12px;">';
+                h += '<div style="font-weight:700;font-size:16px;color:#1e293b;">₹'+NK.inr(tier.amt)+'</div>';
+                h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;font-size:12px;">';
+                h += '<div style="text-align:center;"><div style="font-weight:700;color:#1e293b;">-</div><div style="font-size:10px;color:#64748b;">লোন</div></div>';
+                h += '<div style="text-align:center;"><div style="font-weight:700;color:#1e293b;">-</div><div style="font-size:10px;color:#64748b;">চলমান</div></div>';
+                h += '<div style="text-align:center;"><div style="font-weight:700;color:#1e293b;">-</div><div style="font-size:10px;color:#64748b;">OD</div></div>';
+                h += '</div></div>';
+            });
+
+            h += '<div style="background:#dc2626;color:white;padding:12px;border-radius:12px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🔴 OD গ্রাহক (120+ দিন)</div>';
             if (d.odCustomers && d.odCustomers.length > 0) {
-                h += '<table style="width:100%;border-collapse:collapse;margin-top:10px;"><tr style="border-bottom:2px solid #e2e8f0;"><th style="font-size:0.7rem;color:#94a3b8;text-align:left;padding-bottom:8px;font-weight:700;">Name</th><th style="font-size:0.7rem;color:#94a3b8;text-align:left;padding-bottom:8px;font-weight:700;">Due</th><th style="font-size:0.7rem;color:#94a3b8;text-align:left;padding-bottom:8px;font-weight:700;">Days</th></tr>';
+                h += '<table style="width:100%;border-collapse:collapse;">';
+                h += '<tr style="border-bottom:2px solid #e2e8f0;"><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">গ্রাহক নাম</th><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">ঋণ পরিমাণ</th><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">বাকি দিন</th></tr>';
                 d.odCustomers.slice(0, 10).forEach(function(c) {
-                    h += '<tr style="border-bottom:1px solid #f1f5f9;"><td style="font-size:0.85rem;padding:8px 0;font-weight:600;">' + NK.esc(c.customerName || '') + '</td><td style="font-size:0.85rem;padding:8px 0;">₹' + NK.inr(c.outstandingAmount || 0) + '</td><td style="font-size:0.85rem;padding:8px 0;"><span style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;">' + (c.overdueDays || 0) + '</span></td></tr>';
+                    h += '<tr style="border-bottom:1px solid #f1f5f9;"><td style="font-size:13px;padding:12px 0;font-weight:600;">' + NK.esc(c.customerName || '') + '</td><td style="font-size:13px;padding:12px 0;font-weight:700;">₹' + NK.inr(c.outstandingAmount || 0) + '</td><td style="font-size:13px;padding:12px 0;"><span style="background:#fecaca;color:#dc2626;padding:2px 8px;border-radius:4px;font-weight:700;">' + (c.overdueDays || 0) + ' দিন</span></td></tr>';
                 });
                 h += '</table>';
             } else {
                 h += '<div style="text-align:center;padding:16px;color:#999;">কোনো OD গ্রাহক নেই</div>';
             }
+
+            h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;">';
+            h += '<button style="padding:12px;border:none;border-radius:12px;background:#0ea5e9;color:white;font-weight:700;cursor:pointer;">📥 CSV ডাউনলোড</button>';
+            h += '<button style="padding:12px;border:none;border-radius:12px;background:#10b981;color:white;font-weight:700;cursor:pointer;">📊 Excel ডাউনলোড</button>';
+            h += '</div>';
             h += '</div>';
 
             q("mktDetailContent").innerHTML = h;
