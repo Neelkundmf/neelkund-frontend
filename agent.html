@@ -5136,18 +5136,14 @@
             q("sheet").classList.remove("on");
         });
 
-        Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) {
-            b.addEventListener("click", function () {
-                var go = b.getAttribute("data-go");
-                if (q("sheet")) q("sheet").classList.remove("on");
-
-                if (go === "logout") {
-                    try { NK.logout(); } catch(e) {}
-                    window.location.href = "login.html";
-                    return;
-                }
+        // Logout button handler
+        var logoutBtn = document.querySelector("[data-go='logout']");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+                NK.logout();
+                window.location.href = "login.html";
             });
-        });
+        }
 
         /* =====================================================================
          * শুরু
