@@ -603,6 +603,7 @@
         login: login,
         logout: logout,
         boot: boot,
+        getToken: function () { return accessToken; },
 
         GET:    function (p)        { return request("GET", p); },
         POST:   function (p, b)     { return request("POST", p, b === undefined ? {} : b); },
