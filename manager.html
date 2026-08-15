@@ -1403,6 +1403,12 @@
             setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3600);
         }
 
+        /* KYC ছবিতে টাচ করলে নতুন ট্যাবে বড় করে দেখা যাবে —
+           HTML-এর onclick="" থেকে ডাকা হয় বলে window-তে বসাতে হয়েছে */
+        window.viewPhoto = function (src) {
+            if (src) window.open(src, "_blank");
+        };
+
         /* ---------- CSV ডাউনলোড হেল্পার (Excel-এ খোলে, বাংলা ঠিক দেখায়) ---------- */
         function csvCell(v) {
             var s = (v === null || v === undefined) ? "" : String(v);
