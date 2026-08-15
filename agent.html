@@ -2113,8 +2113,8 @@
 
             if (MKT.markets && MKT.markets.length) {
                 MKT.markets.forEach(function (m) {
-                    h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
-                        NK.esc(m.marketName) + '</option>';
+                    h += '<option value="' + NK.esc(m.id || "") + '" data-name="' + NK.esc(m.name) + '">' +
+                        NK.esc(m.name) + '</option>';
                 });
             }
 
@@ -2131,9 +2131,9 @@
                 dropdown.addEventListener("change", function () {
                     var mktId = dropdown.value;
                     if (mktId) {
-                        var mkt = MKT.markets.find(function(m) { return m.marketId == mktId; });
+                        var mkt = MKT.markets.find(function(m) { return m.id == mktId; });
                         if (mkt) {
-                            openMarketDetailPage(mktId, mkt.marketName);
+                            openMarketDetailPage(mktId, mkt.name);
                         }
                     }
                 });
