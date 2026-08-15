@@ -12,7 +12,11 @@
 (function (window) {
     "use strict";
 
-    var API = "https://neelkund-backend.onrender.com";
+    // localhost এ টেস্ট করলে লোকাল ব্যাকএন্ড, নাহলে লাইভ সার্ভার —
+    // আগে সবসময় লাইভ URL হার্ডকোড ছিল, তাই লোকাল ব্যাকএন্ড দিয়ে টেস্ট করা যেত না
+    var _host = (window.location && window.location.hostname) || "";
+    var _isLocal = _host === "localhost" || _host === "127.0.0.1" || _host === "";
+    var API = _isLocal ? "http://localhost:8080" : "https://neelkund-backend.onrender.com";
 
     /* ---------------- টোকেন — মেমরিতে ---------------- */
 
