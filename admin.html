@@ -1768,7 +1768,7 @@
 
         function drawMarkets() {
             var branchId = q("br").value;
-            NK.GET("/api/markets" + (branchId ? "?branchId=" + branchId : "")).then(function (d) {
+            NK.GET("/api/markets/all").then(function (d) {
                 if (!d || !d.length) {
                     q("marketList").innerHTML = "";
                     return;
