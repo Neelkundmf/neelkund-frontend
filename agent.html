@@ -2186,6 +2186,15 @@
 
         var CURRENT_MARKET = null;
 
+        function openMarketDetailPage(marketId, marketName) {
+            q("v-today").classList.remove("on");
+            q("v-market-detail").classList.add("on");
+            CURRENT_VIEW = "market-detail";
+            q("mktDetailTitle").textContent = marketName || "মার্কেট";
+            loadMarketDropdown();
+            updateMarketDashboard(marketId);
+        }
+
         function loadMarketDropdown() {
             NK.GET("/api/markets/all").then(function (markets) {
                 var dd = q("mktDetailDropdown");
