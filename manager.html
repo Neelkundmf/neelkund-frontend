@@ -2082,6 +2082,28 @@
                     h += '</div>';
                 }
 
+                /* ভোটার আইডি — আগে থেকে থাকলে দেখাবে */
+                if (c.voterIdPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">ভোটার আইডি (সামনে)</div>';
+                    h += '<div id="kycImg_VOTER_ID" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
+                    h += '</div>';
+                }
+                if (c.voterIdBackPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">ভোটার আইডি (পিছনে)</div>';
+                    h += '<div id="kycImg_VOTER_ID_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
+                    h += '</div>';
+                }
+
+                /* গ্যারান্টারের ছবি */
+                if (c.guarantorPhotoUrl) {
+                    h += '<div style="margin-bottom:15px;">';
+                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">গ্যারান্টারের ছবি</div>';
+                    h += '<div id="kycImg_GUARANTOR" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
+                    h += '</div>';
+                }
+
                 /* ভোটার আইডি আপলোড */
                 h += '<div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--line);">';
                 h += '<div style="font-size:12px; color:var(--muted); margin-bottom:10px;">🎫 ভোটার আইডি আপলোড করুন</div>';
@@ -2165,7 +2187,10 @@
                     { url: c.aadhaarPhotoUrl ? "/api/customers/" + customerId + "/document?type=AADHAAR" : null, id: "kycImg_AADHAAR" },
                     { url: c.aadhaarBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=AADHAAR_BACK" : null, id: "kycImg_AADHAAR_BACK" },
                     { url: c.panPhotoUrl ? "/api/customers/" + customerId + "/document?type=PAN" : null, id: "kycImg_PAN" },
-                    { url: c.panBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=PAN_BACK" : null, id: "kycImg_PAN_BACK" }
+                    { url: c.panBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=PAN_BACK" : null, id: "kycImg_PAN_BACK" },
+                    { url: c.voterIdPhotoUrl ? "/api/customers/" + customerId + "/document?type=VOTER_ID" : null, id: "kycImg_VOTER_ID" },
+                    { url: c.voterIdBackPhotoUrl ? "/api/customers/" + customerId + "/document?type=VOTER_ID_BACK" : null, id: "kycImg_VOTER_ID_BACK" },
+                    { url: c.guarantorPhotoUrl ? "/api/customers/" + customerId + "/document?type=GUARANTOR" : null, id: "kycImg_GUARANTOR" }
                 ].forEach(function (doc) {
                     if (!doc.url) return;
                     var el = q(doc.id);
@@ -3625,6 +3650,21 @@
                         toast(ltr("নতুন কোনো খবর নেই"), "in");
                         return;
                     }
+
+                    /* কোন actionUrl কোন ট্যাবের সাথে মেলে — টাচ করলে সরাসরি
+                       সেই ট্যাবে চলে যাবে (যেমন লোন রিকোয়েস্ট থাকলে "req"
+                       ট্যাবে, সেখান থেকে টাচ করলে গ্রাহকের পুরো প্রোফাইল খোলে) */
+                    var viewMap = { "/loan-requests": "req", "/disbursements": "disb" };
+                    var navItem = null;
+                    for (var i = 0; i < n.items.length; i++) {
+                        if (viewMap[n.items[i].actionUrl]) { navItem = n.items[i]; break; }
+                    }
+
+                    if (navItem) {
+                        show(viewMap[navItem.actionUrl]);
+                        return;
+                    }
+
                     n.items.forEach(function (it) {
                         toast(it.title + " — " + it.message,
                             it.severity === "URGENT" ? "er" : "in");
