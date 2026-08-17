@@ -1209,6 +1209,11 @@
         <div class="view" id="v-new">
             <div class="card">
                 <h2 style="margin-bottom:14px;">নতুন গ্রাহক</h2>
+                <div class="fld"><label>শাখা</label>
+                    <select id="n_branch" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink);">
+                        <option value="">— বাছুন —</option>
+                    </select>
+                </div>
                 <div class="fld"><label>মার্কেট *</label>
                     <select id="n_market" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink);">
                         <option value="">— বাছুন —</option>
@@ -2018,22 +2023,86 @@
             }
         }
 
-        /* নতুন গ্রাহক ফর্মের মার্কেট ড্রপডাউন — এজেন্টের নিজের মার্কেটগুলো দিয়ে ভরাট,
-           একটাই মার্কেট থাকলে সেটাই অটো-বাছা থাকবে */
+        /* নতুন গ্রাহক ফর্মের শাখা → মার্কেট ড্রপডাউন — এজেন্টের নিজের মার্কেটগুলো
+           (branch info সহ) দিয়ে ভরাট, একটাই বিকল্প থাকলে সেটাই অটো-বাছা থাকবে */
+        var NEW_CUST_MARKETS = [];
+
         function loadNewCustomerMarkets() {
-            NK.GET("/api/agent/my-markets").then(function (d) {
-                var mkts = (d && d.markets) ? d.markets : [];
-                var sel = q("n_market");
-                if (!sel) return;
-                sel.innerHTML = '<option value="">— বাছুন —</option>';
-                mkts.forEach(function (m) {
-                    var opt = document.createElement("option");
-                    opt.value = m.marketId;
-                    opt.textContent = m.marketName;
-                    sel.appendChild(opt);
+            Promise.all([
+                NK.GET("/api/agent/my-markets"),
+                NK.GET("/api/markets/all")
+            ]).then(function (res) {
+                var mine = (res[0] && res[0].markets) ? res[0].markets : [];
+                var all = res[1] || [];
+                var byId = {};
+                all.forEach(function (m) { byId[m.id] = m; });
+
+                NEW_CUST_MARKETS = mine.map(function (m) {
+                    var full = byId[m.marketId];
+                    return {
+                        marketId: m.marketId,
+                        marketName: m.marketName,
+                        branchId: full ? full.branchId : null,
+                        branchName: full ? full.branchName : ltr("শাখা")
+                    };
                 });
-                if (mkts.length === 1) sel.value = mkts[0].marketId;
+
+                drawNewCustBranches();
             }).catch(function () {});
+        }
+
+        function drawNewCustBranches() {
+            var branches = [];
+            var seen = {};
+            NEW_CUST_MARKETS.forEach(function (m) {
+                if (m.branchId && !seen[m.branchId]) {
+                    seen[m.branchId] = true;
+                    branches.push({ branchId: m.branchId, branchName: m.branchName });
+                }
+            });
+
+            var brSel = q("n_branch");
+            if (!brSel) return;
+            brSel.innerHTML = '<option value="">— বাছুন —</option>';
+            branches.forEach(function (b) {
+                var opt = document.createElement("option");
+                opt.value = b.branchId;
+                opt.textContent = b.branchName;
+                brSel.appendChild(opt);
+            });
+
+            if (branches.length === 1) {
+                brSel.value = branches[0].branchId;
+                drawNewCustMarketsForBranch(branches[0].branchId);
+            } else {
+                drawNewCustMarketsForBranch(null);
+            }
+        }
+
+        function drawNewCustMarketsForBranch(branchId) {
+            var mktSel = q("n_market");
+            if (!mktSel) return;
+            mktSel.innerHTML = '<option value="">— বাছুন —</option>';
+
+            var filtered = branchId
+                ? NEW_CUST_MARKETS.filter(function (m) { return String(m.branchId) === String(branchId); })
+                : NEW_CUST_MARKETS;
+
+            filtered.forEach(function (m) {
+                var opt = document.createElement("option");
+                opt.value = m.marketId;
+                opt.textContent = m.marketName;
+                mktSel.appendChild(opt);
+            });
+
+            if (filtered.length === 1) mktSel.value = filtered[0].marketId;
+        }
+
+        var n_branchEl = q("n_branch");
+        if (n_branchEl) {
+            n_branchEl.addEventListener("change", function () {
+                drawNewCustMarketsForBranch(this.value || null);
+            });
         }
 
         /* ---------------- নিজে থেকে আপডেট (১২ সেকেন্ড পর পর) ---------------- */
