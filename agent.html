@@ -1209,6 +1209,11 @@
         <div class="view" id="v-new">
             <div class="card">
                 <h2 style="margin-bottom:14px;">নতুন গ্রাহক</h2>
+                <div class="fld"><label>মার্কেট *</label>
+                    <select id="n_market" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink);">
+                        <option value="">— বাছুন —</option>
+                    </select>
+                </div>
                 <div class="avatar-pick">
                     <div class="av" id="np_selfie">👤</div>
                     <span>গ্রাহকের ছবি</span>
@@ -2009,7 +2014,26 @@
                 if (key === "disb") loadDisb();
                 if (key === "black") loadBlack();
                 if (key === "sheet") loadSheet();
+                if (key === "new") loadNewCustomerMarkets();
             }
+        }
+
+        /* নতুন গ্রাহক ফর্মের মার্কেট ড্রপডাউন — এজেন্টের নিজের মার্কেটগুলো দিয়ে ভরাট,
+           একটাই মার্কেট থাকলে সেটাই অটো-বাছা থাকবে */
+        function loadNewCustomerMarkets() {
+            NK.GET("/api/agent/my-markets").then(function (d) {
+                var mkts = (d && d.markets) ? d.markets : [];
+                var sel = q("n_market");
+                if (!sel) return;
+                sel.innerHTML = '<option value="">— বাছুন —</option>';
+                mkts.forEach(function (m) {
+                    var opt = document.createElement("option");
+                    opt.value = m.marketId;
+                    opt.textContent = m.marketName;
+                    sel.appendChild(opt);
+                });
+                if (mkts.length === 1) sel.value = mkts[0].marketId;
+            }).catch(function () {});
         }
 
         /* ---------------- নিজে থেকে আপডেট (১২ সেকেন্ড পর পর) ---------------- */
@@ -3775,6 +3799,13 @@
                 return;
             }
 
+            // Validate market
+            var marketId = q("n_market").value;
+            if (!marketId) {
+                say("nMsg", ltr("মার্কেট বেছে নিন"), false);
+                return;
+            }
+
             // Validate GPS
             if (!NGPS) {
                 say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন (অনুমতি দিন)"), false);
@@ -3812,6 +3843,7 @@
 
                 photoUrl: null,
                 customerCode: q("n_code").value.trim() || null,
+                marketId: Number(marketId),
                 latitude: NGPS ? NGPS.lat : null,
                 longitude: NGPS ? NGPS.lng : null,
                 agentId: me.userId
