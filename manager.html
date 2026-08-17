@@ -2050,6 +2050,29 @@
                 h += '<button class="btn block" id="pxSave">' + ltr("Remark সংরক্ষণ করুন") + '</button>';
                 h += '</div>';
 
+                /* এজেন্টের ভরা সম্পূর্ণ ফর্মের তথ্য */
+                var genderMap = { MALE: ltr("পুরুষ"), FEMALE: ltr("মহিলা"), OTHER: ltr("অন্য") };
+                function drow(label, value) {
+                    if (value === null || value === undefined || value === "") return "";
+                    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;">' +
+                        '<span style="color:var(--muted);">' + NK.esc(label) + '</span>' +
+                        '<b style="color:var(--ink);text-align:right;">' + NK.esc(String(value)) + '</b></div>';
+                }
+                var detailRows = drow(ltr("লিঙ্গ"), genderMap[c.gender] || c.gender) +
+                    drow(ltr("জন্মতারিখ"), c.dateOfBirth ? NK.dt(c.dateOfBirth) : "") +
+                    drow(ltr("স্থায়ী ঠিকানা"), c.permanentAddress) +
+                    drow(ltr("ব্যবসার ঠিকানা"), c.businessAddress) +
+                    drow(ltr("ব্যবসার ধরন"), c.businessType) +
+                    drow(ltr("জামিনদারের নাম"), c.guarantorName) +
+                    drow(ltr("জামিনদারের ফোন"), c.guarantorPhone) +
+                    drow(ltr("জামিনদারের ঠিকানা"), c.guarantorAddress);
+                if (detailRows) {
+                    h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
+                    h += '<h4 style="margin-bottom:8px;">🧾 ' + ltr("সম্পূর্ণ তথ্য (এজেন্টের ভরা ফর্ম)") + '</h4>';
+                    h += detailRows;
+                    h += '</div>';
+                }
+
                 /* KYC ডকুমেন্ট — আধার, প্যান, ভোটার আইডি */
                 h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
                 h += '<h4 style="margin-bottom:12px;">📋 KYC ডকুমেন্ট</h4>';
