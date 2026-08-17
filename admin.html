@@ -5334,8 +5334,7 @@
         var AM_SELECTED = new Set();
 
         function loadAgentMarkets() {
-            var msgEl = document.getElementById("amMsg");
-            if (msgEl) msgEl.textContent = "";
+            hide("amMsg");
             Promise.all([
                 NK.GET("/api/admin/users"),
                 NK.GET("/api/markets/all")
@@ -5354,8 +5353,7 @@
                     dd.appendChild(opt);
                 });
             }).catch(function(e) {
-                var msgEl = document.getElementById("amMsg");
-                if (msgEl) msgEl.textContent = "ত্রুটি: " + NK.esc(e.message);
+                say("amMsg", "ত্রুটি: " + e.message, false);
             });
         }
 
@@ -5410,22 +5408,20 @@
         if (saveBtn) {
             saveBtn.addEventListener("click", function() {
                 if (!AM_AGENT_ID) {
-                    var msgEl = document.getElementById("amMsg");
-                    if (msgEl) msgEl.textContent = "এজেন্ট বেছে নিন।";
+                    say("amMsg", "এজেন্ট বেছে নিন।", false);
                     return;
                 }
 
                 var marketIds = Array.from(AM_SELECTED);
-                var msgEl = document.getElementById("amMsg");
-                if (msgEl) msgEl.textContent = "সংরক্ষণ হচ্ছে...";
+                say("amMsg", "সংরক্ষণ হচ্ছে...", true);
 
                 NK.PUT("/api/admin/users/" + AM_AGENT_ID + "/markets", marketIds).then(function() {
-                    if (msgEl) msgEl.textContent = "✓ সংরক্ষিত হয়েছে!";
+                    say("amMsg", "✓ সংরক্ষিত হয়েছে!", true);
                     setTimeout(function() {
-                        if (msgEl) msgEl.textContent = "";
+                        hide("amMsg");
                     }, 2000);
                 }).catch(function(e) {
-                    if (msgEl) msgEl.textContent = "ত্রুটি: " + NK.esc(e.message);
+                    say("amMsg", "ত্রুটি: " + e.message, false);
                 });
             });
         }
