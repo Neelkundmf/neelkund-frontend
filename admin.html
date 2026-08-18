@@ -923,6 +923,16 @@
     </div>
 </div>
 
+<!-- ================= নোটিফিকেশন লিস্ট (বেল ক্লিক) ================= -->
+<div id="notifSheet">
+    <div class="bg" id="notifSheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>🔔 খবর</h3>
+        <div id="notifSheetList"></div>
+    </div>
+</div>
+
 <!-- ================= লোন ডিটেইল ================= -->
 <div id="loanX">
     <div class="lbar">
@@ -5159,20 +5169,66 @@
             }).catch(function () {});
         }
 
-        q("bell").addEventListener("click", function () {
+        /* actionUrl দেখে কোথায় নিয়ে যাবে */
+        function notifCanGo(url) {
+            if (!url) return false;
+            return url.indexOf("/loan-requests") === 0 ||
+                url.indexOf("/customers") === 0 ||
+                url.indexOf("/access-requests") === 0;
+        }
+        function notifGoTo(url) {
+            if (url.indexOf("/loan-requests") === 0) { show("loan"); return; }
+            if (url.indexOf("/customers") === 0) { show("cust"); return; }
+            if (url.indexOf("/access-requests") === 0) {
+                var btn = document.querySelector('[data-go="access"]');
+                if (btn) btn.click();
+            }
+        }
+
+        function openNotifSheet() {
+            var box = q("notifSheetList");
+            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            q("notifSheet").classList.add("on");
+
             NK.GET("/api/notifications").then(function (n) {
-                if (!n.items || !n.items.length) {
-                    toast(ltr("নতুন কোনো খবর নেই"), "in");
+                var items = n.items || [];
+
+                if (!items.length) {
+                    box.innerHTML = '<div class="card"><div class="empty">' +
+                        ltr("নতুন কোনো খবর নেই") + '</div></div>';
                     return;
                 }
-                n.items.forEach(function (it) {
-                    toast(it.title + " — " + it.message,
-                        it.severity === "URGENT" ? "er" : "in");
+
+                var h = '<div class="list">';
+                items.forEach(function (it, i) {
+                    var canGo = notifCanGo(it.actionUrl);
+                    h += '<div class="item"' +
+                        (canGo ? ' data-notifgo="' + i + '" style="cursor:pointer;"' : '') + '>';
+                    h += '<div class="av">' +
+                        (it.severity === "URGENT" ? "🔴" : it.severity === "WARNING" ? "🟡" : "🔵") +
+                        '</div>';
+                    h += '<div class="mid"><b>' + NK.esc(it.title) + '</b>' +
+                        '<span>' + NK.esc(it.message) + '</span></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+                box.innerHTML = h;
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-notifgo]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var it = items[Number(el.getAttribute("data-notifgo"))];
+                        q("notifSheet").classList.remove("on");
+                        notifGoTo(it.actionUrl);
+                    });
                 });
             }).catch(function (e) {
-                console.error("notifications load failed:", e);
-                toast(ltr("খবর লোড করা যায়নি"), "er");
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        q("bell").addEventListener("click", openNotifSheet);
+        if (q("notifSheetBg")) q("notifSheetBg").addEventListener("click", function () {
+            q("notifSheet").classList.remove("on");
         });
         /* KYC ছবি পাঠানো */
         q("kycFile").addEventListener("change", function () {
