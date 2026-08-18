@@ -1103,6 +1103,101 @@
             opacity: .6;
         }
 
+        /* ---- উপরের প্যানেল — লোগোর রঙের সাথে মেলানো (নীল > টিল > সবুজ), এজেন্টের ছবি/নাম/কোড/শাখা ---- */
+        .topbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            padding: 14px 16px 16px;
+            padding-top: max(14px, env(safe-area-inset-top));
+            background:
+                radial-gradient(360px 200px at 92% -25%, rgba(232,38,27,.25), transparent 62%),
+                linear-gradient(150deg, #2E63D8 0%, #1B8F86 55%, #2FAE5C 100%);
+        }
+        .topbar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .topbar .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .topbar .brand-txt b {
+            display: block;
+            font-size: 16.5px;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+        .topbar .brand-txt span {
+            display: block;
+            font-size: 9.5px;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.62);
+            font-weight: 700;
+            margin-top: 1px;
+        }
+        .topbar .bell { flex-shrink: 0; }
+
+        .agent-card {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 16px;
+            padding: 9px 11px;
+        }
+        .agent-photo {
+            width: 46px; height: 46px;
+            border-radius: 13px;
+            background: linear-gradient(155deg, rgba(255,255,255,.35), rgba(255,255,255,.12));
+            border: 2px solid rgba(255,255,255,.55);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 21px;
+            flex-shrink: 0;
+            box-shadow: 0 6px 14px -6px rgba(0,0,0,.35);
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+        }
+        .agent-info { flex: 1; min-width: 0; }
+        .agent-name {
+            font-size: 15px; font-weight: 800; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .agent-code {
+            font-size: 10.5px; font-weight: 700;
+            color: rgba(255,255,255,.68);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .03em;
+            margin-top: 1px;
+        }
+
+        .branch-row {
+            margin-top: 9px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 13px;
+            padding: 9px 12px;
+        }
+        .branch-row .ic {
+            width: 26px; height: 26px;
+            border-radius: 8px;
+            background: rgba(255,255,255,.16);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .branch-row .lbl {
+            font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(255,255,255,.55); font-weight: 700;
+        }
+        .branch-row .val { font-size: 12.5px; font-weight: 800; color: #fff; margin-top: 1px; }
+
         /* ---- নিচের ট্যাব — প্রতিটা আলাদা রঙের বক্স, টাচ করলে উপরে উঠবে ---- */
         .tabs {
             background: #F7F9FC;
@@ -1126,22 +1221,24 @@
         }
 
         .tabs button:nth-child(1) { background: #EAF1FE; }
-        .tabs button:nth-child(2) { background: #E7F6EC; }
-        .tabs button:nth-child(3) { background: #F3E8FF; }
-        .tabs button:nth-child(4) { background: #FEF3C7; }
-        .tabs button:nth-child(5) { background: #CCFBF1; }
-        .tabs button:nth-child(6) { background: #FCE7F3; }
-        .tabs button:nth-child(7) { background: #FDECEA; }
-        .tabs button:nth-child(8) { background: #E2E8F0; }
+        .tabs button:nth-child(2) { background: #FCE4E2; }
+        .tabs button:nth-child(3) { background: #E7F6EC; }
+        .tabs button:nth-child(4) { background: #F3E8FF; }
+        .tabs button:nth-child(5) { background: #FEF3C7; }
+        .tabs button:nth-child(6) { background: #CCFBF1; }
+        .tabs button:nth-child(7) { background: #FCE7F3; }
+        .tabs button:nth-child(8) { background: #FDECEA; }
+        .tabs button:nth-child(9) { background: #E2E8F0; }
 
         .tabs button:nth-child(1) i { background: rgba(37,99,235,.15); }
-        .tabs button:nth-child(2) i { background: rgba(22,163,74,.15); }
-        .tabs button:nth-child(3) i { background: rgba(124,58,237,.15); }
-        .tabs button:nth-child(4) i { background: rgba(217,119,6,.15); }
-        .tabs button:nth-child(5) i { background: rgba(13,148,136,.15); }
-        .tabs button:nth-child(6) i { background: rgba(219,39,119,.15); }
-        .tabs button:nth-child(7) i { background: rgba(220,38,38,.15); }
-        .tabs button:nth-child(8) i { background: rgba(71,85,105,.15); }
+        .tabs button:nth-child(2) i { background: rgba(232,38,27,.15); }
+        .tabs button:nth-child(3) i { background: rgba(22,163,74,.15); }
+        .tabs button:nth-child(4) i { background: rgba(124,58,237,.15); }
+        .tabs button:nth-child(5) i { background: rgba(217,119,6,.15); }
+        .tabs button:nth-child(6) i { background: rgba(13,148,136,.15); }
+        .tabs button:nth-child(7) i { background: rgba(219,39,119,.15); }
+        .tabs button:nth-child(8) i { background: rgba(220,38,38,.15); }
+        .tabs button:nth-child(9) i { background: rgba(71,85,105,.15); }
 
         /* সক্রিয় ট্যাব — উপরে উঠে যাবে, রং গাঢ় হবে, ছায়া পড়বে */
         .tabs button.on {
@@ -1151,13 +1248,14 @@
         .tabs button.on i { background: rgba(255,255,255,.28); transform: scale(1.06); }
 
         .tabs button:nth-child(1).on { background: linear-gradient(150deg,#3B82F6,#2563EB); box-shadow: 0 10px 18px -6px rgba(37,99,235,.5); }
-        .tabs button:nth-child(2).on { background: linear-gradient(150deg,#22C55E,#16A34A); box-shadow: 0 10px 18px -6px rgba(22,163,74,.5); }
-        .tabs button:nth-child(3).on { background: linear-gradient(150deg,#A855F7,#7C3AED); box-shadow: 0 10px 18px -6px rgba(124,58,237,.5); }
-        .tabs button:nth-child(4).on { background: linear-gradient(150deg,#F59E0B,#D97706); box-shadow: 0 10px 18px -6px rgba(217,119,6,.5); }
-        .tabs button:nth-child(5).on { background: linear-gradient(150deg,#14B8A6,#0D9488); box-shadow: 0 10px 18px -6px rgba(13,148,136,.5); }
-        .tabs button:nth-child(6).on { background: linear-gradient(150deg,#EC4899,#DB2777); box-shadow: 0 10px 18px -6px rgba(219,39,119,.5); }
-        .tabs button:nth-child(7).on { background: linear-gradient(150deg,#EF4444,#DC2626); box-shadow: 0 10px 18px -6px rgba(220,38,38,.5); }
-        .tabs button:nth-child(8).on { background: linear-gradient(150deg,#64748B,#475569); box-shadow: 0 10px 18px -6px rgba(71,85,105,.5); }
+        .tabs button:nth-child(2).on { background: linear-gradient(150deg,#F87171,#E8261B); box-shadow: 0 10px 18px -6px rgba(232,38,27,.5); }
+        .tabs button:nth-child(3).on { background: linear-gradient(150deg,#22C55E,#16A34A); box-shadow: 0 10px 18px -6px rgba(22,163,74,.5); }
+        .tabs button:nth-child(4).on { background: linear-gradient(150deg,#A855F7,#7C3AED); box-shadow: 0 10px 18px -6px rgba(124,58,237,.5); }
+        .tabs button:nth-child(5).on { background: linear-gradient(150deg,#F59E0B,#D97706); box-shadow: 0 10px 18px -6px rgba(217,119,6,.5); }
+        .tabs button:nth-child(6).on { background: linear-gradient(150deg,#14B8A6,#0D9488); box-shadow: 0 10px 18px -6px rgba(13,148,136,.5); }
+        .tabs button:nth-child(7).on { background: linear-gradient(150deg,#EC4899,#DB2777); box-shadow: 0 10px 18px -6px rgba(219,39,119,.5); }
+        .tabs button:nth-child(8).on { background: linear-gradient(150deg,#EF4444,#DC2626); box-shadow: 0 10px 18px -6px rgba(220,38,38,.5); }
+        .tabs button:nth-child(9).on { background: linear-gradient(150deg,#64748B,#475569); box-shadow: 0 10px 18px -6px rgba(71,85,105,.5); }
 
         .tabs button:active { transform: translateY(-3px) scale(.97); }
         .tabs button.on:active { transform: translateY(-9px) scale(.97); }
@@ -1187,12 +1285,32 @@
 <div id="app" style="display:none;">
 
     <div class="topbar">
-        <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
-        <div class="ttl">
-            <b id="ttl">আজকের কাজ</b>
-            <span id="who">—</span>
+        <div class="topbar-top">
+            <div class="brand">
+                <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
+                <div class="brand-txt">
+                    <b>NEELKUND</b>
+                    <span>মাইক্রোফাইন্যান্স</span>
+                </div>
+            </div>
+            <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
         </div>
-        <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
+
+        <div class="agent-card">
+            <div class="agent-photo" id="agentPhoto">👤</div>
+            <div class="agent-info">
+                <div class="agent-name" id="agentName">—</div>
+                <div class="agent-code" id="agentCode"></div>
+            </div>
+        </div>
+
+        <div class="branch-row" id="branchRow" style="display:none;">
+            <div class="ic">🏢</div>
+            <div>
+                <div class="lbl">শাখা</div>
+                <div class="val" id="agentBranch">—</div>
+            </div>
+        </div>
     </div>
 
     <div id="off">📡 ইন্টারনেট নেই — এন্ট্রি ফোনে জমা থাকবে</div>
@@ -1205,7 +1323,6 @@
     <div class="body">
         <!-- ---------------- আজকের কাজ ---------------- -->
         <div class="view on" id="v-today">
-            <div id="mkt"></div>
             <div id="amtDash"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
 
@@ -1227,6 +1344,10 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <!-- ---------------- মার্কেট ---------------- -->
+        <div class="view" id="v-market">
+            <div id="mkt"></div>
         </div>
         <!-- ---------------- কালেকশন ---------------- -->
         <div class="view" id="v-coll">
@@ -1480,6 +1601,7 @@
 
     <div class="tabs">
         <button class="on" data-v="today"><i>📋</i>আজ</button>
+        <button data-v="market"><i>🏬</i>মার্কেট</button>
         <button data-v="coll"><i>💰</i>কালেকশন</button>
         <button data-v="mycust"><i>👥</i>আমার গ্রাহক</button>
         <button data-v="report"><i>📊</i>রিপোর্ট</button>
@@ -2032,18 +2154,17 @@
             });
         }
 
-        /* Back button for Market Detail */
+        /* Back button for Market Detail — history.back() ব্যবহার করি যাতে
+           যে ট্যাব থেকে এসেছিল সেখানেই ফেরে (popstate handler-এর show() দিয়ে) */
         q("mktDetailBack").addEventListener("click", function() {
-            q("v-market-detail").classList.remove("on");
-            q("v-today").classList.add("on");
-            CURRENT_VIEW = "today";
+            history.back();
         });
 
         /* =====================================================================
          * পাতা বদল
          * ===================================================================== */
         var TITLES = {
-            today: "আজকের কাজ", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
+            today: "আজকের কাজ", market: "মার্কেট", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
             report: "দৈনিক রিপোর্ট", disb: "বিতরণ", new: "নতুন গ্রাহক",
             black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
         };
@@ -2069,13 +2190,13 @@
                 b.classList.toggle("on", b.getAttribute("data-v") === key);
             });
 
-            q("ttl").textContent = NK.tr(TITLES[key]);
             window.scrollTo(0, 0);
             history.pushState({ view: key }, null, window.location.pathname);
 
             if (!loaded[key]) {
                 loaded[key] = true;
                 if (key === "today") loadToday();
+                if (key === "market") loadMkt();
                 if (key === "coll")  loadColl();
                 if (key === "cust")  loadCust();
                 if (key === "mycust") loadMyCust();
@@ -2378,12 +2499,16 @@
         var CURRENT_MARKET = null;
 
         function openMarketDetailPage(marketId, marketName) {
-            q("v-today").classList.remove("on");
+            q("v-" + CURRENT_VIEW).classList.remove("on");
             q("v-market-detail").classList.add("on");
             CURRENT_VIEW = "market-detail";
             q("mktDetailTitle").textContent = marketName || "মার্কেট";
             loadMarketDropdown();
             updateMarketDashboard(marketId);
+
+            /* history-তে ধাপ যোগ করি, নাহলে ফোনের ব্যাক বাটন এই পাতা এড়িয়ে
+               সরাসরি অন্য জায়গায় চলে যায় */
+            history.pushState({ view: "market-detail" }, null, window.location.pathname);
         }
 
         function loadMarketDropdown() {
@@ -4058,14 +4183,14 @@
                     window.pendingAmount = loanReq.principal;
                     window.pendingCustomerId = newCust.id;
 
-                    var checkTimer = setInterval(function() {
+                    window.pendingCheckTimer = setInterval(function() {
                         NK.GET("/api/loan-requests/" + loanReq.id)
                             .then(function(lr) {
                                 if (lr.status === "APPROVED") {
-                                    clearInterval(checkTimer);
+                                    clearInterval(window.pendingCheckTimer);
                                     showLoanApprovalSuccess(lr);
                                 } else if (lr.status === "REJECTED") {
-                                    clearInterval(checkTimer);
+                                    clearInterval(window.pendingCheckTimer);
                                     q("pend").classList.remove("on");
                                     say("nMsg", "❌ " + ltr("আপনার লোন নাকচ করা হয়েছে"), false);
                                 }
@@ -5517,8 +5642,13 @@
         }
 
         if (q("logoBtn")) q("logoBtn").addEventListener("click", openMenu);
-        if (q("sheetBg")) q("sheetBg").addEventListener("click", function () {
-            q("sheet").classList.remove("on");
+
+        /* sheetBg HTML-এ script-এর নিচে থাকে, তাই সরাসরি বাঁধলে null আসে —
+           document-এ delegation দিয়ে বাঁধা, notifSheetBg-র মতোই */
+        document.addEventListener("click", function (e) {
+            if (e.target && e.target.id === "sheetBg") {
+                q("sheet").classList.remove("on");
+            }
         });
 
         /* =====================================================================
@@ -5553,7 +5683,24 @@
 
             q("gate").remove();
             q("app").style.display = "block";
-            q("who").textContent = u.fullName + " · " + ltr("এজেন্ট");
+            q("agentName").textContent = u.fullName;
+
+            /* নিজের কোড/শাখা/ছবি — ড্যাশবোর্ডের উপরের প্যানেলে */
+            NK.GET("/api/agent/me").then(function (p) {
+                if (p.staffCode) q("agentCode").textContent = p.staffCode;
+                if (p.branchName) {
+                    q("agentBranch").textContent = p.branchName;
+                    q("branchRow").style.display = "flex";
+                }
+                if (p.hasPhoto) {
+                    NK.GET("/api/agent/me/photo").then(function (blob) {
+                        if (!blob) return;
+                        var el = q("agentPhoto");
+                        el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                        el.textContent = "";
+                    }).catch(function () {});
+                }
+            }).catch(function () {});
 
             // Access time warning (8am-10pm only)
             var now = new Date();
@@ -5565,7 +5712,6 @@
 
             net();
             drawPend();
-            loadMkt();
             loadAmtDash();
             loadToday();
             loadNotif();
@@ -5586,8 +5732,10 @@
                     btn.innerHTML = '🔄 আপডেট';
 
                     if (lr.status === "APPROVED") {
+                        if (window.pendingCheckTimer) clearInterval(window.pendingCheckTimer);
                         showLoanApprovalSuccess(lr);
                     } else if (lr.status === "REJECTED") {
+                        if (window.pendingCheckTimer) clearInterval(window.pendingCheckTimer);
                         say("nMsg", "❌ লোন নাকচ করা হয়েছে", false);
                         q("pend").classList.remove("on");
                     }
@@ -5600,12 +5748,18 @@
         };
 
         window.showLoanApprovalSuccess = function(loanRequest) {
+            /* একবার ওভারলে খোলা থাকলে আবার নতুন করে খুলবো না — একই লোন
+               একই সাথে ম্যানুয়াল "আপডেট" বাটন আর ব্যাকগ্রাউন্ড পোলিং, দুই জায়গা
+               থেকে ডাকা হতে পারে */
+            if (q("loanCelebrateOverlay")) return;
+
             q("pend").classList.remove("on");
 
             var amountInr = NK.inr(loanRequest.principal || window.pendingAmount);
             var loanId = loanRequest.createdLoanId;
 
             var html = '<div id="loanCelebrateOverlay" style="position:fixed;inset:0;z-index:400;background:linear-gradient(135deg,#16A34A,#059669);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;color:#fff;">' +
+                '<button id="loanCelebrateClose" aria-label="' + ltr('পরে করবো') + '" style="position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;">✕</button>' +
                 '<div style="font-size:64px;margin-bottom:16px;">🎉</div>' +
                 '<h2 style="margin:8px 0;font-size:26px;">' + ltr('শুভেচ্ছা!') + '</h2>' +
                 '<p style="font-size:17px;margin:10px 0 20px;"><b>' + ltr('আপনার লোন অনুমোদিত হয়েছে') + '</b></p>' +
@@ -5620,6 +5774,10 @@
 
             document.body.insertAdjacentHTML('beforeend', html);
             toast(ltr("লোন অনুমোদিত হয়েছে! 🎉"), "ok");
+
+            q("loanCelebrateClose").addEventListener("click", function () {
+                window.closeLoanCelebrate();
+            });
 
             var fileInput = q("loanCelebrateFile");
             var btn = q("loanCelebrateBtn");
