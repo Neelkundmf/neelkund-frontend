@@ -3831,12 +3831,12 @@
 
         // Restore nested panel state if exists
         if (e.state.panel && e.state.panelId) {
-            if (e.state.panel === "customerProfile") {
+            if (e.state.panel === "customerProfile" || e.state.panel === "customer") {
+                /* "customer" পুরনো/বাদ দেওয়া ডিজাইনের নাম ছিল — পুরনো ব্রাউজার
+                   হিস্ট্রি থেকে এলেও এখন সবসময় নতুন সঠিক প্রোফাইল খুলবে */
                 openCustomerProfile(e.state.panelId);
             } else if (e.state.panel === "loan") {
                 openLoanDetail(e.state.panelId);
-            } else if (e.state.panel === "customer") {
-                openCustomer(e.state.panelId);
             }
         } else {
             // Close all nested panels
