@@ -1862,6 +1862,11 @@
             // Switch view
             show(e.state.view);
 
+            // কালেকশন ট্যাবের মার্কেট-ভেতরের অবস্থা থেকে ফিরলে মার্কেট তালিকায় ফিরি
+            if (e.state.view === "coll" && !e.state.inMarket && typeof loadColl === "function") {
+                loadColl();
+            }
+
             // Restore nested panel state if exists
             if (e.state.panel && e.state.panelId) {
                 if (e.state.panel === "loan") {
@@ -2745,8 +2750,16 @@
             q("collHead").innerHTML = "";
             window.scrollTo(0, 0);
 
+            /* মার্কেটের ভেতরে ঢোকাটা নিজের একটা history ধাপ — ফোনের ব্যাক বাটন
+               চাপলে যেন সরাসরি "আজ" ট্যাবে না চলে যায়, আগে মার্কেট তালিকায় ফেরে */
+            history.pushState({ view: "coll", inMarket: true }, null, window.location.pathname);
+
             refreshCollInside(false);
         }
+
+        if (q("collBack")) q("collBack").addEventListener("click", function () {
+            history.back();
+        });
 
         function refreshCollInside(silent) {
             NK.GET("/api/agent/collection/" + (COLL_MKT || "null") + "/customers")
