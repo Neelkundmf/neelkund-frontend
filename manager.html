@@ -3674,6 +3674,8 @@
             return null;
         }
 
+        var NOTIF_ITEMS = [];
+
         function openNotifSheet() {
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -3685,6 +3687,7 @@
 
             NK.GET("/api/notifications").then(function (n) {
                 var items = n.items || [];
+                NOTIF_ITEMS = items;
 
                 if (!items.length) {
                     box.innerHTML = '<div class="card"><div class="empty">' +
@@ -3706,15 +3709,6 @@
                 });
                 h += '</div>';
                 box.innerHTML = h;
-
-                Array.prototype.forEach.call(box.querySelectorAll("[data-notifgo]"), function (el) {
-                    el.addEventListener("click", function () {
-                        var it = items[Number(el.getAttribute("data-notifgo"))];
-                        var navKey = notifNavKey(it.actionUrl);
-                        q("notifSheet").classList.remove("on");
-                        if (navKey) show(navKey);
-                    });
-                });
             }).catch(function (e) {
                 box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
@@ -3723,9 +3717,21 @@
         var bell = q("bell");
         if (bell) bell.addEventListener("click", openNotifSheet);
 
-        var notifSheetBgEl = q("notifSheetBg");
-        if (notifSheetBgEl) notifSheetBgEl.addEventListener("click", function () {
+        /* notifSheet-এর ভেতরের ও বাইরের (background) টাচ — document-এ একবারই
+           বাঁধা হয় (event delegation), তাই #notifSheet পাতায় পরে যোগ হলেও
+           (HTML-এ script-এর নিচে থাকায়) কাজ করবে — সরাসরি বাঁধলে null আসত */
+        document.addEventListener("click", function (e) {
+            if (e.target && e.target.id === "notifSheetBg") {
+                q("notifSheet").classList.remove("on");
+                return;
+            }
+            var goEl = e.target.closest ? e.target.closest("[data-notifgo]") : null;
+            if (!goEl) return;
+            var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
+            if (!it) return;
+            var navKey = notifNavKey(it.actionUrl);
             q("notifSheet").classList.remove("on");
+            if (navKey) show(navKey);
         });
 
         /* ===== Logo Click Menu ===== */
