@@ -5362,20 +5362,60 @@
             }).catch(function () {});
         }
 
-        q("bell").addEventListener("click", function () {
+        /* actionUrl দেখে কোন ট্যাবে নিয়ে যাবে */
+        function notifNavKey(url) {
+            if (!url) return null;
+            if (url.indexOf("/my-disbursements") === 0) return "disb";
+            if (url.indexOf("/my-requests") === 0) return "today";
+            if (url.indexOf("/customers") === 0) return "mycust";
+            return null;
+        }
+
+        function openNotifSheet() {
+            var box = q("notifSheetList");
+            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            q("notifSheet").classList.add("on");
+
             NK.GET("/api/notifications").then(function (n) {
-                if (!n.items || !n.items.length) {
-                    toast(ltr("নতুন কোনো খবর নেই"), "in");
+                var items = n.items || [];
+
+                if (!items.length) {
+                    box.innerHTML = '<div class="card"><div class="empty">' +
+                        ltr("নতুন কোনো খবর নেই") + '</div></div>';
                     return;
                 }
-                n.items.forEach(function (it) {
-                    toast(it.title + " — " + it.message,
-                        it.severity === "URGENT" ? "er" : "in");
+
+                var h = '<div class="list">';
+                items.forEach(function (it, i) {
+                    var navKey = notifNavKey(it.actionUrl);
+                    h += '<div class="item"' +
+                        (navKey ? ' data-notifgo="' + i + '" style="cursor:pointer;"' : '') + '>';
+                    h += '<div class="av">' +
+                        (it.severity === "URGENT" ? "🔴" : it.severity === "WARNING" ? "🟡" : "🔵") +
+                        '</div>';
+                    h += '<div class="mid"><b>' + NK.esc(it.title) + '</b>' +
+                        '<span>' + NK.esc(it.message) + '</span></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+                box.innerHTML = h;
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-notifgo]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var it = items[Number(el.getAttribute("data-notifgo"))];
+                        var navKey = notifNavKey(it.actionUrl);
+                        q("notifSheet").classList.remove("on");
+                        if (navKey) show(navKey);
+                    });
                 });
             }).catch(function (e) {
-                console.error("notifications load failed:", e);
-                toast(ltr("খবর লোড করা যায়নি"), "er");
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        q("bell").addEventListener("click", openNotifSheet);
+        q("notifSheetBg").addEventListener("click", function () {
+            q("notifSheet").classList.remove("on");
         });
 
         /* ===== Logo Click Menu ===== */
@@ -5568,6 +5608,16 @@
         <div class="menu-grid">
             <button data-go="logout"><i>🚪</i>লগ আউট</button>
         </div>
+    </div>
+</div>
+
+<!-- ================= নোটিফিকেশন লিস্ট (বেল ক্লিক) ================= -->
+<div id="notifSheet">
+    <div class="bg" id="notifSheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>🔔 খবর</h3>
+        <div id="notifSheetList"></div>
     </div>
 </div>
 
