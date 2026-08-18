@@ -1103,6 +1103,16 @@
     </div>
 </div>
 
+<!-- ================= নোটিফিকেশন লিস্ট (বেল ক্লিক) ================= -->
+<div id="notifSheet">
+    <div class="bg" id="notifSheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>🔔 খবর</h3>
+        <div id="notifSheetList"></div>
+    </div>
+</div>
+
 <script src="assets/js/nk.js"></script>
 <script>
     // API-based maintenance - localStorage check removed
@@ -3655,39 +3665,64 @@
             }).catch(function () {});
         }
 
-        var bell = q("bell");
-        if (bell) {
-            bell.addEventListener("click", function () {
-                NK.GET("/api/notifications").then(function (n) {
-                    if (!n.items || !n.items.length) {
-                        toast(ltr("নতুন কোনো খবর নেই"), "in");
-                        return;
-                    }
+        /* actionUrl দেখে কোন ট্যাবে নিয়ে যাবে */
+        function notifNavKey(url) {
+            if (!url) return null;
+            if (url.indexOf("/loan-requests") === 0) return "req";
+            if (url.indexOf("/disbursements") === 0) return "disb";
+            if (url.indexOf("/customers") === 0) return "cust";
+            return null;
+        }
 
-                    /* কোন actionUrl কোন ট্যাবের সাথে মেলে — টাচ করলে সরাসরি
-                       সেই ট্যাবে চলে যাবে (যেমন লোন রিকোয়েস্ট থাকলে "req"
-                       ট্যাবে, সেখান থেকে টাচ করলে গ্রাহকের পুরো প্রোফাইল খোলে) */
-                    var viewMap = { "/loan-requests": "req", "/disbursements": "disb" };
-                    var navItem = null;
-                    for (var i = 0; i < n.items.length; i++) {
-                        if (viewMap[n.items[i].actionUrl]) { navItem = n.items[i]; break; }
-                    }
+        function openNotifSheet() {
+            var box = q("notifSheetList");
+            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            q("notifSheet").classList.add("on");
 
-                    if (navItem) {
-                        show(viewMap[navItem.actionUrl]);
-                        return;
-                    }
+            NK.GET("/api/notifications").then(function (n) {
+                var items = n.items || [];
 
-                    n.items.forEach(function (it) {
-                        toast(it.title + " — " + it.message,
-                            it.severity === "URGENT" ? "er" : "in");
-                    });
-                }).catch(function (e) {
-                    console.error("notifications load failed:", e);
-                    toast(ltr("খবর লোড করা যায়নি"), "er");
+                if (!items.length) {
+                    box.innerHTML = '<div class="card"><div class="empty">' +
+                        ltr("নতুন কোনো খবর নেই") + '</div></div>';
+                    return;
+                }
+
+                var h = '<div class="list">';
+                items.forEach(function (it, i) {
+                    var navKey = notifNavKey(it.actionUrl);
+                    h += '<div class="item"' +
+                        (navKey ? ' data-notifgo="' + i + '" style="cursor:pointer;"' : '') + '>';
+                    h += '<div class="av">' +
+                        (it.severity === "URGENT" ? "🔴" : it.severity === "WARNING" ? "🟡" : "🔵") +
+                        '</div>';
+                    h += '<div class="mid"><b>' + NK.esc(it.title) + '</b>' +
+                        '<span>' + NK.esc(it.message) + '</span></div>';
+                    h += '</div>';
                 });
+                h += '</div>';
+                box.innerHTML = h;
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-notifgo]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var it = items[Number(el.getAttribute("data-notifgo"))];
+                        var navKey = notifNavKey(it.actionUrl);
+                        q("notifSheet").classList.remove("on");
+                        if (navKey) show(navKey);
+                    });
+                });
+            }).catch(function (e) {
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        var bell = q("bell");
+        if (bell) bell.addEventListener("click", openNotifSheet);
+
+        var notifSheetBgEl = q("notifSheetBg");
+        if (notifSheetBgEl) notifSheetBgEl.addEventListener("click", function () {
+            q("notifSheet").classList.remove("on");
+        });
 
         /* ===== Logo Click Menu ===== */
         function openMenu() {
