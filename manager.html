@@ -2073,56 +2073,39 @@
                     h += '</div>';
                 }
 
-                /* KYC ডকুমেন্ট — আধার, প্যান, ভোটার আইডি */
+                /* KYC ডকুমেন্ট — আধার, প্যান, ভোটার আইডি — নম্বর ও ছবি একসাথে, আলাদা সেগমেন্টে */
                 h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
                 h += '<h4 style="margin-bottom:12px;">📋 KYC ডকুমেন্ট</h4>';
 
-                /* আধার */
-                if (c.aadhaarPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (সামনে)</div>';
-                    h += '<div id="kycImg_AADHAAR" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
-                }
-                if (c.aadhaarBackPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">আধার (পিছনে)</div>';
-                    h += '<div id="kycImg_AADHAAR_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
-                }
-
-                /* প্যান */
-                if (c.panPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (সামনে)</div>';
-                    h += '<div id="kycImg_PAN" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
-                }
-                if (c.panBackPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">প্যান (পিছনে)</div>';
-                    h += '<div id="kycImg_PAN_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
+                function kycSegment(title, maskedNumber, frontUrl, frontId, backUrl, backId) {
+                    if (!maskedNumber && !frontUrl && !backUrl) return "";
+                    var s = '<div style="margin-bottom:14px; padding:12px; background:var(--paper); border-radius:10px;">';
+                    s += '<div style="font-weight:700; font-size:13px; margin-bottom:6px;">' + NK.esc(title) + '</div>';
+                    s += '<div style="font-size:16px; font-weight:800; color:var(--navy); margin-bottom:10px; letter-spacing:.5px;">' +
+                        (maskedNumber ? NK.esc(maskedNumber) : ltr("নম্বর দেওয়া নেই")) + '</div>';
+                    if (frontUrl) {
+                        s += '<div style="font-size:11px; color:var(--muted); margin-bottom:4px;">' + ltr("সামনে") + '</div>';
+                        s += '<div id="' + frontId + '" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px; margin-bottom:' + (backUrl ? '10px' : '0') + ';">' + ltr("লোড হচ্ছে...") + '</div>';
+                    }
+                    if (backUrl) {
+                        s += '<div style="font-size:11px; color:var(--muted); margin-bottom:4px;">' + ltr("পিছনে") + '</div>';
+                        s += '<div id="' + backId + '" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
+                    }
+                    s += '</div>';
+                    return s;
                 }
 
-                /* ভোটার আইডি — আগে থেকে থাকলে দেখাবে */
-                if (c.voterIdPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">ভোটার আইডি (সামনে)</div>';
-                    h += '<div id="kycImg_VOTER_ID" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
-                }
-                if (c.voterIdBackPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">ভোটার আইডি (পিছনে)</div>';
-                    h += '<div id="kycImg_VOTER_ID_BACK" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
-                    h += '</div>';
-                }
+                h += kycSegment("🪪 " + ltr("আধার কার্ড"), c.aadhaarMasked,
+                    c.aadhaarPhotoUrl, "kycImg_AADHAAR", c.aadhaarBackPhotoUrl, "kycImg_AADHAAR_BACK");
+                h += kycSegment("🪪 " + ltr("প্যান কার্ড"), c.panMasked,
+                    c.panPhotoUrl, "kycImg_PAN", c.panBackPhotoUrl, "kycImg_PAN_BACK");
+                h += kycSegment("🎫 " + ltr("ভোটার আইডি"), c.voterIdMasked,
+                    c.voterIdPhotoUrl, "kycImg_VOTER_ID", c.voterIdBackPhotoUrl, "kycImg_VOTER_ID_BACK");
 
                 /* গ্যারান্টারের ছবি */
                 if (c.guarantorPhotoUrl) {
-                    h += '<div style="margin-bottom:15px;">';
-                    h += '<div style="font-size:12px; color:var(--muted); margin-bottom:5px;">গ্যারান্টারের ছবি</div>';
+                    h += '<div style="margin-bottom:14px; padding:12px; background:var(--paper); border-radius:10px;">';
+                    h += '<div style="font-weight:700; font-size:13px; margin-bottom:8px;">👤 ' + ltr("গ্যারান্টারের ছবি") + '</div>';
                     h += '<div id="kycImg_GUARANTOR" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' + ltr("লোড হচ্ছে...") + '</div>';
                     h += '</div>';
                 }
