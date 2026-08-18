@@ -5499,6 +5499,15 @@
         window.closeLoanCelebrate = function () {
             var el = q("loanCelebrateOverlay");
             if (el) el.remove();
+
+            window.pendingLoanId = null;
+            window.pendingAmount = null;
+            window.pendingCustomerId = null;
+
+            show("today");
+            loadToday();
+            loadAmtDash();
+            loadNotif();
         };
 
     })();
