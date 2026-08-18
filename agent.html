@@ -5458,8 +5458,17 @@
             if (!goEl) return;
             var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
             if (!it) return;
-            var navKey = notifNavKey(it.actionUrl);
             q("notifSheet").classList.remove("on");
+
+            /* একটাই লোন অনুমোদিত হলে actionUrl-এ loanId থাকে — সরাসরি সেই
+               লোনের পাতা খুলি, নাহলে সংশ্লিষ্ট ট্যাবে যাই */
+            var loanMatch = /[?&]loanId=(\d+)/.exec(it.actionUrl || "");
+            if (loanMatch) {
+                openLoanDetail(Number(loanMatch[1]));
+                return;
+            }
+
+            var navKey = notifNavKey(it.actionUrl);
             if (navKey) show(navKey);
         });
 
