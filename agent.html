@@ -1103,6 +1103,26 @@
             opacity: .6;
         }
 
+        /* ---- নিচের ট্যাব — প্রতিটা আলাদা রঙের গোল ব্যাজে আইকন ---- */
+        .tabs button i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            transition: background .14s, transform .14s;
+        }
+        .tabs button:nth-child(1) i { background: #EAF1FE; }
+        .tabs button:nth-child(2) i { background: #E7F6EC; }
+        .tabs button:nth-child(3) i { background: #F3E8FF; }
+        .tabs button:nth-child(4) i { background: #FEF3C7; }
+        .tabs button:nth-child(5) i { background: #CCFBF1; }
+        .tabs button:nth-child(6) i { background: #FCE7F3; }
+        .tabs button:nth-child(7) i { background: #FDECEA; }
+        .tabs button:nth-child(8) i { background: #E2E8F0; }
+        .tabs button.on i { transform: scale(1.08); }
+
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
