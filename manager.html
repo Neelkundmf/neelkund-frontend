@@ -1998,7 +1998,11 @@
 
             NK.pushNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
 
-            NK.GET("/api/customers/" + customerId + "/profile").then(function (p) {
+            /* pending loan request থেকে খোলা হলেই সার্ভার পুরো (মাস্ক ছাড়া) KYC নম্বর দেখাবে —
+               বাকি সব সময় মাস্ক করা থাকবে (নিরাপত্তার জন্য), সার্ভারই যাচাই করে নেয় */
+            var profileUrl = "/api/customers/" + customerId + "/profile" +
+                (loanRequestId ? "?loanRequestId=" + encodeURIComponent(loanRequestId) : "");
+            NK.GET(profileUrl).then(function (p) {
                 if (myReq !== PX_REQ_ID) return;
                 var c = p.customer || {};
                 var loans = p.loans || [];
