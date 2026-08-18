@@ -105,7 +105,12 @@
             body: JSON.stringify({ refreshToken: rt })
         })
             .then(function (r) {
-                if (!r.ok) throw new Error("লগইনের মেয়াদ শেষ");
+                if (!r.ok) {
+                    /* সার্ভার সত্যিই না বললো — রিফ্রেশ টোকেন আসলেই ভুল/মেয়াদ শেষ */
+                    var authError = new Error("লগইনের মেয়াদ শেষ");
+                    authError.isAuthRejection = true;
+                    throw authError;
+                }
                 return r.json();
             })
             .then(function (d) {
@@ -123,7 +128,10 @@
             })
             .catch(function (e) {
                 refreshing = null;
-                clearAll();
+                /* সাময়িক নেট গ্যাপ (ফোন ব্যাকগ্রাউন্ড থেকে ফেরার সময়) হলে
+                   সার্ভার থেকে কোনো উত্তরই আসে না — সেটা আসল auth ব্যর্থতা নয়,
+                   তাই রিফ্রেশ টোকেন মুছবো না — শুধু সার্ভার সত্যিই "না" বললেই মুছবো */
+                if (e && e.isAuthRejection) clearAll();
                 throw e;
             });
 
