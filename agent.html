@@ -5438,7 +5438,7 @@
         }
 
         q("bell").addEventListener("click", openNotifSheet);
-        q("notifSheetBg").addEventListener("click", function () {
+        if (q("notifSheetBg")) q("notifSheetBg").addEventListener("click", function () {
             q("notifSheet").classList.remove("on");
         });
 
