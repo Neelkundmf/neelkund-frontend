@@ -93,13 +93,8 @@
 
     var refreshing = null;   // একসাথে অনেকবার রিফ্রেশ যেন না হয়
 
-    function refreshToken() {
-        if (refreshing) return refreshing;
-
-        var rt = getRefresh();
-        if (!rt) return Promise.reject(new Error("লগইন করা নেই"));
-
-        refreshing = fetch(API + "/api/auth/refresh", {
+    function refreshAttempt(rt, retriesLeft) {
+        return fetch(API + "/api/auth/refresh", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken: rt })
@@ -113,6 +108,28 @@
                 }
                 return r.json();
             })
+            .catch(function (e) {
+                /* সাময়িক নেট গ্যাপ (ফোন ব্যাকগ্রাউন্ড থেকে ফেরার সময়) হলে fetch-ই
+                   ব্যর্থ হয়, সার্ভারের কোনো উত্তর আসে না — সেটা আসল auth ব্যর্থতা
+                   নয়, তাই সাথে সাথে হাল না ছেড়ে আরও কয়েকবার চেষ্টা করি */
+                if (!e.isAuthRejection && retriesLeft > 0) {
+                    return new Promise(function (resolve) {
+                        setTimeout(resolve, 1200);
+                    }).then(function () {
+                        return refreshAttempt(rt, retriesLeft - 1);
+                    });
+                }
+                throw e;
+            });
+    }
+
+    function refreshToken() {
+        if (refreshing) return refreshing;
+
+        var rt = getRefresh();
+        if (!rt) return Promise.reject(new Error("লগইন করা নেই"));
+
+        refreshing = refreshAttempt(rt, 2)
             .then(function (d) {
                 accessToken = d.accessToken;
                 setRefresh(d.refreshToken);
@@ -128,9 +145,8 @@
             })
             .catch(function (e) {
                 refreshing = null;
-                /* সাময়িক নেট গ্যাপ (ফোন ব্যাকগ্রাউন্ড থেকে ফেরার সময়) হলে
-                   সার্ভার থেকে কোনো উত্তরই আসে না — সেটা আসল auth ব্যর্থতা নয়,
-                   তাই রিফ্রেশ টোকেন মুছবো না — শুধু সার্ভার সত্যিই "না" বললেই মুছবো */
+                /* সব চেষ্টার পরও ব্যর্থ — শুধু সার্ভার সত্যিই "না" বললেই
+                   (আসল auth ব্যর্থতা) রিফ্রেশ টোকেন মুছবো, নেট এখনও না থাকলে মুছবো না */
                 if (e && e.isAuthRejection) clearAll();
                 throw e;
             });
