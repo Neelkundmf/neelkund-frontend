@@ -2194,13 +2194,16 @@
 
                 q("pxBody").innerHTML = h;
 
-                /* ছবি */
+                /* ছবি — টাচ করলে বড় করে (নতুন ট্যাবে) দেখাবে */
                 var pe = q("pxPhoto");
                 if (pe && pe.getAttribute("data-photo")) {
+                    pe.style.cursor = "pointer";
                     NK.GET("/api/customers/" + pe.getAttribute("data-photo") + "/photo").then(function (blob) {
                         if (!blob) return;
-                        pe.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                        var url = URL.createObjectURL(blob);
+                        pe.style.backgroundImage = "url(" + url + ")";
                         pe.textContent = "";
+                        pe.addEventListener("click", function () { window.viewPhoto(url); });
                     }).catch(function () {});
                 }
 
