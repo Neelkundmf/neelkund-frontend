@@ -3644,7 +3644,7 @@
         }
         function loadNotif() {
             NK.GET("/api/notifications").then(function (n) {
-                var c = n.totalCount || 0;
+                var c = n.unseenCount || 0;
                 var d = q("dot");
                 d.textContent = c > 99 ? "99+" : c;
                 d.className = c > 0 ? "dot on" : "dot";
@@ -3678,7 +3678,10 @@
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("notifSheet").classList.add("on");
-            loadNotif();
+
+            /* বেল খুলে দেখলেই "দেখা হয়েছে" মার্ক হয় — এই ইউজারের জন্য আলাদা,
+               এরপর বেলের পাশের লাল সংখ্যা রিফ্রেশ করি */
+            NK.POST("/api/notifications/mark-seen", {}).then(loadNotif).catch(function () {});
 
             NK.GET("/api/notifications").then(function (n) {
                 var items = n.items || [];
