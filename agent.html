@@ -5432,67 +5432,73 @@
             q("pend").classList.remove("on");
 
             var amountInr = NK.inr(loanRequest.principal || window.pendingAmount);
-            var custId = loanRequest.customerId || window.pendingCustomerId;
+            var loanId = loanRequest.createdLoanId;
 
-            var msg = '<div style="text-align:center; padding:20px;">' +
-                '<div style="font-size:48px; margin-bottom:10px;">🎉</div>' +
-                '<h2 style="color:var(--green); margin:10px 0;">শুভেচ্ছা!</h2>' +
-                '<p style="font-size:16px; margin:15px 0;"><b>আপনার লোন অনুমোদিত হয়েছে</b></p>' +
-                '<div style="background:var(--paper); padding:15px; border-radius:10px; margin:20px 0;">' +
-                '<p style="color:var(--muted); margin:5px 0;">গ্রাহককে নগদ দিন:</p>' +
-                '<p style="font-size:32px; font-weight:800; color:var(--green); margin:10px 0;">₹' + amountInr + '</p>' +
+            var html = '<div id="loanCelebrateOverlay" style="position:fixed;inset:0;z-index:400;background:linear-gradient(135deg,#16A34A,#059669);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;color:#fff;">' +
+                '<div style="font-size:64px;margin-bottom:16px;">🎉</div>' +
+                '<h2 style="margin:8px 0;font-size:26px;">' + ltr('শুভেচ্ছা!') + '</h2>' +
+                '<p style="font-size:17px;margin:10px 0 20px;"><b>' + ltr('আপনার লোন অনুমোদিত হয়েছে') + '</b></p>' +
+                '<div style="background:rgba(255,255,255,.15);padding:16px 24px;border-radius:14px;margin-bottom:30px;">' +
+                '<p style="opacity:.85;margin:0 0 6px;">' + ltr('গ্রাহককে নগদ দিন') + '</p>' +
+                '<p style="font-size:34px;font-weight:800;margin:0;">₹' + amountInr + '</p>' +
                 '</div>' +
-                '<button class="btn block" onclick="showLoanAgreementUpload(' + custId + ')" style="background:var(--blue); color:#fff;">✓ চুক্তি আপলোড করুন</button>' +
-                '</div>';
-
-            say("nMsg", msg, true);
-            toast("লোন অনুমোদিত হয়েছে! 🎉", "ok");
-        };
-
-        window.showLoanAgreementUpload = function(customerId) {
-            var html = '<div style="position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.6); display:flex; align-items:flex-end;">' +
-                '<div style="width:100%; background:#fff; border-radius:20px 20px 0 0; padding:20px; animation:up .3s ease-out;">' +
-                '<h3 style="margin-bottom:15px;">📋 লোন চুক্তি স্বাক্ষর</h3>' +
-                '<p style="color:var(--muted); margin-bottom:15px;">গ্রাহকের স্বাক্ষরের ছবি আপলোড করুন</p>' +
-                '<input type="file" id="agreementFile" accept="image/*" style="width:100%; padding:10px; border:2px dashed var(--line); border-radius:10px; margin-bottom:15px;">' +
-                '<div style="display:flex; gap:10px;">' +
-                '<button class="btn block" onclick="uploadLoanAgreement(' + customerId + ')" style="background:var(--green); color:#fff;">✓ আপলোড করুন</button>' +
-                '<button class="btn block" onclick="closeLoanAgreementModal()" style="background:var(--paper);">বন্ধ করুন</button>' +
-                '</div>' +
-                '</div>' +
+                '<button id="loanCelebrateBtn" class="btn block" style="background:#fff;color:#16A34A;font-weight:700;padding:16px;font-size:16px;border-radius:12px;border:none;width:100%;max-width:320px;">📷 ' + ltr('সইয়ের ছবি তুলুন') + '</button>' +
+                '<div id="loanCelebrateStatus" style="margin-top:14px;font-size:14px;min-height:20px;"></div>' +
+                '<input type="file" id="loanCelebrateFile" accept="image/*" capture="environment" style="display:none;">' +
                 '</div>';
 
             document.body.insertAdjacentHTML('beforeend', html);
-        };
+            toast(ltr("লোন অনুমোদিত হয়েছে! 🎉"), "ok");
 
-        window.closeLoanAgreementModal = function() {
-            var modal = document.querySelector('[style*="position:fixed"][style*="z-index:300"]');
-            if (modal) modal.remove();
-        };
+            var fileInput = q("loanCelebrateFile");
+            var btn = q("loanCelebrateBtn");
+            var statusEl = q("loanCelebrateStatus");
 
-        window.uploadLoanAgreement = function(customerId) {
-            var file = q("agreementFile").files[0];
-            if (!file) {
-                toast("ছবি নির্বাচন করুন", "er");
-                return;
-            }
+            btn.addEventListener("click", function () {
+                if (!loanId) {
+                    statusEl.textContent = ltr("লোন আইডি পাওয়া যায়নি — লোন ডিটেইল থেকে চেষ্টা করুন");
+                    return;
+                }
+                fileInput.click();
+            });
 
-            var fd = new FormData();
-            fd.append("file", file);
+            fileInput.addEventListener("change", function () {
+                if (!fileInput.files.length) return;
 
-            NK.UPLOAD("/api/customers/" + customerId + "/documents?type=LOAN_AGREEMENT", fd)
-                .then(function() {
-                    closeLoanAgreementModal();
-                    say("nMsg", '<div style="text-align:center; padding:20px;">' +
-                        '<div style="font-size:36px; margin-bottom:10px;">✅</div>' +
-                        '<p><b>লোন চুক্তি আপলোড হয়েছে</b></p>' +
-                        '<p style="color:var(--muted); margin-top:10px;">গ্রাহক এখন লোন পেতে প্রস্তুত</p>' +
-                        '</div>', true);
-                    toast("চুক্তি আপলোড সম্পন্ন ✓", "ok");
+                btn.disabled = true;
+                btn.style.opacity = "0.6";
+                statusEl.textContent = ltr("আপলোড হচ্ছে...");
+
+                var fd = new FormData();
+                fd.append("file", fileInput.files[0]);
+
+                fetch("/api/loans/" + loanId + "/sign-customer", {
+                    method: "PUT",
+                    body: fd,
+                    headers: { "Authorization": "Bearer " + NK.getToken() }
                 })
-                .catch(function(e) {
-                    toast("আপলোড ব্যর্থ: " + e.message, "er");
-                });
+                    .then(function (res) {
+                        if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
+                        return res.json();
+                    })
+                    .then(function () {
+                        statusEl.textContent = ltr("✓ সংরক্ষিত হয়েছে");
+                        toast(ltr("ছবি জমা হয়েছে ✓"), "ok");
+                        setTimeout(function () {
+                            window.closeLoanCelebrate();
+                        }, 900);
+                    })
+                    .catch(function (e) {
+                        statusEl.textContent = ltr("ব্যর্থ: ") + NK.esc(e.message);
+                        btn.disabled = false;
+                        btn.style.opacity = "1";
+                    });
+            });
+        };
+
+        window.closeLoanCelebrate = function () {
+            var el = q("loanCelebrateOverlay");
+            if (el) el.remove();
         };
 
     })();
