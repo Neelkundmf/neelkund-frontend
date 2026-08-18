@@ -3678,6 +3678,7 @@
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("notifSheet").classList.add("on");
+            loadNotif();
 
             NK.GET("/api/notifications").then(function (n) {
                 var items = n.items || [];

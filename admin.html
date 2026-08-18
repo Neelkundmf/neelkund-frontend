@@ -4137,6 +4137,7 @@
                             .then(function () {
                                 toast(h + ltr(" ঘন্টার অনুমতি দেওয়া হল"), "ok");
                                 loadAccess();
+                                loadNotif();
                             })
                             .catch(function (e) {
                                 toast(e.message, "er");
@@ -4154,6 +4155,7 @@
                             .then(function () {
                                 toast(ltr("নাকচ করা হল"), "ok");
                                 loadAccess();
+                                loadNotif();
                             })
                             .catch(function (e) {
                                 toast(e.message, "er");
@@ -5189,6 +5191,7 @@
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("notifSheet").classList.add("on");
+            loadNotif();
 
             NK.GET("/api/notifications").then(function (n) {
                 var items = n.items || [];
