@@ -2476,18 +2476,19 @@
 
         var ACUST = null;
         var acTab = "running";
+        var acSearchTerm = "";
+        var amtSearchTimer = null;
 
         function drawAmtCustomers(d) {
             ACUST = d;
             acTab = "running";
+            acSearchTerm = "";
             renderAmtCust();
         }
 
         function renderAmtCust() {
             var d = ACUST;
             if (!d) return;
-
-            var list = d[acTab] || [];
 
             var h = "";
 
@@ -2505,8 +2506,58 @@
                 '>' + ltr('শোধ') + ' (' + (d.completed || []).length + ')</button>';
             h += '</div>';
 
+            /* খুঁজুন */
+            h += '<div class="search" style="margin:12px 0;">';
+            h += '<span class="ic">🔍</span>';
+            h += '<input id="amtSearch" type="search" placeholder="' + ltr('নাম / ফোন খুঁজুন') +
+                '" value="' + NK.esc(acSearchTerm) + '">';
+            h += '</div>';
+
+            h += '<div id="amtCustListBox"></div>';
+
+            q("amtBody").innerHTML = h;
+
+            /* ট্যাব বদল */
+            Array.prototype.forEach.call(q("amtBody").querySelectorAll("[data-at]"), function (b) {
+                b.addEventListener("click", function () {
+                    acTab = b.getAttribute("data-at");
+                    renderAmtCust();
+                });
+            });
+
+            /* বক্সে ফিরুন */
+            q("amtBack").addEventListener("click", function () {
+                openAmtPage(AMT_MKT, AMT_MNAME);
+            });
+
+            /* খুঁজুন — টাইপ করার সময় শুধু তালিকাটাই আবার আঁকি, সার্চ বক্স নয়
+               (নাহলে প্রতি অক্ষরে ফোকাস হারিয়ে যাবে) */
+            q("amtSearch").addEventListener("input", function () {
+                acSearchTerm = q("amtSearch").value;
+                clearTimeout(amtSearchTimer);
+                amtSearchTimer = setTimeout(drawAmtCustList, 300);
+            });
+
+            drawAmtCustList();
+        }
+
+        function drawAmtCustList() {
+            var d = ACUST;
+            if (!d) return;
+
+            var list = d[acTab] || [];
+            var s = (acSearchTerm || "").trim().toLowerCase();
+            if (s) {
+                list = list.filter(function (c) {
+                    return (c.customerName || "").toLowerCase().indexOf(s) !== -1
+                        || (c.customerPhone || "").toLowerCase().indexOf(s) !== -1;
+                });
+            }
+
+            var h = "";
             if (!list.length) {
-                h += '<div class="card"><div class="empty">' + ltr('এই তালিকায় কেউ নেই') + '</div></div>';
+                h += '<div class="card"><div class="empty">' +
+                    (s ? ltr('খুঁজে পাওয়া যায়নি') : ltr('এই তালিকায় কেউ নেই')) + '</div></div>';
             } else {
                 h += '<div class="list">';
                 list.forEach(function (c) {
@@ -2528,23 +2579,10 @@
                 h += '</div>';
             }
 
-            q("amtBody").innerHTML = h;
-
-            /* ট্যাব বদল */
-            Array.prototype.forEach.call(q("amtBody").querySelectorAll("[data-at]"), function (b) {
-                b.addEventListener("click", function () {
-                    acTab = b.getAttribute("data-at");
-                    renderAmtCust();
-                });
-            });
-
-            /* বক্সে ফিরুন */
-            q("amtBack").addEventListener("click", function () {
-                openAmtPage(AMT_MKT, AMT_MNAME);
-            });
+            q("amtCustListBox").innerHTML = h;
 
             /* টাকা নেওয়া */
-            bindPay(q("amtBody"));
+            bindPay(q("amtCustListBox"));
         }
 
         q("amtClose").addEventListener("click", function () {
