@@ -255,6 +255,56 @@
             border: 2px solid #ff4444 !important;
             box-shadow: 0 0 4px rgba(255, 68, 68, 0.3);
         }
+
+        /* ---- নিচের ট্যাব — প্রতিটা আলাদা রঙের বক্স, টাচ করলে উপরে উঠবে ---- */
+        .tabs {
+            background: #F7F9FC;
+            gap: 3px;
+            padding: 7px 4px calc(6px + env(safe-area-inset-bottom));
+        }
+        .tabs button {
+            margin: 0 2px;
+            border-radius: 16px;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1),
+                        box-shadow .22s, background .22s, color .18s;
+        }
+        .tabs button i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            transition: background .18s, transform .18s;
+        }
+
+        .tabs button:nth-child(1) { background: #EAF1FE; }
+        .tabs button:nth-child(2) { background: #F3E8FF; }
+        .tabs button:nth-child(3) { background: #E7F6EC; }
+        .tabs button:nth-child(4) { background: #FEF3C7; }
+        .tabs button:nth-child(5) { background: #E2E8F0; }
+
+        .tabs button:nth-child(1) i { background: rgba(37,99,235,.15); }
+        .tabs button:nth-child(2) i { background: rgba(124,58,237,.15); }
+        .tabs button:nth-child(3) i { background: rgba(22,163,74,.15); }
+        .tabs button:nth-child(4) i { background: rgba(217,119,6,.15); }
+        .tabs button:nth-child(5) i { background: rgba(71,85,105,.15); }
+
+        /* সক্রিয় ট্যাব — উপরে উঠে যাবে, রং গাঢ় হবে, ছায়া পড়বে */
+        .tabs button.on {
+            transform: translateY(-9px);
+            color: #fff;
+        }
+        .tabs button.on i { background: rgba(255,255,255,.28); transform: scale(1.06); }
+
+        .tabs button:nth-child(1).on { background: linear-gradient(150deg,#3B82F6,#2563EB); box-shadow: 0 10px 18px -6px rgba(37,99,235,.5); }
+        .tabs button:nth-child(2).on { background: linear-gradient(150deg,#A855F7,#7C3AED); box-shadow: 0 10px 18px -6px rgba(124,58,237,.5); }
+        .tabs button:nth-child(3).on { background: linear-gradient(150deg,#22C55E,#16A34A); box-shadow: 0 10px 18px -6px rgba(22,163,74,.5); }
+        .tabs button:nth-child(4).on { background: linear-gradient(150deg,#F59E0B,#D97706); box-shadow: 0 10px 18px -6px rgba(217,119,6,.5); }
+        .tabs button:nth-child(5).on { background: linear-gradient(150deg,#64748B,#475569); box-shadow: 0 10px 18px -6px rgba(71,85,105,.5); }
+
+        .tabs button:active { transform: translateY(-3px) scale(.97); }
+        .tabs button.on:active { transform: translateY(-9px) scale(.97); }
     </style>
 </head>
 <body>
