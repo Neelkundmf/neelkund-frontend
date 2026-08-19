@@ -1103,6 +1103,70 @@
             opacity: .6;
         }
 
+        /* ---- অনুমোদিত কিন্তু সইয়ের ছবি এখনও বাকি — কার্ড ---- */
+        .pend-eyebrow {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 18px 16px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pend-eyebrow .n {
+            background: var(--red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 999px;
+        }
+        .pend-card {
+            background: linear-gradient(155deg, #FFFBEB, #FEF3C7);
+            border: 1.5px solid #F3D98B;
+            border-radius: 18px;
+            padding: 14px;
+            margin: 0 16px 10px;
+            box-shadow: 0 10px 22px -16px rgba(217,119,6,.35);
+        }
+        .pend-top {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+        .pend-avatar {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(155deg, #D97706, #B45309);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 16px;
+            flex-shrink: 0;
+        }
+        .pend-info { flex: 1; min-width: 0; }
+        .pend-name { font-size: 14.5px; font-weight: 800; color: var(--ink); }
+        .pend-sub { font-size: 11.5px; color: #92600A; font-weight: 600; margin-top: 1px; }
+        .pend-amt { font-size: 15px; font-weight: 800; color: #B45309; white-space: nowrap; }
+        .pend-btn {
+            margin-top: 12px;
+            width: 100%;
+            background: linear-gradient(150deg, #F59E0B, #D97706);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 11px;
+            font-size: 13.5px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            box-shadow: 0 8px 16px -8px rgba(217,119,6,.5);
+            cursor: pointer;
+        }
+        .pend-btn:active { transform: translateY(1px); }
+
         /* ---- উপরের প্যানেল — লোগোর রঙের সাথে মেলানো (নীল > টিল > সবুজ), এজেন্টের ছবি/নাম/কোড/শাখা ---- */
         .topbar {
             flex-direction: column;
@@ -1586,6 +1650,8 @@
                 <h2 style="margin-bottom:14px;">💰 আমার বিতরণ</h2>
                 <div id="disbStats" class="report-stats"></div>
             </div>
+
+            <div id="disbPending"></div>
 
             <div id="disbBody"><div class="loading">লোড হচ্ছে...</div></div>
 
@@ -5341,12 +5407,13 @@
          * ===================================================================== */
         function loadDisb() {
             q("disbBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            q("disbPending").innerHTML = "";
 
             NK.GET("/api/disbursements/agent/today").then(function (response) {
                 // Handle both array response (direct from API) and wrapped response
                 disbState.allData = Array.isArray(response) ? response : (response.disbursements || []);
                 disbState.page = 0;
-                drawDisbStats(disbState.allData);
+                loadPendingSignatureLoans();
                 drawDisbList();
             }).catch(function (e) {
                 q("disbBody").innerHTML = '<div class="disb-empty"><div class="icon">⚠️</div><p>' +
@@ -5354,21 +5421,74 @@
             });
         }
 
-        function drawDisbStats(disbursements) {
-            // Calculate stats from the disbursements array
+        /* অনুমোদিত হয়েছে কিন্তু গ্রাহকের সইয়ের ছবি এখনও তোলা হয়নি — এমন লোন
+           (loan-requests থেকে, যেগুলোর জন্য আজকের disbursement রেকর্ড এখনও নেই) */
+        function loadPendingSignatureLoans() {
+            NK.GET("/api/loan-requests/mine").then(function (list) {
+                var since = Date.now() - 3 * 24 * 60 * 60 * 1000;
+                var doneLoanIds = {};
+                disbState.allData.forEach(function (d) {
+                    if (d.loanId) doneLoanIds[d.loanId] = true;
+                });
+
+                var pending = (list || []).filter(function (r) {
+                    return r.status === "APPROVED" && r.reviewedAt &&
+                        new Date(r.reviewedAt).getTime() > since &&
+                        r.createdLoanId && !doneLoanIds[r.createdLoanId];
+                });
+
+                drawDisbStats(pending.length);
+                drawPendingSignatureLoans(pending);
+            }).catch(function () {
+                drawDisbStats(0);
+                q("disbPending").innerHTML = "";
+            });
+        }
+
+        function drawPendingSignatureLoans(pending) {
+            var box = q("disbPending");
+            if (!pending.length) { box.innerHTML = ""; return; }
+
+            var h = '<div class="pend-eyebrow">✅ ' + ltr("অনুমোদিত — সইয়ের ছবি বাকি") +
+                '<span class="n">' + pending.length + '</span></div>';
+
+            pending.forEach(function (r) {
+                var initial = NK.esc((r.customerName || "?").charAt(0));
+                h += '<div class="pend-card">';
+                h += '<div class="pend-top">';
+                h += '<div class="pend-avatar">' + initial + '</div>';
+                h += '<div class="pend-info">';
+                h += '<div class="pend-name">' + NK.esc(r.customerName || "—") + '</div>';
+                h += '<div class="pend-sub">' +
+                    (r.reviewedAt ? NK.dtTime(r.reviewedAt) + ltr('-এ অনুমোদিত') : '') + '</div>';
+                h += '</div>';
+                h += '<div class="pend-amt">' + NK.inr(r.principal) + '</div>';
+                h += '</div>';
+                h += '<button class="pend-btn" data-signloan="' + r.id + '">📷 ' +
+                    ltr('ছবি তুলে টাকা দিন') + '</button>';
+                h += '</div>';
+            });
+
+            box.innerHTML = h;
+
+            Array.prototype.forEach.call(box.querySelectorAll("[data-signloan]"), function (btn) {
+                btn.addEventListener("click", function () {
+                    var id = Number(btn.getAttribute("data-signloan"));
+                    var r = pending.filter(function (x) { return x.id === id; })[0];
+                    if (r) showLoanApprovalSuccess(r);
+                });
+            });
+        }
+
+        function drawDisbStats(pendingSignatureCount) {
+            // Calculate stats from the disbursements array (শুধু সত্যিই সম্পন্ন হওয়া রেকর্ড)
             var totalAmount = 0;
-            var approvedCount = 0;
             var completedCount = 0;
 
-            disbursements.forEach(function (disb) {
+            disbState.allData.forEach(function (disb) {
                 var statusLower = (disb.status || '').toLowerCase();
-                if (statusLower === 'approved' || statusLower === 'completed') {
-                    totalAmount += (disb.amount || 0);
-                }
-                if (statusLower === 'approved') {
-                    approvedCount++;
-                }
                 if (statusLower === 'completed') {
+                    totalAmount += (disb.amount || 0);
                     completedCount++;
                 }
             });
@@ -5382,7 +5502,7 @@
 
             h += '<div class="report-stat-card">';
             h += '<div class="l">' + ltr("অনুমোদিত সংখ্যা") + '</div>';
-            h += '<div class="v">' + approvedCount + '</div>';
+            h += '<div class="v">' + pendingSignatureCount + '</div>';
             h += '</div>';
 
             h += '<div class="report-stat-card">';
@@ -5392,7 +5512,7 @@
 
             h += '<div class="report-stat-card">';
             h += '<div class="l">' + ltr("মোট সংখ্যা") + '</div>';
-            h += '<div class="v">' + (disbursements.length || 0) + '</div>';
+            h += '<div class="v">' + (disbState.allData.length || 0) + '</div>';
             h += '</div>';
 
             q("disbStats").innerHTML = h;
@@ -5881,6 +6001,10 @@
             window.pendingLoanId = null;
             window.pendingAmount = null;
             window.pendingCustomerId = null;
+
+            // "বিতরণ" ট্যাব আগে দেখা থাকলে পরের বার নতুন করে লোড হোক —
+            // নাহলে যে লোনটার সই এইমাত্র হলো সেটা "বাকি" তালিকায় থেকে যেত
+            loaded.disb = false;
 
             show("today");
             loadToday();
