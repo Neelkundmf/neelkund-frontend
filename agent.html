@@ -1678,20 +1678,6 @@
     </div>
 </div>
 
-<!-- ================= ম্যাপে pin বসানো ================= -->
-<div id="mapWrap" style="position:fixed;inset:0;z-index:300;display:none;background:#fff;">
-    <div style="position:absolute;top:0;left:0;right:0;z-index:10;background:var(--navy);color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:12px;">
-        <button id="mapClose" style="width:38px;height:38px;background:rgba(255,255,255,.12);border:0;border-radius:10px;color:#fff;font-size:18px;cursor:pointer;">←</button>
-        <b style="flex:1;font-size:15px;">pin টেনে বাড়ির উপর বসান</b>
-    </div>
-
-    <div id="mapBox" style="position:absolute;top:0;bottom:76px;left:0;right:0;"></div>
-
-    <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:14px 16px calc(14px + env(safe-area-inset-bottom));">
-        <div id="mapAddr" style="font-size:12.5px;color:var(--muted);margin-bottom:10px;min-height:18px;">ঠিকানা খোঁজা হচ্ছে...</div>
-        <button class="btn block" id="mapOk">✓ এই জায়গা ঠিক আছে</button>
-    </div>
-</div>
 <!-- ================= মার্কেটের অঙ্ক-বক্স পাতা ================= -->
 <div id="amtPage">
     <!-- ================= কাস্টমার পেমেন্ট পাতা ================= -->
@@ -3850,71 +3836,6 @@
 
         /* ---- নতুন গ্রাহকের GPS + ম্যাপ ---- */
         var NGPS = null;
-
-        var _map = null, _marker = null, _addrTimer = null, _onOk = null;
-
-        function openMap(startLat, startLng, onOk) {
-            _onOk = onOk;
-            q("mapWrap").style.display = "block";
-
-            var lat = startLat || 22.5726, lng = startLng || 88.3639;
-
-            if (!_map) {
-                _map = new google.maps.Map(q("mapBox"), {
-                    center: { lat: lat, lng: lng },
-                    zoom: 17
-                });
-
-                _marker = new google.maps.Marker({
-                    position: { lat: lat, lng: lng },
-                    map: _map,
-                    draggable: true
-                });
-
-                _marker.addListener("dragend", function () {
-                    var p = _marker.getPosition();
-                    fetchAddr(p.lat(), p.lng());
-                });
-            } else {
-                _map.setCenter({ lat: lat, lng: lng });
-                _map.setZoom(17);
-                _marker.setPosition({ lat: lat, lng: lng });
-            }
-
-            setTimeout(function () { google.maps.event.trigger(_map, "resize"); }, 200);
-
-            fetchAddr(lat, lng);
-        }
-
-        function fetchAddr(lat, lng) {
-            q("mapAddr").textContent = ltr("ঠিকানা খোঁজা হচ্ছে...");
-            clearTimeout(_addrTimer);
-
-            _addrTimer = setTimeout(function () {
-                var geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
-                    if (status === "OK" && results[0]) {
-                        _map._lastAddr = results[0].formatted_address;
-                        q("mapAddr").textContent = _map._lastAddr;
-                    } else {
-                        _map._lastAddr = "";
-                        q("mapAddr").textContent = ltr("ঠিকানা পাওয়া যায়নি — pin ঠিক আছে");
-                    }
-                });
-            }, 400);
-        }
-
-        q("mapClose").addEventListener("click", function () {
-            q("mapWrap").style.display = "none";
-        });
-
-        q("mapOk").addEventListener("click", function () {
-            if (_marker && _onOk) {
-                var p = _marker.getPosition();
-                _onOk(p.lat(), p.lng(), _map._lastAddr || "");
-            }
-            q("mapWrap").style.display = "none";
-        });
 
         /* ---- "লোকেশন নিন" ---- */
         q("n_gps").addEventListener("click", function () {
