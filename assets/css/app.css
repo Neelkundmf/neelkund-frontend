@@ -211,25 +211,57 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
 
-    min-height: 82px;
+    min-height: 86px;
     padding: 12px 6px;
 
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 12px;
+    border: 1px solid rgba(15,41,66,.06);
+    border-radius: 16px;
+    box-shadow: 0 6px 14px -8px rgba(15,41,66,.18);
 
     color: var(--ink);
     font-family: inherit;
     font-size: 11.5px;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
 
     cursor: pointer;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s, background .18s;
 }
-.menu-grid button i { font-style: normal; font-size: 22px; }
-.menu-grid button:active { background: #E9EEF3; }
+.menu-grid button i {
+    font-style: normal;
+    font-size: 19px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,41,66,.06);
+    transition: transform .18s;
+}
+
+/* ৬-রঙের চক্র — যতগুলোই বাটন থাকুক (১৯টা হোক বা ২টা), ঘুরে ঘুরে রং বসবে */
+.menu-grid button:nth-child(6n+1) { background: #EAF1FE; }
+.menu-grid button:nth-child(6n+2) { background: #E7F6EC; }
+.menu-grid button:nth-child(6n+3) { background: #F3E8FF; }
+.menu-grid button:nth-child(6n+4) { background: #FEF3C7; }
+.menu-grid button:nth-child(6n+5) { background: #CCFBF1; }
+.menu-grid button:nth-child(6n)   { background: #FCE7F3; }
+
+.menu-grid button:nth-child(6n+1) i { background: rgba(37,99,235,.16); }
+.menu-grid button:nth-child(6n+2) i { background: rgba(22,163,74,.16); }
+.menu-grid button:nth-child(6n+3) i { background: rgba(124,58,237,.16); }
+.menu-grid button:nth-child(6n+4) i { background: rgba(217,119,6,.16); }
+.menu-grid button:nth-child(6n+5) i { background: rgba(13,148,136,.16); }
+.menu-grid button:nth-child(6n)   i { background: rgba(219,39,119,.16); }
+
+.menu-grid button:active {
+    transform: translateY(-4px) scale(.98);
+    box-shadow: 0 10px 18px -8px rgba(15,41,66,.28);
+}
+.menu-grid button:active i { transform: scale(1.08); }
 
 @keyframes fade { from { opacity: 0; } }
 @keyframes up   { from { transform: translateY(100%); } }
