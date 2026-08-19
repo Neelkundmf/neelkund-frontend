@@ -157,6 +157,22 @@ select:not([multiple]) {
 select:hover:not([multiple]) { border-color: #A9BCD6; }
 select:active:not([multiple]) { transform: scale(.99); }
 
+/* খোলা ড্রপডাউনের লিস্টও রঙিন — Android/Chrome-এ option-এর background/color ধরে,
+   বাকি ডিজাইন (radius/shadow) ফোন/OS নিজে ঠিক করে, সেটা বদলানো যায় না */
+select:not([multiple]) option {
+    padding: 10px 12px;
+    background: #fff;
+    color: var(--ink);
+    font-weight: 600;
+}
+select:not([multiple]) option:checked {
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+select:not([multiple]) option:disabled {
+    color: var(--muted);
+}
+
 /* বহু-বাছাই (multiple) ড্রপডাউন — নকল তীর ছাড়া, শুধু আধুনিক বর্ডার/রাউন্ড */
 select[multiple] {
     width: 100%;
