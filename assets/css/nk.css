@@ -104,7 +104,6 @@ a { color: var(--blue); text-decoration: none; }
 }
 
 .fld input,
-.fld select,
 .fld textarea {
     width: 100%;
     min-height: var(--tap);
@@ -120,12 +119,62 @@ a { color: var(--blue); text-decoration: none; }
 }
 
 .fld input:focus,
-.fld select:focus,
 .fld textarea:focus {
     outline: 0;
     border-color: var(--navy);
     box-shadow: 0 0 0 3px rgba(15,41,66,.08);
 }
+
+/* ---------------- ড্রপডাউন — কাস্টম তীর, নরম রং, ইনপুট থেকে আলাদা লুক ----------------
+   .fld-এর ভেতরে-বাইরে যেকোনো <select> — যেখানেই ইনলাইন style না থাকবে সেখানেই কাজ করবে */
+select:not([multiple]) {
+    width: 100%;
+    min-height: var(--tap);
+    padding: 12px 40px 12px 14px;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background-color: #fff;
+    background-image:
+        radial-gradient(circle, rgba(37,99,235,.12) 0%, rgba(37,99,235,.12) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' stroke='%232563EB' stroke-width='1.7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat;
+    background-position: right 8px center, right 15px center;
+    background-size: 26px 26px, 11px 11px;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+
+    cursor: pointer;
+    transition: border-color .18s, box-shadow .18s, transform .1s;
+}
+select:hover:not([multiple]) { border-color: #A9BCD6; }
+select:active:not([multiple]) { transform: scale(.99); }
+
+/* বহু-বাছাই (multiple) ড্রপডাউন — নকল তীর ছাড়া, শুধু আধুনিক বর্ডার/রাউন্ড */
+select[multiple] {
+    width: 100%;
+    padding: 8px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink);
+}
+
+select:focus {
+    outline: 0;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(15,41,66,.08);
+}
+select:disabled { opacity: .55; cursor: not-allowed; }
 
 .fld .hint {
     font-size: 12.5px;

@@ -1390,12 +1390,12 @@
             <div class="card">
                 <h2 style="margin-bottom:14px;">নতুন গ্রাহক</h2>
                 <div class="fld"><label>শাখা</label>
-                    <select id="n_branch" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink);">
+                    <select id="n_branch">
                         <option value="">— বাছুন —</option>
                     </select>
                 </div>
                 <div class="fld"><label>মার্কেট *</label>
-                    <select id="n_market" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink);">
+                    <select id="n_market">
                         <option value="">— বাছুন —</option>
                     </select>
                 </div>
@@ -1571,7 +1571,7 @@
                         </div>
                     </div>
 
-                    <select id="mktDetailDropdown" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; background: white; cursor: pointer; margin-bottom: 20px;">
+                    <select id="mktDetailDropdown" style="width: 100%; margin-bottom: 20px;">
                         <option value="">মার্কেট নির্বাচন করুন</option>
                     </select>
 
@@ -2434,7 +2434,7 @@
 
             // Dropdown for market selection - always show
             h += '<div style="margin-bottom:16px;">';
-            h += '<select id="mktDropdown" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#fff;color:var(--ink);">';
+            h += '<select id="mktDropdown" style="width:100%;">';
             h += '<option value="">— বাছুন —</option>';
 
             if (MKT.markets && MKT.markets.length) {
