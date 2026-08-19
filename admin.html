@@ -4120,6 +4120,7 @@
                     b.addEventListener("click", function () {
                         kFor = b.getAttribute("data-doc");
                         kType = b.getAttribute("data-type");
+                        kIsStaff = false;
                         q("kycFile").value = "";
                         q("kycFile").click();
                     });
@@ -4519,6 +4520,8 @@
             q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             window.scrollTo(0, 0);
 
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "agent", panelId: id });
+
             NK.GET("/api/manager/users/" + id + "/profile").then(function (p) {
                 var a = p.agent;
                 var h = "";
@@ -4667,7 +4670,7 @@
         });
 
         var PX_REQ_ID = 0;
-        function openCustomer(id) {
+        function openCustomer(id, skipPush) {
             var myReq = ++PX_REQ_ID;
             q("profX").classList.add("on");
             q("pxCid").textContent = ltr('লোড হচ্ছে...');
@@ -4677,8 +4680,12 @@
                 // দ্রুত একাধিক গ্রাহকে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
                 if (myReq !== PX_REQ_ID) return;
 
-                // Push nav state AFTER API response to avoid race condition
-                NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+                // Push nav state AFTER API response to avoid race condition —
+                // remark-সেভের পর রিফ্রেশ করতে আবার ডাকা হলে (skipPush) নতুন করে push করবো না,
+                // নাহলে একই প্যানেলের জন্য দুটো history entry জমে ব্যাক বাটন দুবার চাপতে হতো
+                if (!skipPush) {
+                    NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: id });
+                }
 
                 var c = p.customer || {};
                 var loans = p.loans || [];
@@ -4808,7 +4815,7 @@
                         reason: q("pxReason").value.trim()
                     }).then(function () {
                         toast(ltr('Remark সংরক্ষিত হয়েছে ✓'), "ok");
-                        openCustomer(id);
+                        openCustomer(id, true);
                     }).catch(function (e) {
                         toast(e.message, "er");
                         btn.disabled = false; btn.textContent = ltr('Remark সংরক্ষণ করুন');
@@ -5427,6 +5434,8 @@
                 openBranch(e.state.panelId);
             } else if (e.state.panel === "market") {
                 openMarketDetail(e.state.panelId);
+            } else if (e.state.panel === "agent") {
+                openAgent(e.state.panelId);
             }
         } else {
             // Close all nested panels
@@ -5462,6 +5471,11 @@
                 var allUsers = NK.rows(results[0]) || [];
                 AM_AGENTS = allUsers.filter(function(u) { return u.role === "AGENT"; });
                 AM_MARKETS = results[1] || [];
+
+                /* ড্রপডাউন নতুন করে বসছে, তাই আগের এজেন্ট/মার্কেট বাছাই বাতিল —
+                   নাহলে দেখতে "কেউ বাছা নেই" কিন্তু আসলে আগেরটাই সংরক্ষণ হয়ে যেত */
+                AM_AGENT_ID = null;
+                AM_SELECTED = new Set();
 
                 var dd = document.getElementById("am_agent");
                 if (!dd) return;
