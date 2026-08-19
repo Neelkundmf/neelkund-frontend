@@ -5610,6 +5610,48 @@
 
         q("bell").addEventListener("click", openNotifSheet);
 
+        /* একাধিক লোন একসাথে অনুমোদিত হলে (তাই actionUrl-এ নির্দিষ্ট loanId নেই) —
+           কোনটা খুলবেন বেছে নেওয়ার জন্য এই sheet-টাকেই ছোট লিস্টে বদলে দিই */
+        function showApprovedLoansPicker() {
+            var box = q("notifSheetList");
+            box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            NK.GET("/api/loan-requests/mine").then(function (list) {
+                var since = Date.now() - 3 * 24 * 60 * 60 * 1000;
+                var approved = (list || []).filter(function (r) {
+                    return r.status === "APPROVED" && r.reviewedAt &&
+                        new Date(r.reviewedAt).getTime() > since;
+                });
+
+                if (!approved.length) {
+                    box.innerHTML = '<div class="card"><div class="empty">' +
+                        ltr("কোনো অনুমোদিত লোন নেই") + '</div></div>';
+                    return;
+                }
+
+                var h = '<div class="list">';
+                approved.forEach(function (r, i) {
+                    h += '<div class="item" data-apploan="' + i + '" style="cursor:pointer;">';
+                    h += '<div class="av">✅</div>';
+                    h += '<div class="mid"><b>' + NK.esc(r.customerName) + '</b>' +
+                        '<span>' + NK.inr(r.principal) + ' — ' + ltr('টাকা দিতে পারেন') + '</span></div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+                box.innerHTML = h;
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-apploan]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var r = approved[Number(el.getAttribute("data-apploan"))];
+                        q("notifSheet").classList.remove("on");
+                        if (r.createdLoanId) openLoanDetail(r.createdLoanId);
+                    });
+                });
+            }).catch(function (e) {
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
         /* notifSheet-এর ভেতরের ও বাইরের (background) টাচ — document-এ একবারই
            বাঁধা হয় (event delegation), তাই #notifSheet পাতায় পরে যোগ হলেও
            (HTML-এ script-এর নিচে থাকায়) কাজ করবে — সরাসরি বাঁধলে null আসত */
@@ -5622,16 +5664,23 @@
             if (!goEl) return;
             var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
             if (!it) return;
-            q("notifSheet").classList.remove("on");
 
             /* একটাই লোন অনুমোদিত হলে actionUrl-এ loanId থাকে — সরাসরি সেই
-               লোনের পাতা খুলি, নাহলে সংশ্লিষ্ট ট্যাবে যাই */
+               লোনের পাতা খুলি */
             var loanMatch = /[?&]loanId=(\d+)/.exec(it.actionUrl || "");
             if (loanMatch) {
+                q("notifSheet").classList.remove("on");
                 openLoanDetail(Number(loanMatch[1]));
                 return;
             }
 
+            /* একাধিক লোন অনুমোদিত হলে (loanId নেই) — পিকার দেখাই, sheet বন্ধ করবো না */
+            if (it.type === "LOAN_APPROVED") {
+                showApprovedLoansPicker();
+                return;
+            }
+
+            q("notifSheet").classList.remove("on");
             var navKey = notifNavKey(it.actionUrl);
             if (navKey) show(navKey);
         });
