@@ -5101,9 +5101,8 @@
             })
                 .then(function (res) {
                     if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
-                    return res.json();
                 })
-                .then(function (data) {
+                .then(function () {
                     toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
                     setTimeout(function () {
                         openLoanDetail(loanId);
@@ -5902,7 +5901,6 @@
                 })
                     .then(function (res) {
                         if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
-                        return res.json();
                     })
                     .then(function () {
                         statusEl.textContent = ltr("✓ সংরক্ষিত হয়েছে");
