@@ -2094,6 +2094,10 @@
                 // Close all nested panels
                 q("loanX").classList.remove("on");
                 q("prof").classList.remove("on");
+                q("pay").classList.remove("on");
+                q("payPage").classList.remove("on");
+                q("amtPage").classList.remove("on");
+                q("notifSheet").classList.remove("on");
             }
         });
 
@@ -2390,11 +2394,12 @@
             });
 
             q("pay").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "pay" });
             setTimeout(function () { q("payAmt").focus(); }, 300);
         }
 
         q("payBg").addEventListener("click", function () {
-            q("pay").classList.remove("on");
+            history.back();
         });
 
         q("payGo").addEventListener("click", function () {
@@ -2421,7 +2426,7 @@
             if (!navigator.onLine) {
                 addPend(entry);
                 toast(ltr("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন"), "in");
-                q("pay").classList.remove("on");
+                history.back();
                 b.disabled = false;
                 b.textContent = ltr("জমা নিন");
                 return;
@@ -2436,7 +2441,7 @@
             })
                 .then(function () {
                     toast(NK.inr(amt) + " " + ltr("জমা হয়েছে ✓"), "ok");
-                    q("pay").classList.remove("on");
+                    history.back();
                     loadToday();
                     loaded.cust = false;
                     loaded.od = false;
@@ -2446,7 +2451,7 @@
                     if (!e.status) {
                         addPend(entry);
                         toast(ltr("ফোনে জমা রাখা হল"), "in");
-                        q("pay").classList.remove("on");
+                        history.back();
                     } else {
                         toast(e.message, "er");
                     }
@@ -2828,7 +2833,7 @@
         }
 
         q("amtClose").addEventListener("click", function () {
-            q("amtPage").classList.remove("on");
+            history.back();
         });
         /* =====================================================================
          * এজেন্ট ড্যাশবোর্ড — অঙ্ক অনুযায়ী বক্স (২০০০...১০০০০)
@@ -2896,6 +2901,9 @@
                     toast(ltr("আপনার অধীনে কোনো মার্কেট বসানো নেই"), "er");
                     return;
                 }
+
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "amt" });
+
                 if (mkts.length === 1) {
                     AMT_MKT = mkts[0].marketId;
                     AMT_MNAME = mkts[0].marketName || ltr("মার্কেট");
@@ -3134,6 +3142,7 @@
             PAY_NAME = name || (NK.getLang() === "en" ? "Customer" : "গ্রাহক");
 
             q("payPage").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "payPage" });
             q("payPageBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             window.scrollTo(0, 0);
 
@@ -3257,7 +3266,7 @@
         }
 
         q("payPageClose").addEventListener("click", function () {
-            q("payPage").classList.remove("on");
+            history.back();
         });
         /* ---- আসল টাকা জমা ---- */
         function doPay(amount, okMsg) {
@@ -5628,6 +5637,7 @@
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("notifSheet").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "notif" });
 
             /* বেল খুলে দেখলেই "দেখা হয়েছে" মার্ক হয় — এই ইউজারের জন্য আলাদা,
                এরপর বেলের পাশের লাল সংখ্যা রিফ্রেশ করি */
@@ -5711,7 +5721,7 @@
            (HTML-এ script-এর নিচে থাকায়) কাজ করবে — সরাসরি বাঁধলে null আসত */
         document.addEventListener("click", function (e) {
             if (e.target && e.target.id === "notifSheetBg") {
-                q("notifSheet").classList.remove("on");
+                history.back();
                 return;
             }
             var goEl = e.target.closest ? e.target.closest("[data-notifgo]") : null;
