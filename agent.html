@@ -2274,7 +2274,7 @@
                 var byId = {};
                 all.forEach(function (m) { byId[m.id] = m; });
 
-                NEW_CUST_MARKETS = mine.map(function (m) {
+                NEW_CUST_MARKETS = mine.filter(function (m) { return m.marketId; }).map(function (m) {
                     var full = byId[m.marketId];
                     return {
                         marketId: m.marketId,
@@ -2285,6 +2285,10 @@
                 });
 
                 drawNewCustBranches();
+
+                if (!NEW_CUST_MARKETS.length) {
+                    say("nMsg", ltr("আপনার কোনো মার্কেট নেই — অ্যাডমিনকে জানান"), false);
+                }
             }).catch(function () {});
         }
 
