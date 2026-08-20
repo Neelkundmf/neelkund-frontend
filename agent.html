@@ -2472,8 +2472,8 @@
         };
 
         function loadMkt() {
-            NK.GET("/api/markets/all").then(function (d) {
-                MKT = { markets: d || [] };
+            NK.GET("/api/agent/my-markets").then(function (d) {
+                MKT = { markets: (d && d.markets) ? d.markets : [] };
                 drawMkt();
             }).catch(function (e) {
                 console.error("মার্কেট লোড ব্যর্থ:", e);
@@ -2499,8 +2499,8 @@
 
             if (MKT.markets && MKT.markets.length) {
                 MKT.markets.forEach(function (m) {
-                    h += '<option value="' + NK.esc(m.id || "") + '" data-name="' + NK.esc(m.name) + '">' +
-                        NK.esc(m.name) + '</option>';
+                    h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
+                        NK.esc(m.marketName) + '</option>';
                 });
             }
 
@@ -2517,9 +2517,9 @@
                 dropdown.addEventListener("change", function () {
                     var mktId = dropdown.value;
                     if (mktId) {
-                        var mkt = MKT.markets.find(function(m) { return m.id == mktId; });
+                        var mkt = MKT.markets.find(function(m) { return m.marketId == mktId; });
                         if (mkt) {
-                            openMarketDetailPage(mktId, mkt.name);
+                            openMarketDetailPage(mktId, mkt.marketName);
                         }
                     }
                 });
