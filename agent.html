@@ -3135,9 +3135,11 @@
         var PAY_LOAN = null;
         var PAY_NAME = "";
         var PAY_STATUS = null;
+        var PAY_REQ_ID = 0;
         var PAY_ROW = null;
 
         function openPayPage(loanId, name) {
+            var myReq = ++PAY_REQ_ID;
             PAY_LOAN = loanId;
             PAY_NAME = name || (NK.getLang() === "en" ? "Customer" : "গ্রাহক");
 
@@ -3148,10 +3150,13 @@
 
             NK.GET("/api/payments/loan/" + loanId + "/status")
                 .then(function (s) {
+                    // দ্রুত একাধিক গ্রাহকে টাচ করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
+                    if (myReq !== PAY_REQ_ID) return;
                     PAY_STATUS = s;
                     drawPayPage(s);
                 })
                 .catch(function (e) {
+                    if (myReq !== PAY_REQ_ID) return;
                     q("payPageBody").innerHTML =
                         '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
                 });
