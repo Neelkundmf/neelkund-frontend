@@ -4549,12 +4549,12 @@
                 NK.GET("/api/manager/users/" + id + "/profile"),
                 NK.GET("/api/admin/users/" + id + "/markets").catch(function () { return []; }),
                 NK.GET("/api/markets/all").catch(function () { return []; }),
-                NK.GET("/api/manager/users/" + id + "/customers-without-market").catch(function () { return []; })
+                NK.GET("/api/manager/users/" + id + "/customers").catch(function () { return []; })
             ]).then(function (results) {
                 var p = results[0];
                 var assignedMarketIds = results[1] || [];
                 var allMarkets = results[2] || [];
-                var noMarketCustomers = results[3] || [];
+                var allCustomers = results[3] || [];
                 var marketNameById = {};
                 allMarkets.forEach(function (m) { marketNameById[m.id] = m.name; });
                 var assignedMarketNames = assignedMarketIds.map(function (mid) {
@@ -4562,6 +4562,11 @@
                 });
                 var myMarketOptions = allMarkets.filter(function (m) {
                     return assignedMarketIds.indexOf(m.id) !== -1;
+                });
+                var customersByMarketKey = {};
+                allCustomers.forEach(function (c) {
+                    var key = String(c.marketId);
+                    (customersByMarketKey[key] = customersByMarketKey[key] || []).push(c);
                 });
 
                 var a = p.agent;
@@ -4646,7 +4651,7 @@
                     h += '<div class="list">';
 
                     p.markets.forEach(function (m) {
-                        var noMarket = !m.marketId;
+                        var rowCustomers = customersByMarketKey[String(m.marketId)] || [];
                         h += '<div class="item">';
                         h += '<div class="av">🏬</div>';
                         h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
@@ -4657,14 +4662,15 @@
                             NK.inrShort(m.todayDue) + '</span></div>';
                         h += '</div>';
 
-                        if (noMarket && noMarketCustomers.length) {
+                        if (rowCustomers.length) {
                             h += '<div style="margin:-4px 0 8px;">';
-                            noMarketCustomers.forEach(function (c) {
+                            rowCustomers.forEach(function (c) {
                                 h += '<div class="card" id="cmktCard' + c.id + '" style="padding:12px;margin-bottom:8px;">';
                                 h += '<div style="margin-bottom:8px;"><b>' + NK.esc(c.fullName) + '</b>' +
                                     '<span style="color:var(--muted);font-size:12.5px;"> · ' + NK.esc(c.phone) + '</span></div>';
                                 h += '<div style="display:flex;gap:8px;">';
                                 h += '<select data-cmkt="' + NK.esc(c.id) + '" style="flex:1;"><option value="">' + ltr('মার্কেট বেছে নিন') + '</option>';
+                                h += '<option value="clear">' + ltr('❌ কোনো মার্কেট না') + '</option>';
                                 myMarketOptions.forEach(function (mo) {
                                     h += '<option value="' + NK.esc(mo.id) + '">' + NK.esc(mo.name) + '</option>';
                                 });
@@ -4702,20 +4708,21 @@
 
                 q("pBody").innerHTML = h;
 
-                /* "মার্কেট বসানো নেই"-এর নিচের প্রতিটা গ্রাহকের নিজস্ব ড্রপডাউন —
-                   যে যেই মার্কেটে যাবে, আলাদা আলাদা করে বাছা যায় */
+                /* "মার্কেট অনুযায়ী"-এর নিচে প্রতিটা গ্রাহকের নিজস্ব ড্রপডাউন —
+                   যে যেই মার্কেটে যাবে (বা মার্কেট সরাতে চাইলে) আলাদা আলাদা করে বাছা যায় */
                 Array.prototype.forEach.call(q("pBody").querySelectorAll("[data-csave]"), function (btn) {
                     btn.addEventListener("click", function () {
                         var cid = btn.getAttribute("data-csave");
                         var sel = q("pBody").querySelector('[data-cmkt="' + cid + '"]');
-                        var marketId = sel ? sel.value : "";
-                        if (!marketId) {
+                        var val = sel ? sel.value : "";
+                        if (!val) {
                             say("cmktMsg" + cid, ltr("মার্কেট বেছে নিন"), false);
                             return;
                         }
+                        var marketId = (val === "clear") ? null : Number(val);
                         btn.disabled = true;
                         btn.textContent = "...";
-                        NK.PATCH("/api/customers/" + cid + "/market", { marketId: Number(marketId) }).then(function () {
+                        NK.PATCH("/api/customers/" + cid + "/market", { marketId: marketId }).then(function () {
                             say("cmktMsg" + cid, ltr("✓ হয়ে গেছে"), true);
                             var card = q("cmktCard" + cid);
                             if (card) setTimeout(function () { card.style.display = "none"; }, 800);
