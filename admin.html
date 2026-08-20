@@ -4662,6 +4662,13 @@
                             NK.inrShort(m.todayDue) + '</span></div>';
                         h += '</div>';
 
+                        if (m.marketId && rowCustomers.length) {
+                            h += '<div style="margin:-4px 0 8px;padding:0 2px;">';
+                            h += '<button class="btn ghost sm" data-clearall="' + NK.esc(m.marketId) + '" style="font-size:11.5px;">' +
+                                ltr('❌ এই মার্কেট থেকে সবাইকে সরান (') + rowCustomers.length + ltr(' জন)') + '</button>';
+                            h += '</div>';
+                        }
+
                         if (rowCustomers.length) {
                             h += '<div style="margin:-4px 0 8px;">';
                             rowCustomers.forEach(function (c) {
@@ -4730,6 +4737,28 @@
                             say("cmktMsg" + cid, e.message, false);
                             btn.disabled = false;
                             btn.textContent = ltr("সেভ");
+                        });
+                    });
+                });
+
+                /* এক-টাচে একটা মার্কেটের সব গ্রাহকের মার্কেট সরানো */
+                Array.prototype.forEach.call(q("pBody").querySelectorAll("[data-clearall]"), function (btn) {
+                    btn.addEventListener("click", function () {
+                        var mid = btn.getAttribute("data-clearall");
+                        var targets = customersByMarketKey[mid] || [];
+                        if (!targets.length) return;
+                        if (!confirm(ltr(targets.length + " জন গ্রাহকের মার্কেট সরাবেন?"))) return;
+                        btn.disabled = true;
+                        btn.textContent = "...";
+                        Promise.all(targets.map(function (c) {
+                            return NK.PATCH("/api/customers/" + c.id + "/market", { marketId: null });
+                        })).then(function () {
+                            toast(ltr("✓ সরানো হয়েছে"), "ok");
+                            setTimeout(function () { openAgent(id); }, 900);
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                            btn.disabled = false;
+                            btn.textContent = ltr('❌ এই মার্কেট থেকে সবাইকে সরান (') + targets.length + ltr(' জন)');
                         });
                     });
                 });
