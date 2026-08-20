@@ -990,6 +990,15 @@
     </div>
 </div>
 
+<div id="noMktSheet">
+    <div class="bg" id="noMktSheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3>🏬 মার্কেট বসানো নেই</h3>
+        <div id="noMktSheetList"></div>
+    </div>
+</div>
+
 <!-- ================= লোন ডিটেইল ================= -->
 <div id="loanX">
     <div class="lbar">
@@ -4537,6 +4546,76 @@
         /* =====================================================================
    * এজেন্টের প্রোফাইল
    * ===================================================================== */
+        function openNoMarketCustomers(agentId) {
+            q("noMktSheet").classList.add("on");
+            q("noMktSheetList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+
+            Promise.all([
+                NK.GET("/api/manager/users/" + agentId + "/customers-without-market"),
+                NK.GET("/api/admin/users/" + agentId + "/markets"),
+                NK.GET("/api/markets/all")
+            ]).then(function (results) {
+                var customers = results[0] || [];
+                var marketIds = results[1] || [];
+                var allMarkets = results[2] || [];
+                var myMarkets = allMarkets.filter(function (m) { return marketIds.indexOf(m.id) !== -1; });
+
+                if (!customers.length) {
+                    q("noMktSheetList").innerHTML = '<div class="card"><div class="empty">' +
+                        ltr('কোনো গ্রাহক বাকি নেই') + '</div></div>';
+                    return;
+                }
+                if (!myMarkets.length) {
+                    q("noMktSheetList").innerHTML = '<div class="card"><div class="empty">' +
+                        ltr('এই এজেন্টের কোনো মার্কেট assign করা নেই — আগে "এজেন্ট মার্কেট" থেকে মার্কেট দিন') + '</div></div>';
+                    return;
+                }
+
+                var mktOptsHtml = myMarkets.map(function (m) {
+                    return '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.name) + '</option>';
+                }).join('');
+
+                var html = '';
+                customers.forEach(function (c) {
+                    html += '<div class="card" style="padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;">';
+                    html += '<div><b>' + NK.esc(c.fullName) + '</b><span style="color:var(--muted);font-size:12.5px;"> · ' + NK.esc(c.phone) + '</span></div>';
+                    html += '<div style="display:flex;gap:8px;">';
+                    html += '<select data-cmkt="' + NK.esc(c.id) + '" style="flex:1;"><option value="">' + ltr('মার্কেট বেছে নিন') + '</option>' + mktOptsHtml + '</select>';
+                    html += '<button class="btn sm" data-csave="' + NK.esc(c.id) + '">' + ltr('সেভ') + '</button>';
+                    html += '</div>';
+                    html += '<div class="msg" id="cmktMsg' + c.id + '"></div>';
+                    html += '</div>';
+                });
+
+                q("noMktSheetList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("noMktSheetList").querySelectorAll("[data-csave]"), function (btn) {
+                    btn.addEventListener("click", function () {
+                        var cid = btn.getAttribute("data-csave");
+                        var sel = q("noMktSheetList").querySelector('[data-cmkt="' + cid + '"]');
+                        var marketId = sel ? sel.value : "";
+                        if (!marketId) {
+                            say("cmktMsg" + cid, ltr("মার্কেট বেছে নিন"), false);
+                            return;
+                        }
+                        btn.disabled = true;
+                        btn.textContent = "...";
+                        NK.PATCH("/api/customers/" + cid + "/market", { marketId: Number(marketId) }).then(function () {
+                            say("cmktMsg" + cid, ltr("✓ হয়ে গেছে"), true);
+                            var card = btn.closest(".card");
+                            if (card) setTimeout(function () { card.style.display = "none"; }, 800);
+                        }).catch(function (e) {
+                            say("cmktMsg" + cid, e.message, false);
+                            btn.disabled = false;
+                            btn.textContent = ltr("সেভ");
+                        });
+                    });
+                });
+            }).catch(function (e) {
+                q("noMktSheetList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
         function openAgent(id) {
             q("prof").classList.add("on");
             q("pTitle").textContent = ltr('কর্মী');
@@ -4641,11 +4720,13 @@
                     h += '<div class="list">';
 
                     p.markets.forEach(function (m) {
-                        h += '<div class="item">';
+                        var clickable = !m.marketId;
+                        h += '<div class="item"' + (clickable ? ' data-nomkt="' + id + '" style="cursor:pointer;"' : '') + '>';
                         h += '<div class="av">🏬</div>';
                         h += '<div class="mid"><b>' + NK.esc(m.marketName) + '</b>' +
                             '<span>' + m.customers + ltr(' গ্রাহক') +
-                            (m.odCount ? ' · ' + m.odCount + ' OD' : '') + '</span></div>';
+                            (m.odCount ? ' · ' + m.odCount + ' OD' : '') +
+                            (clickable ? ltr(' · টাচ করে ঠিক করুন ›') : '') + '</span></div>';
                         h += '<div class="end"><b>' + NK.inrShort(m.outstanding) + '</b>' +
                             ltr('<span style="font-size:10.5px;color:var(--muted);">আজ ') +
                             NK.inrShort(m.todayDue) + '</span></div>';
@@ -5344,12 +5425,22 @@
                 q("notifSheet").classList.remove("on");
                 return;
             }
+            if (e.target && e.target.id === "noMktSheetBg") {
+                q("noMktSheet").classList.remove("on");
+                return;
+            }
             var goEl = e.target.closest ? e.target.closest("[data-notifgo]") : null;
-            if (!goEl) return;
-            var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
-            if (!it) return;
-            q("notifSheet").classList.remove("on");
-            notifGoTo(it.actionUrl);
+            if (goEl) {
+                var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
+                if (!it) return;
+                q("notifSheet").classList.remove("on");
+                notifGoTo(it.actionUrl);
+                return;
+            }
+            var nomktEl = e.target.closest ? e.target.closest("[data-nomkt]") : null;
+            if (nomktEl) {
+                openNoMarketCustomers(nomktEl.getAttribute("data-nomkt"));
+            }
         });
         /* KYC ছবি পাঠানো */
         q("kycFile").addEventListener("change", function () {
