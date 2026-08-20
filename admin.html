@@ -710,6 +710,7 @@
 
         <!-- ---------------- সেটিংস ---------------- -->
         <div class="view" id="v-settings">
+            <div id="setMaint"><div class="loading">লোড হচ্ছে...</div></div>
             <div id="setList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
@@ -3391,11 +3392,12 @@
          * ===================================================================== */
         function loadSettings() {
             if (!q("setList")) return; // এই ভিউ এখন খোলা নেই
+            q("setMaint").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             q("setList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
             // Maintenance status
             NK.GET("/api/maintenance/status").then(function (status) {
-                if (!q("setList")) return; // এই ভিউ এখন খোলা নেই
+                if (!q("setMaint")) return; // এই ভিউ এখন খোলা নেই
                 var html = '';
                 if (status.active) {
                     var endTime = new Date(status.endTime);
@@ -3426,7 +3428,7 @@
                     html += '<button class="btn sm" id="startBtn" style="margin-top:10px;background:var(--blue);color:white;width:100%;">▶ START</button>';
                     html += '</div>';
                 }
-                q("setList").innerHTML = html;
+                q("setMaint").innerHTML = html;
 
                 if (status.active && q("stopBtn")) {
                     q("stopBtn").addEventListener("click", function() {
