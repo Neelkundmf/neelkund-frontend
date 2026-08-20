@@ -4658,18 +4658,22 @@
                         h += '</div>';
 
                         if (noMarket && noMarketCustomers.length) {
-                            h += '<div class="card" style="padding:12px;margin:-4px 0 8px;">';
-                            h += '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;">' +
-                                ltr('এই ') + noMarketCustomers.length + ltr(' জন গ্রাহককে একসাথে মার্কেট দিন:') + '</div>';
-                            h += '<div style="display:flex;gap:8px;">';
-                            h += '<select id="fixMktSel" style="flex:1;"><option value="">' + ltr('মার্কেট বেছে নিন') + '</option>';
-                            myMarketOptions.forEach(function (mo) {
-                                h += '<option value="' + NK.esc(mo.id) + '">' + NK.esc(mo.name) + '</option>';
+                            h += '<div style="margin:-4px 0 8px;">';
+                            noMarketCustomers.forEach(function (c) {
+                                h += '<div class="card" id="cmktCard' + c.id + '" style="padding:12px;margin-bottom:8px;">';
+                                h += '<div style="margin-bottom:8px;"><b>' + NK.esc(c.fullName) + '</b>' +
+                                    '<span style="color:var(--muted);font-size:12.5px;"> · ' + NK.esc(c.phone) + '</span></div>';
+                                h += '<div style="display:flex;gap:8px;">';
+                                h += '<select data-cmkt="' + NK.esc(c.id) + '" style="flex:1;"><option value="">' + ltr('মার্কেট বেছে নিন') + '</option>';
+                                myMarketOptions.forEach(function (mo) {
+                                    h += '<option value="' + NK.esc(mo.id) + '">' + NK.esc(mo.name) + '</option>';
+                                });
+                                h += '</select>';
+                                h += '<button class="btn sm" data-csave="' + NK.esc(c.id) + '">' + ltr('সেভ') + '</button>';
+                                h += '</div>';
+                                h += '<div class="msg" id="cmktMsg' + c.id + '"></div>';
+                                h += '</div>';
                             });
-                            h += '</select>';
-                            h += '<button class="btn sm" id="fixMktBtn">' + ltr('সেভ') + '</button>';
-                            h += '</div>';
-                            h += '<div class="msg" id="fixMktMsg"></div>';
                             h += '</div>';
                         }
                     });
@@ -4698,29 +4702,30 @@
 
                 q("pBody").innerHTML = h;
 
-                /* "মার্কেট বসানো নেই"-এর নিচের ড্রপডাউন — একসাথে সব গ্রাহককে মার্কেট দেওয়া */
-                var fixBtn = q("fixMktBtn");
-                if (fixBtn) {
-                    fixBtn.addEventListener("click", function () {
-                        var marketId = q("fixMktSel").value;
+                /* "মার্কেট বসানো নেই"-এর নিচের প্রতিটা গ্রাহকের নিজস্ব ড্রপডাউন —
+                   যে যেই মার্কেটে যাবে, আলাদা আলাদা করে বাছা যায় */
+                Array.prototype.forEach.call(q("pBody").querySelectorAll("[data-csave]"), function (btn) {
+                    btn.addEventListener("click", function () {
+                        var cid = btn.getAttribute("data-csave");
+                        var sel = q("pBody").querySelector('[data-cmkt="' + cid + '"]');
+                        var marketId = sel ? sel.value : "";
                         if (!marketId) {
-                            say("fixMktMsg", ltr("মার্কেট বেছে নিন"), false);
+                            say("cmktMsg" + cid, ltr("মার্কেট বেছে নিন"), false);
                             return;
                         }
-                        fixBtn.disabled = true;
-                        fixBtn.textContent = "...";
-                        Promise.all(noMarketCustomers.map(function (c) {
-                            return NK.PATCH("/api/customers/" + c.id + "/market", { marketId: Number(marketId) });
-                        })).then(function () {
-                            say("fixMktMsg", ltr("✓ সবাইকে মার্কেট দেওয়া হয়েছে"), true);
-                            setTimeout(function () { openAgent(id); }, 1200);
+                        btn.disabled = true;
+                        btn.textContent = "...";
+                        NK.PATCH("/api/customers/" + cid + "/market", { marketId: Number(marketId) }).then(function () {
+                            say("cmktMsg" + cid, ltr("✓ হয়ে গেছে"), true);
+                            var card = q("cmktCard" + cid);
+                            if (card) setTimeout(function () { card.style.display = "none"; }, 800);
                         }).catch(function (e) {
-                            say("fixMktMsg", e.message, false);
-                            fixBtn.disabled = false;
-                            fixBtn.textContent = ltr("সেভ");
+                            say("cmktMsg" + cid, e.message, false);
+                            btn.disabled = false;
+                            btn.textContent = ltr("সেভ");
                         });
                     });
-                }
+                });
 
                 /* ছবি */
                 if (a.photoUrl) {
