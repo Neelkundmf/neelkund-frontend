@@ -154,7 +154,8 @@
         return refreshing;
     }
 
-    function request(method, path, body, isForm, retried) {
+    function request(method, path, body, isForm, retried, netTries) {
+        netTries = netTries || 0;
         var opts = { method: method, headers: {} };
 
         if (accessToken) {
@@ -192,6 +193,17 @@
                 if (!r.ok) throw mkErr(r.status, b);
                 return b;
             });
+        }).catch(function (e) {
+            /* নেট সত্যিই কেটে গেলে (সার্ভার কোনো উত্তরই দেয়নি — mkErr-এর তৈরি
+               এরর হলে e.status থাকবে, সেটা না থাকলেই বুঝি নেট-স্তরের ব্যর্থতা)
+               দুইবার পর্যন্ত ১.২ সেকেন্ড পর পর আবার চেষ্টা করি। সার্ভার উত্তর
+               দিয়ে থাকলে (e.status আছে) retry করবো না — একই কাজ দুবার হয়ে
+               যাওয়ার ঝুঁকি এড়াতে (যেমন টাকা দুবার জমা) */
+            if (e && e.status === undefined && netTries < 2) {
+                return new Promise(function (resolve) { setTimeout(resolve, 1200); })
+                    .then(function () { return request(method, path, body, isForm, retried, netTries + 1); });
+            }
+            throw e;
         });
     }
 
@@ -642,7 +654,7 @@
         PUT:    function (p, b)     { return request("PUT", p, b === undefined ? {} : b); },
         PATCH:  function (p, b)     { return request("PATCH", p, b === undefined ? {} : b); },
         DELETE: function (p)        { return request("DELETE", p); },
-        UPLOAD: function (p, fd)    { return request("POST", p, fd, true); },
+        UPLOAD: function (p, fd, method) { return request(method || "POST", p, fd, true); },
 
         me: loadMe,
         homeFor: homeFor,

@@ -5091,17 +5091,9 @@
                 formData.append("file", file);
             }
 
-            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
-            fetch("/api/loans/" + loanId + "/sign-customer", {
-                method: "PUT",
-                body: formData,
-                headers: {
-                    "Authorization": "Bearer " + NK.getToken()
-                }
-            })
-                .then(function (res) {
-                    if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
-                })
+            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন — শেয়ার্ড ইঞ্জিন দিয়ে,
+            // নেট মাঝপথে কেটে গেলে নিজে থেকে আবার চেষ্টা করবে
+            NK.UPLOAD("/api/loans/" + loanId + "/sign-customer", formData, "PUT")
                 .then(function () {
                     toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
                     setTimeout(function () {
@@ -5894,14 +5886,7 @@
                 var fd = new FormData();
                 fd.append("file", fileInput.files[0]);
 
-                fetch("/api/loans/" + loanId + "/sign-customer", {
-                    method: "PUT",
-                    body: fd,
-                    headers: { "Authorization": "Bearer " + NK.getToken() }
-                })
-                    .then(function (res) {
-                        if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
-                    })
+                NK.UPLOAD("/api/loans/" + loanId + "/sign-customer", fd, "PUT")
                     .then(function () {
                         statusEl.textContent = ltr("✓ সংরক্ষিত হয়েছে");
                         toast(ltr("ছবি জমা হয়েছে ✓"), "ok");
