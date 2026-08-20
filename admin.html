@@ -4757,6 +4757,20 @@
 
                 q("pBody").innerHTML = h;
 
+                /* "মার্কেট বসানো নেই" বক্সে টাচ — সরাসরি বাঁধা (delegation-এর উপর
+                   নির্ভর না করে), যাতে কোনো অবস্থাতেই কাজ না-করা এড়ানো যায় */
+                var noMktRow = q("pBody").querySelector("[data-nomkt]");
+                if (noMktRow) {
+                    noMktRow.addEventListener("click", function () {
+                        try {
+                            openNoMarketCustomers(noMktRow.getAttribute("data-nomkt"));
+                        } catch (err) {
+                            toast("এরর: " + err.message, "er");
+                            console.error(err);
+                        }
+                    });
+                }
+
                 /* ছবি */
                 if (a.photoUrl) {
                     NK.GET("/api/admin/users/" + id + "/photo").then(function (blob) {
@@ -5430,17 +5444,11 @@
                 return;
             }
             var goEl = e.target.closest ? e.target.closest("[data-notifgo]") : null;
-            if (goEl) {
-                var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
-                if (!it) return;
-                q("notifSheet").classList.remove("on");
-                notifGoTo(it.actionUrl);
-                return;
-            }
-            var nomktEl = e.target.closest ? e.target.closest("[data-nomkt]") : null;
-            if (nomktEl) {
-                openNoMarketCustomers(nomktEl.getAttribute("data-nomkt"));
-            }
+            if (!goEl) return;
+            var it = NOTIF_ITEMS[Number(goEl.getAttribute("data-notifgo"))];
+            if (!it) return;
+            q("notifSheet").classList.remove("on");
+            notifGoTo(it.actionUrl);
         });
         /* KYC ছবি পাঠানো */
         q("kycFile").addEventListener("change", function () {
