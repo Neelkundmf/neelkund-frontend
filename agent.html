@@ -2524,13 +2524,6 @@
                     }
                 });
             }
-
-            /* মার্কেটে ক্লিক → অঙ্ক-বক্স পাতা খোলে */
-            Array.prototype.forEach.call(q("mkt").querySelectorAll("[data-mkt]"), function (el) {
-                el.addEventListener("click", function () {
-                    openAmtPage(el.getAttribute("data-mkt"), el.getAttribute("data-mname"));
-                });
-            });
         }
         /* =====================================================================
          * মার্কেটের অঙ্ক-বক্স পাতা
@@ -2909,7 +2902,28 @@
                     q("amtPage").classList.add("on");
                     openAmtCustomers(amount);
                 } else {
-                    toast(ltr("আপনার একাধিক মার্কেট আছে — আগে মার্কেট ট্যাব থেকে মার্কেট বেছে নিন"), "in");
+                    /* একাধিক মার্কেট থাকলে এখানেই বেছে নেওয়ার সুযোগ — অন্য ট্যাবে
+                       পাঠাই না, কারণ "মার্কেট" ট্যাবের ড্রপডাউন এখন ভিন্ন
+                       (comprehensive dashboard) পাতায় নিয়ে যায় */
+                    q("amtPage").classList.add("on");
+                    q("amtTitle").textContent = ltr("মার্কেট বেছে নিন");
+                    var h = '<div class="card"><div class="list">';
+                    mkts.forEach(function (m) {
+                        h += '<div class="item" data-pick-mkt="' + NK.esc(m.marketId) +
+                            '" data-pick-name="' + NK.esc(m.marketName || "") + '" style="cursor:pointer;">' +
+                            '<div class="av">🏬</div>' +
+                            '<div class="mid"><b>' + NK.esc(m.marketName || "") + '</b></div>' +
+                            '</div>';
+                    });
+                    h += '</div></div>';
+                    q("amtBody").innerHTML = h;
+                    Array.prototype.forEach.call(q("amtBody").querySelectorAll("[data-pick-mkt]"), function (el) {
+                        el.addEventListener("click", function () {
+                            AMT_MKT = el.getAttribute("data-pick-mkt");
+                            AMT_MNAME = el.getAttribute("data-pick-name") || ltr("মার্কেট");
+                            openAmtCustomers(amount);
+                        });
+                    });
                 }
             }).catch(function (e) {
                 toast(e.message, "er");
