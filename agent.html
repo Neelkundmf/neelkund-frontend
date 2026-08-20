@@ -5493,7 +5493,7 @@
 
                 if (canAction) {
                     h += '<button class="disb-action-btn" onclick="markDisbursementCompleted(' +
-                        disb.id + ', event)" data-disb-id="' + disb.id + '">' +
+                        disb.id + ', event)">' +
                         ltr("✓ সম্পন্ন") + '</button>';
                 }
 
@@ -5538,10 +5538,11 @@
             q("disbPagination").style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        function markDisbursementCompleted(disbId, e) {
+        window.markDisbursementCompleted = function (disbId, e) {
             if (e) e.preventDefault();
 
-            var btn = event.target;
+            var btn = e ? e.target : null;
+            if (!btn) return;
             btn.disabled = true;
             btn.textContent = '⏳...';
 
@@ -5556,7 +5557,7 @@
                     btn.textContent = ltr("✓ সম্পন্ন");
                     toast(ltr("সম্পন্ন করা যায়নি") + ": " + e.message, "er");
                 });
-        }
+        };
 
         // Pagination handlers
         q("disbPrevBtn").addEventListener("click", function () {
