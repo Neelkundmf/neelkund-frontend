@@ -2428,7 +2428,8 @@
             NK.POST("/api/payments", {
                 loanId: payLoan,
                 amount: amt,
-                note: null
+                note: null,
+                clientEntryId: entry.clientEntryId
             })
                 .then(function () {
                     toast(NK.inr(amt) + " " + ltr("জমা হয়েছে ✓"), "ok");
@@ -3264,7 +3265,8 @@
             NK.POST("/api/payments", {
                 loanId: PAY_LOAN,
                 amount: amount,
-                note: null
+                note: null,
+                clientEntryId: entry.clientEntryId
             })
                 .then(function () {
                     toast(okMsg || ltr("জমা হয়েছে ✓"), "ok");
