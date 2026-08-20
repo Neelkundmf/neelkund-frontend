@@ -4570,7 +4570,7 @@
                 q("reportStats").innerHTML = '';
             }
 
-            NK.GET("/api/dashboard/agent-daily-report").then(function (data) {
+            NK.GET("/api/agent/my-today").then(function (data) {
                 drawDailyReport(data);
             }).catch(function (e) {
                 q("reportBody").innerHTML =
@@ -4579,11 +4579,11 @@
         }
 
         function drawDailyReport(data) {
-            var collected = Number(data.collectedAmount || 0);
+            var collected = Number(data.collectedToday || 0);
             var totalDue = Number(data.totalDue || 0);
-            var advReceived = Number(data.advanceReceived || 0);
+            var advReceived = Number(data.advanceAdjusted || 0);
             var unpaidCount = Number(data.unpaidCount || 0);
-            var unpaidList = data.unpaidCustomers || [];
+            var unpaidList = data.unpaid || [];
 
             // Stats cards
             var statsHtml = '';
@@ -4617,8 +4617,7 @@
                 h += '<div class="report-list">';
                 unpaidList.forEach(function (x) {
                     var dueAmt = Number(x.dueAmount || 0);
-                    var daysLate = Number(x.daysLate || 0);
-                    var statusClass = daysLate === 0 ? 'paid' : (daysLate >= 2 ? 'unpaid' : '');
+                    var statusClass = x.paid ? 'paid' : 'unpaid';
 
                     h += '<div class="item">';
                     h += '<div>';
@@ -4640,11 +4639,11 @@
         }
 
         function downloadDailyReport(data) {
-            var collected = Number(data.collectedAmount || 0);
+            var collected = Number(data.collectedToday || 0);
             var totalDue = Number(data.totalDue || 0);
-            var advReceived = Number(data.advanceReceived || 0);
+            var advReceived = Number(data.advanceAdjusted || 0);
             var unpaidCount = Number(data.unpaidCount || 0);
-            var unpaidList = data.unpaidCustomers || [];
+            var unpaidList = data.unpaid || [];
 
             var csv = "তারিখ,মেট্রিক,মূল্য\n";
             var today = new Date().toISOString().split('T')[0];
@@ -4654,12 +4653,11 @@
             csv += today + ",অ্যাডভান্স প্রাপ্য,₹" + NK.inr(advReceived) + "\n";
             csv += today + ",অপরিশোধিত গ্রাহক," + unpaidCount + "\n\n";
 
-            csv += "গ্রাহক নাম,ফোন,বাকি পরিমাণ,দেরি (দিন)\n";
+            csv += "গ্রাহক নাম,ফোন,বাকি পরিমাণ\n";
             unpaidList.forEach(function (x) {
                 csv += NK.esc(x.customerName) + "," +
                     x.customerPhone + "," +
-                    NK.inr(Number(x.dueAmount || 0)) + "," +
-                    (x.daysLate || 0) + "\n";
+                    NK.inr(Number(x.dueAmount || 0)) + "\n";
             });
 
             var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
