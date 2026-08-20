@@ -4545,7 +4545,20 @@
 
             NK.pushNavState({ view: CURRENT_VIEW, panel: "agent", panelId: id });
 
-            NK.GET("/api/manager/users/" + id + "/profile").then(function (p) {
+            Promise.all([
+                NK.GET("/api/manager/users/" + id + "/profile"),
+                NK.GET("/api/admin/users/" + id + "/markets").catch(function () { return []; }),
+                NK.GET("/api/markets/all").catch(function () { return []; })
+            ]).then(function (results) {
+                var p = results[0];
+                var assignedMarketIds = results[1] || [];
+                var allMarkets = results[2] || [];
+                var marketNameById = {};
+                allMarkets.forEach(function (m) { marketNameById[m.id] = m.name; });
+                var assignedMarketNames = assignedMarketIds.map(function (mid) {
+                    return marketNameById[mid] || (ltr("মার্কেট ") + mid);
+                });
+
                 var a = p.agent;
                 var h = "";
 
@@ -4607,6 +4620,20 @@
                 });
 
                 h += '</div>';
+
+                /* ---- assign করা মার্কেট (লোন থাকুক বা না থাকুক) ---- */
+                if (a.role === "AGENT") {
+                    h += ltr('<h3 style="margin:16px 0 10px;">যে মার্কেট assign করা আছে</h3>');
+                    if (assignedMarketNames.length) {
+                        h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
+                        assignedMarketNames.forEach(function (name) {
+                            h += '<span style="padding:6px 12px;border-radius:20px;background:var(--blue-soft);color:var(--blue);font-size:12.5px;font-weight:600;">🏬 ' + NK.esc(name) + '</span>';
+                        });
+                        h += '</div>';
+                    } else {
+                        h += '<div class="card"><div class="empty">' + ltr('কোনো মার্কেট assign করা নেই') + '</div></div>';
+                    }
+                }
 
                 /* ---- মার্কেট অনুযায়ী ---- */
                 if (p.markets && p.markets.length) {
