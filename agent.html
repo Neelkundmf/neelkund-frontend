@@ -67,8 +67,10 @@
         }
         #off.on { display: block; }
 
-        /* ---- অপেক্ষমাণ এন্ট্রি ---- */
-        #pend {
+        /* ---- অপেক্ষমাণ এন্ট্রি (অফলাইন-জমা ব্যানার আর লোন-অনুমোদনের অপেক্ষার
+           ব্যানার — দুটো আলাদা জিনিস, তাই আলাদা এলিমেন্ট #pend/#loanWait,
+           শুধু চেহারাটা এই একই ক্লাস থেকে শেয়ার করে) ---- */
+        #pend, #loanWait {
             display: none;
             position: sticky;
             top: 58px;
@@ -84,8 +86,8 @@
             justify-content: space-between;
             gap: 10px;
         }
-        #pend.on { display: flex; }
-        #pend button {
+        #pend.on, #loanWait.on { display: flex; }
+        #pend button, #loanWait button {
             padding: 6px 14px;
             background: #fff;
             color: var(--blue);
@@ -1383,6 +1385,7 @@
         <span id="pendTxt">০টি এন্ট্রি অপেক্ষা করছে</span>
         <button id="sync">🔄 পাঠান</button>
     </div>
+    <div id="loanWait"></div>
 
     <div class="body">
         <!-- ---------------- আজকের কাজ ---------------- -->
@@ -4164,8 +4167,8 @@
                 })
                 .then(function (loanReq) {
                     var amountInr = NK.inr(loanReq.principal);
-                    q("pend").classList.add("on");
-                    q("pend").innerHTML = '⏳ ' + ltr("ম্যানেজারের অনুমোদনের অপেক্ষায়") + ' | ' +
+                    q("loanWait").classList.add("on");
+                    q("loanWait").innerHTML = '⏳ ' + ltr("ম্যানেজারের অনুমোদনের অপেক্ষায়") + ' | ' +
                         '<button onclick="checkLoanApprovalStatus(' + loanReq.id + ')">🔄 ' + ltr("আপডেট") + '</button>';
 
                     say("nMsg", '<span style="color:var(--muted);">লোন অনুরোধ পাঠানো হয়েছে। ম্যানেজার অনুমোদন করলে আপনি গ্রাহককে <b>₹' + amountInr + '</b> নগদ দিতে পারবেন।</span>', true);
@@ -4184,7 +4187,7 @@
                                     showLoanApprovalSuccess(lr);
                                 } else if (lr.status === "REJECTED") {
                                     clearInterval(window.pendingCheckTimer);
-                                    q("pend").classList.remove("on");
+                                    q("loanWait").classList.remove("on");
                                     say("nMsg", "❌ " + ltr("আপনার লোন নাকচ করা হয়েছে"), false);
                                 }
                             })
@@ -5823,7 +5826,7 @@
                     } else if (lr.status === "REJECTED") {
                         if (window.pendingCheckTimer) clearInterval(window.pendingCheckTimer);
                         say("nMsg", "❌ লোন নাকচ করা হয়েছে", false);
-                        q("pend").classList.remove("on");
+                        q("loanWait").classList.remove("on");
                     }
                 })
                 .catch(function(e) {
@@ -5839,7 +5842,7 @@
                থেকে ডাকা হতে পারে */
             if (q("loanCelebrateOverlay")) return;
 
-            q("pend").classList.remove("on");
+            q("loanWait").classList.remove("on");
 
             var amountInr = NK.inr(loanRequest.principal || window.pendingAmount);
             var loanId = loanRequest.createdLoanId;
