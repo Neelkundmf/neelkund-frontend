@@ -509,8 +509,22 @@
 
         <!-- ---------------- টিম ---------------- -->
         <div class="view" id="v-team">
-            <div class="card">
-                <h2 style="margin-bottom:14px;">নতুন কর্মী</h2>
+            <div class="fld" style="margin-bottom:14px;"><label>শাখা</label>
+                <select id="tm_filter_br"><option value="">— শাখা বেছে নিন —</option></select>
+            </div>
+
+            <div id="tmList"><div class="card"><div class="empty">উপরে থেকে শাখা বেছে নিলে কর্মীর তালিকা এখানে আসবে</div></div></div>
+
+            <button class="team-fab" id="tmFab"><span class="team-fab-plus">＋</span> নতুন কর্মী</button>
+
+            <div id="tmSheet">
+                <div class="bg" id="tmSheetBg"></div>
+                <div class="panel">
+                    <div class="grip"></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                        <h3 style="margin-bottom:0;">নতুন কর্মী</h3>
+                        <button type="button" id="tmSheetClose" style="width:32px;height:32px;border-radius:10px;border:0;background:var(--paper);color:var(--muted);font-size:16px;cursor:pointer;">✕</button>
+                    </div>
                 <div class="avatar-pick">
                     <div class="av" id="tp_selfie">👤</div>
                     <span>প্রোফাইল ছবি</span>
@@ -604,9 +618,8 @@
                 <div class="error-msg" id="err_tm_ep" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
 
                 <button class="btn block" id="tm_go">কর্মী তৈরি করুন</button>
+                </div>
             </div>
-
-            <div id="tmList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
 
@@ -2859,89 +2872,137 @@
         };
 
         function loadTeam() {
+            var currentFilter = q("tm_filter_br") ? q("tm_filter_br").value : "";
+
             Promise.all([fetchBranches(), fetchMarkets(), fetchTakenMarkets()]).then(function () {
                 q("tm_br").innerHTML = ltr('<option value="">— নেই —</option>') + brOpts(false);
                 fillMarketsForBranch();
-                return fetchTeam();
-            }).then(function () {
-                if (!TEAM.length) {
-                    q("tmList").innerHTML = ltr('<div class="card"><div class="empty">কোনো কর্মী নেই</div></div>');
-                    return;
+
+                var filterSel = q("tm_filter_br");
+                if (filterSel) {
+                    filterSel.innerHTML = ltr('<option value="">— শাখা বেছে নিন —</option>') +
+                        ltr('<option value="all">সব শাখা</option>') + brOpts(false);
+                    filterSel.value = currentFilter;
                 }
 
-                var html = '<div class="list">';
-                TEAM.forEach(function (u) {
-                    var off = !u.enabled;
-
-                    html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
-                    html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
-                    html += '<div class="mid" data-agent="' + NK.esc(u.id) + '"><b>' + NK.esc(u.fullName) + '</b>' +
-                        '<span>' + NK.esc(u.phone) +
-                        (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
-                    html += '<div class="end"><span class="b n">' +
-                        (ROLE_BN2[u.role] || u.role) + '</span>' +
-                        (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
-                        '<div style="margin-top:6px;display:flex;gap:6px;">' +
-                        '<button class="btn ghost sm" data-en="' + NK.esc(u.id) + '" data-v="' +
-                        (off ? 'true' : 'false') + '">' + (off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
-                        '<button class="btn sm danger" data-del="' + NK.esc(u.id) + '">' + ltr('মুছুন') + '</button>' +
-                        '</div></div>';
-                    html += '</div>';
-                });
-                html += '</div>';
-
-                q("tmList").innerHTML = html;
-                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-agent]"), function (el) {
-                    el.addEventListener("click", function () {
-                        openAgent(el.getAttribute("data-agent"));
-                    });
-                });
-                /* চালু / বন্ধ */
-                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-en]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var id = b.getAttribute("data-en");
-                        var v = b.getAttribute("data-v");
-
-                        b.disabled = true;
-                        b.textContent = "...";
-
-                        NK.PATCH("/api/admin/users/" + id + "/enabled?enabled=" + v)
-                            .then(function () {
-                                toast(v === "true" ? ltr("চালু করা হল") : ltr("বন্ধ করা হল"), "ok");
-                                loadTeam();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                                b.textContent = (v === "true") ? ltr("চালু") : ltr("বন্ধ");
-                            });
-                    });
-                });
-
-                /* মুছুন */
-                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-del]"), function (b) {
-                    b.addEventListener("click", function () {
-                        if (!confirm(ltr("সত্যিই মুছে ফেলবেন? ফেরত পাওয়া যাবে না।"))) return;
-
-                        var id = b.getAttribute("data-del");
-
-                        b.disabled = true;
-                        b.textContent = "...";
-
-                        NK.DELETE("/api/admin/users/" + id)
-                            .then(function () {
-                                toast(ltr("মুছে ফেলা হল"), "ok");
-                                loadTeam();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                                b.textContent = ltr("মুছুন");
-                            });
-                    });
-                });
+                return fetchTeam();
+            }).then(function () {
+                drawTeamList(currentFilter);
             }).catch(function (e) {
                 q("tmList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function drawTeamList(branchFilter) {
+            if (!branchFilter) {
+                q("tmList").innerHTML = ltr('<div class="card"><div class="empty">উপরে থেকে শাখা বেছে নিলে কর্মীর তালিকা এখানে আসবে</div></div>');
+                return;
+            }
+
+            var filtered = (branchFilter === "all") ? TEAM :
+                TEAM.filter(function (u) { return String(u.branchId) === String(branchFilter); });
+
+            if (!filtered.length) {
+                q("tmList").innerHTML = ltr('<div class="card"><div class="empty">এই শাখায় কোনো কর্মী নেই</div></div>');
+                return;
+            }
+
+            var html = '<div class="list">';
+            filtered.forEach(function (u) {
+                var off = !u.enabled;
+
+                html += '<div class="item"' + (off ? ' style="opacity:.55;"' : '') + '>';
+                html += '<div class="av">' + NK.esc((u.fullName || "?").charAt(0)) + '</div>';
+                html += '<div class="mid" data-agent="' + NK.esc(u.id) + '"><b>' + NK.esc(u.fullName) + '</b>' +
+                    '<span>' + NK.esc(u.phone) +
+                    (u.area ? ' · ' + NK.esc(u.area) : '') + '</span></div>';
+                html += '<div class="end"><span class="b n">' +
+                    (ROLE_BN2[u.role] || u.role) + '</span>' +
+                    (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
+                    '<div style="margin-top:6px;display:flex;gap:6px;">' +
+                    '<button class="btn ghost sm" data-en="' + NK.esc(u.id) + '" data-v="' +
+                    (off ? 'true' : 'false') + '">' + (off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
+                    '<button class="btn sm danger" data-del="' + NK.esc(u.id) + '">' + ltr('মুছুন') + '</button>' +
+                    '</div></div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            q("tmList").innerHTML = html;
+            Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-agent]"), function (el) {
+                el.addEventListener("click", function () {
+                    openAgent(el.getAttribute("data-agent"));
+                });
+            });
+            /* চালু / বন্ধ */
+            Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-en]"), function (b) {
+                b.addEventListener("click", function () {
+                    var id = b.getAttribute("data-en");
+                    var v = b.getAttribute("data-v");
+
+                    b.disabled = true;
+                    b.textContent = "...";
+
+                    NK.PATCH("/api/admin/users/" + id + "/enabled?enabled=" + v)
+                        .then(function () {
+                            toast(v === "true" ? ltr("চালু করা হল") : ltr("বন্ধ করা হল"), "ok");
+                            loadTeam();
+                        })
+                        .catch(function (e) {
+                            toast(e.message, "er");
+                            b.disabled = false;
+                            b.textContent = (v === "true") ? ltr("চালু") : ltr("বন্ধ");
+                        });
+                });
+            });
+
+            /* মুছুন */
+            Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-del]"), function (b) {
+                b.addEventListener("click", function () {
+                    if (!confirm(ltr("সত্যিই মুছে ফেলবেন? ফেরত পাওয়া যাবে না।"))) return;
+
+                    var id = b.getAttribute("data-del");
+
+                    b.disabled = true;
+                    b.textContent = "...";
+
+                    NK.DELETE("/api/admin/users/" + id)
+                        .then(function () {
+                            toast(ltr("মুছে ফেলা হল"), "ok");
+                            loadTeam();
+                        })
+                        .catch(function (e) {
+                            toast(e.message, "er");
+                            b.disabled = false;
+                            b.textContent = ltr("মুছুন");
+                        });
+                });
+            });
+        }
+
+        var tmFilterBr = q("tm_filter_br");
+        if (tmFilterBr) {
+            tmFilterBr.addEventListener("change", function () {
+                drawTeamList(this.value);
+            });
+        }
+
+        var tmFab = q("tmFab");
+        if (tmFab) {
+            tmFab.addEventListener("click", function () {
+                q("tmSheet").classList.add("on");
+            });
+        }
+        var tmSheetBg = q("tmSheetBg");
+        if (tmSheetBg) {
+            tmSheetBg.addEventListener("click", function () {
+                q("tmSheet").classList.remove("on");
+            });
+        }
+        var tmSheetClose = q("tmSheetClose");
+        if (tmSheetClose) {
+            tmSheetClose.addEventListener("click", function () {
+                q("tmSheet").classList.remove("on");
             });
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
