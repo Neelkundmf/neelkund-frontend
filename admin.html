@@ -487,7 +487,13 @@
                 <h2 style="margin-bottom:14px;">এজেন্ট মার্কেট সেটিংস</h2>
                 <div class="msg" id="amMsg"></div>
 
-                <div class="fld"><label>এজেন্ট *</label>
+                <div class="fld"><label>শাখা *</label>
+                    <select id="am_branch">
+                        <option value="">— শাখা বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div class="fld" id="amAgentBox" style="display:none;"><label>এজেন্ট *</label>
                     <select id="am_agent">
                         <option value="">— এজেন্ট বেছে নিন —</option>
                     </select>
@@ -5484,28 +5490,61 @@
             Promise.all([
                 NK.GET("/api/admin/users"),
                 NK.GET("/api/markets/all"),
-                fetchTakenMarkets()
+                fetchTakenMarkets(),
+                fetchBranches()
             ]).then(function(results) {
                 var allUsers = NK.rows(results[0]) || [];
                 AM_AGENTS = allUsers.filter(function(u) { return u.role === "AGENT"; });
                 AM_MARKETS = results[1] || [];
 
-                /* ড্রপডাউন নতুন করে বসছে, তাই আগের এজেন্ট/মার্কেট বাছাই বাতিল —
+                /* ড্রপডাউন নতুন করে বসছে, তাই আগের শাখা/এজেন্ট/মার্কেট বাছাই বাতিল —
                    নাহলে দেখতে "কেউ বাছা নেই" কিন্তু আসলে আগেরটাই সংরক্ষণ হয়ে যেত */
                 AM_AGENT_ID = null;
                 AM_SELECTED = new Set();
 
+                var brDd = document.getElementById("am_branch");
+                if (brDd) brDd.innerHTML = '<option value="">— শাখা বেছে নিন —</option>' + brOpts(false);
+
                 var dd = document.getElementById("am_agent");
-                if (!dd) return;
-                dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
-                AM_AGENTS.forEach(function(a) {
-                    var opt = document.createElement("option");
-                    opt.value = a.id;
-                    opt.textContent = a.fullName + " (" + a.phone + ")";
-                    dd.appendChild(opt);
-                });
+                if (dd) dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+
+                var agentBox = document.getElementById("amAgentBox");
+                if (agentBox) agentBox.style.display = "none";
+                var mktBox = document.getElementById("amMarketsBox");
+                if (mktBox) mktBox.style.display = "none";
             }).catch(function(e) {
                 say("amMsg", "ত্রুটি: " + e.message, false);
+            });
+        }
+
+        var branchSel = document.getElementById("am_branch");
+        if (branchSel) {
+            branchSel.addEventListener("change", function() {
+                var branchId = this.value;
+                var agentBox = document.getElementById("amAgentBox");
+                var dd = document.getElementById("am_agent");
+                var mktBox = document.getElementById("amMarketsBox");
+
+                AM_AGENT_ID = null;
+                AM_SELECTED = new Set();
+                if (mktBox) mktBox.style.display = "none";
+
+                if (!branchId) {
+                    if (agentBox) agentBox.style.display = "none";
+                    return;
+                }
+
+                if (dd) {
+                    dd.innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                    AM_AGENTS.filter(function(a) { return String(a.branchId) === String(branchId); })
+                        .forEach(function(a) {
+                            var opt = document.createElement("option");
+                            opt.value = a.id;
+                            opt.textContent = a.fullName + " (" + a.phone + ")";
+                            dd.appendChild(opt);
+                        });
+                }
+                if (agentBox) agentBox.style.display = "";
             });
         }
 
