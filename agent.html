@@ -5312,7 +5312,9 @@
                         // Photo click করে enlarge করা
                         pe.addEventListener("click", function (e) {
                             e.stopPropagation();
+                            if (q("photoZoomModal")) return; // বারবার টাচ করলে একাধিক পপআপ জমবে না
                             var modal = document.createElement("div");
+                            modal.id = "photoZoomModal";
                             modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;";
                             var img = document.createElement("img");
                             img.src = pe.style.backgroundImage.slice(5, -2); // url(...) থেকে url বের করা
