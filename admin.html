@@ -3127,22 +3127,23 @@
                 return;
             }
 
-            NK.GET("/api/admin/users/agents-market-status").then(function (response) {
-                // response হলো সরাসরি agent list — ধরে নাও প্রতিটা item-এ agentId, marketIds আছে
-                var agentRow = null;
-                if (Array.isArray(response)) {
-                    agentRow = response.find(function (r) {
-                        return r && String(r.agentId) === String(agentId);
-                    });
-                } else if (response && typeof response === "object" && response.data) {
-                    // কখনো NK.rows wrapper থাকলে
-                    var items = Array.isArray(response.data) ? response.data : [];
-                    agentRow = items.find(function (r) {
-                        return r && String(r.agentId) === String(agentId);
-                    });
+            NK.GET("/api/admin/users/agents-market-status").then(function (rawResponse) {
+                // NK.GET থেকে data array পাই
+                var rows = NK.rows(rawResponse);
+
+                // সেই এজেন্ট খুঁজি
+                var agentRow = rows.find(function (r) {
+                    return r && r.agentId && String(r.agentId) === String(agentId);
+                });
+
+                if (!agentRow) {
+                    showMsg("mtMsg", "এজেন্ট খুঁজে পাওয়া গেল না", "wa");
+                    q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
+                    return;
                 }
 
-                if (!agentRow || !agentRow.marketIds || agentRow.marketIds.length === 0) {
+                var marketIds = agentRow.marketIds;
+                if (!marketIds || !Array.isArray(marketIds) || marketIds.length === 0) {
                     showMsg("mtMsg", "এই এজেন্টের কোনো মার্কেট নেই", "wa");
                     q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
                     return;
@@ -3154,7 +3155,7 @@
                     marketMap[m.id] = m.name;
                 });
 
-                agentRow.marketIds.forEach(function (mid) {
+                marketIds.forEach(function (mid) {
                     var mName = marketMap[mid] || ("মার্কেট #" + mid);
                     marketOpts += '<option value="' + NK.esc(mid) + '">' +
                         NK.esc(mName) + '</option>';
