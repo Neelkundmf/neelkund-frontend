@@ -3040,21 +3040,18 @@
             q("mtMsg").textContent = "";
             q("mtMsg").className = "";
 
-            Promise.all([fetchAgents(), fetchMarkets()]).then(function () {
-                var agents = TEAM.filter(function (u) { return u.role === "AGENT"; });
+            // TEAM থেকে শুধু AGENT role filter করি
+            var agents = (TEAM || []).filter(function (u) { return u.role === "AGENT"; });
 
-                var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
-                agents.forEach(function (a) {
-                    agentOpts += '<option value="' + NK.esc(a.id) + '">' +
-                        NK.esc(a.fullName) + ' (' + NK.esc(a.phone) + ')</option>';
-                });
-
-                q("mt_from_agent").innerHTML = agentOpts;
-                q("mt_to_agent").innerHTML = agentOpts;
-                q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
-            }).catch(function (e) {
-                showMsg("mtMsg", e.message, "er");
+            var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
+            agents.forEach(function (a) {
+                agentOpts += '<option value="' + NK.esc(a.id) + '">' +
+                    NK.esc(a.fullName) + ' (' + NK.esc(a.phone) + ')</option>';
             });
+
+            q("mt_from_agent").innerHTML = agentOpts;
+            q("mt_to_agent").innerHTML = agentOpts;
+            q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
         }
 
         /* From Agent change — মার্কেট লোড করি */
