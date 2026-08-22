@@ -99,69 +99,6 @@
             cursor: pointer;
         }
 
-        /* ---- টাকা নেওয়ার বাক্স ---- */
-        #pay {
-            position: fixed;
-            inset: 0;
-            z-index: 250;
-            display: none;
-        }
-        #pay.on { display: block; }
-
-        #pay .bg {
-            position: absolute;
-            inset: 0;
-            background: rgba(10,27,46,.55);
-        }
-        #pay .panel {
-            position: absolute;
-            left: 0; right: 0; bottom: 0;
-
-            background: #fff;
-            border-radius: 20px 20px 0 0;
-            padding: 8px 18px calc(24px + env(safe-area-inset-bottom));
-
-            animation: up .24s cubic-bezier(.2,.8,.2,1);
-        }
-        #pay .grip {
-            width: 40px; height: 4px;
-            margin: 8px auto 16px;
-            background: var(--line);
-            border-radius: 4px;
-        }
-
-        #pay .amt {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--navy);
-            border-radius: 12px;
-
-            font-family: 'Manrope', sans-serif;
-            font-size: 28px;
-            font-weight: 800;
-            text-align: center;
-
-            margin-bottom: 12px;
-        }
-        #pay .amt:focus { outline: 0; }
-
-        .quick {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-        .quick button {
-            flex: 1;
-            min-height: 40px;
-            background: var(--paper);
-            border: 1px solid var(--line);
-            border-radius: 9px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
         /* ---- ছবি তোলা ---- */
         .pics {
             display: grid;
@@ -977,43 +914,6 @@
         }
         .bl-top .l { font-size: 12.5px; opacity: .9; margin-top: 2px; }
 
-        .bl-card {
-            display: flex; align-items: center; gap: 12px;
-            background: #fff;
-            border: 1px solid var(--line);
-            border-left: 4px solid #B91C1C;
-            border-radius: 13px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: transform .12s;
-        }
-        .bl-card:active { transform: scale(.99); }
-        .bl-card .av {
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            background: #1F2937;
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 800;
-            flex-shrink: 0;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-        .bl-card .av .d { font-size: 13px; }
-        .bl-card .av .u { font-size: 8px; opacity: .8; }
-        .bl-card .mid { flex: 1; min-width: 0; }
-        .bl-card .nm { font-size: 15px; font-weight: 700; }
-        .bl-card .sub {
-            font-size: 12px; color: var(--muted); margin-top: 2px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .bl-card .end { text-align: right; flex-shrink: 0; }
-        .bl-card .end .ov {
-            font-family: 'Manrope', sans-serif;
-            font-size: 15px; font-weight: 800; color: var(--red);
-        }
-        .bl-card .end .paid { font-size: 11px; color: #16A34A; margin-top: 2px; }
         .sectlabel {
             font-size: 13px;
             font-weight: 700;
@@ -1919,23 +1819,6 @@
 
             <button class="addcust-btn" id="collAddCust"><span class="plus">+</span>নতুন গ্রাহক</button>
         </div>
-        <!-- ---------------- গ্রাহক ---------------- -->
-        <div class="view" id="v-cust">
-            <div class="search">
-                <span class="ic">🔍</span>
-                <input id="cq" type="search" placeholder="নাম / ফোন / CUST ID খুঁজুন">
-            </div>
-
-            <div class="chips" id="ctabs">
-                <button class="on" data-t="ACTIVE">চলমান</button>
-                <button data-t="OVERDUE">পিছিয়ে</button>
-                <button data-t="COMPLETED">শোধ</button>
-            </div>
-
-            <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
-        </div>
-
-
         <!-- ---------------- নতুন গ্রাহক ---------------- -->
         <div class="view" id="v-new">
             <div class="card">
@@ -2187,24 +2070,6 @@
     </div>
     <div class="abody" id="amtBody">
         <div class="loading">লোড হচ্ছে...</div>
-    </div>
-</div>
-<!-- ================= টাকা নেওয়া ================= -->
-<div id="pay">
-    <div class="bg" id="payBg"></div>
-    <div class="panel">
-        <div class="grip"></div>
-
-        <div style="text-align:center;margin-bottom:16px;">
-            <b id="payName" style="font-size:17px;">—</b><br>
-            <span id="payInfo" style="font-size:13px;color:var(--muted);">—</span>
-        </div>
-
-        <input id="payAmt" class="amt" type="number" inputmode="numeric" placeholder="₹0">
-
-        <div class="quick" id="payQuick"></div>
-
-        <button class="btn block" id="payGo">জমা নিন</button>
     </div>
 </div>
 
@@ -2738,11 +2603,6 @@
         /* =====================================================================
          * পাতা বদল
          * ===================================================================== */
-        var TITLES = {
-            today: "আজকের কাজ", market: "মার্কেট", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
-            report: "দৈনিক রিপোর্ট", disb: "বিতরণ", new: "নতুন গ্রাহক",
-            black: "ব্ল্যাকলিস্ট (১২০+ দিন)"
-        };
         var loaded = {};
         var CURRENT_VIEW = "today";
         var disbState = { page: 0, pageSize: 20, allData: [] };
@@ -2750,7 +2610,7 @@
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
-            today: loadToday, market: loadMkt, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
+            today: loadToday, market: loadMkt, coll: refreshCollView, mycust: loadMyCust,
             report: loadReport, disb: loadDisb, black: loadBlack
         };
 
@@ -2773,7 +2633,6 @@
                 if (key === "today") loadToday();
                 if (key === "market") loadMkt();
                 if (key === "coll")  loadColl();
-                if (key === "cust")  loadCust();
                 if (key === "mycust") loadMyCust();
                 if (key === "report") loadReport();
                 if (key === "disb") loadDisb();
@@ -2883,113 +2742,10 @@
 
 
         /* =====================================================================
-         * টাকা নেওয়া
-         * ===================================================================== */
-        var payLoan = null;
-
-        function openPay(loanId, name, info, suggest) {
-            payLoan = loanId;
-
-            q("payName").textContent = name;
-            q("payInfo").textContent = info || "";
-            q("payAmt").value = suggest || "";
-
-            var qs = [50, 100, 200, 500];
-            var h = "";
-            qs.forEach(function (v) {
-                h += '<button data-q="' + v + '">₹' + v + '</button>';
-            });
-            q("payQuick").innerHTML = h;
-
-            Array.prototype.forEach.call(q("payQuick").querySelectorAll("[data-q]"), function (b) {
-                b.addEventListener("click", function () {
-                    var cur = Number(q("payAmt").value || 0);
-                    q("payAmt").value = cur + Number(b.getAttribute("data-q"));
-                });
-            });
-
-            q("pay").classList.add("on");
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "pay" });
-            setTimeout(function () { q("payAmt").focus(); }, 300);
-        }
-
-        q("payBg").addEventListener("click", function () {
-            history.back();
-        });
-
-        q("payGo").addEventListener("click", function () {
-            var amt = Number(q("payAmt").value || 0);
-
-            if (!amt || amt <= 0) {
-                toast(ltr("টাকার অঙ্ক লিখুন"), "er");
-                return;
-            }
-
-            var entry = {
-                clientEntryId: uid(),
-                loanId: payLoan,
-                amount: amt,
-                note: null,
-                clientCreatedAt: new Date().toISOString()
-            };
-
-            var b = q("payGo");
-            b.disabled = true;
-            b.innerHTML = '<span class="spin"></span> ' + ltr("জমা হচ্ছে...");
-
-            /* নেট নেই — ফোনে জমা */
-            if (!navigator.onLine) {
-                addPend(entry);
-                toast(ltr("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন"), "in");
-                history.back();
-                b.disabled = false;
-                b.textContent = ltr("জমা নিন");
-                return;
-            }
-
-            /* নেট আছে — সরাসরি */
-            NK.POST("/api/payments", {
-                loanId: payLoan,
-                amount: amt,
-                note: null,
-                clientEntryId: entry.clientEntryId
-            })
-                .then(function () {
-                    toast(NK.inr(amt) + " " + ltr("জমা হয়েছে ✓"), "ok");
-                    history.back();
-                    loadToday();
-                    loaded.cust = false;
-                    loaded.od = false;
-                })
-                .catch(function (e) {
-                    /* সার্ভার পাওয়া গেল না — ফোনে জমা */
-                    if (!e.status) {
-                        addPend(entry);
-                        toast(ltr("ফোনে জমা রাখা হল"), "in");
-                        history.back();
-                    } else {
-                        toast(e.message, "er");
-                    }
-                })
-                .then(function () {
-                    b.disabled = false;
-                    b.textContent = ltr("জমা নিন");
-                });
-        });
-
-
-        /* =====================================================================
          * আমার মার্কেট
          * ===================================================================== */
         var MKT = null;
         var mktPick = null;   // null = সব মার্কেট
-
-        window.debugMkt = function() {
-            console.log("MKT:", MKT);
-            console.log("Markets count:", MKT && MKT.markets ? MKT.markets.length : 0);
-            loadMkt();
-            console.log("Called loadMkt()");
-        };
 
         /* মার্কেট ট্যাবের FAB — বিদ্যমান "নতুন" ট্যাবের কাস্টমার-ফর্মেই নিয়ে যায়,
            নতুন কোনো লজিক না, শুধু একই show("new") কল */
@@ -4219,158 +3975,6 @@
                 });
             });
         }
-
-
-        /* =====================================================================
-         * গ্রাহক
-         * ===================================================================== */
-        var cTab = "ACTIVE";
-        var cTimer = null;
-        var MYC = [];
-        var cShow = 50;
-        function loadCust(silent) {
-            var s = q("cq").value.trim();
-            var path = "/api/dashboard/agent-customers" +
-                (s ? "?search=" + encodeURIComponent(s) : "");
-
-            if (silent !== true) {
-                q("cList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-            }
-
-            NK.GET(path).then(function (list) {
-                var all = NK.rows(list);
-
-                MYC = all.filter(function (c) {
-                    if (cTab === "ACTIVE")    return c.status === "ACTIVE";
-                    if (cTab === "COMPLETED") return c.status === "CLOSED";
-                    if (cTab === "OVERDUE")   return Number(c.daysOverdue || 0) > 0;
-                    return true;
-                });
-
-                if (!MYC.length) {
-                    q("cList").innerHTML = '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
-                    return;
-                }
-
-                drawCust();
-
-            }).catch(function (e) {
-                q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
-            });
-        }
-
-        function drawCust() {
-            var rows = MYC;
-
-            var h = '<div class="list">';
-
-            rows.slice(0, cShow).forEach(function (c, i) {
-                var closed = c.status === "CLOSED";
-                var initial = NK.esc((c.fullName || "?").charAt(0));
-
-                var nrBadge = c.isRepeat
-                    ? '<span class="b a" style="font-size:9.5px;">' + ltr('রিপিট') + '</span>'
-                    : '<span class="b g" style="font-size:9.5px;">' + ltr('নতুন') + '</span>';
-
-                var remTxt = "";
-                if (!closed && c.remainingDays !== null && c.remainingDays !== undefined) {
-                    if (c.remainingDays >= 0) {
-                        remTxt = c.remainingDays + " " + ltr("দিন বাকি");
-                    } else {
-                        remTxt = Math.abs(c.remainingDays) + " " + ltr("দিন পার");
-                    }
-                }
-
-                var odTxt = Number(c.daysOverdue || 0) > 0
-                    ? '<span style="color:' + (c.flag === "RED" ? "var(--red)" : "var(--amber)") + ';font-weight:600;">' + c.daysOverdue + ' ' + ltr('দিন পিছিয়ে') + '</span>'
-                    : "";
-
-                h += '<div class="item"' +
-                    (closed ? '' : ' data-pay="' + c.loanId +
-                        '" data-name="' + NK.esc(c.fullName) + '" data-amt=""') + '>';
-
-                h += '<div class="av" id="cav' + c.customerId + '"' +
-                    (c.hasPhoto ? ' data-photo="' + c.customerId + '"' : '') + '>' +
-                    initial + '</div>';
-
-                h += '<div class="mid"><b>' + NK.esc(c.fullName) + ' ' + nrBadge + '</b>' +
-                    '<span>' + NK.esc(c.customerCode || "—") + ' · ' + NK.esc(c.phone || "—") + '</span>' +
-                    '<span>' + NK.inr(c.principal) + ' · ' + NK.esc(c.marketName || "—") +
-                    (remTxt ? ' · ' + remTxt : '') + '</span>' +
-                    (odTxt ? '<span>' + odTxt + '</span>' : '') +
-                    '</div>';
-
-                h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                    (closed ? '<span class="b g">' + ltr('শোধ') + '</span>'
-                        : '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>') +
-                    '</div>';
-
-                h += '</div>';
-            });
-
-            h += '</div>';
-
-            if (rows.length > cShow) {
-                h += '<button class="btn ghost block" id="cMore" ' +
-                    'style="margin-top:12px;">' + ltr('আরও দেখুন') + ' (' +
-                    (rows.length - cShow) + ' ' + ltr('জন বাকি') + ')</button>';
-            }
-
-            q("cList").innerHTML = h;
-
-            if (q("cMore")) {
-                q("cMore").addEventListener("click", function () {
-                    cShow += 50;
-                    drawCust();
-                });
-            }
-
-            bindPay(q("cList"));
-
-            Array.prototype.forEach.call(q("cList").querySelectorAll(".av[id^='cav']"), function (el) {
-                el.style.cursor = "pointer";
-                el.addEventListener("click", function (ev) {
-                    ev.stopPropagation();
-                    openCustomerProfile(el.id.replace("cav", ""));
-                });
-            });
-
-            loadRowPhotos();
-        }
-
-        function loadRowPhotos() {
-            var avs = document.querySelectorAll("#cList [data-photo]");
-            Array.prototype.forEach.call(avs, function (el) {
-                var id = el.getAttribute("data-photo");
-                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
-                    if (!blob) return;
-                    var url = URL.createObjectURL(blob);
-                    el.style.backgroundImage = "url(" + url + ")";
-                    el.style.backgroundSize = "cover";
-                    el.style.backgroundPosition = "center";
-                    el.textContent = "";
-                }).catch(function () {
-                });
-            });
-        }
-
-        Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (b) {
-            b.addEventListener("click", function () {
-                Array.prototype.forEach.call(document.querySelectorAll("#ctabs button"), function (x) {
-                    x.classList.remove("on");
-                });
-                b.classList.add("on");
-                cTab = b.getAttribute("data-t");
-                cShow = 50;
-                loadCust();
-            });
-        });
-
-        q("cq").addEventListener("input", function () {
-            clearTimeout(cTimer);
-            cShow = 50;
-            cTimer = setTimeout(loadCust, 400);
-        });
 
 
         /* =====================================================================
@@ -6033,8 +5637,6 @@
         /* =====================================================================
          * কাস্টমার প্রোফাইল
          * ===================================================================== */
-        var GEN_BN = { MALE: ltr("পুরুষ"), FEMALE: ltr("মহিলা"), OTHER: ltr("অন্য") };
-
         function pfRow(label, value) {
             if (value === null || value === undefined || value === "") return "";
             return '<div class="r"><span>' + NK.esc(label) + '</span><b>' +
