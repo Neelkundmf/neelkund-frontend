@@ -703,6 +703,21 @@
         .colorchips .green.on  { background: linear-gradient(150deg, #34D399, #059669); border-color: transparent; color: #fff; box-shadow: 0 8px 16px -8px rgba(5,150,105,.55); }
         .colorchips button.on .dot { background: #fff; }
         .colorchips button.on .cnt { background: rgba(255,255,255,.28); color: #fff; }
+
+        /* ---- আমার গ্রাহক — কাস্টমার কার্ড, রঙিন অ্যাভাটার + দেরি-ব্যাজ ---- */
+        .mcitem { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+        .mcitem.red    { border-color: #FCA5A5; border-left: 4px solid var(--red); }
+        .mcitem.orange { border-color: #FED7AA; border-left: 4px solid #EA580C; }
+        .mcitem.green  { border-color: #A7F3D0; border-left: 4px solid #059669; }
+        .mcitem .av { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 700; font-size: 15px; }
+        .mcitem.red .av    { background: var(--red-soft); color: var(--red); }
+        .mcitem.orange .av { background: #FFEDD5; color: #C2410C; }
+        .mcitem.green .av  { background: var(--green-soft); color: #059669; }
+        .mcitem .mid { flex: 1; min-width: 0; }
+        .mcitem .mid b { display: block; font-size: 14px; font-weight: 700; }
+        .mcitem .mid span { font-size: 11.5px; color: var(--muted); display: block; margin-top: 1px; }
+        .mcitem .od { text-align: right; flex-shrink: 0; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 13px; }
+        .mcitem .od span { display: block; font-size: 9px; font-weight: 700; color: #94A0B4; margin-top: 1px; }
         /* ---- কাস্টমার পেমেন্ট পাতা ---- */
         #payPage {
             position: fixed;
@@ -5105,15 +5120,17 @@
                 h += '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
             } else {
                 list.slice(0, 500).forEach(function (x) {
-                    h += '<div class="colcard" data-prof="' + x.customerId + '" style="cursor:pointer;">';
-                    h += '<div class="top">';
-                    h += '<div><div class="nm">' + NK.esc(x.fullName) + '</div>' +
-                        '<div class="ph">' + NK.esc(x.customerCode || "—") + ' · ' + NK.esc(x.phone || "—") + '</div></div>';
-                    h += '</div>';
+                    var flagCls = x.flag === "RED" ? "red" : (x.flag === "YELLOW" ? "orange" : "green");
+                    var initial = NK.esc((x.fullName || "?").charAt(0));
+                    var days = Number(x.daysOverdue || 0);
 
-                    h += '<div style="font-size:13px;color:var(--navy);">' +
-                        ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</div>';
-
+                    h += '<div class="mcitem ' + flagCls + '" data-prof="' + x.customerId + '">';
+                    h += '<div class="av">' + initial + '</div>';
+                    h += '<div class="mid"><b>' + NK.esc(x.fullName) + '</b>' +
+                        '<span>' + NK.esc(x.customerCode || "—") + ' · ' + ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</span></div>';
+                    if (days > 0) {
+                        h += '<div class="od">' + days + '<span>' + ltr('দিন') + '</span></div>';
+                    }
                     h += '</div>';
                 });
             }
