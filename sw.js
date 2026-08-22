@@ -93,9 +93,13 @@ self.addEventListener("fetch", function (e) {
     }
 
     /* বাকি নিজেদের ফাইল — নেট আগে, নেট না থাকলে জমানোটা।
-       এতে অনলাইনে সবসময় টাটকা ফাইল আসে, নতুন আপডেট আটকায় না। */
+       এতে অনলাইনে সবসময় টাটকা ফাইল আসে, নতুন আপডেট আটকায় না।
+       ⚠️ fetch(req) সাধারণ mode-এ ব্রাউজারের নিজের HTTP cache থেকেও উত্তর
+       পেতে পারে (হোস্টিং যদি Cache-Control পাঠায়) — তাই cache:"reload" দিয়ে
+       জোর করে নেটওয়ার্ক থেকেই আনি, নাহলে push-এর পরেও পুরনো agent.html/
+       admin.html আটকে থাকতে পারে যদিও এই SW নিজে "নেট আগে" বলছে। */
     e.respondWith(
-        fetch(req).then(function (res) {
+        fetch(req, { cache: "reload" }).then(function (res) {
             if (res && res.ok) {
                 var copy = res.clone();
                 caches.open(VER).then(function (c) { c.put(req, copy); });
