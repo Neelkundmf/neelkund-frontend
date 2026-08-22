@@ -3385,7 +3385,9 @@
                     var closed = c.status === "CLOSED";
                     h += '<div class="item"' +
                         (closed ? '' : ' data-pay="' + c.loanId +
-                            '" data-name="' + NK.esc(c.customerName) + '" data-amt=""') + '>';
+                            '" data-name="' + NK.esc(c.customerName) +
+                            '" data-phone="' + NK.esc(c.customerPhone || "") +
+                            '" data-code="' + NK.esc(c.customerCode || "") + '"') + '>';
                     h += '<div class="proftap" data-prof-tap="' + c.customerId + '">';
                     h += '<div class="av" data-photo="' + c.customerId + '">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
                     h += '<div class="mid"><b>' + NK.esc(c.customerName) + '</b>' +
@@ -4009,7 +4011,8 @@
                     r.odCustomers.forEach(function (x) {
                         h += '<div class="item" data-pay="' + x.loanId +
                             '" data-name="' + NK.esc(x.customerName) +
-                            '" data-amt="">';
+                            '" data-phone="' + NK.esc(x.customerPhone || "") +
+                            '" data-code="' + NK.esc(x.customerCode || "") + '">';
                         h += '<div class="proftap" data-prof-tap="' + x.customerId + '">';
                         h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
                         h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
@@ -4031,7 +4034,8 @@
                         var canPay = !x.coveredByAdvance;
                         h += '<div class="item"' +
                             (canPay ? ' data-pay="' + x.loanId +
-                                '" data-name="' + NK.esc(x.customerName) + '" data-amt=""' : '') + '>';
+                                '" data-name="' + NK.esc(x.customerName) +
+                                '" data-phone="' + NK.esc(x.customerPhone || "") + '"' : '') + '>';
                         h += '<div class="proftap" data-prof-tap="' + x.customerId + '">';
                         h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
                         h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
@@ -4206,11 +4210,11 @@
         function bindPay(box) {
             Array.prototype.forEach.call(box.querySelectorAll("[data-pay]"), function (el) {
                 el.addEventListener("click", function () {
-                    openPay(
+                    openPayPage(
                         Number(el.getAttribute("data-pay")),
                         el.getAttribute("data-name"),
-                        "",
-                        el.getAttribute("data-amt")
+                        el.getAttribute("data-phone") || "",
+                        el.getAttribute("data-code") || ""
                     );
                 });
             });
