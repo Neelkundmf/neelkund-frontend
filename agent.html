@@ -2217,7 +2217,10 @@
         /* Back button for Market Detail — history.back() ব্যবহার করি যাতে
            যে ট্যাব থেকে এসেছিল সেখানেই ফেরে (popstate handler-এর show() দিয়ে) */
         q("mktDetailBack").addEventListener("click", function() {
-            history.back();
+            q("v-market-detail").classList.remove("on");
+            // Go back to the tab that was active before opening market detail
+            var backToView = PREV_VIEW_BEFORE_MARKET_DETAIL || "market";
+            show(backToView);
         });
 
         /* =====================================================================
@@ -2556,8 +2559,10 @@
         }
 
         var CURRENT_MARKET = null;
+        var PREV_VIEW_BEFORE_MARKET_DETAIL = null;
 
         function openMarketDetailPage(marketId, marketName) {
+            PREV_VIEW_BEFORE_MARKET_DETAIL = CURRENT_VIEW;
             q("v-" + CURRENT_VIEW).classList.remove("on");
             q("v-market-detail").classList.add("on");
             CURRENT_VIEW = "market-detail";
