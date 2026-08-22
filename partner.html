@@ -208,25 +208,12 @@
         .ld-cell.extra { background: #DBEAFE; color: #1D4ED8; }
         .ld-cell .pm { font-size: 8px; font-weight: 600; opacity: .9; }
 
-        /* ---- গ্রাহক স্বাক্ষর ---- */
+        /* ---- গ্রাহক স্বাক্ষর ক্যাপচার ---- */
         .sig-capture {
             padding: 16px;
             background: #f8f8f8;
             border-radius: 8px;
             margin-bottom: 16px;
-        }
-        .sig-preview {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fff;
-            margin: 12px 0;
-            text-align: center;
-        }
-        .sig-preview img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 4px;
         }
         #sigCanvas {
             display: block !important;
@@ -4904,16 +4891,7 @@
                     cur = new Date(yy, mm + 1, 1);
                 }
 
-                // ব্যাচ ৩ — গ্রাহক স্বাক্ষর সেকশন
-                h += '<div class="ld-title">✍️ ' + ltr('গ্রাহক স্বাক্ষর') + '</div>';
-                if (d.customerSignaturePath && d.customerSignedAt) {
-                    h += '<div class="ld-box">';
-                    h += ldRow(ltr("স্বাক্ষর করা হয়েছে"), d.customerSignedAt ? NK.dtTime(d.customerSignedAt) : "—", "g");
-                    h += '<div class="sig-preview">';
-                    h += '<img src="' + NK.esc(d.customerSignaturePath) + '" alt="গ্রাহক স্বাক্ষর">';
-                    h += '</div>';
-                    h += '</div>';
-                } else if (d.approvalStatus === "APPROVED") {
+                if (d.approvalStatus === "APPROVED") {
                     h += '<div class="sig-capture" id="sigCaptureSection">';
                     h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
                     h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
