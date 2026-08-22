@@ -317,6 +317,76 @@
         .amtcard.c3 { background: linear-gradient(135deg, #EA580C, #F97316); }
         .amtcard.c4 { background: linear-gradient(135deg, #DB2777, #EC4899); }
 
+        /* ---- Dashboard ট্যাব — নতুন ফরম্যাট: Due/Collected বক্স ---- */
+        .duegrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .duebox {
+            border-radius: 15px;
+            padding: 13px;
+            color: #fff;
+        }
+        .duebox.due  { background: linear-gradient(135deg, #0D6E64, #14837C); }
+        .duebox.coll { background: linear-gradient(135deg, #1E4FA3, #2E63D8); }
+        .duebox .t { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .duebox .r {
+            display: flex; justify-content: space-between;
+            font-size: 11px; padding: 3px 0; color: rgba(255,255,255,.82);
+        }
+        .duebox .r b { color: #fff; font-variant-numeric: tabular-nums; }
+
+        /* ---- Dashboard ট্যাব — নতুন ফরম্যাট: সাদা কার্ড অঙ্ক-বক্স ---- */
+        .amtgrid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .amtcard2 {
+            background: #fff;
+            border: 1.5px solid var(--navy);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .amtcard2:active { transform: scale(.98); }
+        .amtcard2 .amt {
+            font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800;
+            color: var(--navy); font-variant-numeric: tabular-nums;
+        }
+        .amtcard2 .stack { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+        .amtcard2 .r {
+            display: flex; justify-content: space-between;
+            font-size: 10.5px; color: var(--muted); padding: 3px 2px; text-align: left;
+        }
+        .amtcard2 .r b { color: #0F172A; font-variant-numeric: tabular-nums; }
+
+        /* ---- Dashboard ট্যাব — আজকের বিতরণ লিস্ট ---- */
+        .todaydisb-h {
+            font-size: 13.5px; font-weight: 800; color: var(--navy);
+            margin: 6px 0 4px; padding-bottom: 6px;
+            border-bottom: 2px solid #1B8F86; display: inline-block;
+        }
+        .todaydisb-list { margin: 10px 0 18px; }
+        .todaydisb-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 0; border-bottom: 1px solid var(--line);
+        }
+        .todaydisb-item:last-child { border-bottom: 0; }
+        .todaydisb-item .num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--green-soft); color: var(--green);
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .todaydisb-item .nm { flex: 1; font-size: 12.5px; font-weight: 700; color: var(--navy); }
+        .todaydisb-item .amt { font-size: 12.5px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+        .todaydisb-empty { font-size: 12px; color: #94A3B8; text-align: center; padding: 14px 0; }
+
         /* ভেতরের গ্রাহক তালিকার ট্যাব */
         #amtPage .atabs {
             display: flex;
@@ -1314,6 +1384,31 @@
         }
         .branch-row .val { font-size: 12.5px; font-weight: 800; color: #fff; margin-top: 1px; }
 
+        /* ---- শাখা/কোড/ম্যানেজার — ৩টা বক্স পাশাপাশি ---- */
+        .info-grid {
+            margin-top: 9px;
+            display: flex;
+            gap: 7px;
+        }
+        .info-box {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 12px;
+            padding: 8px 7px;
+            text-align: center;
+        }
+        .info-box .lbl {
+            font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
+            color: rgba(255,255,255,.55); font-weight: 700;
+        }
+        .info-box .val {
+            font-size: 11.5px; font-weight: 800; color: #fff; margin-top: 3px;
+            line-height: 1.25;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
         /* ---- নিচের ট্যাব — প্রতিটা আলাদা রঙের বক্স, টাচ করলে উপরে উঠবে ---- */
         .tabs {
             background: #F7F9FC;
@@ -1420,11 +1515,18 @@
             </div>
         </div>
 
-        <div class="branch-row" id="branchRow" style="display:none;">
-            <div class="ic">🏢</div>
-            <div>
+        <div class="info-grid" id="branchRow" style="display:none;">
+            <div class="info-box">
                 <div class="lbl">শাখা</div>
                 <div class="val" id="agentBranch">—</div>
+            </div>
+            <div class="info-box">
+                <div class="lbl">শাখা কোড</div>
+                <div class="val" id="agentBranchCode">—</div>
+            </div>
+            <div class="info-box">
+                <div class="lbl">ম্যানেজার</div>
+                <div class="val" id="agentManager">—</div>
             </div>
         </div>
     </div>
@@ -1440,7 +1542,9 @@
     <div class="body">
         <!-- ---------------- আজকের কাজ ---------------- -->
         <div class="view on" id="v-today">
+            <div id="todaySummary"></div>
             <div id="amtDash"></div>
+            <div id="todayDisb"></div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
 
             <!-- কালেকশন লিস্ট -->
@@ -1719,7 +1823,7 @@
     </div>
 
     <div class="tabs">
-        <button class="on" data-v="today"><i>📋</i>আজ</button>
+        <button class="on" data-v="today"><i>📋</i>Dashboard</button>
         <button data-v="market"><i>🏬</i>মার্কেট</button>
         <button data-v="coll"><i>💰</i>কালেকশন</button>
         <button data-v="mycust"><i>👥</i>আমার গ্রাহক</button>
@@ -2922,36 +3026,22 @@
         function drawAmtDash(d) {
             var h = "";
 
-            /* উপরে মোট — Due / Collected */
-            h += '<div class="target" style="margin-bottom:14px;">';
-            h += '<div class="t">📊 ' + ltr("অঙ্ক অনুযায়ী হিসাব") + '</div>';
-            h += '<div class="sub" style="margin-top:10px;">';
-            h += '<span>' + ltr('মোট বাকি') + ' ' + NK.inr(d.totalDue) + '</span>';
-            h += '<span>' + ltr('আজ উঠল') + ' ' + NK.inr(d.totalCollectedToday) + '</span>';
-            h += '</div>';
-            h += '</div>';
+            h += '<div class="sect-label" style="font-size:12.5px;font-weight:700;color:#334155;margin:2px 0 10px;">🏷️ ' +
+                ltr("অঙ্ক অনুযায়ী হিসাব") + '</div>';
 
-            /* ৫টা রঙিন floating বক্স — গ্রিড আকারে */
-            h += '<div class="amtdashgrid">';
+            /* ৫টা সাদা কার্ড অঙ্ক-বক্স — গ্রিড আকারে (শেষটা একাই পুরো সারি) */
+            h += '<div class="amtgrid2">';
             (d.boxes || []).forEach(function (b, i) {
-                h += '<div class="amtcard c' + (i % 5) + '" data-amt="' + b.amount + '">';
-
-                h += '<div class="ah">';
+                var isLast = i === (d.boxes.length - 1) && (d.boxes.length % 2 === 1);
+                h += '<div class="amtcard2" data-amt="' + b.amount + '"' +
+                    (isLast ? ' style="grid-column:span 2;"' : '') + '>';
                 h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
-                h += '<div class="arrow">›</div>';
+                h += '<div class="stack">';
+                h += '<div class="r"><span>' + ltr('Total Cust') + '</span><b>' + b.totalCustomers + '</b></div>';
+                h += '<div class="r"><span>' + ltr('Total Due') + '</span><b>' + NK.inrShort(b.totalDue) + '</b></div>';
+                h += '<div class="r"><span>' + ltr('আজ ওঠার') + '</span><b>' + NK.inrShort(b.todayCollection) + '</b></div>';
+                h += '<div class="r"><span>' + ltr('আজ উঠল') + '</span><b>' + NK.inrShort(b.todayCollected) + '</b></div>';
                 h += '</div>';
-
-                h += '<div class="amini">';
-                h += '<div><div class="n">' + b.totalCustomers + '</div><div class="k">' + ltr('গ্রাহক') + '</div></div>';
-                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollection) +
-                    '</div><div class="k">' + ltr('আজ ওঠার') + '</div></div>';
-                h += '<div><div class="n" style="font-size:14px;">' + NK.inrShort(b.todayCollected) +
-                    '</div><div class="k">' + ltr('আজ উঠল') + '</div></div>';
-                h += '</div>';
-
-                h += '<div class="aout"><span>' + ltr('মোট বাকি') + '</span><b>' +
-                    NK.inrShort(b.totalDue) + '</b></div>';
-
                 h += '</div>';
             });
             h += '</div>';
@@ -2964,6 +3054,40 @@
                     openAmtDashCustomers(el.getAttribute("data-amt"));
                 });
             });
+        }
+
+        /* Dashboard ট্যাবে "আজকের বিতরণ" — সেই একই endpoint যা "বিতরণ" ট্যাবেও
+           ব্যবহার হয় (/api/disbursements/agent/today), শুধু এখানে ছোট
+           নাম্বার-করা লিস্ট আকারে সংক্ষেপে দেখানো হচ্ছে */
+        function loadTodayDisb() {
+            NK.GET("/api/disbursements/agent/today").then(function (response) {
+                var list = Array.isArray(response) ? response : (response.disbursements || []);
+                drawTodayDisb(list);
+            }).catch(function () {
+                q("todayDisb").innerHTML = "";
+            });
+        }
+
+        function drawTodayDisb(list) {
+            var h = '<div class="todaydisb-h">' + ltr('আজকের বিতরণ') + '</div>';
+
+            if (!list.length) {
+                h += '<div class="todaydisb-empty">' + ltr('আজ এখনও কোনো বিতরণ হয়নি') + '</div>';
+                q("todayDisb").innerHTML = h;
+                return;
+            }
+
+            h += '<div class="todaydisb-list">';
+            list.forEach(function (disb, i) {
+                h += '<div class="todaydisb-item">';
+                h += '<div class="num">' + (i + 1) + '</div>';
+                h += '<div class="nm">' + NK.esc(disb.customerName || '—') + '</div>';
+                h += '<div class="amt">' + NK.inr(disb.amount || 0) + '</div>';
+                h += '</div>';
+            });
+            h += '</div>';
+
+            q("todayDisb").innerHTML = h;
         }
 
         function openAmtDashCustomers(amount) {
@@ -3376,6 +3500,7 @@
                     closePayPage();
                     loadAmtDash();
                     loadToday();
+                    loadTodayDisb();
                 })
                 .catch(function (e) {
                     if (!e.status) {
@@ -3387,6 +3512,29 @@
                     }
                 });
         }
+        /* Dashboard ট্যাবের উপরে — আজকের Due (মোট গ্রাহক + মোট বকেয়া) আর
+           আজকের Collected (টার্গেট বনাম যা আসলে উঠেছে) — দুটো আলাদা বক্স।
+           একই /api/agent/my-today ডেটা, শুধু নতুন করে সাজানো। */
+        function drawTodaySummary(r, target, got) {
+            var h = "";
+            h += '<div class="duegrid">';
+
+            h += '<div class="duebox due">';
+            h += '<div class="t">📌 ' + ltr('আজকের Due') + '</div>';
+            h += '<div class="r"><span>' + ltr('Total Cust') + '</span><b>' + (r.totalCustomers || 0) + '</b></div>';
+            h += '<div class="r"><span>' + ltr('Total Due') + '</span><b>' + NK.inr(r.totalDue || 0) + '</b></div>';
+            h += '</div>';
+
+            h += '<div class="duebox coll">';
+            h += '<div class="t">✅ ' + ltr('আজকের Collected') + '</div>';
+            h += '<div class="r"><span>' + ltr('Target') + '</span><b>' + NK.inr(target) + '</b></div>';
+            h += '<div class="r"><span>' + ltr('Collected') + '</span><b>' + NK.inr(got) + '</b></div>';
+            h += '</div>';
+
+            h += '</div>';
+            q("todaySummary").innerHTML = h;
+        }
+
         function loadToday(silent) {
             if (silent !== true) {
                 q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -3396,6 +3544,8 @@
                 var target = Number(r.netTarget || 0);
                 var got = Number(r.collectedToday || 0);
                 var pct = target > 0 ? Math.min(100, (got / target * 100)) : (got > 0 ? 100 : 0);
+
+                drawTodaySummary(r, target, got);
 
                 var h = "";
 
@@ -6069,11 +6219,13 @@
             q("app").style.display = "block";
             q("agentName").textContent = u.fullName;
 
-            /* নিজের কোড/শাখা/ছবি — ড্যাশবোর্ডের উপরের প্যানেলে */
+            /* নিজের কোড/শাখা/শাখা-কোড/ম্যানেজার/ছবি — ড্যাশবোর্ডের উপরের প্যানেলে */
             NK.GET("/api/agent/me").then(function (p) {
                 if (p.staffCode) q("agentCode").textContent = p.staffCode;
                 if (p.branchName) {
                     q("agentBranch").textContent = p.branchName;
+                    q("agentBranchCode").textContent = p.branchCode || "—";
+                    q("agentManager").textContent = p.branchManagerName || "—";
                     q("branchRow").style.display = "flex";
                 }
                 if (p.hasPhoto) {
@@ -6098,6 +6250,7 @@
             drawPend();
             loadAmtDash();
             loadToday();
+            loadTodayDisb();
             loadNotif();
 
             /* নেট থাকলে জমে থাকা এন্ট্রি পাঠাই */
@@ -6216,6 +6369,7 @@
             show("today");
             loadToday();
             loadAmtDash();
+            loadTodayDisb();
             loadNotif();
         };
 
