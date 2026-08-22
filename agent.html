@@ -3987,14 +3987,20 @@
             this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12);
         });
         /* ---- অ্যাডমিনের সেটিংস থেকে মার্কআপ/মেয়াদ আনি — সেটিংস বদলালে এই
-           প্রিভিউও বদলাবে, আগে ১৫%/৪৬ দিন সরাসরি কোডে বসানো ছিল ---- */
+           প্রিভিউও বদলাবে, আগে ১৫%/৪৬ দিন সরাসরি কোডে বসানো ছিল। আসল fetch-টা
+           এখানে না রেখে boot() সফল হওয়ার পরে ডাকা হয় (নিচে "শুরু" সেকশনে) —
+           টোকেন রেডি হওয়ার আগেই (পাতা খোলা মাত্র, লগইন-স্টেট বসারও আগে) এখানে
+           ডাকলে প্রতিবার ৪০৩ আসত আর প্রিভিউ কখনও অ্যাডমিনের আসল সংখ্যা দেখাতোই
+           না, সবসময় নিচের ফলব্যাকেই থেকে যেত */
         var LOAN_MARKUP_MULT = 1.15;
         var LOAN_TENURE_DAYS = 46;
-        NK.GET("/api/admin/settings/loan-calc").then(function (s) {
-            if (s && s.markupMultiplier) LOAN_MARKUP_MULT = Number(s.markupMultiplier);
-            if (s && s.tenureDays) LOAN_TENURE_DAYS = Number(s.tenureDays);
-            nCalc();
-        }).catch(function () { /* fallback সংখ্যা দিয়েই চলবে */ });
+        function loadLoanCalcSettings() {
+            NK.GET("/api/admin/settings/loan-calc").then(function (s) {
+                if (s && s.markupMultiplier) LOAN_MARKUP_MULT = Number(s.markupMultiplier);
+                if (s && s.tenureDays) LOAN_TENURE_DAYS = Number(s.tenureDays);
+                nCalc();
+            }).catch(function () { /* fallback সংখ্যা দিয়েই চলবে */ });
+        }
 
         /* ---- লোন অঙ্ক বদলালে হিসাব দেখাই ---- */
         function nCalc() {
@@ -6364,6 +6370,7 @@
             loadTodayDisb();
             loadNotif();
             startCollectionListRefresh();
+            loadLoanCalcSettings();
 
             /* নেট থাকলে জমে থাকা এন্ট্রি পাঠাই */
             if (navigator.onLine) setTimeout(syncNow, 1500);
