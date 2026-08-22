@@ -5357,7 +5357,7 @@
                         var initial = (c.customerName || "?").charAt(0);
                         h += '<tr>';
                         h += '<td class="tsl">' + (i + 1) + '</td>';
-                        h += '<td><div class="tav">' + NK.esc(initial) + '</div></td>';
+                        h += '<td><div class="tav" data-photo="' + c.customerId + '">' + NK.esc(initial) + '</div></td>';
                         h += '<td class="tnm">' + NK.esc(c.customerName || "—") + '</td>';
                         h += '<td class="tph">' + NK.esc(c.customerPhone || "—") + '</td>';
                         h += '<td class="tval">' + NK.inr(c.loanAmount || 0) + '</td>';
@@ -5385,6 +5385,24 @@
 
             h += '</tbody></table></div></div>';
             q("repMarkets").innerHTML = h;
+            loadReportPhotos();
+        }
+
+        /* কাস্টমারের আসল প্রোফাইল ছবি — ফর্ম ফিলাপের সময় তোলা, টোকেন প্রোটেক্টেড
+           বলে <img src> কাজ করে না, তাই blob এনে বসাতে হয় (loadRecentCollPhotos()-এর
+           মতোই) — ছবি না থাকলে বা লোড ব্যর্থ হলে আদ্যক্ষর-ব্যাজই থেকে যায় */
+        function loadReportPhotos() {
+            var avs = document.querySelectorAll("#repMarkets [data-photo]");
+            Array.prototype.forEach.call(avs, function (el) {
+                var id = el.getAttribute("data-photo");
+                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
+                    if (!blob) return;
+                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    el.style.backgroundSize = "cover";
+                    el.style.backgroundPosition = "center";
+                    el.textContent = "";
+                }).catch(function () {});
+            });
         }
 
         q("reportDownloadCsv").addEventListener("click", function () {
