@@ -354,45 +354,79 @@
             font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700;
             color: #fff; font-variant-numeric: tabular-nums;
         }
+        .duebox .bar {
+            height: 4px; background: rgba(255,255,255,.28); border-radius: 3px;
+            margin-top: 8px; overflow: hidden; position: relative; z-index: 1;
+        }
+        .duebox .bar i { display: block; height: 100%; background: #fff; border-radius: 3px; }
+
+        /* ---- Dashboard ট্যাব — দিয়েছে/দেয়নি ২-লাইন বক্স + পাশে খালি বক্স ---- */
+        .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .statone {
+            background: #fff; border: 1px solid var(--line); border-radius: 12px;
+            padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; justify-content: center;
+        }
+        .statone .ln { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; }
+        .statone .ln .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .statone .ln.g .dot { background: var(--green); }
+        .statone .ln.r .dot { background: var(--red); }
+        .statone .ln b { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 700; }
+        .statone .ln.g b { color: var(--green); }
+        .statone .ln.r b { color: var(--red); }
+        .statone .ln span { color: var(--muted); font-weight: 600; }
+        .blankbox {
+            background: rgba(139,92,246,.05); border: 1.5px dashed rgba(139,92,246,.3);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: #8B7FB0; font-size: 22px; font-weight: 300;
+        }
+
+        /* ---- Dashboard ট্যাব — আজকের গ্রাহক (দিয়েছে+দেয়নি একটাই লিস্টে) ---- */
+        .cust-card {
+            background: rgba(255,255,255,.85); border: 1px solid rgba(139,92,246,.14);
+            border-radius: 18px; padding: 12px; box-shadow: 0 18px 34px -20px rgba(76,29,149,.3);
+            backdrop-filter: blur(10px); margin-bottom: 14px;
+        }
+        .custlist { display: flex; flex-direction: column; gap: 6px; }
+        .custrow {
+            display: flex; align-items: center; gap: 9px; background: #fff;
+            border: 1px solid var(--line); border-radius: 12px; padding: 7px 10px; cursor: pointer;
+        }
+        .custrow:active { transform: scale(.98); }
+        .custrow .av {
+            width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; font-size: 10px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; color: #fff;
+        }
+        .custrow .av.r { background: var(--red); }
+        .custrow .av.g { background: var(--green); }
+        .custrow .nm {
+            flex: 1; min-width: 0; font-size: 11.5px; font-weight: 700; color: var(--navy);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .custrow .amt { font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--navy); }
+        .custrow .pdword { flex-shrink: 0; font-size: 8.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+        .custrow .pdword.paid { background: var(--green-soft); color: var(--green); }
+        .custrow .pdword.due { background: var(--red-soft); color: var(--red); }
 
         /* ---- Dashboard ট্যাব — আল্ট্রা-মডার্ন ভাসমান অঙ্ক-বক্স, প্রতিটা আলাদা রঙে ---- */
-        .amtgrid2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 11px;
-            margin-bottom: 20px;
+        .amtrow-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+        .amtrow1 {
+            display: flex; align-items: center; gap: 6px;
+            border-radius: 14px; padding: 9px 11px; color: #fff;
+            position: relative; overflow: hidden; cursor: pointer;
         }
-        .amtcard2 {
-            border-radius: 20px;
-            padding: 14px;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        .amtcard2:active { transform: scale(.98); }
-        .amtcard2.c0 { background: linear-gradient(150deg, #6366F1, #4338CA); box-shadow: 0 16px 28px -12px rgba(67,56,202,.55); }
-        .amtcard2.c1 { background: linear-gradient(150deg, #A78BFA, #7C3AED); box-shadow: 0 16px 28px -12px rgba(124,58,237,.55); }
-        .amtcard2.c2 { background: linear-gradient(150deg, #F472B6, #DB2777); box-shadow: 0 16px 28px -12px rgba(219,39,119,.55); }
-        .amtcard2.c3 { background: linear-gradient(150deg, #FBBF24, #EA580C); box-shadow: 0 16px 28px -12px rgba(234,88,12,.55); }
-        .amtcard2.c4 { background: linear-gradient(150deg, #34D399, #0D9488); box-shadow: 0 16px 28px -12px rgba(13,148,136,.55); }
-        .amtcard2::after {
-            content: ""; position: absolute; top: -40%; right: -15%;
-            width: 90px; height: 90px; background: rgba(255,255,255,.14); border-radius: 50%;
-        }
-        .amtcard2 .amt {
-            font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700;
+        .amtrow1:active { transform: scale(.98); }
+        .amtrow1.c0 { background: linear-gradient(150deg, #6366F1, #4338CA); box-shadow: 0 10px 18px -9px rgba(67,56,202,.5); }
+        .amtrow1.c1 { background: linear-gradient(150deg, #A78BFA, #7C3AED); box-shadow: 0 10px 18px -9px rgba(124,58,237,.5); }
+        .amtrow1.c2 { background: linear-gradient(150deg, #F472B6, #DB2777); box-shadow: 0 10px 18px -9px rgba(219,39,119,.5); }
+        .amtrow1.c3 { background: linear-gradient(150deg, #FBBF24, #EA580C); box-shadow: 0 10px 18px -9px rgba(234,88,12,.5); }
+        .amtrow1.c4 { background: linear-gradient(150deg, #34D399, #0D9488); box-shadow: 0 10px 18px -9px rgba(13,148,136,.5); }
+        .amtrow1 .amt {
+            font-family: 'Fraunces', serif; font-size: 13px; font-weight: 700; width: 56px; flex-shrink: 0;
             position: relative; z-index: 1; font-variant-numeric: tabular-nums;
         }
-        .amtcard2 .stack {
-            margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.22);
-            position: relative; z-index: 1;
-        }
-        .amtcard2 .r {
-            display: flex; justify-content: space-between;
-            font-size: 10px; padding: 2.5px 0; color: rgba(255,255,255,.88);
-        }
-        .amtcard2 .r b { color: #fff; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .amtrow1 .a1stat { flex: 1; text-align: center; position: relative; z-index: 1; }
+        .amtrow1 .a1stat .lbl { font-size: 6.5px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,.68); }
+        .amtrow1 .a1stat .val { font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800; margin-top: 1px; font-variant-numeric: tabular-nums; }
 
         /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড ---- */
         .todaydisb-card {
@@ -3139,19 +3173,15 @@
             h += '<div class="sect-label" style="font-size:12px;font-weight:800;color:#4C1D95;margin:4px 0 12px;text-transform:uppercase;letter-spacing:.06em;">🏷️ ' +
                 ltr("অঙ্ক অনুযায়ী হিসাব") + '</div>';
 
-            /* ৫টা ভাসমান রঙিন কার্ড অঙ্ক-বক্স — গ্রিড আকারে (শেষটা একাই পুরো সারি) */
-            h += '<div class="amtgrid2">';
+            /* ৫টা ভাসমান রঙিন এক-লাইনের বক্স — লিস্ট আকারে */
+            h += '<div class="amtrow-list">';
             (d.boxes || []).forEach(function (b, i) {
-                var isLast = i === (d.boxes.length - 1) && (d.boxes.length % 2 === 1);
-                h += '<div class="amtcard2 c' + (i % 5) + '" data-amt="' + b.amount + '"' +
-                    (isLast ? ' style="grid-column:span 2;"' : '') + '>';
+                h += '<div class="amtrow1 c' + (i % 5) + '" data-amt="' + b.amount + '">';
                 h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
-                h += '<div class="stack">';
-                h += '<div class="r"><span>' + ltr('Total Cust') + '</span><b>' + b.totalCustomers + '</b></div>';
-                h += '<div class="r"><span>' + ltr('Total Due') + '</span><b>' + NK.inrShort(b.totalDue) + '</b></div>';
-                h += '<div class="r"><span>' + ltr('আজ ওঠার') + '</span><b>' + NK.inrShort(b.todayCollection) + '</b></div>';
-                h += '<div class="r"><span>' + ltr('আজ উঠল') + '</span><b>' + NK.inrShort(b.todayCollected) + '</b></div>';
-                h += '</div>';
+                h += '<div class="a1stat"><div class="lbl">Cust</div><div class="val">' + b.totalCustomers + '</div></div>';
+                h += '<div class="a1stat"><div class="lbl">Due</div><div class="val">' + NK.inrShort(b.totalDue) + '</div></div>';
+                h += '<div class="a1stat"><div class="lbl">' + ltr('ওঠার') + '</div><div class="val">' + NK.inrShort(b.todayCollection) + '</div></div>';
+                h += '<div class="a1stat"><div class="lbl">' + ltr('উঠল') + '</div><div class="val">' + NK.inrShort(b.todayCollected) + '</div></div>';
                 h += '</div>';
             });
             h += '</div>';
@@ -3624,6 +3654,8 @@
            আজকের Collected (টার্গেট বনাম যা আসলে উঠেছে) — দুটো আলাদা বক্স।
            একই /api/agent/my-today ডেটা, শুধু নতুন করে সাজানো। */
         function drawTodaySummary(r, target, got) {
+            var pct = target > 0 ? Math.min(100, (got / target * 100)) : (got > 0 ? 100 : 0);
+
             var h = "";
             h += '<div class="duegrid">';
 
@@ -3637,6 +3669,7 @@
             h += '<div class="t">✅ ' + ltr('আজকের Collected') + '</div>';
             h += '<div class="r"><span>' + ltr('Target') + '</span><b>' + NK.inr(target) + '</b></div>';
             h += '<div class="r"><span>' + ltr('Collected') + '</span><b>' + NK.inr(got) + '</b></div>';
+            h += '<div class="bar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
             h += '</div>';
 
             h += '</div>';
@@ -3651,65 +3684,50 @@
             NK.GET("/api/agent/my-today").then(function (r) {
                 var target = Number(r.netTarget || 0);
                 var got = Number(r.collectedToday || 0);
-                var pct = target > 0 ? Math.min(100, (got / target * 100)) : (got > 0 ? 100 : 0);
 
                 drawTodaySummary(r, target, got);
 
                 var h = "";
 
-                /* টার্গেট */
-                h += '<div class="target">';
-                h += '<div class="t">' + ltr('আজ তুলতে হবে') + '</div>';
-                h += '<div class="n">' + NK.inr(target) + '</div>';
-                h += '<div class="bar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
-                h += '<div class="sub"><span>' + ltr('উঠেছে') + ' ' + NK.inr(got) + '</span>' +
-                    '<span>' + pct.toFixed(0) + '%</span></div>';
+                /* দিয়েছে/দেয়নি — ২-লাইন বক্স + পাশে খালি বক্স (ভবিষ্যতে কিছু বসবে) */
+                h += '<div class="statgrid">';
+                h += '<div class="statone">';
+                h += '<div class="ln g"><span class="dot"></span><b>' + (r.paidCount || 0) + '</b><span>' + ltr('দিয়েছে') + '</span></div>';
+                h += '<div class="ln r"><span class="dot"></span><b>' + (r.unpaidCount || 0) + '</b><span>' + ltr('দেয়নি') + '</span></div>';
+                h += '</div>';
+                h += '<div class="blankbox">+</div>';
                 h += '</div>';
 
-                h += '<div class="stats">';
-                h += st(ltr("দিয়েছে"), r.paidCount, "g");
-                h += st(ltr("দেয়নি"), r.unpaidCount, "r");
-                h += '</div>';
+                /* দেয়নি + দিয়েছে — একটাই লিস্টে, প্রতি সারিতে Paid/Due ব্যাজ */
+                var unpaidList = r.unpaid || [];
+                var paidList = r.paid || [];
 
-                /* যারা দেয়নি */
-                if (r.unpaid && r.unpaid.length) {
-                    h += '<h2 style="margin:16px 0 10px;color:var(--red);">' + ltr('দেয়নি') + ' (' +
-                        r.unpaid.length + ')</h2>';
-                    h += '<div class="list">';
+                if (unpaidList.length || paidList.length) {
+                    h += '<div class="cust-card">';
+                    h += '<div class="sect-label">👥 ' + ltr('আজকের গ্রাহক') + '</div>';
+                    h += '<div class="custlist">';
 
-                    r.unpaid.forEach(function (x) {
-                        h += '<div class="item" data-pay="' + x.loanId +
+                    unpaidList.forEach(function (x) {
+                        h += '<div class="custrow" data-pay="' + x.loanId +
                             '" data-name="' + NK.esc(x.customerName) +
                             '" data-amt="' + x.dueAmount + '">';
-                        h += '<div class="av" style="background:var(--red-soft);color:var(--red);">' +
-                            NK.esc((x.customerName || "?").charAt(0)) + '</div>';
-                        h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                            '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
-                        h += '<div class="end"><b style="color:var(--red);">' +
-                            NK.inr(x.dueAmount) + '</b>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা নিন') + '</span></div>';
+                        h += '<div class="av r">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
+                        h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
+                        h += '<div class="amt">' + NK.inr(x.dueAmount) + '</div>';
+                        h += '<div class="pdword due">' + ltr('Due') + '</div>';
+                        h += '</div>';
+                    });
+
+                    paidList.forEach(function (x) {
+                        h += '<div class="custrow">';
+                        h += '<div class="av g">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
+                        h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
+                        h += '<div class="amt">' + NK.inr(x.dueAmount) + '</div>';
+                        h += '<div class="pdword paid">' + ltr('Paid') + '</div>';
                         h += '</div>';
                     });
 
                     h += '</div>';
-                }
-
-                /* যারা দিয়েছে */
-                if (r.paid && r.paid.length) {
-                    h += '<h2 style="margin:16px 0 10px;color:var(--green);">' + ltr('দিয়েছে') + ' (' +
-                        r.paid.length + ')</h2>';
-                    h += '<div class="list">';
-
-                    r.paid.forEach(function (x) {
-                        h += '<div class="item">';
-                        h += '<div class="av" style="background:var(--green-soft);color:var(--green);">✓</div>';
-                        h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                            '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
-                        h += '<div class="end"><b style="color:var(--green);">' +
-                            NK.inr(x.dueAmount) + '</b></div>';
-                        h += '</div>';
-                    });
-
                     h += '</div>';
                 }
 
