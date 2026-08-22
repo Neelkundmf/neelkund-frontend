@@ -16,13 +16,14 @@
     <style>
         /* ---- আজকের টার্গেট ---- */
         .target {
-            background: linear-gradient(135deg, #0F2942, #1B3B5C);
+            background: linear-gradient(135deg, #0A2540, #0F172A);
             color: #fff;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.08);
         }
-        .target .t { font-size: 12.5px; color: rgba(255,255,255,.62); }
+        .target .t { font-size: 12.5px; color: rgba(255,255,255,.7); }
         .target .n {
             font-family: 'Manrope', sans-serif;
             font-size: 34px;
@@ -31,24 +32,24 @@
             margin: 4px 0 12px;
         }
         .target .bar {
-            height: 7px;
-            background: rgba(255,255,255,.16);
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255,255,255,.12);
+            border-radius: 3px;
             overflow: hidden;
             margin-bottom: 8px;
         }
         .target .bar i {
             display: block;
             height: 100%;
-            background: #22C55E;
-            border-radius: 4px;
+            background: #059669;
+            border-radius: 3px;
             transition: width .4s;
         }
         .target .sub {
             display: flex;
             justify-content: space-between;
             font-size: 12.5px;
-            color: rgba(255,255,255,.78);
+            color: rgba(255,255,255,.8);
         }
 
         /* ---- অফলাইন বার ---- */
@@ -2098,6 +2099,7 @@
                 q("payPage").classList.remove("on");
                 q("amtPage").classList.remove("on");
                 q("notifSheet").classList.remove("on");
+                q("v-market-detail").classList.remove("on");
             }
         });
 

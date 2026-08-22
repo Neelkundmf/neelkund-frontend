@@ -4,27 +4,28 @@
    ========================================================================= */
 
 :root {
-    --navy:       #0F2942;
-    --navy-deep:  #0A1B2E;
-    --navy-soft:  #1B3B5C;
+    /* Clean Trust-Corporate Fintech Palette (2026-08-21) */
+    --navy:       #0A2540;
+    --navy-deep:  #0F172A;
+    --navy-soft:  #0F172A;
 
-    --red:        #E12A1F;
-    --red-soft:   #FDECEA;
-    --green:      #16A34A;
-    --green-soft: #E7F6EC;
-    --amber:      #D97706;
-    --amber-soft: #FEF3E2;
+    --red:        #DC2626;
+    --red-soft:   #FEE2E2;
+    --green:      #059669;
+    --green-soft: #D1FAE5;
+    --amber:      #F59E0B;
+    --amber-soft: #FEF3C7;
     --blue:       #2563EB;
-    --blue-soft:  #EAF1FE;
+    --blue-soft:  #DBEAFE;
 
-    --ink:        #0F1B2A;
-    --muted:      #64748B;
-    --line:       #E4E9EF;
-    --paper:      #F5F7FA;
+    --ink:        #1F2937;
+    --muted:      #6B7280;
+    --line:       #E2E8F0;
+    --paper:      #F8FAFC;
     --card:       #FFFFFF;
 
-    --r:          14px;
-    --shadow:     0 1px 3px rgba(15,41,66,.06), 0 8px 24px rgba(15,41,66,.06);
+    --r:          12px;
+    --shadow:     0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.08);
     --tap:        48px;   /* আঙুলে টেপার সর্বনিম্ন মাপ */
 }
 
