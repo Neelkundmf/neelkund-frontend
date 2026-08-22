@@ -2750,7 +2750,7 @@
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
-            today: loadToday, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
+            today: loadToday, market: loadMkt, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
             report: loadReport, disb: loadDisb, black: loadBlack
         };
 
@@ -6761,6 +6761,7 @@
             loadToday();
             loadTodayDisb();
             loadNotif();
+            startCollectionListRefresh();
 
             /* নেট থাকলে জমে থাকা এন্ট্রি পাঠাই */
             if (navigator.onLine) setTimeout(syncNow, 1500);
