@@ -1354,11 +1354,7 @@
 
         .mktbox { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.14); }
         .mktbox .hd { background: linear-gradient(150deg, #1E3A8A, #2563EB); color: #fff; padding: 10px 14px; font-size: 13.5px; font-weight: 800; }
-        .mktbox .cust { padding: 10px 14px 4px; }
-        .mktbox .cust .row { display: flex; gap: 8px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px dashed #EEF1F5; }
-        .mktbox .cust .row:last-child { border-bottom: 0; }
-        .mktbox .cust .sl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #94A0B4; width: 18px; flex-shrink: 0; }
-        .mktbox .cust .nm { color: var(--ink); font-weight: 600; }
+        .mktbox .cust { padding: 10px 14px; }
 
         .odsect { background: #FEF2F2; border-top: 2px solid #FCA5A5; padding: 10px 14px 12px; }
         .odsect .lbl { font-size: 10px; font-weight: 800; color: #B91C1C; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
@@ -5299,12 +5295,22 @@
 
                 h += '<div class="cust">';
                 if (!m.customers.length) {
-                    h += '<div class="row" style="border:0;color:var(--muted);">' + ltr('কেউ নেই') + '</div>';
+                    h += '<div style="color:var(--muted);font-size:12.5px;">' + ltr('কেউ নেই') + '</div>';
                 } else {
+                    h += '<div class="rowbox-list">';
                     m.customers.forEach(function (c, i) {
-                        h += '<div class="row"><span class="sl">' + (i + 1) + '.</span><span class="nm">' +
-                            NK.esc(c.customerName) + '</span></div>';
+                        var initial = (c.customerName || "?").charAt(0);
+                        var colorClass = "c" + (i % 5);
+                        h += '<div class="rowbox1 ' + colorClass + '">';
+                        h += '<div class="sl">' + (i + 1) + '</div>';
+                        h += '<div class="av">' + NK.esc(initial) + '</div>';
+                        h += '<div class="nm">' + NK.esc(c.customerName || "—") + '</div>';
+                        h += '<div class="r1stat"><div class="lbl">Loan</div><div class="val">' + NK.inrShort(c.loanAmount || 0) + '</div></div>';
+                        h += '<div class="r1stat"><div class="lbl">Out</div><div class="val">' + NK.inrShort(c.outstanding || 0) + '</div></div>';
+                        h += '<div class="r1stat"><div class="lbl">EMI</div><div class="val">' + NK.inrShort(c.emiAmount || 0) + '</div></div>';
+                        h += '</div>';
                     });
+                    h += '</div>';
                 }
                 h += '</div>';
 
@@ -5350,9 +5356,13 @@
 
             REPORT_MARKETS.forEach(function (m) {
                 csv += "\n" + NK.esc(m.marketName) + "\n";
-                csv += "নং,গ্রাহকের নাম,কত দিন বাকি\n";
+                csv += "নং,গ্রাহকের নাম,Loan,Out,EMI,কত দিন বাকি\n";
                 m.customers.forEach(function (c, i) {
-                    csv += (i + 1) + "," + NK.esc(c.customerName) + "," + Number(c.daysOverdue || 0) + "\n";
+                    csv += (i + 1) + "," + NK.esc(c.customerName) + "," +
+                        NK.inr(Number(c.loanAmount || 0)) + "," +
+                        NK.inr(Number(c.outstanding || 0)) + "," +
+                        NK.inr(Number(c.emiAmount || 0)) + "," +
+                        Number(c.daysOverdue || 0) + "\n";
                 });
 
                 var odList = m.customers.filter(function (c) {
