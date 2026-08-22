@@ -1376,36 +1376,56 @@
         /* PDF ডাউনলোড — ব্রাউজারের প্রিন্ট ডায়ালগ দিয়ে (Save as PDF),
            প্রিন্টের সময় শুধু রিপোর্ট পাতাটাই দেখাবে, বাকি সব লুকানো */
         @media print {
+            @page { margin: 8mm; }
+
             body * { visibility: hidden; }
             #v-report, #v-report * { visibility: visible; }
             #v-report { position: absolute; left: 0; top: 0; width: 100%; }
             #v-report .dlrow { display: none; }
 
             /* কালি বাঁচাতে — প্রিন্টে সব রঙিন ব্যাকগ্রাউন্ড সাদা-কালো, বর্ডার দিয়ে ভাগ করা */
-            #v-report .rhead { background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
-            #v-report .rhead .dt { color: #000 !important; }
-            #v-report .rhead .logo { background: transparent !important; }
+            #v-report .rhead { background: #fff !important; color: #000 !important; border-bottom: 1.5px solid #000; padding: 3px 0 !important; margin: 0 0 6px !important; }
+            #v-report .rhead .dt { color: #000 !important; font-size: 8px !important; }
+            #v-report .rhead .logo { display: none; }
+            #v-report .rhead b { font-size: 11px !important; }
 
-            #v-report .statbox { background: #fff !important; color: #000 !important; border: 1px solid #000; }
-            #v-report .statbox .l { opacity: 1; color: #333 !important; }
+            #v-report .sect-label { font-size: 7px !important; margin: 3px 0 3px !important; }
 
-            #v-report .mktbox { border: 1px solid #000; box-shadow: none; }
-            #v-report .mktbox .hd { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; }
+            #v-report .infogrid { gap: 3px !important; margin-bottom: 5px !important; }
+            #v-report .infocell { border-color: #000; padding: 2px 5px !important; }
+            #v-report .infocell .l { font-size: 6px !important; }
+            #v-report .infocell .v { font-size: 8px !important; margin-top: 0 !important; }
 
-            #v-report .rowbox1 { background: #fff !important; color: #000 !important; border: 1px solid #999; box-shadow: none; }
+            #v-report .statgrid { gap: 3px !important; margin-bottom: 3px !important; }
+            #v-report .statbox { background: #fff !important; color: #000 !important; border: 1px solid #000; padding: 3px 4px !important; }
+            #v-report .statbox .l { opacity: 1; color: #333 !important; font-size: 6px !important; }
+            #v-report .statbox .v { font-size: 8px !important; margin-top: 0 !important; }
+
+            #v-report .mktbox { border: 1px solid #000; box-shadow: none; margin-bottom: 4px !important; }
+            #v-report .mktbox .hd { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; padding: 2px 5px !important; font-size: 9px !important; }
+            #v-report .mktbox .cust { padding: 3px 5px !important; }
+
+            #v-report .rowbox-list { column-count: 3; column-gap: 6px; gap: 0 !important; }
+            #v-report .rowbox1 {
+                background: #fff !important; color: #000 !important; border: .5px solid #999; box-shadow: none;
+                padding: 1.5px 3px !important; gap: 3px !important; margin-bottom: 2px;
+                break-inside: avoid;
+            }
             #v-report .rowbox1::after { display: none; }
-            #v-report .rowbox1 .sl { background: #eee !important; color: #000 !important; }
-            #v-report .rowbox1 .av { background: #eee !important; color: #000 !important; border-color: #999; }
-            #v-report .rowbox1 .r1stat .lbl { color: #555 !important; }
+            #v-report .rowbox1 .sl { width: 9px !important; height: 9px !important; background: #eee !important; color: #000 !important; font-size: 5px !important; border-radius: 2px; }
+            #v-report .rowbox1 .av { display: none; }
+            #v-report .rowbox1 .nm { width: auto !important; max-width: 46px; font-size: 6.5px !important; }
+            #v-report .rowbox1 .r1stat .lbl { color: #555 !important; font-size: 4.5px !important; }
+            #v-report .rowbox1 .r1stat .val { font-size: 6px !important; }
 
-            #v-report .odsect { background: #fff !important; border-top: 2px solid #000; }
-            #v-report .odsect .lbl { color: #000 !important; }
+            #v-report .odsect { background: #fff !important; border-top: 1px solid #000; padding: 3px 5px !important; }
+            #v-report .odsect .lbl { color: #000 !important; font-size: 6.5px !important; margin-bottom: 2px !important; }
             #v-report .odsect .nm { color: #000 !important; }
+            #v-report .odsect .row { font-size: 7px !important; padding: 1px 0 !important; }
 
-            #v-report .alertbox { background: #fff !important; border-color: #000; }
-            #v-report .alertbox .tx { color: #000 !important; }
-
-            #v-report .infocell { border-color: #000; }
+            #v-report .alertbox { background: #fff !important; border-color: #000; padding: 3px 5px !important; margin: 3px 0 6px !important; }
+            #v-report .alertbox .tx { color: #000 !important; font-size: 6.5px !important; }
+            #v-report .alertbox .ic { font-size: 9px !important; }
         }
 
         /* ---- বিতরণ স্ট্যাটাস ব্যাজ ---- */
