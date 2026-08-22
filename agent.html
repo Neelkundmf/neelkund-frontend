@@ -3671,10 +3671,11 @@
             Array.prototype.forEach.call(q("collList").querySelectorAll("[data-pay]"), function (el) {
                 el.addEventListener("click", function () {
                     var loanId = Number(el.getAttribute("data-pay"));
-                    PAY_ROW = COLL_ALL.filter(function (r) {
+                    var row = COLL_ALL.filter(function (r) {
                         return Number(r.loanId) === loanId;
                     })[0] || null;
-                    openPayPage(loanId, el.getAttribute("data-name"));
+                    openPayPage(loanId, el.getAttribute("data-name"),
+                        row ? row.customerPhone : "", row ? row.customerCode : "");
                 });
             });
         }
@@ -3694,14 +3695,22 @@
          * ===================================================================== */
         var PAY_LOAN = null;
         var PAY_NAME = "";
+        var PAY_PHONE = "";
+        var PAY_CODE = "";
         var PAY_STATUS = null;
+        var PAY_LOAN_DETAIL = null;
         var PAY_REQ_ID = 0;
-        var PAY_ROW = null;
 
-        function openPayPage(loanId, name) {
+        /* loanId ছাড়া এই পাতা আর কারও ওপর নির্ভর করে না — কালেকশন/আজ/মার্কেট
+           যেখান থেকেই ডাকা হোক, নিজেই /loans/{id}/detail থেকে EMI-লোন অঙ্ক-
+           পেমেন্ট ইতিহাস টেনে আনে। phone/code ঐচ্ছিক — ডাকার সময় হাতের কাছে
+           থাকলে দেখানো হয়, না থাকলে ফাঁকা/— দেখাবে (কাজ থামবে না) */
+        function openPayPage(loanId, name, phone, code) {
             var myReq = ++PAY_REQ_ID;
             PAY_LOAN = loanId;
             PAY_NAME = name || (NK.getLang() === "en" ? "Customer" : "গ্রাহক");
+            PAY_PHONE = phone || "";
+            PAY_CODE = code || "";
 
             /* #payPage আসলে #amtPage-এর ভেতরে বসানো — বাইরেরটাও .on না
                পেলে display:none-ই থেকে যায়, ভেতরের .on কিছুই দেখাবে না */
@@ -3711,12 +3720,16 @@
             q("payPageBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             window.scrollTo(0, 0);
 
-            NK.GET("/api/payments/loan/" + loanId + "/status")
-                .then(function (s) {
+            Promise.all([
+                NK.GET("/api/payments/loan/" + loanId + "/status"),
+                NK.GET("/api/loans/" + loanId + "/detail")
+            ])
+                .then(function (res) {
                     // দ্রুত একাধিক গ্রাহকে টাচ করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
                     if (myReq !== PAY_REQ_ID) return;
-                    PAY_STATUS = s;
-                    drawPayPage(s);
+                    PAY_STATUS = res[0];
+                    PAY_LOAN_DETAIL = res[1];
+                    drawPayPage(res[0]);
                 })
                 .catch(function (e) {
                     if (myReq !== PAY_REQ_ID) return;
@@ -3730,16 +3743,20 @@
                 : (Number(s.totalRepayable || 0) - Number(s.totalPaid || 0));
             var arrears = Number(s.arrears || 0);
             var advance = Number(s.advance || 0);
-            var emi = PAY_ROW ? Number(PAY_ROW.emiAmount || 0) : 0;
-            var loanAmt = PAY_ROW ? Number(PAY_ROW.loanAmount || 0) : 0;
+            var emi = PAY_LOAN_DETAIL ? Number(PAY_LOAN_DETAIL.dailyEmiAmount || 0) : 0;
+            var loanAmt = PAY_LOAN_DETAIL ? Number(PAY_LOAN_DETAIL.principal || 0) : 0;
 
             var standing = s.standing;
 
-            /* আজকের কিস্তি আগেই জমা পড়েছে কিনা — last7Days-এর শেষ আইটেমই আজকের দিন */
+            /* আজকের কিস্তি আগেই জমা পড়েছে কিনা — /loans/{id}/detail-এর payments
+               লিস্টে আজকের তারিখে কোনো এন্ট্রি আছে কিনা দেখে (আগে কালেকশন
+               ট্যাবের নিজস্ব last7Days দিয়ে হতো, এখন সব জায়গা থেকেই কাজ করে) */
             var todayAlreadyPaid = false;
-            if (PAY_ROW && PAY_ROW.last7Days && PAY_ROW.last7Days.length) {
-                var todayEntry = PAY_ROW.last7Days[PAY_ROW.last7Days.length - 1];
-                todayAlreadyPaid = Number(todayEntry.amount || 0) > 0;
+            if (PAY_LOAN_DETAIL && PAY_LOAN_DETAIL.payments && PAY_LOAN_DETAIL.payments.length) {
+                var todayISO = collTodayISO();
+                todayAlreadyPaid = PAY_LOAN_DETAIL.payments.some(function (p) {
+                    return p.paymentDate === todayISO && Number(p.amount || 0) > 0;
+                });
             }
 
             var h = "";
@@ -3747,8 +3764,7 @@
             /* ---- উপরের তথ্য ---- */
             h += '<div class="pinfo-card">';
             h += '<div class="nm">' + NK.esc(PAY_NAME) + '</div>';
-            h += '<div class="ph">' + (PAY_ROW && PAY_ROW.customerPhone ?
-                NK.esc(PAY_ROW.customerPhone) : "") + '</div>';
+            h += '<div class="ph">' + (PAY_PHONE ? NK.esc(PAY_PHONE) : "") + '</div>';
 
             h += '<div class="grid4">';
             h += '<div class="cell"><div class="l">' + ltr('লোন অঙ্ক') + '</div><div class="v">' +
@@ -3879,7 +3895,7 @@
             h += '<div class="rrow"><div class="l">রসিদ নং</div><div class="v">RCT-' + rctNo + '</div></div>';
             h += '<div class="rrow"><div class="l">গ্রাহকের নাম</div><div class="v">' + NK.esc(PAY_NAME) + '</div></div>';
             h += '<div class="rrow"><div class="l">গ্রাহক কোড</div><div class="v">' +
-                NK.esc(PAY_ROW && PAY_ROW.customerCode ? PAY_ROW.customerCode : "—") + '</div></div>';
+                NK.esc(PAY_CODE || "—") + '</div></div>';
             h += '<div class="rrow"><div class="l">তারিখ ও সময়</div><div class="v">' + NK.dtTime(new Date()) + '</div></div>';
             h += '<div class="rrow"><div class="l">সংগ্রহকারী এজেন্ট</div><div class="v">' + NK.esc(agentLine) + '</div></div>';
             h += '<div class="rrow big"><div class="l">আদায়কৃত অর্থ</div><div class="v">' + NK.inr(amount) + '</div></div>';
