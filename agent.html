@@ -1295,7 +1295,9 @@
             border: 2px solid #0F2942 !important;
         }
 
-        /* ---- দৈনিক রিপোর্ট ---- */
+        /* ---- বিতরণ ট্যাবের স্ট্যাট কার্ড (report-stats/report-stat-card নামটা
+           "রিপোর্ট" শোনালেও এটা বিতরণ ট্যাবের #disbStats-এই শুধু ব্যবহার হয়,
+           দৈনিক রিপোর্ট পাতা এখন নিজের আলাদা .statgrid/.statbox ব্যবহার করে) ---- */
         .report-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -1318,41 +1320,70 @@
             font-size: 24px;
             font-weight: 800;
         }
-        .report-list {
-            background: #fff;
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 14px rgba(15,41,66,.07);
+
+        /* ---- দৈনিক রিপোর্ট ---- */
+        #v-report .rhead {
+            background: linear-gradient(150deg, #0F2942 0%, #1B3B5C 100%);
+            color: #fff; padding: 16px 14px 18px; margin: -16px -16px 16px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .report-list .item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--line);
-            font-size: 14px;
-        }
-        .report-list .item:last-child {
-            border-bottom: 0;
-        }
-        .report-list .name {
-            font-weight: 600;
-        }
-        .report-list .phone {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-        .report-list .due {
-            text-align: right;
-            font-weight: 700;
-        }
-        .report-list .due.paid {
-            color: #16A34A;
-        }
-        .report-list .due.unpaid {
-            color: var(--red);
+        #v-report .rhead .brand { display: flex; align-items: center; gap: 9px; }
+        #v-report .rhead .logo { width: 30px; height: 30px; border-radius: 9px; background: rgba(255,255,255,.16); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        #v-report .rhead b { font-size: 14.5px; font-weight: 800; }
+        #v-report .rhead .dt { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); text-align: right; }
+
+        #v-report .sect-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 4px 0 8px; }
+
+        .infogrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .infocell { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; }
+        .infocell .l { font-size: 9px; font-weight: 700; color: #94A0B4; text-transform: uppercase; }
+        .infocell .v { font-family: 'Manrope', sans-serif; font-size: 13.5px; font-weight: 800; color: var(--ink); margin-top: 2px; }
+
+        .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .statgrid.three { grid-template-columns: repeat(3, 1fr); }
+        .statbox { border-radius: 13px; padding: 11px 10px; color: #fff; }
+        .statbox .l { font-size: 9px; font-weight: 700; opacity: .85; }
+        .statbox .v { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums; }
+        .statbox.blue   { background: linear-gradient(150deg, #60A5FA, #1D4ED8); }
+        .statbox.violet { background: linear-gradient(150deg, #A78BFA, #6D28D9); }
+        .statbox.green  { background: linear-gradient(150deg, #34D399, #059669); }
+        .statbox.red    { background: linear-gradient(150deg, #F87171, #DC2626); }
+        .statbox.teal   { background: linear-gradient(150deg, #2DD4BF, #0D9488); }
+        .statbox.orange { background: linear-gradient(150deg, #FB923C, #C2410C); }
+        .statbox.navy   { background: linear-gradient(150deg, #64748B, #334155); }
+
+        .mktbox { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.14); }
+        .mktbox .hd { background: linear-gradient(150deg, #1E3A8A, #2563EB); color: #fff; padding: 10px 14px; font-size: 13.5px; font-weight: 800; }
+        .mktbox .cust { padding: 10px 14px 4px; }
+        .mktbox .cust .row { display: flex; gap: 8px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px dashed #EEF1F5; }
+        .mktbox .cust .row:last-child { border-bottom: 0; }
+        .mktbox .cust .sl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #94A0B4; width: 18px; flex-shrink: 0; }
+        .mktbox .cust .nm { color: var(--ink); font-weight: 600; }
+
+        .odsect { background: #FEF2F2; border-top: 2px solid #FCA5A5; padding: 10px 14px 12px; }
+        .odsect .lbl { font-size: 10px; font-weight: 800; color: #B91C1C; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+        .odsect .row { display: flex; gap: 8px; padding: 3px 0; font-size: 12.5px; }
+        .odsect .sl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #DC2626; width: 18px; flex-shrink: 0; }
+        .odsect .nm { color: #7F1D1D; font-weight: 700; }
+        .odsect .none { font-size: 11.5px; color: #94A0B4; font-style: italic; }
+
+        .alertbox { background: var(--amber-soft); border: 1.5px dashed #F59E0B; border-radius: 12px; padding: 11px 13px; margin: 6px 0 18px; display: flex; gap: 9px; align-items: flex-start; }
+        .alertbox .ic { font-size: 15px; flex-shrink: 0; }
+        .alertbox .tx { font-size: 11.5px; color: #92400E; font-weight: 600; line-height: 1.5; }
+
+        .dlrow { display: flex; gap: 10px; margin-top: 4px; }
+        .dlbtn { flex: 1; border: 0; border-radius: 13px; padding: 13px 8px; font-family: 'Hind Siliguri', sans-serif; font-size: 12.5px; font-weight: 800; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .dlbtn .ic { font-size: 18px; }
+        .dlbtn.csv { background: linear-gradient(150deg, #34D399, #059669); box-shadow: 0 10px 20px -10px rgba(5,150,105,.55); }
+        .dlbtn.pdf { background: linear-gradient(150deg, #F87171, #DC2626); box-shadow: 0 10px 20px -10px rgba(220,38,38,.55); }
+
+        /* PDF ডাউনলোড — ব্রাউজারের প্রিন্ট ডায়ালগ দিয়ে (Save as PDF),
+           প্রিন্টের সময় শুধু রিপোর্ট পাতাটাই দেখাবে, বাকি সব লুকানো */
+        @media print {
+            body * { visibility: hidden; }
+            #v-report, #v-report * { visibility: visible; }
+            #v-report { position: absolute; left: 0; top: 0; width: 100%; }
+            #v-report .dlrow { display: none; }
         }
 
         /* ---- বিতরণ স্ট্যাটাস ব্যাজ ---- */
@@ -1993,14 +2024,30 @@
 
         <!-- --------- দৈনিক রিপোর্ট --------- -->
         <div class="view" id="v-report">
-            <div class="card">
-                <h2 style="margin-bottom:14px;">📊 দৈনিক রিপোর্ট</h2>
-                <div id="reportStats" class="report-stats"></div>
+            <div class="rhead">
+                <div class="brand"><div class="logo">🏦</div><b>নীলকুণ্ড</b></div>
+                <div class="dt" id="repDate">—</div>
             </div>
 
-            <div id="reportBody"><div class="loading">লোড হচ্ছে...</div></div>
+            <div class="sect-label">এজেন্টের তথ্য</div>
+            <div class="infogrid" id="repInfo"></div>
 
-            <button class="btn block" id="reportDownload" style="margin:16px;">📥 দৈনিক রিপোর্ট ডাউনলোড করুন</button>
+            <div class="sect-label">আজকের হিসাব</div>
+            <div id="repStats"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <div class="sect-label" style="margin-top:16px;">মার্কেট অনুযায়ী গ্রাহক তালিকা</div>
+            <div id="repMarkets"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <div class="alertbox">
+                <div class="ic">⚠️</div>
+                <div class="tx">সবসময় লিস্টের একদম শেষে ব্ল্যাকলিস্ট বা ১২০+ দিন বাকি থাকা গ্রাহকের নাম লেখা থাকবে।</div>
+            </div>
+
+            <div class="sect-label">রিপোর্ট ডাউনলোড</div>
+            <div class="dlrow">
+                <button class="dlbtn csv" id="reportDownloadCsv"><span class="ic">📥</span>Download CSV</button>
+                <button class="dlbtn pdf" id="reportDownloadPdf"><span class="ic">📄</span>Download PDF</button>
+            </div>
         </div>
 
         <!-- --------- মার্কেট প্রিমিয়াম ড্যাশবোর্ড --------- -->
@@ -5169,100 +5216,156 @@
         /* =====================================================================
          * দৈনিক রিপোর্ট
          * ===================================================================== */
+        var REPORT_DATA = null;
+        var REPORT_MARKETS = [];
+        var REPORT_OD_DAYS = 120;   // ব্ল্যাকলিস্ট/OD-এর সিস্টেম-ওয়াইড সীমা (CLAUDE.md-এর নিয়ম অনুযায়ী)
+
         function loadReport(silent) {
             if (silent !== true) {
-                q("reportBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-                q("reportStats").innerHTML = '';
+                q("repStats").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+                q("repMarkets").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
+            q("repDate").textContent = NK.dt(new Date());
+            drawReportInfo();
+
             NK.GET("/api/agent/my-today").then(function (data) {
-                drawDailyReport(data);
+                REPORT_DATA = data;
+                drawReportStats(data);
             }).catch(function (e) {
-                q("reportBody").innerHTML =
-                    '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+                q("repStats").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+
+            NK.GET("/api/agent/my-markets").then(function (d) {
+                var mkts = (d && d.markets) ? d.markets : [];
+                return Promise.all(mkts.map(function (m) {
+                    return NK.GET("/api/agent/collection/" + m.marketId + "/customers")
+                        .then(function (r) { return { marketName: m.marketName, customers: r.customers || [] }; })
+                        .catch(function () { return { marketName: m.marketName, customers: [] }; });
+                }));
+            }).then(function (rows) {
+                REPORT_MARKETS = rows;
+                drawReportMarkets(rows);
+            }).catch(function (e) {
+                q("repMarkets").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
-        function drawDailyReport(data) {
-            var collected = Number(data.collectedToday || 0);
-            var totalDue = Number(data.totalDue || 0);
-            var advReceived = Number(data.advanceAdjusted || 0);
-            var unpaidCount = Number(data.unpaidCount || 0);
-            var unpaidList = data.unpaid || [];
-
-            // Stats cards
-            var statsHtml = '';
-            statsHtml += '<div class="report-stat-card">' +
-                '<div class="l">' + ltr('আজ সংগৃহীত') + '</div>' +
-                '<div class="v">₹' + NK.inrShort(collected) + '</div>' +
-                '</div>';
-
-            statsHtml += '<div class="report-stat-card">' +
-                '<div class="l">' + ltr('মোট বাকি') + '</div>' +
-                '<div class="v">₹' + NK.inrShort(totalDue) + '</div>' +
-                '</div>';
-
-            statsHtml += '<div class="report-stat-card">' +
-                '<div class="l">' + ltr('অ্যাডভান্স প্রাপ্য') + '</div>' +
-                '<div class="v">₹' + NK.inrShort(advReceived) + '</div>' +
-                '</div>';
-
-            statsHtml += '<div class="report-stat-card">' +
-                '<div class="l">' + ltr('অপরিশোধিত গ্রাহক') + '</div>' +
-                '<div class="v">' + unpaidCount + '</div>' +
-                '</div>';
-
-            q("reportStats").innerHTML = statsHtml;
-
-            // Unpaid list
+        function drawReportInfo() {
             var h = '';
-            if (!unpaidList.length) {
-                h += '<div class="card"><div class="empty">' + ltr('সব গ্রাহক শোধ করেছেন!') + '</div></div>';
-            } else {
-                h += '<div class="report-list">';
-                unpaidList.forEach(function (x) {
-                    var dueAmt = Number(x.dueAmount || 0);
-                    var statusClass = x.paid ? 'paid' : 'unpaid';
-
-                    h += '<div class="item">';
-                    h += '<div>';
-                    h += '<div class="name">' + NK.esc(x.customerName) + '</div>';
-                    h += '<div class="phone">' + NK.esc(x.customerPhone) + '</div>';
-                    h += '</div>';
-                    h += '<div class="due ' + statusClass + '">₹' + NK.inr(dueAmt) + '</div>';
-                    h += '</div>';
-                });
-                h += '</div>';
-            }
-
-            q("reportBody").innerHTML = h;
-
-            // Download button
-            q("reportDownload").onclick = function () {
-                downloadDailyReport(data);
-            };
+            h += '<div class="infocell"><div class="l">Agent Name</div><div class="v">' + NK.esc(NK.me().fullName || "—") + '</div></div>';
+            h += '<div class="infocell"><div class="l">Branch Code</div><div class="v">' + NK.esc(q("agentBranchCode") ? q("agentBranchCode").textContent : "—") + '</div></div>';
+            h += '<div class="infocell"><div class="l">Agent Code</div><div class="v">' + NK.esc(q("agentCode") ? q("agentCode").textContent : "—") + '</div></div>';
+            h += '<div class="infocell"><div class="l">Branch Manager</div><div class="v">' + NK.esc(q("agentManager") ? q("agentManager").textContent : "—") + '</div></div>';
+            q("repInfo").innerHTML = h;
         }
 
-        function downloadDailyReport(data) {
+        function drawReportStats(data) {
+            var target = Number(data.netTarget || 0);
             var collected = Number(data.collectedToday || 0);
-            var totalDue = Number(data.totalDue || 0);
-            var advReceived = Number(data.advanceAdjusted || 0);
+            var totalCust = Number(data.totalCustomers || 0);
+            var paidCount = Number(data.paidCount || 0);
             var unpaidCount = Number(data.unpaidCount || 0);
-            var unpaidList = data.unpaid || [];
+            var advAmt = Number(data.advanceAdjusted || 0);
+            var advCustCount = (data.paid || []).filter(function (p) {
+                return Number(p.advanceBalance || 0) > 0;
+            }).length;
 
-            var csv = "তারিখ,মেট্রিক,মূল্য\n";
+            var h = '';
+            h += '<div class="statgrid">';
+            h += '<div class="statbox blue"><div class="l">Today Collection (₹)</div><div class="v">₹' + NK.inrShort(target) + '</div></div>';
+            h += '<div class="statbox violet"><div class="l">Total Customer</div><div class="v">' + totalCust + '</div></div>';
+            h += '<div class="statbox green"><div class="l">Paid Cust. NO</div><div class="v">' + paidCount + '</div></div>';
+            h += '<div class="statbox red"><div class="l">Due Cust. NO</div><div class="v">' + unpaidCount + '</div></div>';
+            h += '</div>';
+            h += '<div class="statgrid three">';
+            h += '<div class="statbox teal"><div class="l">Today Collected (₹)</div><div class="v">₹' + NK.inrShort(collected) + '</div></div>';
+            h += '<div class="statbox orange"><div class="l">Today Advance (₹)</div><div class="v">₹' + NK.inrShort(advAmt) + '</div></div>';
+            h += '<div class="statbox navy"><div class="l">Adv. Cust. NO</div><div class="v">' + advCustCount + '</div></div>';
+            h += '</div>';
+            q("repStats").innerHTML = h;
+        }
+
+        function drawReportMarkets(rows) {
+            if (!rows.length) {
+                q("repMarkets").innerHTML = '<div class="card"><div class="empty">' + ltr('আপনার অধীনে কোনো মার্কেট নেই।') + '</div></div>';
+                return;
+            }
+
+            var h = '';
+            rows.forEach(function (m) {
+                h += '<div class="mktbox">';
+                h += '<div class="hd">' + NK.esc(m.marketName) + '</div>';
+
+                h += '<div class="cust">';
+                if (!m.customers.length) {
+                    h += '<div class="row" style="border:0;color:var(--muted);">' + ltr('কেউ নেই') + '</div>';
+                } else {
+                    m.customers.forEach(function (c, i) {
+                        h += '<div class="row"><span class="sl">' + (i + 1) + '.</span><span class="nm">' +
+                            NK.esc(c.customerName) + '</span></div>';
+                    });
+                }
+                h += '</div>';
+
+                var odList = m.customers.filter(function (c) {
+                    return Number(c.daysOverdue || 0) >= REPORT_OD_DAYS;
+                });
+                h += '<div class="odsect">';
+                h += '<div class="lbl">⛔ OD / ব্ল্যাকলিস্ট (' + REPORT_OD_DAYS + '+ দিন)</div>';
+                if (!odList.length) {
+                    h += '<div class="none">' + ltr('কেউ নেই') + '</div>';
+                } else {
+                    odList.forEach(function (c, i) {
+                        h += '<div class="row"><span class="sl">' + (i + 1) + '.</span><span class="nm">' +
+                            NK.esc(c.customerName) + ' — ' + c.daysOverdue + ' ' + ltr('দিন') + '</span></div>';
+                    });
+                }
+                h += '</div>';
+
+                h += '</div>';
+            });
+            q("repMarkets").innerHTML = h;
+        }
+
+        q("reportDownloadCsv").addEventListener("click", function () {
+            downloadReportCsv();
+        });
+        q("reportDownloadPdf").addEventListener("click", function () {
+            window.print();
+        });
+
+        function downloadReportCsv() {
+            if (!REPORT_DATA) return;
+            var data = REPORT_DATA;
             var today = new Date().toISOString().split('T')[0];
 
-            csv += today + ",আজ সংগৃহীত,₹" + NK.inr(collected) + "\n";
-            csv += today + ",মোট বাকি,₹" + NK.inr(totalDue) + "\n";
-            csv += today + ",অ্যাডভান্স প্রাপ্য,₹" + NK.inr(advReceived) + "\n";
-            csv += today + ",অপরিশোধিত গ্রাহক," + unpaidCount + "\n\n";
+            var csv = "তারিখ,মেট্রিক,মূল্য\n";
+            csv += today + ",Today Collection (Target),₹" + NK.inr(Number(data.netTarget || 0)) + "\n";
+            csv += today + ",Today Collected,₹" + NK.inr(Number(data.collectedToday || 0)) + "\n";
+            csv += today + ",Total Customer," + Number(data.totalCustomers || 0) + "\n";
+            csv += today + ",Paid Cust. NO," + Number(data.paidCount || 0) + "\n";
+            csv += today + ",Due Cust. NO," + Number(data.unpaidCount || 0) + "\n";
+            csv += today + ",Today Advance,₹" + NK.inr(Number(data.advanceAdjusted || 0)) + "\n";
 
-            csv += "গ্রাহক নাম,ফোন,বাকি পরিমাণ\n";
-            unpaidList.forEach(function (x) {
-                csv += NK.esc(x.customerName) + "," +
-                    x.customerPhone + "," +
-                    NK.inr(Number(x.dueAmount || 0)) + "\n";
+            REPORT_MARKETS.forEach(function (m) {
+                csv += "\n" + NK.esc(m.marketName) + "\n";
+                csv += "নং,গ্রাহকের নাম,কত দিন বাকি\n";
+                m.customers.forEach(function (c, i) {
+                    csv += (i + 1) + "," + NK.esc(c.customerName) + "," + Number(c.daysOverdue || 0) + "\n";
+                });
+
+                var odList = m.customers.filter(function (c) {
+                    return Number(c.daysOverdue || 0) >= REPORT_OD_DAYS;
+                });
+                csv += "\nOD/ব্ল্যাকলিস্ট (" + REPORT_OD_DAYS + "+ দিন)\n";
+                if (!odList.length) {
+                    csv += "কেউ নেই\n";
+                } else {
+                    odList.forEach(function (c, i) {
+                        csv += (i + 1) + "," + NK.esc(c.customerName) + "," + c.daysOverdue + "\n";
+                    });
+                }
             });
 
             var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
