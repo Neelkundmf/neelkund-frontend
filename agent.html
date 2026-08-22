@@ -317,95 +317,61 @@
         .amtcard.c3 { background: linear-gradient(135deg, #EA580C, #F97316); }
         .amtcard.c4 { background: linear-gradient(135deg, #DB2777, #EC4899); }
 
-        /* ---- Dashboard ট্যাব — আল্ট্রা-মডার্ন ভাসমান Due/Collected বক্স ---- */
-        .duegrid {
+        /* ---- Dashboard ট্যাব — Due / Collected(+advance) / দিয়েছে-দেয়নি — ৩টা বক্স এক সারিতে ---- */
+        .triogrid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 11px;
-            margin-bottom: 18px;
+            grid-template-columns: 1fr 1.15fr 0.85fr;
+            gap: 7px;
+            margin-bottom: 16px;
         }
         .duebox {
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 16px;
+            padding: 9px 9px;
             color: #fff;
             position: relative;
             overflow: hidden;
         }
         .duebox.due {
             background: linear-gradient(150deg, #FB923C 0%, #F43F5E 100%);
-            box-shadow: 0 16px 30px -12px rgba(244,63,94,.5);
+            box-shadow: 0 12px 22px -10px rgba(244,63,94,.5);
         }
         .duebox.coll {
             background: linear-gradient(150deg, #34D399 0%, #059669 100%);
-            box-shadow: 0 16px 30px -12px rgba(5,150,105,.5);
+            box-shadow: 0 12px 22px -10px rgba(5,150,105,.5);
         }
         .duebox::after {
             content: ""; position: absolute; top: -30%; right: -20%;
             width: 100px; height: 100px;
             background: rgba(255,255,255,.16); border-radius: 50%; filter: blur(6px);
         }
-        .duebox .t { font-size: 11.5px; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1; }
+        .duebox .t { font-size: 9px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1; white-space: nowrap; }
         .duebox .r {
-            display: flex; justify-content: space-between; align-items: baseline;
-            font-size: 10.5px; padding: 3px 0; color: rgba(255,255,255,.85);
+            display: flex; justify-content: space-between; align-items: baseline; gap: 4px;
+            font-size: 8.5px; padding: 1px 0; color: rgba(255,255,255,.85);
             position: relative; z-index: 1;
         }
         .duebox .r b {
-            font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700;
+            font-family: 'Fraunces', serif; font-size: 11.5px; font-weight: 700;
             color: #fff; font-variant-numeric: tabular-nums;
         }
         .duebox .bar {
-            height: 4px; background: rgba(255,255,255,.28); border-radius: 3px;
-            margin-top: 8px; overflow: hidden; position: relative; z-index: 1;
+            height: 3px; background: rgba(255,255,255,.28); border-radius: 3px;
+            margin-top: 6px; overflow: hidden; position: relative; z-index: 1;
         }
         .duebox .bar i { display: block; height: 100%; background: #fff; border-radius: 3px; }
 
-        /* ---- Dashboard ট্যাব — দিয়েছে/দেয়নি ২-লাইন বক্স + পাশে খালি বক্স ---- */
-        .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-        .statone {
-            background: #fff; border: 1px solid var(--line); border-radius: 12px;
-            padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; justify-content: center;
+        .statbox3 {
+            background: #fff; border: 1px solid var(--line); border-radius: 16px;
+            padding: 8px 7px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
         }
-        .statone .ln { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; }
-        .statone .ln .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-        .statone .ln.g .dot { background: var(--green); }
-        .statone .ln.r .dot { background: var(--red); }
-        .statone .ln b { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 700; }
-        .statone .ln.g b { color: var(--green); }
-        .statone .ln.r b { color: var(--red); }
-        .statone .ln span { color: var(--muted); font-weight: 600; }
-        .blankbox {
-            background: rgba(139,92,246,.05); border: 1.5px dashed rgba(139,92,246,.3);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            color: #8B7FB0; font-size: 22px; font-weight: 300;
-        }
-
-        /* ---- Dashboard ট্যাব — আজকের গ্রাহক (দিয়েছে+দেয়নি একটাই লিস্টে) ---- */
-        .cust-card {
-            background: rgba(255,255,255,.85); border: 1px solid rgba(139,92,246,.14);
-            border-radius: 18px; padding: 12px; box-shadow: 0 18px 34px -20px rgba(76,29,149,.3);
-            backdrop-filter: blur(10px); margin-bottom: 14px;
-        }
-        .custlist { display: flex; flex-direction: column; gap: 6px; }
-        .custrow {
-            display: flex; align-items: center; gap: 9px; background: #fff;
-            border: 1px solid var(--line); border-radius: 12px; padding: 7px 10px; cursor: pointer;
-        }
-        .custrow:active { transform: scale(.98); }
-        .custrow .av {
-            width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; font-size: 10px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; color: #fff;
-        }
-        .custrow .av.r { background: var(--red); }
-        .custrow .av.g { background: var(--green); }
-        .custrow .nm {
-            flex: 1; min-width: 0; font-size: 11.5px; font-weight: 700; color: var(--navy);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .custrow .amt { font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--navy); }
-        .custrow .pdword { flex-shrink: 0; font-size: 8.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
-        .custrow .pdword.paid { background: var(--green-soft); color: var(--green); }
-        .custrow .pdword.due { background: var(--red-soft); color: var(--red); }
+        .statbox3 .ln { display: flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; }
+        .statbox3 .ln .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+        .statbox3 .ln.g .dot { background: var(--green); }
+        .statbox3 .ln.r .dot { background: var(--red); }
+        .statbox3 .ln b { font-family: 'Fraunces', serif; font-size: 12px; font-weight: 700; }
+        .statbox3 .ln.g b { color: var(--green); }
+        .statbox3 .ln.r b { color: var(--red); }
+        .statbox3 .ln span { color: var(--muted); font-weight: 600; font-size: 8px; }
 
         /* ---- Dashboard ট্যাব — আল্ট্রা-মডার্ন ভাসমান অঙ্ক-বক্স, প্রতিটা আলাদা রঙে ---- */
         .amtrow-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
@@ -3657,19 +3623,25 @@
             var pct = target > 0 ? Math.min(100, (got / target * 100)) : (got > 0 ? 100 : 0);
 
             var h = "";
-            h += '<div class="duegrid">';
+            h += '<div class="triogrid">';
 
             h += '<div class="duebox due">';
-            h += '<div class="t">📌 ' + ltr('আজকের Due') + '</div>';
-            h += '<div class="r"><span>' + ltr('Total Cust') + '</span><b>' + (r.totalCustomers || 0) + '</b></div>';
-            h += '<div class="r"><span>' + ltr('Total Due') + '</span><b>' + NK.inr(r.totalDue || 0) + '</b></div>';
+            h += '<div class="t">📌 ' + ltr('Due') + '</div>';
+            h += '<div class="r"><span>' + ltr('Cust') + '</span><b>' + (r.totalCustomers || 0) + '</b></div>';
+            h += '<div class="r"><span>' + ltr('Amt') + '</span><b>' + NK.inrShort(r.totalDue || 0) + '</b></div>';
             h += '</div>';
 
             h += '<div class="duebox coll">';
-            h += '<div class="t">✅ ' + ltr('আজকের Collected') + '</div>';
-            h += '<div class="r"><span>' + ltr('Target') + '</span><b>' + NK.inr(target) + '</b></div>';
-            h += '<div class="r"><span>' + ltr('Collected') + '</span><b>' + NK.inr(got) + '</b></div>';
+            h += '<div class="t">✅ ' + ltr('Collected') + '</div>';
+            h += '<div class="r"><span>' + ltr('Target') + '</span><b>' + NK.inrShort(target) + '</b></div>';
+            h += '<div class="r"><span>' + ltr('Got') + '</span><b>' + NK.inrShort(got) + '</b></div>';
+            h += '<div class="r"><span>' + ltr('Advance') + '</span><b>' + NK.inrShort(r.advanceAdjusted || 0) + '</b></div>';
             h += '<div class="bar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
+            h += '</div>';
+
+            h += '<div class="statbox3">';
+            h += '<div class="ln g"><span class="dot"></span><b>' + (r.paidCount || 0) + '</b><span>' + ltr('দিয়েছে') + '</span></div>';
+            h += '<div class="ln r"><span class="dot"></span><b>' + (r.unpaidCount || 0) + '</b><span>' + ltr('দেয়নি') + '</span></div>';
             h += '</div>';
 
             h += '</div>';
@@ -3688,48 +3660,6 @@
                 drawTodaySummary(r, target, got);
 
                 var h = "";
-
-                /* দিয়েছে/দেয়নি — ২-লাইন বক্স + পাশে খালি বক্স (ভবিষ্যতে কিছু বসবে) */
-                h += '<div class="statgrid">';
-                h += '<div class="statone">';
-                h += '<div class="ln g"><span class="dot"></span><b>' + (r.paidCount || 0) + '</b><span>' + ltr('দিয়েছে') + '</span></div>';
-                h += '<div class="ln r"><span class="dot"></span><b>' + (r.unpaidCount || 0) + '</b><span>' + ltr('দেয়নি') + '</span></div>';
-                h += '</div>';
-                h += '<div class="blankbox">+</div>';
-                h += '</div>';
-
-                /* দেয়নি + দিয়েছে — একটাই লিস্টে, প্রতি সারিতে Paid/Due ব্যাজ */
-                var unpaidList = r.unpaid || [];
-                var paidList = r.paid || [];
-
-                if (unpaidList.length || paidList.length) {
-                    h += '<div class="cust-card">';
-                    h += '<div class="sect-label">👥 ' + ltr('আজকের গ্রাহক') + '</div>';
-                    h += '<div class="custlist">';
-
-                    unpaidList.forEach(function (x) {
-                        h += '<div class="custrow" data-pay="' + x.loanId +
-                            '" data-name="' + NK.esc(x.customerName) +
-                            '" data-amt="' + x.dueAmount + '">';
-                        h += '<div class="av r">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
-                        h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
-                        h += '<div class="amt">' + NK.inr(x.dueAmount) + '</div>';
-                        h += '<div class="pdword due">' + ltr('Due') + '</div>';
-                        h += '</div>';
-                    });
-
-                    paidList.forEach(function (x) {
-                        h += '<div class="custrow">';
-                        h += '<div class="av g">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
-                        h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
-                        h += '<div class="amt">' + NK.inr(x.dueAmount) + '</div>';
-                        h += '<div class="pdword paid">' + ltr('Paid') + '</div>';
-                        h += '</div>';
-                    });
-
-                    h += '</div>';
-                    h += '</div>';
-                }
 
                 /* OD */
                 if (r.odCustomers && r.odCustomers.length) {
