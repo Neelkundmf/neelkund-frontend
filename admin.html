@@ -3047,8 +3047,8 @@
             q("mtMsg").textContent = "";
             q("mtMsg").className = "";
 
-            // BRANCHES data fetch করি
-            fetchBranches().then(function () {
+            // BRANCHES + TEAM data fetch করি
+            Promise.all([fetchBranches(), fetchTeam()]).then(function () {
                 // Branch dropdown fill করি
                 var branchOpts = '<option value="">— শাখা বেছে নিন —</option>';
                 (BRANCHES || []).forEach(function (b) {
@@ -3062,7 +3062,7 @@
                 q("mt_to_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
                 q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
             }).catch(function (e) {
-                showMsg("mtMsg", "Branch load error: " + NK.esc(e.message), "er");
+                showMsg("mtMsg", "Load error: " + NK.esc(e.message), "er");
             });
         }
 
