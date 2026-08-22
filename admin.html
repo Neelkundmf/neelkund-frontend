@@ -3127,51 +3127,19 @@
                 return;
             }
 
-            // সরাসরি সেই এজেন্টের markets আনি
+            // সরাসরি সেই এজেন্টের markets আনার চেষ্টা
             NK.GET("/api/admin/users/" + agentId + "/markets").then(function (rawResponse) {
                 var marketIds = NK.rows(rawResponse);
 
-                if (!marketIds || marketIds.length === 0) {
-                    showMsg("mtMsg", "এই এজেন্টের কোনো মার্কেট নেই", "wa");
-                    q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
-                    return;
-                }
-
-                var marketOpts = '<option value="">— মার্কেট বেছে নিন —</option>';
-                var marketMap = {};
-                (MARKETS || []).forEach(function (m) {
-                    marketMap[m.id] = m.name;
-                });
-
-                marketIds.forEach(function (mid) {
-                    var mName = marketMap[mid] || ("মার্কেট #" + mid);
-                    marketOpts += '<option value="' + NK.esc(mid) + '">' +
-                        NK.esc(mName) + '</option>';
-                });
-
-                q("mt_market").innerHTML = marketOpts;
-                q("mtMsg").textContent = "";
-            }).catch(function (e) {
-                // fallback: সব agents-এর status আনি এবং filter করি
-                NK.GET("/api/admin/users/agents-market-status").then(function (response) {
-                    var rows = NK.rows(response);
-                    var agentRow = rows.find(function (r) {
-                        return r && r.agentId && String(r.agentId) === String(agentId);
-                    });
-
-                    if (!agentRow || !agentRow.marketIds || agentRow.marketIds.length === 0) {
-                        showMsg("mtMsg", "এই এজেন্টের কোনো মার্কেট নেই", "wa");
-                        q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
-                        return;
-                    }
-
+                if (marketIds && Array.isArray(marketIds) && marketIds.length > 0) {
+                    // এজেন্টের নিজের markets আছে
                     var marketOpts = '<option value="">— মার্কেট বেছে নিন —</option>';
                     var marketMap = {};
                     (MARKETS || []).forEach(function (m) {
                         marketMap[m.id] = m.name;
                     });
 
-                    agentRow.marketIds.forEach(function (mid) {
+                    marketIds.forEach(function (mid) {
                         var mName = marketMap[mid] || ("মার্কেট #" + mid);
                         marketOpts += '<option value="' + NK.esc(mid) + '">' +
                             NK.esc(mName) + '</option>';
@@ -3179,10 +3147,29 @@
 
                     q("mt_market").innerHTML = marketOpts;
                     q("mtMsg").textContent = "";
-                }).catch(function (fallbackErr) {
-                    showMsg("mtMsg", "মার্কেট লোড ব্যর্থ", "er");
-                });
+                } else {
+                    // এজেন্টের কোনো market নেই, সব available markets দেখাই
+                    showAllAvailableMarkets();
+                }
+            }).catch(function (e) {
+                // API fail হলে, সব available markets দেখাই
+                showAllAvailableMarkets();
             });
+        }
+
+        function showAllAvailableMarkets() {
+            if (!MARKETS || MARKETS.length === 0) {
+                q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
+                return;
+            }
+
+            var marketOpts = '<option value="">— মার্কেট বেছে নিন —</option>';
+            MARKETS.forEach(function (m) {
+                marketOpts += '<option value="' + NK.esc(m.id) + '">' +
+                    NK.esc(m.name) + (m.branchName ? ' · ' + NK.esc(m.branchName) : '') + '</option>';
+            });
+
+            q("mt_market").innerHTML = marketOpts;
         }
 
         /* Transfer button */
