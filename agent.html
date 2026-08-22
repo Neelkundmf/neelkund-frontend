@@ -2367,6 +2367,7 @@
             "দিয়েছে": "Paid",
             "দেয়নি": "Not Paid",
             "জমা": "Paid",
+            "আজ দিয়ে দিয়েছে": "Paid Today",
             "বেশি দিলে বাকিটা অ্যাডভান্স হিসেবে থাকবে। পুরনো দিন আগে মিটবে।": "Extra amount will be kept as advance. Older days will be settled first.",
             "পুরো শোধ করে বন্ধ করুন (Foreclosure)": "Pay in full and close (Foreclosure)",
             "✓ আজকের EMI জমা হয়েছে": "✓ Today's EMI collected",
@@ -4025,6 +4026,27 @@
                                 ? '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>'
                                 : '<span class="b g" style="font-size:9.5px;">' + ltr('অগ্রিম থেকে মেটানো') + '</span>') +
                             '</div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                }
+
+                /* আজ দিয়ে দিয়েছে — শুধু দেখার জন্য, টাকা জমার বাটন নেই */
+                if (r.paid && r.paid.length) {
+                    h += '<h2 style="margin:16px 0 10px;">✅ ' + ltr('আজ দিয়ে দিয়েছে') + ' (' + r.paid.length + ')</h2>';
+                    h += '<div class="list">';
+
+                    r.paid.forEach(function (x) {
+                        h += '<div class="item">';
+                        h += '<div class="proftap" data-prof-tap="' + x.customerId + '">';
+                        h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
+                        h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                            '<span>' + NK.esc(x.customerPhone || "—") +
+                            (x.collectedAt ? ' · ' + NK.dtTime(x.collectedAt) : '') + '</span></div>';
+                        h += '</div>';
+                        h += '<div class="end"><b>' + NK.inrShort(x.dueAmount) + '</b>' +
+                            '<span class="b g" style="font-size:9.5px;">' + ltr('জমা') + '</span></div>';
                         h += '</div>';
                     });
 
