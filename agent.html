@@ -394,6 +394,98 @@
         .amtrow1 .a1stat .lbl { font-size: 6.5px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,.68); }
         .amtrow1 .a1stat .val { font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800; margin-top: 1px; font-variant-numeric: tabular-nums; }
 
+        /* ---- মার্কেট ট্যাব — "আমার মার্কেট" হেডিং + ড্রপডাউন + গ্লাস কার্ড লিস্ট + FAB ---- */
+        .pagetitle {
+            font-size: 19px; font-weight: 800; color: #0F1B3D; margin: 2px 0 14px;
+            display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+        }
+        .pagetitle span { font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 700; color: #6B7690; }
+
+        .m3select {
+            background: rgba(255,255,255,.75); backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(37,99,235,.22); border-radius: 16px;
+            padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 10px 24px -16px rgba(30,58,138,.25);
+            position: relative;
+        }
+        .m3select .lbl { font-size: 12px; font-weight: 700; color: #1E3A8A; pointer-events: none; }
+        .m3select .chev { font-size: 11px; color: #2563EB; pointer-events: none; }
+        .m3select select {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            opacity: 0; border: 0; cursor: pointer;
+        }
+
+        .marketlist { display: flex; flex-direction: column; gap: 11px; }
+        .marketcard {
+            border-radius: 20px; padding: 15px 16px; color: #fff; cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .marketcard:active { transform: scale(.98); }
+        .marketcard::after {
+            content: ""; position: absolute; top: -35%; right: -15%; width: 110px; height: 110px;
+            background: rgba(255,255,255,.14); border-radius: 50%; filter: blur(2px);
+        }
+        .marketcard.c0 { background: linear-gradient(150deg, #3B82F6, #1E3A8A); box-shadow: 0 18px 34px -16px rgba(30,58,138,.55); }
+        .marketcard.c1 { background: linear-gradient(150deg, #34D399, #047857); box-shadow: 0 18px 34px -16px rgba(4,120,87,.5); }
+        .marketcard.c2 { background: linear-gradient(150deg, #FB923C, #C2410C); box-shadow: 0 18px 34px -16px rgba(194,65,12,.5); }
+        .marketcard.c3 { background: linear-gradient(150deg, #FB7185, #BE123C); box-shadow: 0 18px 34px -16px rgba(190,18,60,.5); }
+        .marketcard.empty { background: linear-gradient(150deg, #94A3B8, #64748B); box-shadow: 0 18px 34px -16px rgba(71,85,105,.4); }
+
+        .marketcard .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; position: relative; z-index: 1; }
+        .marketcard .nm { font-size: 14.5px; font-weight: 800; color: #fff; }
+        .marketcard .code { font-size: 10.5px; color: rgba(255,255,255,.75); margin-top: 2px; font-weight: 600; }
+        .marketcard .chev {
+            width: 26px; height: 26px; border-radius: 9px; flex-shrink: 0;
+            background: rgba(255,255,255,.2); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .marketcard .chip {
+            display: inline-flex; align-items: center; gap: 4px; margin-top: 8px;
+            background: rgba(255,255,255,.22); color: #fff; font-size: 9.5px; font-weight: 700;
+            padding: 3px 9px; border-radius: 999px;
+        }
+        .marketcard .chip .dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+        .marketcard .progwrap { margin-top: 11px; position: relative; z-index: 1; }
+        .marketcard .progtxt { display: flex; justify-content: space-between; font-size: 9.5px; color: rgba(255,255,255,.85); font-weight: 600; margin-bottom: 4px; }
+        .marketcard .progtxt b { color: #fff; font-family: 'Manrope', sans-serif; font-weight: 800; }
+        .marketcard .progbar { height: 6px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; }
+        .marketcard .progbar i { display: block; height: 100%; background: #fff; border-radius: 999px; }
+        .marketcard .stats {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+            margin-top: 12px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.22);
+            position: relative; z-index: 1;
+        }
+        .mstat {
+            text-align: center; border-radius: 12px; padding: 7px 4px;
+            background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22);
+        }
+        .mstat.blue   { background: linear-gradient(150deg, rgba(96,165,250,.9), rgba(29,78,216,.9)); box-shadow: 0 8px 16px -8px rgba(0,0,0,.35); }
+        .mstat.orange { background: linear-gradient(150deg, rgba(251,146,60,.9), rgba(194,65,12,.9)); box-shadow: 0 8px 16px -8px rgba(0,0,0,.35); }
+        .mstat.pink   { background: linear-gradient(150deg, rgba(251,113,133,.9), rgba(190,18,60,.9)); box-shadow: 0 8px 16px -8px rgba(0,0,0,.35); }
+        .mstat .ic { font-size: 13px; }
+        .mstat .val {
+            font-family: 'Fraunces', serif; font-size: 13.5px; font-weight: 700; margin-top: 2px;
+            color: #fff; font-variant-numeric: tabular-nums;
+        }
+        .mstat .lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; margin-top: 1px; letter-spacing: .03em; color: rgba(255,255,255,.85); }
+
+        .market-fab {
+            position: fixed; right: 16px; z-index: 60;
+            bottom: calc(76px + env(safe-area-inset-bottom));
+            display: flex; align-items: center; gap: 7px;
+            background: linear-gradient(150deg, #2563EB, #1D4ED8);
+            color: #fff; border: none; border-radius: 999px;
+            padding: 13px 20px 13px 16px;
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 13px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 14px 28px -10px rgba(37,99,235,.6);
+        }
+        .market-fab:active { transform: scale(.96); }
+        .market-fab .plus {
+            width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.24);
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+
         /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড ---- */
         .todaydisb-card {
             background: rgba(255,255,255,.85);
@@ -1679,6 +1771,7 @@
         <!-- ---------------- মার্কেট ---------------- -->
         <div class="view" id="v-market">
             <div id="mkt"></div>
+            <button class="market-fab" id="marketFab"><span class="plus">+</span>নতুন গ্রাহক</button>
         </div>
         <!-- ---------------- কালেকশন ---------------- -->
         <div class="view" id="v-coll">
@@ -1939,7 +2032,6 @@
         <button data-v="mycust"><i>👥</i>আমার গ্রাহক</button>
         <button data-v="report"><i>📊</i>রিপোর্ট</button>
         <button data-v="disb"><i>💸</i>বিতরণ</button>
-        <button data-v="new"><i>➕</i>নতুন</button>
         <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
     </div>
@@ -2760,6 +2852,15 @@
             console.log("Called loadMkt()");
         };
 
+        /* মার্কেট ট্যাবের FAB — বিদ্যমান "নতুন" ট্যাবের কাস্টমার-ফর্মেই নিয়ে যায়,
+           নতুন কোনো লজিক না, শুধু একই show("new") কল */
+        var marketFabBtn = q("marketFab");
+        if (marketFabBtn) {
+            marketFabBtn.addEventListener("click", function () {
+                show("new");
+            });
+        }
+
         function loadMkt() {
             NK.GET("/api/agent/my-markets").then(function (d) {
                 MKT = { markets: (d && d.markets) ? d.markets : [] };
@@ -2777,42 +2878,90 @@
                 return;
             }
 
+            var markets = MKT.markets || [];
             var h = '';
-            h += '<div class="card">';
-            h += '<h2 style="margin-bottom:14px;">মার্কেট নির্বাচন করুন</h2>';
 
-            // Dropdown for market selection - always show
-            h += '<div style="margin-bottom:16px;">';
-            h += '<select id="mktDropdown" style="width:100%;">';
-            h += '<option value="">— বাছুন —</option>';
+            h += '<div class="pagetitle">' + ltr('আমার মার্কেট') + ' <span>My Assigned Markets</span></div>';
 
-            if (MKT.markets && MKT.markets.length) {
-                MKT.markets.forEach(function (m) {
-                    h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
-                        NK.esc(m.marketName) + '</option>';
-                });
-            }
-
+            /* ড্রপডাউন — আগের মতোই কাজ করে, শুধু নতুন style */
+            h += '<div class="sect-label">' + ltr('মার্কেট নির্বাচন করুন') + '</div>';
+            h += '<div class="m3select">';
+            h += '<span class="lbl" id="mktSelectLbl">' + ltr('একটা মার্কেট বেছে নিন') + '</span>';
+            h += '<span class="chev">▾</span>';
+            h += '<select id="mktDropdown">';
+            h += '<option value="">— ' + ltr('বাছুন') + ' —</option>';
+            markets.forEach(function (m) {
+                h += '<option value="' + NK.esc(m.marketId || "") + '" data-name="' + NK.esc(m.marketName) + '">' +
+                    NK.esc(m.marketName) + '</option>';
+            });
             h += '</select>';
             h += '</div>';
 
-            h += '</div>';
+            /* কার্ড-লিস্ট — Borrowers/Daily Due/Outstanding সহ */
+            h += '<div class="sect-label" style="margin-top:18px;">🏬 ' + ltr('তালিকা') + ' (' + markets.length + ')</div>';
+
+            if (!markets.length) {
+                h += '<div class="card"><div class="empty">' + ltr('কোনো মার্কেট বসানো নেই') + '</div></div>';
+            } else {
+                h += '<div class="marketlist">';
+                markets.forEach(function (m, i) {
+                    var isEmpty = !m.activeCustomers;
+                    var colorClass = isEmpty ? 'empty' : ('c' + (i % 4));
+                    var due = Number(m.todayDue || 0);
+                    var collected = Number(m.todayCollected || 0);
+                    var pct = due > 0 ? Math.min(100, (collected / due * 100)) : (collected > 0 ? 100 : 0);
+
+                    h += '<div class="marketcard ' + colorClass + '" data-mktcard="' + NK.esc(m.marketId) + '">';
+                    h += '<div class="top">';
+                    h += '<div><div class="nm">' + NK.esc(m.marketName) + '</div>';
+                    h += '<div class="code">Code: ' + NK.esc(m.marketCode || "—") + '</div>';
+                    h += '<div class="chip"><span class="dot"></span>' + (isEmpty ? ltr('নিষ্ক্রিয়') : ltr('সক্রিয়')) + '</div>';
+                    h += '</div>';
+                    h += '<div class="chev">›</div>';
+                    h += '</div>';
+
+                    if (!isEmpty) {
+                        h += '<div class="progwrap">';
+                        h += '<div class="progtxt"><span>' + ltr('আজকের কালেকশন') + '</span><b>' +
+                            NK.inrShort(collected) + ' / ' + NK.inrShort(due) + '</b></div>';
+                        h += '<div class="progbar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
+                        h += '</div>';
+                    }
+
+                    h += '<div class="stats">';
+                    h += '<div class="mstat blue"><div class="ic">👥</div><div class="val">' + (m.activeCustomers || 0) + '</div><div class="lbl">Borrowers</div></div>';
+                    h += '<div class="mstat orange"><div class="ic">📅</div><div class="val">' + NK.inrShort(m.todayDue || 0) + '</div><div class="lbl">Daily Due</div></div>';
+                    h += '<div class="mstat pink"><div class="ic">💰</div><div class="val">' + NK.inrShort(m.outstanding || 0) + '</div><div class="lbl">Outstanding</div></div>';
+                    h += '</div>';
+                    h += '</div>';
+                });
+                h += '</div>';
+            }
 
             q("mkt").innerHTML = h;
 
-            /* Dropdown change event */
+            /* ড্রপডাউন বদলালে — আগের মতোই মার্কেট ডিটেইল পাতা খোলে */
             var dropdown = q("mktDropdown");
-            if (dropdown && MKT.markets && MKT.markets.length) {
+            if (dropdown && markets.length) {
                 dropdown.addEventListener("change", function () {
                     var mktId = dropdown.value;
                     if (mktId) {
-                        var mkt = MKT.markets.find(function(m) { return m.marketId == mktId; });
+                        var mkt = markets.find(function (m) { return m.marketId == mktId; });
                         if (mkt) {
                             openMarketDetailPage(mktId, mkt.marketName);
                         }
                     }
                 });
             }
+
+            /* কার্ডে টাচ করলেও একই মার্কেট ডিটেইল পাতা খোলে */
+            Array.prototype.forEach.call(q("mkt").querySelectorAll("[data-mktcard]"), function (el) {
+                el.addEventListener("click", function () {
+                    var mktId = el.getAttribute("data-mktcard");
+                    var mkt = markets.find(function (m) { return String(m.marketId) === String(mktId); });
+                    if (mkt) openMarketDetailPage(mktId, mkt.marketName);
+                });
+            });
         }
         /* =====================================================================
          * মার্কেটের অঙ্ক-বক্স পাতা
