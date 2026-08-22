@@ -3047,14 +3047,23 @@
             q("mtMsg").textContent = "";
             q("mtMsg").className = "";
 
-            // Branch dropdown fill করি (existing BRANCHES data use করি)
-            var branchOpts = ltr('<option value="">— শাখা বেছে নিন —</option>') + brOpts(false);
-            q("mt_branch").innerHTML = branchOpts;
+            // BRANCHES data fetch করি
+            fetchBranches().then(function () {
+                // Branch dropdown fill করি
+                var branchOpts = '<option value="">— শাখা বেছে নিন —</option>';
+                (BRANCHES || []).forEach(function (b) {
+                    branchOpts += '<option value="' + NK.esc(b.id) + '">' +
+                        NK.esc(b.name) + '</option>';
+                });
+                q("mt_branch").innerHTML = branchOpts;
 
-            // Agent dropdowns খালি রাখি — branch select করলে fill হবে
-            q("mt_from_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
-            q("mt_to_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
-            q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+                // Agent dropdowns খালি রাখি — branch select করলে fill হবে
+                q("mt_from_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                q("mt_to_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+            }).catch(function (e) {
+                showMsg("mtMsg", "Branch load error: " + NK.esc(e.message), "er");
+            });
         }
 
         function fillAgentsForBranch(branchId) {
