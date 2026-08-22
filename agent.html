@@ -681,6 +681,28 @@
         }
         /* বাটনের নিচে ঢাকা পড়ে যেন শেষ কার্ডটা লুকিয়ে না থাকে */
         #v-coll { padding-bottom: 76px; }
+
+        /* ---- গ্রাহক ট্যাব — রঙ চিপ (চলমান/পিছিয়ে/শোধ-এর মতোই গোল, রঙিন) ---- */
+        .colorchips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+        .colorchips button {
+            flex-shrink: 0; min-height: 38px; padding: 0 16px 0 12px;
+            border-radius: 20px; border: 1.5px solid var(--line); background: #fff;
+            font-family: inherit; font-size: 13.5px; font-weight: 700;
+            display: flex; align-items: center; gap: 7px; white-space: nowrap; cursor: pointer;
+        }
+        .colorchips button .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .colorchips button .cnt { font-family: 'Manrope', sans-serif; background: var(--paper); border-radius: 999px; padding: 1px 8px; font-size: 12px; font-weight: 800; color: inherit; }
+        .colorchips .red    { color: var(--red); }
+        .colorchips .red .dot    { background: var(--red); }
+        .colorchips .orange { color: #C2410C; }
+        .colorchips .orange .dot { background: #EA580C; }
+        .colorchips .green  { color: #059669; }
+        .colorchips .green .dot  { background: #059669; }
+        .colorchips .red.on    { background: linear-gradient(150deg, #F87171, #DC2626); border-color: transparent; color: #fff; box-shadow: 0 8px 16px -8px rgba(220,38,38,.55); }
+        .colorchips .orange.on { background: linear-gradient(150deg, #FB923C, #C2410C); border-color: transparent; color: #fff; box-shadow: 0 8px 16px -8px rgba(194,65,12,.55); }
+        .colorchips .green.on  { background: linear-gradient(150deg, #34D399, #059669); border-color: transparent; color: #fff; box-shadow: 0 8px 16px -8px rgba(5,150,105,.55); }
+        .colorchips button.on .dot { background: #fff; }
+        .colorchips button.on .cnt { background: rgba(255,255,255,.28); color: #fff; }
         /* ---- কাস্টমার পেমেন্ট পাতা ---- */
         #payPage {
             position: fixed;
@@ -1798,6 +1820,8 @@
                 <button data-t="OVERDUE">পিছিয়ে</button>
                 <button data-t="COMPLETED">শোধ</button>
             </div>
+
+            <div class="colorchips" id="cFlagRow"></div>
 
             <div id="cList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
@@ -4006,6 +4030,7 @@
          * গ্রাহক
          * ===================================================================== */
         var cTab = "ACTIVE";
+        var cFlag = null;   // null / "RED" / "YELLOW" / "GREEN" — রঙ অনুযায়ী বাড়তি ফিল্টার
         var cTimer = null;
         var MYC = [];
         var cShow = 50;
@@ -4021,11 +4046,17 @@
             NK.GET(path).then(function (list) {
                 var all = NK.rows(list);
 
-                MYC = all.filter(function (c) {
+                var tabMatch = all.filter(function (c) {
                     if (cTab === "ACTIVE")    return c.status === "ACTIVE";
                     if (cTab === "COMPLETED") return c.status === "CLOSED";
                     if (cTab === "OVERDUE")   return Number(c.daysOverdue || 0) > 0;
                     return true;
+                });
+
+                drawFlagChips(tabMatch);
+
+                MYC = tabMatch.filter(function (c) {
+                    return !cFlag || c.flag === cFlag;
                 });
 
                 if (!MYC.length) {
@@ -4037,6 +4068,39 @@
 
             }).catch(function (e) {
                 q("cList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        /* রঙ চিপ — চলমান/পিছিয়ে/শোধের সাথে একই গোল-চিপ স্টাইল, শুধু রঙিন।
+           দিন-অনুযায়ী কোনটা কোন রঙ সেটা ব্যাকএন্ডের বিদ্যমান flag হিসাব থেকেই
+           আসে (GREEN/YELLOW/RED) — অ্যাডমিন থেকে এই সীমা বদলানোর ব্যবস্থা এখনও
+           নেই, এটা পরের আলাদা কাজ। */
+        function drawFlagChips(tabMatch) {
+            var counts = { RED: 0, YELLOW: 0, GREEN: 0 };
+            tabMatch.forEach(function (c) {
+                if (counts.hasOwnProperty(c.flag)) counts[c.flag]++;
+            });
+
+            var defs = [
+                { key: "RED", cls: "red", label: "রেড" },
+                { key: "YELLOW", cls: "orange", label: "অরেঞ্জ" },
+                { key: "GREEN", cls: "green", label: "গ্রিন" }
+            ];
+
+            var h = "";
+            defs.forEach(function (d) {
+                h += '<button class="' + d.cls + (cFlag === d.key ? ' on' : '') + '" data-flag="' + d.key + '">' +
+                    '<span class="dot"></span>' + d.label + '<span class="cnt">' + counts[d.key] + '</span></button>';
+            });
+            q("cFlagRow").innerHTML = h;
+
+            Array.prototype.forEach.call(q("cFlagRow").querySelectorAll("[data-flag]"), function (b) {
+                b.addEventListener("click", function () {
+                    var key = b.getAttribute("data-flag");
+                    cFlag = (cFlag === key) ? null : key;
+                    cShow = 50;
+                    loadCust();
+                });
             });
         }
 
@@ -4079,11 +4143,6 @@
                     '<span>' + NK.inr(c.principal) + ' · ' + NK.esc(c.marketName || "—") +
                     (remTxt ? ' · ' + remTxt : '') + '</span>' +
                     (odTxt ? '<span>' + odTxt + '</span>' : '') +
-                    '</div>';
-
-                h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
-                    (closed ? '<span class="b g">' + ltr('শোধ') + '</span>'
-                        : '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>') +
                     '</div>';
 
                 h += '</div>';
