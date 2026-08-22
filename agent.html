@@ -1378,7 +1378,11 @@
         .tnm { font-weight: 700; color: var(--ink); white-space: nowrap; }
         .tph { color: var(--muted); white-space: nowrap; }
         .tval { font-family: 'Manrope', sans-serif; font-weight: 700; color: var(--ink); white-space: nowrap; }
+        .tval.net { color: var(--blue); font-weight: 800; }
         .trmk { color: #C4C9D4; }
+
+        .signrow { display: flex; gap: 10px; margin: 18px 0 4px; }
+        .signbox { flex: 1; border: 1.5px dashed #C7CDD6; border-radius: 12px; padding: 22px 10px 10px; text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
 
         .alertbox { background: var(--amber-soft); border: 1.5px dashed #F59E0B; border-radius: 12px; padding: 11px 13px; margin: 6px 0 18px; display: flex; gap: 9px; align-items: flex-start; }
         .alertbox .ic { font-size: 15px; flex-shrink: 0; }
@@ -1435,6 +1439,9 @@
             #v-report .alertbox { background: #fff !important; border-color: #000; padding: 3px 5px !important; margin: 3px 0 6px !important; }
             #v-report .alertbox .tx { color: #000 !important; font-size: 6.5px !important; }
             #v-report .alertbox .ic { font-size: 9px !important; }
+
+            #v-report .signrow { margin: 10px 0 0 !important; }
+            #v-report .signbox { border-color: #000; color: #000 !important; padding: 14px 8px 6px !important; font-size: 8px !important; }
         }
 
         /* ---- বিতরণ স্ট্যাটাস ব্যাজ ---- */
@@ -2032,23 +2039,6 @@
         </div>
 
 
-        <!-- ---------------- কাগজ ---------------- -->
-        <div class="view" id="v-sheet">
-            <div class="card noprint">
-                <div class="fld" style="margin:0;">
-                    <label>তারিখ</label>
-                    <input id="sh_d" type="date">
-                </div>
-                <div class="chips" id="shtabs" style="margin-top:10px;margin-bottom:0;">
-                    <button class="on" data-t="MORNING">🌅 সকাল</button>
-                    <button data-t="EVENING">🌆 সন্ধ্যা</button>
-                </div>
-            </div>
-
-            <div id="shBox"><div class="loading">লোড হচ্ছে...</div></div>
-
-            <button class="btn block noprint" id="sh_print" style="display:none;margin-top:12px;">🖨️ প্রিন্ট করুন</button>
-        </div>
 
 
         <div class="view" id="v-black">
@@ -2092,6 +2082,11 @@
             <div class="alertbox">
                 <div class="ic">⚠️</div>
                 <div class="tx">সবসময় লিস্টের একদম শেষে ব্ল্যাকলিস্ট বা ১২০+ দিন বাকি থাকা গ্রাহকের নাম লেখা থাকবে।</div>
+            </div>
+
+            <div class="signrow">
+                <div class="signbox">এজেন্টের সই</div>
+                <div class="signbox">ম্যানেজারের সই</div>
             </div>
 
             <div class="sect-label">রিপোর্ট ডাউনলোড</div>
@@ -2164,7 +2159,6 @@
         <button data-v="report"><i>📊</i>রিপোর্ট</button>
         <button data-v="disb"><i>💸</i>বিতরণ</button>
         <button data-v="black"><i>🚫</i>ব্ল্যাকলিস্ট</button>
-        <button data-v="sheet"><i>🖨️</i>কাগজ</button>
     </div>
 </div>
 
@@ -2409,7 +2403,6 @@
             "গ্রাহক + লোন অনুরোধ হয়েছে": "Customer + loan request done",
             "তৈরি হচ্ছে...": "Preparing...",
             "সন্ধ্যার হিসাব": "Evening Summary",
-            "সকালের কাগজ": "Morning Sheet",
             "বকেয়া": "Arrears",
             "নিতে হবে": "To Collect",
             "উঠল": "Collected",
@@ -2738,7 +2731,7 @@
         var TITLES = {
             today: "আজকের কাজ", market: "মার্কেট", coll: "কালেকশন", cust: "গ্রাহক", mycust: "আমার গ্রাহক",
             report: "দৈনিক রিপোর্ট", disb: "বিতরণ", new: "নতুন গ্রাহক",
-            black: "ব্ল্যাকলিস্ট (১২০+ দিন)", sheet: "কাগজ"
+            black: "ব্ল্যাকলিস্ট (১২০+ দিন)"
         };
         var loaded = {};
         var CURRENT_VIEW = "today";
@@ -2748,7 +2741,7 @@
            মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
         var SAFE_REFRESH = {
             today: loadToday, coll: refreshCollView, cust: loadCust, mycust: loadMyCust,
-            report: loadReport, disb: loadDisb, black: loadBlack, sheet: loadSheet
+            report: loadReport, disb: loadDisb, black: loadBlack
         };
 
         function show(key) {
@@ -2775,7 +2768,6 @@
                 if (key === "report") loadReport();
                 if (key === "disb") loadDisb();
                 if (key === "black") loadBlack();
-                if (key === "sheet") loadSheet();
                 if (key === "new") loadNewCustomerMarkets();
             }
         }
@@ -4889,152 +4881,9 @@
         var BL_ALL = [];
         var blTimer = null;
         /* =====================================================================
-         * কাগজ — নিজের সকাল/সন্ধ্যার হিসাব, প্রিন্ট
+         * কাগজ — মুছে ফেলা হয়েছে (২০২৬-০৮-২৩), "রিপোর্ট"-এ মিলিয়ে দেওয়া হয়েছে:
+         * বকেয়া/আজ/নিতে-হবে কলাম + সইয়ের জায়গা এখন drawReportMarkets()-এ আছে
          * ===================================================================== */
-        var shType = "MORNING";
-
-        function loadSheet(silent) {
-            if (!q("sh_d").value) q("sh_d").value = new Date().toISOString().slice(0, 10);
-            showSheet(silent);
-        }
-
-        function showSheet(silent) {
-            var d = q("sh_d").value;
-
-            if (silent !== true) {
-                q("shBox").innerHTML = '<div class="loading">' + ltr("তৈরি হচ্ছে...") + '</div>';
-            }
-
-            var url = "/api/agent/my-sheet?type=" + shType + (d ? "&date=" + d : "");
-
-            NK.GET(url).then(function (s) {
-                var eve = s.sheetType === "EVENING";
-
-                var h = '<div class="sheet">';
-
-                h += '<div class="hd">';
-                h += '<h2>' + (eve ? "🌆 " + ltr("সন্ধ্যার হিসাব") : "🌅 " + ltr("সকালের কাগজ")) + '</h2>';
-                h += '<p>' + NK.esc(s.agentName) + ' · ' + NK.esc(s.branchName || "—") +
-                    ' · ' + NK.dt(s.date) + '</p>';
-                h += '</div>';
-
-                (s.markets || []).forEach(function (m) {
-                    h += '<div class="mkt">🏬 ' + NK.esc(m.marketName) +
-                        ' (' + m.customerCount + ' ' + ltr('জন') + ')</div>';
-
-                    h += '<table>';
-                    h += '<thead><tr>';
-                    h += '<th>#</th><th>' + ltr('নাম') + '</th>';
-                    h += '<th class="r">' + ltr('বকেয়া') + '</th>';
-                    h += '<th class="r">' + ltr('আজ') + '</th>';
-                    h += '<th class="r">' + ltr('নিতে হবে') + '</th>';
-                    if (eve) h += '<th class="r">' + ltr('উঠল') + '</th>';
-                    h += '</tr></thead><tbody>';
-
-                    (m.rows || []).forEach(function (r) {
-                        h += '<tr>';
-                        h += '<td>' + r.serial + '</td>';
-                        h += '<td>' + NK.esc(r.customerName) + '<br>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">' +
-                            NK.esc(r.customerPhone || "") + '</span></td>';
-                        h += '<td class="r">' + NK.inr(r.arrears) + '</td>';
-                        h += '<td class="r">' + NK.inr(r.todayDue) + '</td>';
-                        h += '<td class="r"><b>' + NK.inr(r.netToCollect) + '</b></td>';
-
-                        if (eve) {
-                            h += '<td class="r" style="color:' +
-                                (r.paid ? 'var(--green)' : 'var(--red)') + ';font-weight:700;">' +
-                                (r.paid ? NK.inr(r.collectedAmount) : "—") + '</td>';
-                        }
-
-                        h += '</tr>';
-                    });
-
-                    h += '</tbody></table>';
-
-                    h += '<div style="text-align:right;font-size:12.5px;padding:8px 6px;' +
-                        'color:var(--muted);">' + ltr('মার্কেট মোট:') + ' <b style="color:var(--ink);">' +
-                        NK.inr(m.marketDue) + '</b>' +
-                        (eve ? ' · ' + ltr('উঠল') + ' <b style="color:var(--green);">' +
-                            NK.inr(m.marketCollected) + '</b>' : '') + '</div>';
-                });
-
-                if (s.odCustomers && s.odCustomers.length) {
-                    h += '<div class="mkt" style="background:#1F2937;color:#fff;">⛔ OD (' +
-                        s.odCustomers.length + ' ' + ltr('জন') + ')</div>';
-
-                    h += '<table><thead><tr>';
-                    h += '<th>' + ltr('নাম') + '</th><th class="r">' + ltr('কত দিন') + '</th><th class="r">' + ltr('বাকি') + '</th>';
-                    h += '</tr></thead><tbody>';
-
-                    s.odCustomers.forEach(function (o) {
-                        h += '<tr>';
-                        h += '<td>' + NK.esc(o.customerName) + '<br>' +
-                            '<span style="font-size:10.5px;color:var(--muted);">' +
-                            NK.esc(o.customerPhone || "") + '</span></td>';
-                        h += '<td class="r">' + o.daysOverdue + '</td>';
-                        h += '<td class="r"><b style="color:var(--red);">' +
-                            NK.inr(o.outstanding) + '</b></td>';
-                        h += '</tr>';
-                    });
-
-                    h += '</tbody></table>';
-                }
-
-                h += '<div class="tot">';
-                h += '<span>' + ltr('মোট নিতে হবে') + '</span>';
-                h += '<span>' + NK.inr(s.totalDue) + '</span>';
-                h += '</div>';
-
-                if (eve) {
-                    h += '<div class="tot" style="border-top:1px solid var(--line);' +
-                        'color:var(--green);">';
-                    h += '<span>' + ltr('মোট উঠল') + '</span>';
-                    h += '<span>' + NK.inr(s.totalCollected) + '</span>';
-                    h += '</div>';
-
-                    if (Number(s.shortfall) > 0) {
-                        h += '<div class="tot" style="border-top:1px solid var(--line);' +
-                            'color:var(--red);">';
-                        h += '<span>' + ltr('কম পড়ল') + '</span>';
-                        h += '<span>' + NK.inr(s.shortfall) + '</span>';
-                        h += '</div>';
-                    }
-                }
-
-                h += '<div class="sign">';
-                h += '<div>' + ltr('এজেন্টের সই') + '</div>';
-                h += '<div>' + ltr('ম্যানেজারের সই') + '</div>';
-                h += '</div>';
-
-                h += '</div>';
-
-                q("shBox").innerHTML = h;
-                q("sh_print").style.display = "flex";
-
-            }).catch(function (e) {
-                q("shBox").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
-                q("sh_print").style.display = "none";
-            });
-        }
-
-        q("sh_d").addEventListener("change", showSheet);
-
-        Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (b) {
-            b.addEventListener("click", function () {
-                Array.prototype.forEach.call(document.querySelectorAll("#shtabs button"), function (x) {
-                    x.classList.remove("on");
-                });
-                b.classList.add("on");
-                shType = b.getAttribute("data-t");
-                showSheet();
-            });
-        });
-
-        q("sh_print").addEventListener("click", function () {
-            window.print();
-        });
-
         function loadBlack(silent) {
             if (silent !== true) {
                 q("blackList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -5344,7 +5193,7 @@
             }
 
             var h = '<div class="tbox"><div class="cwrap"><table class="custtbl"><thead><tr>' +
-                '<th>Sl</th><th>ছবি</th><th>নাম</th><th>ফোন</th><th>Loan</th><th>Out</th><th>EMI</th><th>Remarks</th>' +
+                '<th>Sl</th><th>ছবি</th><th>নাম</th><th>ফোন</th><th>বকেয়া</th><th>আজ</th><th>নিতে হবে</th><th>Remarks</th>' +
                 '</tr></thead><tbody>';
 
             rows.forEach(function (m) {
@@ -5355,14 +5204,18 @@
                 } else {
                     m.customers.forEach(function (c, i) {
                         var initial = (c.customerName || "?").charAt(0);
+                        var arrears = Number(c.arrears || 0);
+                        var emi = Number(c.emiAmount || 0);
+                        var advance = Number(c.advance || 0);
+                        var netToCollect = Math.max(0, arrears + emi - advance);
                         h += '<tr>';
                         h += '<td class="tsl">' + (i + 1) + '</td>';
                         h += '<td><div class="tav" data-photo="' + c.customerId + '">' + NK.esc(initial) + '</div></td>';
                         h += '<td class="tnm">' + NK.esc(c.customerName || "—") + '</td>';
                         h += '<td class="tph">' + NK.esc(c.customerPhone || "—") + '</td>';
-                        h += '<td class="tval">' + NK.inr(c.loanAmount || 0) + '</td>';
-                        h += '<td class="tval">' + NK.inr(c.outstanding || 0) + '</td>';
-                        h += '<td class="tval">' + NK.inr(c.emiAmount || 0) + '</td>';
+                        h += '<td class="tval">' + NK.inr(arrears) + '</td>';
+                        h += '<td class="tval">' + NK.inr(emi) + '</td>';
+                        h += '<td class="tval net">' + NK.inr(netToCollect) + '</td>';
                         h += '<td class="trmk">—</td>';
                         h += '</tr>';
                     });
@@ -5427,13 +5280,17 @@
 
             REPORT_MARKETS.forEach(function (m) {
                 csv += "\n" + NK.esc(m.marketName) + "\n";
-                csv += "নং,নাম,ফোন,Loan,Out,EMI,কত দিন বাকি,Remarks\n";
+                csv += "নং,নাম,ফোন,বকেয়া,আজ,নিতে হবে,কত দিন বাকি,Remarks\n";
                 m.customers.forEach(function (c, i) {
+                    var arrears = Number(c.arrears || 0);
+                    var emi = Number(c.emiAmount || 0);
+                    var advance = Number(c.advance || 0);
+                    var netToCollect = Math.max(0, arrears + emi - advance);
                     csv += (i + 1) + "," + NK.esc(c.customerName) + "," +
                         (c.customerPhone || "") + "," +
-                        NK.inr(Number(c.loanAmount || 0)) + "," +
-                        NK.inr(Number(c.outstanding || 0)) + "," +
-                        NK.inr(Number(c.emiAmount || 0)) + "," +
+                        NK.inr(arrears) + "," +
+                        NK.inr(emi) + "," +
+                        NK.inr(netToCollect) + "," +
                         Number(c.daysOverdue || 0) + ",\n";
                 });
 
