@@ -3047,8 +3047,11 @@
             q("mtMsg").textContent = "";
             q("mtMsg").className = "";
 
-            // BRANCHES + TEAM data fetch করি
-            Promise.all([fetchBranches(), fetchTeam()]).then(function () {
+            // BRANCHES + TEAM + MARKETS data fetch করি
+            Promise.all([fetchBranches(), fetchTeam(), NK.GET("/api/markets")]).then(function (results) {
+                // MARKETS populate করি
+                MARKETS = NK.rows(results[2]);
+
                 // Branch dropdown fill করি
                 var branchOpts = '<option value="">— শাখা বেছে নিন —</option>';
                 (BRANCHES || []).forEach(function (b) {
