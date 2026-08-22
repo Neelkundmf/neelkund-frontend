@@ -3074,20 +3074,32 @@
                 return;
             }
 
-            // TEAM থেকে এই branch-এর agents খুঁজি
-            var agents = (TEAM || []).filter(function (u) {
-                return u.role === "AGENT" && String(u.branchId) === String(branchId);
-            });
+            // সব এজেন্ট আনি, তারপর এই branch-এর agents ফিল্টার করি
+            NK.GET("/api/admin/users?role=AGENT").then(function (r) {
+                var allAgents = NK.rows(r);
+                var agents = allAgents.filter(function (a) {
+                    return String(a.branchId) === String(branchId);
+                });
 
-            var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
-            agents.forEach(function (a) {
-                agentOpts += '<option value="' + NK.esc(a.id) + '">' +
-                    NK.esc(a.fullName) + ' (' + NK.esc(a.phone) + ')</option>';
-            });
+                var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                if (agents.length === 0) {
+                    q("mt_from_agent").innerHTML = agentOpts;
+                    q("mt_to_agent").innerHTML = agentOpts;
+                    showMsg("mtMsg", "এই শাখায় কোনো এজেন্ট নেই", "wa");
+                    return;
+                }
 
-            q("mt_from_agent").innerHTML = agentOpts;
-            q("mt_to_agent").innerHTML = agentOpts;
-            q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+                agents.forEach(function (a) {
+                    agentOpts += '<option value="' + NK.esc(a.id) + '">' +
+                        NK.esc(a.fullName) + ' (' + NK.esc(a.phone) + ')</option>';
+                });
+
+                q("mt_from_agent").innerHTML = agentOpts;
+                q("mt_to_agent").innerHTML = agentOpts;
+                q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+            }).catch(function (e) {
+                showMsg("mtMsg", "এজেন্ট লোড ব্যর্থ: " + NK.esc(e.message), "er");
+            });
         }
 
         /* Branch change — এজেন্ট লোড করি */
