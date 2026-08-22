@@ -1380,6 +1380,32 @@
             #v-report, #v-report * { visibility: visible; }
             #v-report { position: absolute; left: 0; top: 0; width: 100%; }
             #v-report .dlrow { display: none; }
+
+            /* কালি বাঁচাতে — প্রিন্টে সব রঙিন ব্যাকগ্রাউন্ড সাদা-কালো, বর্ডার দিয়ে ভাগ করা */
+            #v-report .rhead { background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
+            #v-report .rhead .dt { color: #000 !important; }
+            #v-report .rhead .logo { background: transparent !important; }
+
+            #v-report .statbox { background: #fff !important; color: #000 !important; border: 1px solid #000; }
+            #v-report .statbox .l { opacity: 1; color: #333 !important; }
+
+            #v-report .mktbox { border: 1px solid #000; box-shadow: none; }
+            #v-report .mktbox .hd { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; }
+
+            #v-report .rowbox1 { background: #fff !important; color: #000 !important; border: 1px solid #999; box-shadow: none; }
+            #v-report .rowbox1::after { display: none; }
+            #v-report .rowbox1 .sl { background: #eee !important; color: #000 !important; }
+            #v-report .rowbox1 .av { background: #eee !important; color: #000 !important; border-color: #999; }
+            #v-report .rowbox1 .r1stat .lbl { color: #555 !important; }
+
+            #v-report .odsect { background: #fff !important; border-top: 2px solid #000; }
+            #v-report .odsect .lbl { color: #000 !important; }
+            #v-report .odsect .nm { color: #000 !important; }
+
+            #v-report .alertbox { background: #fff !important; border-color: #000; }
+            #v-report .alertbox .tx { color: #000 !important; }
+
+            #v-report .infocell { border-color: #000; }
         }
 
         /* ---- বিতরণ স্ট্যাটাস ব্যাজ ---- */
