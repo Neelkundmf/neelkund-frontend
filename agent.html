@@ -317,74 +317,114 @@
         .amtcard.c3 { background: linear-gradient(135deg, #EA580C, #F97316); }
         .amtcard.c4 { background: linear-gradient(135deg, #DB2777, #EC4899); }
 
-        /* ---- Dashboard ট্যাব — নতুন ফরম্যাট: Due/Collected বক্স ---- */
+        /* ---- Dashboard ট্যাব — আল্ট্রা-মডার্ন ভাসমান Due/Collected বক্স ---- */
         .duegrid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
+            gap: 11px;
+            margin-bottom: 18px;
         }
         .duebox {
-            border-radius: 15px;
-            padding: 13px;
+            border-radius: 20px;
+            padding: 15px;
             color: #fff;
+            position: relative;
+            overflow: hidden;
         }
-        .duebox.due  { background: linear-gradient(135deg, #0D6E64, #14837C); }
-        .duebox.coll { background: linear-gradient(135deg, #1E4FA3, #2E63D8); }
-        .duebox .t { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .duebox.due {
+            background: linear-gradient(150deg, #FB923C 0%, #F43F5E 100%);
+            box-shadow: 0 16px 30px -12px rgba(244,63,94,.5);
+        }
+        .duebox.coll {
+            background: linear-gradient(150deg, #34D399 0%, #059669 100%);
+            box-shadow: 0 16px 30px -12px rgba(5,150,105,.5);
+        }
+        .duebox::after {
+            content: ""; position: absolute; top: -30%; right: -20%;
+            width: 100px; height: 100px;
+            background: rgba(255,255,255,.16); border-radius: 50%; filter: blur(6px);
+        }
+        .duebox .t { font-size: 11.5px; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1; }
         .duebox .r {
-            display: flex; justify-content: space-between;
-            font-size: 11px; padding: 3px 0; color: rgba(255,255,255,.82);
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-size: 10.5px; padding: 3px 0; color: rgba(255,255,255,.85);
+            position: relative; z-index: 1;
         }
-        .duebox .r b { color: #fff; font-variant-numeric: tabular-nums; }
+        .duebox .r b {
+            font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700;
+            color: #fff; font-variant-numeric: tabular-nums;
+        }
 
-        /* ---- Dashboard ট্যাব — নতুন ফরম্যাট: সাদা কার্ড অঙ্ক-বক্স ---- */
+        /* ---- Dashboard ট্যাব — আল্ট্রা-মডার্ন ভাসমান অঙ্ক-বক্স, প্রতিটা আলাদা রঙে ---- */
         .amtgrid2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 11px;
+            margin-bottom: 20px;
         }
         .amtcard2 {
-            background: #fff;
-            border: 1.5px solid var(--navy);
-            border-radius: 14px;
-            padding: 12px;
-            text-align: center;
+            border-radius: 20px;
+            padding: 14px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
             cursor: pointer;
         }
         .amtcard2:active { transform: scale(.98); }
-        .amtcard2 .amt {
-            font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800;
-            color: var(--navy); font-variant-numeric: tabular-nums;
+        .amtcard2.c0 { background: linear-gradient(150deg, #6366F1, #4338CA); box-shadow: 0 16px 28px -12px rgba(67,56,202,.55); }
+        .amtcard2.c1 { background: linear-gradient(150deg, #A78BFA, #7C3AED); box-shadow: 0 16px 28px -12px rgba(124,58,237,.55); }
+        .amtcard2.c2 { background: linear-gradient(150deg, #F472B6, #DB2777); box-shadow: 0 16px 28px -12px rgba(219,39,119,.55); }
+        .amtcard2.c3 { background: linear-gradient(150deg, #FBBF24, #EA580C); box-shadow: 0 16px 28px -12px rgba(234,88,12,.55); }
+        .amtcard2.c4 { background: linear-gradient(150deg, #34D399, #0D9488); box-shadow: 0 16px 28px -12px rgba(13,148,136,.55); }
+        .amtcard2::after {
+            content: ""; position: absolute; top: -40%; right: -15%;
+            width: 90px; height: 90px; background: rgba(255,255,255,.14); border-radius: 50%;
         }
-        .amtcard2 .stack { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+        .amtcard2 .amt {
+            font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700;
+            position: relative; z-index: 1; font-variant-numeric: tabular-nums;
+        }
+        .amtcard2 .stack {
+            margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.22);
+            position: relative; z-index: 1;
+        }
         .amtcard2 .r {
             display: flex; justify-content: space-between;
-            font-size: 10.5px; color: var(--muted); padding: 3px 2px; text-align: left;
+            font-size: 10px; padding: 2.5px 0; color: rgba(255,255,255,.88);
         }
-        .amtcard2 .r b { color: #0F172A; font-variant-numeric: tabular-nums; }
+        .amtcard2 .r b { color: #fff; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-        /* ---- Dashboard ট্যাব — আজকের বিতরণ লিস্ট ---- */
-        .todaydisb-h {
-            font-size: 13.5px; font-weight: 800; color: var(--navy);
-            margin: 6px 0 4px; padding-bottom: 6px;
-            border-bottom: 2px solid #1B8F86; display: inline-block;
+        /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড ---- */
+        .todaydisb-card {
+            background: rgba(255,255,255,.85);
+            border: 1px solid rgba(139,92,246,.14);
+            border-radius: 22px;
+            padding: 16px;
+            box-shadow: 0 20px 40px -22px rgba(76,29,149,.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 10px;
         }
-        .todaydisb-list { margin: 10px 0 18px; }
+        .todaydisb-h {
+            font-size: 13px; font-weight: 800; color: #4C1D95;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+        }
         .todaydisb-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 9px 0; border-bottom: 1px solid var(--line);
+            padding: 9px 0; border-bottom: 1px dashed rgba(139,92,246,.18);
         }
-        .todaydisb-item:last-child { border-bottom: 0; }
+        .todaydisb-item:last-child { border-bottom: 0; padding-bottom: 0; }
         .todaydisb-item .num {
-            width: 22px; height: 22px; border-radius: 50%;
-            background: var(--green-soft); color: var(--green);
-            font-size: 11px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            width: 24px; height: 24px; border-radius: 9px; flex-shrink: 0;
+            background: linear-gradient(150deg, #34D399, #059669);
+            color: #fff; font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px -3px rgba(5,150,105,.5);
         }
-        .todaydisb-item .nm { flex: 1; font-size: 12.5px; font-weight: 700; color: var(--navy); }
-        .todaydisb-item .amt { font-size: 12.5px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+        .todaydisb-item .nm { flex: 1; font-size: 12.5px; font-weight: 700; color: #312E81; }
+        .todaydisb-item .amt {
+            font-family: 'Fraunces', serif; font-size: 13.5px; font-weight: 700;
+            color: #059669; font-variant-numeric: tabular-nums;
+        }
         .todaydisb-empty { font-size: 12px; color: #94A3B8; text-align: center; padding: 14px 0; }
 
         /* ভেতরের গ্রাহক তালিকার ট্যাব */
@@ -1297,8 +1337,9 @@
             padding: 14px 16px 16px;
             padding-top: max(14px, env(safe-area-inset-top));
             background:
-                radial-gradient(360px 200px at 92% -25%, rgba(232,38,27,.25), transparent 62%),
-                linear-gradient(150deg, #2E63D8 0%, #1B8F86 55%, #2FAE5C 100%);
+                radial-gradient(320px 200px at 88% -20%, rgba(244,63,94,.3), transparent 60%),
+                linear-gradient(150deg, #4F46E5 0%, #7C3AED 60%, #A855F7 100%);
+            box-shadow: 0 14px 30px -14px rgba(79,70,229,.55);
         }
         .topbar-top {
             display: flex;
@@ -1393,11 +1434,12 @@
         .info-box {
             flex: 1;
             min-width: 0;
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.16);
-            border-radius: 12px;
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.24);
+            border-radius: 13px;
             padding: 8px 7px;
             text-align: center;
+            backdrop-filter: blur(6px);
         }
         .info-box .lbl {
             font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
@@ -3026,14 +3068,14 @@
         function drawAmtDash(d) {
             var h = "";
 
-            h += '<div class="sect-label" style="font-size:12.5px;font-weight:700;color:#334155;margin:2px 0 10px;">🏷️ ' +
+            h += '<div class="sect-label" style="font-size:12px;font-weight:800;color:#4C1D95;margin:4px 0 12px;text-transform:uppercase;letter-spacing:.06em;">🏷️ ' +
                 ltr("অঙ্ক অনুযায়ী হিসাব") + '</div>';
 
-            /* ৫টা সাদা কার্ড অঙ্ক-বক্স — গ্রিড আকারে (শেষটা একাই পুরো সারি) */
+            /* ৫টা ভাসমান রঙিন কার্ড অঙ্ক-বক্স — গ্রিড আকারে (শেষটা একাই পুরো সারি) */
             h += '<div class="amtgrid2">';
             (d.boxes || []).forEach(function (b, i) {
                 var isLast = i === (d.boxes.length - 1) && (d.boxes.length % 2 === 1);
-                h += '<div class="amtcard2" data-amt="' + b.amount + '"' +
+                h += '<div class="amtcard2 c' + (i % 5) + '" data-amt="' + b.amount + '"' +
                     (isLast ? ' style="grid-column:span 2;"' : '') + '>';
                 h += '<div class="amt">' + NK.inr(b.amount) + '</div>';
                 h += '<div class="stack">';
@@ -3069,24 +3111,22 @@
         }
 
         function drawTodayDisb(list) {
-            var h = '<div class="todaydisb-h">' + ltr('আজকের বিতরণ') + '</div>';
+            var h = '<div class="todaydisb-card">';
+            h += '<div class="todaydisb-h">💸 ' + ltr('আজকের বিতরণ') + '</div>';
 
             if (!list.length) {
                 h += '<div class="todaydisb-empty">' + ltr('আজ এখনও কোনো বিতরণ হয়নি') + '</div>';
-                q("todayDisb").innerHTML = h;
-                return;
+            } else {
+                list.forEach(function (disb, i) {
+                    h += '<div class="todaydisb-item">';
+                    h += '<div class="num">' + (i + 1) + '</div>';
+                    h += '<div class="nm">' + NK.esc(disb.customerName || '—') + '</div>';
+                    h += '<div class="amt">' + NK.inr(disb.amount || 0) + '</div>';
+                    h += '</div>';
+                });
             }
 
-            h += '<div class="todaydisb-list">';
-            list.forEach(function (disb, i) {
-                h += '<div class="todaydisb-item">';
-                h += '<div class="num">' + (i + 1) + '</div>';
-                h += '<div class="nm">' + NK.esc(disb.customerName || '—') + '</div>';
-                h += '<div class="amt">' + NK.inr(disb.amount || 0) + '</div>';
-                h += '</div>';
-            });
             h += '</div>';
-
             q("todayDisb").innerHTML = h;
         }
 
