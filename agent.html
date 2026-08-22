@@ -1384,6 +1384,7 @@
         .tph { color: var(--muted); white-space: nowrap; }
         .tval { font-family: 'Manrope', sans-serif; font-weight: 700; color: var(--ink); white-space: nowrap; }
         .tval.net { color: var(--blue); font-weight: 800; }
+        .tval.danger { color: var(--red); font-weight: 800; }
         .trmk { color: #C4C9D4; }
 
         .signrow { display: flex; gap: 10px; margin: 18px 0 4px; }
@@ -4945,40 +4946,37 @@
                 '<input id="blq" type="search" placeholder="' + ltr('নাম / আইডি / ফোন খুঁজুন') + '" value="' +
                 (s ? NK.esc(q("blq").value) : "") + '"></div>';
 
+            h += '<div class="tbox"><div class="cwrap"><table class="custtbl"><thead><tr>' +
+                '<th>Sl</th><th>ছবি</th><th>নাম</th><th>ফোন</th><th>মার্কেট</th><th>দিন</th><th>বাকি</th>' +
+                '</tr></thead><tbody>';
+
             if (!list.length) {
-                h += '<div class="card"><div class="empty">' + ltr('কেউ নেই') + '</div></div>';
+                h += '<tr><td colspan="7" style="color:var(--muted);">' + ltr('কেউ নেই') + '</td></tr>';
             } else {
-                list.slice(0, 200).forEach(function (x) {
-                    h += '<div class="bl-card" data-prof="' + x.customerId +
-                        '" data-name="' + NK.esc(x.customerName) + '">';
-
-                    h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
-
-                    h += '<div class="mid">';
-                    h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
-                    h += '<div class="sub">' + NK.esc(x.customerPhone || "—") +
-                        (x.marketName ? ' · ' + NK.esc(x.marketName) : '') +
-                        ' · ' + x.daysOverdue + ' ' + ltr('দিন') + '</div>';
-                    h += '<div class="sub">' + ltr('লোন') + ' ₹' + NK.inr(x.principal) +
-                        ' · #' + x.loanId + '</div>';
-                    h += '</div>';
-
-                    h += '<div class="end">';
-                    h += '<div class="ov">' + NK.inrShort(x.outstanding) + '</div>';
-                    h += '<div class="paid">' + (NK.getLang() === "en" ? "Paid " : "শোধ ") + NK.inrShort(x.totalPaid) + '</div>';
-                    h += '</div>';
-
-                    h += '</div>';
+                list.slice(0, 200).forEach(function (x, i) {
+                    var initial = (x.customerName || "?").charAt(0);
+                    h += '<tr>';
+                    h += '<td class="tsl">' + (i + 1) + '</td>';
+                    h += '<td><div class="tav" data-prof-tap="' + x.customerId + '" data-photo="' + x.customerId + '">' + NK.esc(initial) + '</div></td>';
+                    h += '<td class="tnm" data-prof-tap="' + x.customerId + '">' + NK.esc(x.customerName || "—") + '</td>';
+                    h += '<td class="tph">' + NK.esc(x.customerPhone || "—") + '</td>';
+                    h += '<td class="tph">' + NK.esc(x.marketName || "—") + '</td>';
+                    h += '<td class="tval">' + x.daysOverdue + ' ' + ltr('দিন') + '</td>';
+                    h += '<td class="tval danger">' + NK.inr(x.outstanding) + '</td>';
+                    h += '</tr>';
                 });
 
                 if (list.length > 200) {
-                    h += '<div class="hint" style="text-align:center;margin-top:8px;">' +
-                        ltr('প্রথম ২০০ জন — খুঁজে বের করুন') + '</div>';
+                    h += '<tr><td colspan="7" style="text-align:center;color:var(--muted);font-size:10px;">' +
+                        ltr('প্রথম ২০০ জন — খুঁজে বের করুন') + '</td></tr>';
                 }
             }
 
+            h += '</tbody></table></div></div>';
+
             q("blackList").innerHTML = h;
             loadCustomerPhotosIn(q("blackList"));
+            bindProfileTap(q("blackList"));
 
             if (q("blq")) {
                 q("blq").addEventListener("input", function () {
@@ -4991,12 +4989,6 @@
                     el.setSelectionRange(el.value.length, el.value.length);
                 }
             }
-
-            Array.prototype.forEach.call(q("blackList").querySelectorAll("[data-prof]"), function (el) {
-                el.addEventListener("click", function () {
-                    openCustomerProfile(el.getAttribute("data-prof"));
-                });
-            });
         }
 
         /* =====================================================================
