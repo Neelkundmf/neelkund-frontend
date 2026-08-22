@@ -2350,6 +2350,8 @@
             "এই তালিকায় কেউ নেই": "No one in this list",
             "দিন বাকি": "days left",
             "টিপে জমা": "Tap to collect",
+            "আজ বাকি": "Due Today",
+            "অগ্রিম থেকে মেটানো": "Settled from advance",
             "অঙ্ক অনুযায়ী হিসাব": "Amount-wise Summary",
             "মোট বাকি": "Total due",
             "আজ ওঠার": "Due today",
@@ -3997,6 +3999,32 @@
                             '<span>' + NK.esc(x.customerPhone || "—") + ' · ' + x.daysOverdue + ltr(' দিন দেরি') + '</span></div>';
                         h += '</div>';
                         h += '<div class="end"><b>' + NK.inrShort(x.outstanding) + '</b></div>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+                }
+
+                /* আজ বাকি — যাদের আজকের কিস্তি এখনও জমা পড়েনি */
+                if (r.unpaid && r.unpaid.length) {
+                    h += '<h2 style="margin:16px 0 10px;">📌 ' + ltr('আজ বাকি') + ' (' + r.unpaid.length + ')</h2>';
+                    h += '<div class="list">';
+
+                    r.unpaid.forEach(function (x) {
+                        var canPay = !x.coveredByAdvance;
+                        h += '<div class="item"' +
+                            (canPay ? ' data-pay="' + x.loanId +
+                                '" data-name="' + NK.esc(x.customerName) + '" data-amt=""' : '') + '>';
+                        h += '<div class="proftap" data-prof-tap="' + x.customerId + '">';
+                        h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
+                        h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
+                            '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
+                        h += '</div>';
+                        h += '<div class="end"><b>' + NK.inrShort(x.dueAmount) + '</b>' +
+                            (canPay
+                                ? '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>'
+                                : '<span class="b g" style="font-size:9.5px;">' + ltr('অগ্রিম থেকে মেটানো') + '</span>') +
+                            '</div>';
                         h += '</div>';
                     });
 
