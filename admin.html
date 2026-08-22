@@ -507,6 +507,44 @@
             </div>
         </div>
 
+        <!-- মার্কেট ট্রান্সফার -->
+        <div class="view" id="v-market-transfer">
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 24px; margin-bottom: 20px;">
+                <h2 style="margin: 0 0 8px 0; color: white;">📊 মার্কেট ট্রান্সফার</h2>
+                <p style="margin: 0; font-size: 13px; opacity: 0.9;">এক এজেন্ট থেকে অন্য এজেন্টে মার্কেট স্থানান্তর করুন</p>
+            </div>
+
+            <div class="card">
+                <div class="msg" id="mtMsg" style="margin-bottom: 16px;"></div>
+
+                <div class="fld">
+                    <label>From Agent (যার থেকে) *</label>
+                    <select id="mt_from_agent" style="background-color: #fff3cd;">
+                        <option value="">— এজেন্ট বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div class="fld">
+                    <label>To Agent (যাকে) *</label>
+                    <select id="mt_to_agent" style="background-color: #d1ecf1;">
+                        <option value="">— এজেন্ট বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div class="fld">
+                    <label>Market (মার্কেট) *</label>
+                    <select id="mt_market" style="background-color: #d4edda;">
+                        <option value="">— মার্কেট বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    <button class="btn" id="mt_transfer" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">ট্রান্সফার করুন ✓</button>
+                    <button class="btn ghost" id="mt_cancel">বাতিল</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ---------------- টিম ---------------- -->
         <div class="view" id="v-team">
             <div class="fld" style="margin-bottom:14px;"><label>শাখা</label>
@@ -974,6 +1012,7 @@
             <button data-go="market"><i>🏬</i>মার্কেট</button>
             <button data-go="team"><i>👥</i>টিম</button>
             <button data-go="agent-markets"><i>🗂️</i>এজেন্ট মার্কেট</button>
+            <button data-go="market-transfer"><i>📊</i>মার্কেট ট্রান্সফার</button>
             <button data-go="money"><i>🏦</i>ফান্ড</button>
             <button data-go="expense"><i>💸</i>খরচ</button>
             <button data-go="salary"><i>💰</i>বেতন</button>
@@ -1411,7 +1450,7 @@
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
             profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
-            export: loadExport
+            export: loadExport, "market-transfer": loadMarketTransfer
         };
 
         /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
@@ -2991,6 +3030,118 @@
         if (tmFab) {
             tmFab.addEventListener("click", function () {
                 q("tmSheet").classList.add("on");
+            });
+        }
+
+        /* =====================================================================
+         * মার্কেট ট্রান্সফার
+         * ===================================================================== */
+        function loadMarketTransfer() {
+            q("mtMsg").textContent = "";
+            q("mtMsg").className = "";
+
+            Promise.all([fetchAgents(), fetchMarkets()]).then(function () {
+                var agents = TEAM.filter(function (u) { return u.role === "AGENT"; });
+
+                var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                agents.forEach(function (a) {
+                    agentOpts += '<option value="' + NK.esc(a.id) + '">' +
+                        NK.esc(a.fullName) + ' (' + NK.esc(a.phone) + ')</option>';
+                });
+
+                q("mt_from_agent").innerHTML = agentOpts;
+                q("mt_to_agent").innerHTML = agentOpts;
+                q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+            }).catch(function (e) {
+                showMsg("mtMsg", e.message, "er");
+            });
+        }
+
+        /* From Agent change — মার্কেট লোড করি */
+        var mtFromAgent = q("mt_from_agent");
+        if (mtFromAgent) {
+            mtFromAgent.addEventListener("change", function () {
+                if (!this.value) {
+                    q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+                    return;
+                }
+
+                var agentId = this.value;
+                NK.GET("/api/admin/users/agents-market-status").then(function (rows) {
+                    var agent = rows.find(function (r) { return String(r.agentId) === String(agentId); });
+                    if (!agent || !agent.marketIds || !agent.marketIds.length) {
+                        q("mt_market").innerHTML = '<option value="">— কোনো মার্কেট নেই —</option>';
+                        return;
+                    }
+
+                    var marketOpts = '<option value="">— মার্কেট বেছে নিন —</option>';
+                    var marketMap = {};
+                    MARKETS.forEach(function (m) { marketMap[m.id] = m.name; });
+
+                    agent.marketIds.forEach(function (mid) {
+                        marketOpts += '<option value="' + NK.esc(mid) + '">' +
+                            NK.esc(marketMap[mid] || "মার্কেট #" + mid) + '</option>';
+                    });
+
+                    q("mt_market").innerHTML = marketOpts;
+                }).catch(function (e) {
+                    showMsg("mtMsg", e.message, "er");
+                });
+            });
+        }
+
+        /* Transfer button */
+        var mtTransfer = q("mt_transfer");
+        if (mtTransfer) {
+            mtTransfer.addEventListener("click", function () {
+                var fromId = q("mt_from_agent").value;
+                var toId = q("mt_to_agent").value;
+                var marketId = q("mt_market").value;
+
+                if (!fromId || !toId || !marketId) {
+                    showMsg("mtMsg", ltr("সব ফিল্ড পূরণ করুন"), "er");
+                    return;
+                }
+
+                if (fromId === toId) {
+                    showMsg("mtMsg", ltr("একই এজেন্টে ট্রান্সফার করা যায় না"), "er");
+                    return;
+                }
+
+                if (!confirm(ltr("সত্যিই এই মার্কেট ট্রান্সফার করবেন?"))) return;
+
+                mtTransfer.disabled = true;
+                mtTransfer.textContent = "...";
+
+                NK.POST("/api/admin/transfer-market", {
+                    marketId: parseInt(marketId),
+                    fromAgentId: parseInt(fromId),
+                    toAgentId: parseInt(toId)
+                }).then(function (res) {
+                    showMsg("mtMsg", ltr("মার্কেট সফলভাবে ট্রান্সফার হয়েছে ✓"), "ok");
+                    setTimeout(function () {
+                        q("mt_from_agent").value = "";
+                        q("mt_to_agent").value = "";
+                        q("mt_market").value = "";
+                        mtTransfer.disabled = false;
+                        mtTransfer.textContent = ltr("ট্রান্সফার করুন ✓");
+                    }, 1500);
+                }).catch(function (e) {
+                    showMsg("mtMsg", e.message, "er");
+                    mtTransfer.disabled = false;
+                    mtTransfer.textContent = ltr("ট্রান্সফার করুন ✓");
+                });
+            });
+        }
+
+        /* Cancel button */
+        var mtCancel = q("mt_cancel");
+        if (mtCancel) {
+            mtCancel.addEventListener("click", function () {
+                q("mt_from_agent").value = "";
+                q("mt_to_agent").value = "";
+                q("mt_market").value = "";
+                q("mtMsg").textContent = "";
             });
         }
         var tmSheetBg = q("tmSheetBg");
