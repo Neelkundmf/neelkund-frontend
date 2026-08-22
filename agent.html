@@ -831,6 +831,69 @@
             padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
         }
 
+        /* ===== সেটিংস পাতা ===== */
+        #settingsX {
+            position: fixed; inset: 0; z-index: 600;
+            background: #F4F6F8;
+            display: none; flex-direction: column;
+        }
+        #settingsX.on { display: flex; }
+        #settingsX .sbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #settingsX .sbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #settingsX .sbar b { font-size: 15px; }
+        #settingsX .sin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+        .fp-card {
+            background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px;
+            border: 1px solid #E2E8F0;
+        }
+        .fp-card h3 {
+            font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 4px;
+        }
+        .fp-card .desc {
+            font-size: 12.5px; color: var(--muted); margin-bottom: 14px;
+        }
+        .fp-status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 20px; font-size: 12.5px; font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .fp-status-badge.on { background: #ECFDF5; color: #059669; }
+        .fp-status-badge.off { background: #F1F5F9; color: #64748B; }
+        .fp-scan-box {
+            border: 2px dashed #0066CC; border-radius: 12px;
+            padding: 24px; text-align: center; cursor: pointer;
+            background: #F0F7FF; margin-bottom: 14px;
+            transition: background .15s;
+        }
+        .fp-scan-box:active { background: #E0EFFF; }
+        .fp-scan-box .icon { font-size: 36px; margin-bottom: 8px; }
+        .fp-scan-box .lbl { font-size: 13px; font-weight: 700; color: #0066CC; }
+        .fp-device-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px; border: 1px solid #E2E8F0; border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .fp-device-item .di { flex: 1; min-width: 0; }
+        .fp-device-item .di .nm { font-size: 13px; font-weight: 700; color: var(--navy); }
+        .fp-device-item .di .dt { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+        .fp-device-item button {
+            background: #FEF2F2; color: #B91C1C; border: 0; border-radius: 8px;
+            padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+            flex-shrink: 0;
+        }
+
         .ld-hero {
             border-radius: 16px; padding: 16px; color: #fff; margin-bottom: 14px;
             background: linear-gradient(135deg, #0F766E, #2563EB);
@@ -1735,6 +1798,19 @@
         <div class="loading">লোড হচ্ছে...</div>
     </div>
 </div>
+
+<!-- ================= সেটিংস (ফিঙ্গারপ্রিন্ট) ================= -->
+<div id="settingsX">
+    <div class="sbar">
+        <button id="setClose">←</button>
+        <div style="flex:1;">
+            <b>⚙️ সেটিংস</b>
+        </div>
+    </div>
+    <div class="sin" id="setBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
 <script src="assets/js/nk.js"></script>
 <script>
     // API-based maintenance - localStorage check removed
@@ -2077,6 +2153,8 @@
                 } else if (e.state.panel === "customer") {
                     openCustomerProfile(e.state.panelId);
                 }
+            } else if (e.state.panel === "settings") {
+                openSettings();
             } else {
                 // Close all nested panels
                 q("loanX").classList.remove("on");
@@ -2086,6 +2164,7 @@
                 q("amtPage").classList.remove("on");
                 q("notifSheet").classList.remove("on");
                 q("v-market-detail").classList.remove("on");
+                q("settingsX").classList.remove("on");
             }
         });
 
@@ -4698,6 +4777,207 @@
             q("loanX").classList.remove("on");
         });
 
+        /* =====================================================================
+         * সেটিংস — ফিঙ্গারপ্রিন্ট ম্যানেজমেন্ট
+         * (settingsBtn নিজে "আরও" মেনুতে থাকে, যেটা DOM-এ পরে লোড হয় —
+         * তাই সেই বাটনের click listener নিচের দিকের script block-এ বসানো
+         * হয়েছে, openSettings() এখানে window-তে expose করা হলো) */
+        q("setClose").addEventListener("click", function () {
+            q("settingsX").classList.remove("on");
+        });
+
+        function openSettings() {
+            q("settingsX").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "settings" });
+            loadSettingsPage();
+        }
+
+        var settingsFpData = ""; // ক্যাপচার হওয়া ফিঙ্গারপ্রিন্ট ডেটা (সাময়িক)
+
+        function loadSettingsPage() {
+            q("setBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            settingsFpData = "";
+
+            Promise.all([
+                NK.GET("/api/fingerprint/has-fingerprint"),
+                NK.GET("/api/fingerprint/my-enrollments")
+            ]).then(function (results) {
+                var hasFp = results[0] && results[0].hasFingerprintEnabled;
+                var enrollments = NK.rows(results[1]);
+
+                var h = "";
+
+                // স্ট্যাটাস কার্ড
+                h += '<div class="fp-card">';
+                h += '<h3>🔐 ' + ltr('ফিঙ্গারপ্রিন্ট লগইন') + '</h3>';
+                h += '<div class="desc">' + ltr('পাসওয়ার্ড ছাড়াই ফিঙ্গারপ্রিন্ট দিয়ে দ্রুত লগইন করুন') + '</div>';
+
+                if (hasFp) {
+                    h += '<div class="fp-status-badge on">✓ ' + ltr('চালু আছে') + '</div>';
+                } else {
+                    h += '<div class="fp-status-badge off">○ ' + ltr('বন্ধ আছে') + '</div>';
+                }
+
+                h += '<div class="fp-scan-box" id="fpScanBox">';
+                h += '<div class="icon">👆</div>';
+                h += '<div class="lbl" id="fpScanLbl">' + ltr('এখানে টাচ করে নতুন ফিঙ্গারপ্রিন্ট যোগ করুন') + '</div>';
+                h += '</div>';
+
+                h += '<button class="btn block" id="fpRegisterBtn" style="background:#0066CC;color:#fff;" disabled>' +
+                    ltr('সংরক্ষণ করুন') + '</button>';
+                h += '</div>';
+
+                // ডিভাইস লিস্ট
+                if (enrollments.length > 0) {
+                    h += '<div class="fp-card">';
+                    h += '<h3>📱 ' + ltr('সংরক্ষিত ডিভাইস') + '</h3>';
+                    h += '<div class="desc">' + ltr('যেসব ডিভাইসে ফিঙ্গারপ্রিন্ট সংরক্ষিত আছে') + '</div>';
+
+                    enrollments.forEach(function (en) {
+                        h += '<div class="fp-device-item">';
+                        h += '<div class="di">';
+                        h += '<div class="nm">📱 ' + ltr('ডিভাইস') + '</div>';
+                        h += '<div class="dt">' + ltr('যোগ হয়েছে') + ': ' + NK.dtTime(en.enrolledAt) + '</div>';
+                        h += '</div>';
+                        h += '<button data-device="' + NK.esc(en.deviceId || "") + '" class="fpRemoveBtn">' +
+                            ltr('মুছুন') + '</button>';
+                        h += '</div>';
+                    });
+
+                    h += '</div>';
+
+                    // সব বন্ধ করার বাটন
+                    h += '<div class="fp-card">';
+                    h += '<h3>⚠️ ' + ltr('সব ফিঙ্গারপ্রিন্ট বন্ধ করুন') + '</h3>';
+                    h += '<div class="desc">' + ltr('সব ডিভাইসের ফিঙ্গারপ্রিন্ট লগইন বন্ধ হয়ে যাবে, শুধু পাসওয়ার্ড দিয়ে ঢুকতে হবে') + '</div>';
+                    h += '<button class="btn block" id="fpDisableAllBtn" style="background:#FEF2F2;color:#B91C1C;">' +
+                        ltr('সব বন্ধ করুন') + '</button>';
+                    h += '</div>';
+                }
+
+                q("setBody").innerHTML = h;
+                wireSettingsHandlers();
+            }).catch(function (e) {
+                q("setBody").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        // JWT-এর payload অংশ (base64url) decode করে "sub" (ফোন নম্বর) বের করি —
+        // localStorage-এ ডিভাইস-বদ্ধ ফিঙ্গারপ্রিন্ট secret এই ফোন নম্বর দিয়েই
+        // key করা হয়, যাতে লগইন পাতায় (তখনও token নেই) ফোন নম্বর দিয়ে একই
+        // secret আবার খুঁজে পাওয়া যায়
+        function decodeJwtPhone(token) {
+            try {
+                var payload = token.split(".")[1];
+                var base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+                while (base64.length % 4) base64 += "=";
+                var json = decodeURIComponent(atob(base64).split("").map(function (c) {
+                    return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(""));
+                return JSON.parse(json).sub;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function wireSettingsHandlers() {
+            var scanBox = q("fpScanBox");
+            var registerBtn = q("fpRegisterBtn");
+
+            if (scanBox) {
+                scanBox.addEventListener("click", function () {
+                    q("fpScanLbl").textContent = ltr("স্ক্যান করছি...");
+
+                    // Simulator: প্রকৃত ডিভাইসে WebAuthn/native fingerprint API বসবে
+                    setTimeout(function () {
+                        settingsFpData = "fp_" + Math.random().toString(36).substring(2, 15) +
+                            "_" + Date.now();
+                        q("fpScanLbl").textContent = "✓ " + ltr("ক্যাপচার হয়েছে — এখন সংরক্ষণ করুন");
+                        scanBox.style.borderColor = "#059669";
+                        scanBox.style.background = "#ECFDF5";
+                        if (registerBtn) registerBtn.disabled = false;
+                    }, 600);
+                });
+            }
+
+            if (registerBtn) {
+                registerBtn.addEventListener("click", function () {
+                    if (!settingsFpData) {
+                        toast(ltr("প্রথমে ফিঙ্গারপ্রিন্ট স্ক্যান করুন"), "er");
+                        return;
+                    }
+
+                    registerBtn.disabled = true;
+                    registerBtn.textContent = ltr("সংরক্ষণ হচ্ছে...");
+
+                    NK.POST("/api/fingerprint/register", {
+                        fingerprintData: settingsFpData,
+                        deviceId: navigator.userAgent.substring(0, 100)
+                    }).then(function () {
+                        // লগইন পাতায় পরে এই একই secret ব্যবহারের জন্য এই
+                        // ডিভাইসের localStorage-এ ফোন নম্বর দিয়ে রেখে দিই
+                        var phone = decodeJwtPhone(NK.getToken());
+                        if (phone) {
+                            try {
+                                localStorage.setItem("nk_fp_secret_" + phone, settingsFpData);
+                            } catch (e) {}
+                        }
+
+                        toast(ltr("ফিঙ্গারপ্রিন্ট সংরক্ষিত হয়েছে ✓"), "ok");
+                        loadSettingsPage();
+                    }).catch(function (e) {
+                        toast(e.message, "er");
+                        registerBtn.disabled = false;
+                        registerBtn.textContent = ltr("সংরক্ষণ করুন");
+                    });
+                });
+            }
+
+            var removeBtns = document.querySelectorAll(".fpRemoveBtn");
+            removeBtns.forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var deviceId = btn.getAttribute("data-device");
+                    if (!confirm(ltr("এই ডিভাইসের ফিঙ্গারপ্রিন্ট মুছে ফেলবেন?"))) return;
+
+                    NK.DELETE("/api/fingerprint/remove?deviceId=" + encodeURIComponent(deviceId))
+                        .then(function () {
+                            // যদি এই একই ডিভাইসেরই এন্ট্রি মোছা হলো, স্থানীয়
+                            // secret-ও সাফ করি — নাহলে লগইন পাতা পুরনো
+                            // (এখন সার্ভারে অস্তিত্বহীন) secret দিয়ে চেষ্টা করে
+                            // বিভ্রান্তিকর "মেলেনি" এরর দেখাবে
+                            if (deviceId === navigator.userAgent.substring(0, 100)) {
+                                var phone = decodeJwtPhone(NK.getToken());
+                                if (phone) {
+                                    try { localStorage.removeItem("nk_fp_secret_" + phone); } catch (e) {}
+                                }
+                            }
+                            toast(ltr("মুছে ফেলা হয়েছে ✓"), "ok");
+                            loadSettingsPage();
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                        });
+                });
+            });
+
+            var disableAllBtn = q("fpDisableAllBtn");
+            if (disableAllBtn) {
+                disableAllBtn.addEventListener("click", function () {
+                    if (!confirm(ltr("সত্যিই সব ফিঙ্গারপ্রিন্ট বন্ধ করবেন?"))) return;
+
+                    NK.POST("/api/fingerprint/disable-all", {}).then(function () {
+                        var phone = decodeJwtPhone(NK.getToken());
+                        if (phone) {
+                            try { localStorage.removeItem("nk_fp_secret_" + phone); } catch (e) {}
+                        }
+                        toast(ltr("সব ফিঙ্গারপ্রিন্ট বন্ধ হয়েছে"), "ok");
+                        loadSettingsPage();
+                    }).catch(function (e) {
+                        toast(e.message, "er");
+                    });
+                });
+            }
+        }
+
         var LD_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
         var LD_MONTHS_EN = ["January", "February", "March", "April", "May", "June",
@@ -5939,6 +6219,10 @@
             loadNotif();
         };
 
+        // "আরও" মেনুর settingsBtn DOM-এ পরে লোড হয় বলে সেই click listener
+        // নিচের script block-এ বসানো — openSettings() এখানে window-তে expose করলাম
+        window.openSettings = openSettings;
+
     })();
 </script>
 <script>
@@ -5957,6 +6241,9 @@
         <h3>আরও</h3>
 
         <div class="menu-grid">
+            <div style="border:1.5px solid #0066CC;border-radius:10px;padding:10px;background:rgba(0,102,204,0.05);">
+                <button id="settingsBtn" style="width:100%;background:#0066CC;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:600;cursor:pointer;"><i>⚙️</i>সেটিংস</button>
+            </div>
             <button data-go="logout"><i>🚪</i>লগ আউট</button>
         </div>
     </div>
@@ -5979,6 +6266,16 @@ if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
         NK.logout();
         window.location.href = "login.html";
+    });
+}
+
+// সেটিংস বাটন হ্যান্ডলার - এটাও HTML লোড হওয়ার পরে বসাতে হয়
+var settingsBtnEl = document.getElementById("settingsBtn");
+if (settingsBtnEl) {
+    settingsBtnEl.addEventListener("click", function () {
+        var sheetEl = document.getElementById("sheet");
+        if (sheetEl) sheetEl.classList.remove("on"); // "আরও" মেনু বন্ধ করি
+        if (typeof window.openSettings === "function") window.openSettings();
     });
 }
 </script>

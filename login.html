@@ -282,13 +282,13 @@
                required>
       </div>
 
-      <div style="background:#f0f4ff;border:1px solid #cce5ff;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
-        <div id="fpStatus" style="font-size:13px;color:#0066CC;margin-bottom:8px;">ফিঙ্গারপ্রিন্ট স্ক্যান করুন</div>
-        <canvas id="fingerprintCanvas" style="width:100%;max-width:200px;height:150px;border:2px dashed #0066CC;border-radius:8px;background:#fff;cursor:pointer;display:none;margin:0 auto;"></canvas>
+      <div id="fpScanBox" style="border:2px dashed #0066CC;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#F0F7FF;margin-bottom:14px;">
+        <div style="font-size:36px;margin-bottom:8px;">👆</div>
+        <div id="fpStatus" style="font-size:13px;font-weight:700;color:#0066CC;">এখানে টাচ করুন</div>
         <div id="fpMsg" style="font-size:12px;color:#666;margin-top:8px;"></div>
       </div>
 
-      <button type="button" class="btn block" id="fpLoginBtn" style="background:#0066CC;color:#fff;">ফিঙ্গারপ্রিন্ট দিয়ে লগইন করুন</button>
+      <button type="button" class="btn block" id="fpLoginBtn" style="background:#0066CC;color:#fff;" disabled>ফিঙ্গারপ্রিন্ট দিয়ে লগইন করুন</button>
     </div>
 
     <!-- পাসওয়ার্ড লগইন ফর্ম -->
@@ -445,34 +445,56 @@
     // শুরুতে পাসওয়ার্ড ফর্ম দেখাই
     showPasswordForm();
 
-    /* ---- ফিঙ্গারপ্রিন্ট লগইন ---- */
-    var fingerprintData = "";
+    /* ---- ফিঙ্গারপ্রিন্ট লগইন ----
+       আসল fingerprint sensor data ব্রাউজার থেকে পাওয়া যায় না, তাই
+       "সেটিংস"-এ নিবন্ধনের সময় যে গোপন টোকেন এই ডিভাইসের localStorage-এ
+       (ফোন নম্বর অনুযায়ী) রাখা হয়, লগইনের সময় সেই একই টোকেন ব্যবহার হয় —
+       প্রতিবার নতুন random data বানালে backend-এর hash কখনোই মিলত না। */
+    var fpReadyData = "";
 
-    q("fingerprintCanvas").addEventListener("click", function () {
-      q("fpStatus").textContent = "স্ক্যান করছি... (simulator)";
-      q("fpMsg").textContent = "ডেভাইসে fingerprint sensor এ touch করুন";
+    function fpDeviceId() {
+      return navigator.userAgent.substring(0, 100);
+    }
 
-      // Simulator: random data generate করি
-      fingerprintData = "fp_" + Math.random().toString(36).substring(2, 15);
-      q("fpStatus").textContent = "✓ ফিঙ্গারপ্রিন্ট capture হয়েছে";
+    q("fpScanBox").addEventListener("click", function () {
+      var phone = q("fpPhone").value.trim();
+
+      if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        q("fpMsg").textContent = "প্রথমে সঠিক ১০ সংখ্যার ফোন নম্বর দিন";
+        return;
+      }
+
+      var stored = null;
+      try { stored = localStorage.getItem("nk_fp_secret_" + phone); } catch (e) {}
+
+      if (!stored) {
+        q("fpStatus").textContent = "এখানে টাচ করুন";
+        q("fpMsg").textContent = "এই ডিভাইসে এই নম্বরের ফিঙ্গারপ্রিন্ট নিবন্ধিত নেই — আগে লগইন করে সেটিংস থেকে নিবন্ধন করুন";
+        q("fpLoginBtn").disabled = true;
+        fpReadyData = "";
+        return;
+      }
+
+      q("fpStatus").textContent = "স্ক্যান করছি...";
       q("fpMsg").textContent = "";
+
+      setTimeout(function () {
+        fpReadyData = stored;
+        q("fpStatus").textContent = "✓ ফিঙ্গারপ্রিন্ট চেনা গেছে";
+        q("fpLoginBtn").disabled = false;
+      }, 500);
     });
 
     q("fpLoginBtn").addEventListener("click", function () {
       var phone = q("fpPhone").value.trim();
-
-      if (!phone) {
-        q("fpMsg").textContent = "ফোন নম্বর দিন";
-        return;
-      }
 
       if (!/^[6-9][0-9]{9}$/.test(phone)) {
         q("fpMsg").textContent = "সঠিক ১০ সংখ্যার নম্বর দিন";
         return;
       }
 
-      if (!fingerprintData) {
-        q("fpMsg").textContent = "প্রথমে ফিঙ্গারপ্রিন্ট স্ক্যান করুন";
+      if (!fpReadyData) {
+        q("fpMsg").textContent = "প্রথমে উপরে টাচ করে স্ক্যান করুন";
         return;
       }
 
@@ -480,34 +502,18 @@
       btn.disabled = true;
       btn.textContent = "✓ যাচাই করছি...";
 
-      NK.POST("/api/fingerprint/verify", {
-        phone: phone,
-        fingerprintData: fingerprintData,
-        deviceId: navigator.userAgent.substring(0, 100)
-      }).then(function (res) {
-        if (res.success) {
-          // এখন সাধারণ password login করব (backend verify হয়েছে)
-          toast("ফিঙ্গারপ্রিন্ট সফল!", "ok");
-
-          // User info fetch করে login complete করি
-          NK.login(phone, "fingerprint-verified")
-            .then(function (d) {
-              toast("স্বাগতম, " + d.fullName, "ok");
-              setTimeout(function () { goHome(d); }, 350);
-            })
-            .catch(function (e) {
-              showErr(e.message);
-              btn.disabled = false;
-              btn.textContent = "ফিঙ্গারপ্রিন্ট দিয়ে লগইন করুন";
-            });
-        }
-      }).catch(function (err) {
-        q("fpMsg").textContent = "ফিঙ্গারপ্রিন্ট match না: পাসওয়ার্ড ব্যবহার করুন";
-        btn.disabled = false;
-        btn.textContent = "ফিঙ্গারপ্রিন্ট দিয়ে লগইন করুন";
-        fingerprintData = "";
-        q("fpStatus").textContent = "ফিঙ্গারপ্রিন্ট স্ক্যান করুন";
-      });
+      NK.loginWithFingerprint(phone, fpReadyData, fpDeviceId())
+        .then(function (d) {
+          toast("স্বাগতম, " + d.fullName, "ok");
+          setTimeout(function () { goHome(d); }, 350);
+        })
+        .catch(function (e) {
+          q("fpMsg").textContent = e.message;
+          btn.disabled = false;
+          btn.textContent = "ফিঙ্গারপ্রিন্ট দিয়ে লগইন করুন";
+          fpReadyData = "";
+          q("fpStatus").textContent = "এখানে টাচ করুন";
+        });
     });
 
     /* ---- লগইন ---- */
