@@ -518,6 +518,13 @@
                 <div class="msg" id="mtMsg" style="margin-bottom: 16px;"></div>
 
                 <div class="fld">
+                    <label>শাখা বেছে নিন (Branch) *</label>
+                    <select id="mt_branch">
+                        <option value="">— শাখা বেছে নিন —</option>
+                    </select>
+                </div>
+
+                <div class="fld">
                     <label>From Agent (যার থেকে) *</label>
                     <select id="mt_from_agent" style="background-color: #fff3cd;">
                         <option value="">— এজেন্ট বেছে নিন —</option>
@@ -3040,8 +3047,36 @@
             q("mtMsg").textContent = "";
             q("mtMsg").className = "";
 
-            // TEAM থেকে শুধু AGENT role filter করি
-            var agents = (TEAM || []).filter(function (u) { return u.role === "AGENT"; });
+            // Branch dropdown fill করি
+            var branchOpts = '<option value="">— শাখা বেছে নিন —</option>';
+            var branches = {};
+            (TEAM || []).forEach(function (u) {
+                if (u.branchId && !branches[u.branchId]) {
+                    branches[u.branchId] = u.branchName || "Branch #" + u.branchId;
+                }
+            });
+            Object.keys(branches).forEach(function (bid) {
+                branchOpts += '<option value="' + NK.esc(bid) + '">' +
+                    NK.esc(branches[bid]) + '</option>';
+            });
+            q("mt_branch").innerHTML = branchOpts;
+
+            // Agent dropdowns খালি রাখি — branch select করলে fill হবে
+            q("mt_from_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+            q("mt_to_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+            q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+        }
+
+        function fillAgentsForBranch(branchId) {
+            if (!branchId) {
+                q("mt_from_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                q("mt_to_agent").innerHTML = '<option value="">— এজেন্ট বেছে নিন —</option>';
+                return;
+            }
+
+            var agents = (TEAM || []).filter(function (u) {
+                return u.role === "AGENT" && String(u.branchId) === String(branchId);
+            });
 
             var agentOpts = '<option value="">— এজেন্ট বেছে নিন —</option>';
             agents.forEach(function (a) {
@@ -3052,6 +3087,14 @@
             q("mt_from_agent").innerHTML = agentOpts;
             q("mt_to_agent").innerHTML = agentOpts;
             q("mt_market").innerHTML = '<option value="">— মার্কেট বেছে নিন —</option>';
+        }
+
+        /* Branch change — এজেন্ট লোড করি */
+        var mtBranch = q("mt_branch");
+        if (mtBranch) {
+            mtBranch.addEventListener("change", function () {
+                fillAgentsForBranch(this.value);
+            });
         }
 
         /* From Agent change — মার্কেট লোড করি */
