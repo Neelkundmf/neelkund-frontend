@@ -577,12 +577,12 @@
             width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
             background: rgba(255,255,255,.22); border: 1.5px solid rgba(255,255,255,.55);
             display: flex; align-items: center; justify-content: center;
-            font-size: 9.5px; font-weight: 800;
+            font-size: 9.5px; font-weight: 800; cursor: pointer;
             background-size: cover; background-position: center;
         }
         .rowbox1 .nm {
             width: 46px; flex-shrink: 0; font-size: 9.5px; font-weight: 800;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
         }
         .rowbox1 .r1stat { flex: 1; text-align: center; min-width: 0; }
         .rowbox1 .r1stat .lbl { font-size: 6px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,.68); }
@@ -640,7 +640,8 @@
         .ccard.late1 { border-left: 3.5px solid var(--amber); }
         .ccard.late2 { border-left: 3.5px solid var(--red); }
         .ccard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-        .ccard .nm { font-size: 14.5px; font-weight: 800; color: #0F1B3D; }
+        .ccard .av { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; cursor: pointer; }
+        .ccard .nm { font-size: 14.5px; font-weight: 800; color: #0F1B3D; cursor: pointer; }
         .ccard .sub { font-size: 10.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
         .ccard .emipill { flex: 0 0 auto; background: var(--blue-soft); color: var(--blue); font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; }
         .ccard .delaychip { display: inline-block; margin-top: 7px; font-size: 9.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
@@ -718,6 +719,10 @@
         .mcitem .mid span { font-size: 11.5px; color: var(--muted); display: block; margin-top: 1px; }
         .mcitem .od { text-align: right; flex-shrink: 0; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 13px; }
         .mcitem .od span { display: block; font-size: 9px; font-weight: 700; color: #94A0B4; margin-top: 1px; }
+
+        /* ছবি+নাম — যেখানেই সারির নিজের অন্য কাজ আছে (টাকা জমা/সই তোলা), সেখানে
+           ছবি+নামকে নিজের ছোট্ট tap-জোন করে দিতে এই wrapper — bindProfileTap() */
+        .proftap { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; cursor: pointer; }
         /* ---- কাস্টমার পেমেন্ট পাতা ---- */
         #payPage {
             position: fixed;
@@ -1374,8 +1379,8 @@
         }
         tr.odrow .lbl { color: #B91C1C; text-transform: uppercase; letter-spacing: .03em; font-size: 9px; font-weight: 800; display: block; margin-bottom: 2px; }
         .tsl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #94A0B4; width: 20px; }
-        .tav { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
-        .tnm { font-weight: 700; color: var(--ink); white-space: nowrap; }
+        .tav { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; cursor: pointer; }
+        .tnm { font-weight: 700; color: var(--ink); white-space: nowrap; cursor: pointer; }
         .tph { color: var(--muted); white-space: nowrap; }
         .tval { font-family: 'Manrope', sans-serif; font-weight: 700; color: var(--ink); white-space: nowrap; }
         .tval.net { color: var(--blue); font-weight: 800; }
@@ -1593,12 +1598,13 @@
             width: 42px; height: 42px;
             border-radius: 12px;
             background: linear-gradient(155deg, #D97706, #B45309);
+            background-size: cover; background-position: center;
             display: flex; align-items: center; justify-content: center;
             color: #fff; font-weight: 800; font-size: 16px;
-            flex-shrink: 0;
+            flex-shrink: 0; cursor: pointer;
         }
         .pend-info { flex: 1; min-width: 0; }
-        .pend-name { font-size: 14.5px; font-weight: 800; color: var(--ink); }
+        .pend-name { font-size: 14.5px; font-weight: 800; color: var(--ink); cursor: pointer; }
         .pend-sub { font-size: 11.5px; color: #92600A; font-weight: 600; margin-top: 1px; }
         .pend-amt { font-size: 15px; font-weight: 800; color: #B45309; white-space: nowrap; }
         .pend-btn {
@@ -3376,11 +3382,13 @@
                     h += '<div class="item"' +
                         (closed ? '' : ' data-pay="' + c.loanId +
                             '" data-name="' + NK.esc(c.customerName) + '" data-amt=""') + '>';
-                    h += '<div class="av">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
+                    h += '<div class="proftap" data-prof-tap="' + c.customerId + '">';
+                    h += '<div class="av" data-photo="' + c.customerId + '">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
                     h += '<div class="mid"><b>' + NK.esc(c.customerName) + '</b>' +
                         '<span>' + NK.esc(c.customerPhone || "—") +
                         (c.daysOverdue > 0 ? ' · ' + c.daysOverdue + ' ' + ltr('দিন বাকি') : '') +
                         '</span></div>';
+                    h += '</div>';
                     h += '<div class="end"><b>' + NK.inrShort(c.outstanding) + '</b>' +
                         (closed ? '<span class="b g">' + ltr('শোধ') + '</span>'
                             : '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>') +
@@ -3394,6 +3402,8 @@
 
             /* টাকা নেওয়া */
             bindPay(q("amtCustListBox"));
+            bindProfileTap(q("amtCustListBox"));
+            loadCustomerPhotosIn(q("amtCustListBox"));
         }
 
         q("amtClose").addEventListener("click", function () {
@@ -3623,8 +3633,11 @@
                     '" data-name="' + NK.esc(c.customerName) + '">';
 
                 h += '<div class="ccard-top">';
+                h += '<div class="proftap" data-prof-tap="' + c.customerId + '">';
+                h += '<div class="av" data-photo="' + c.customerId + '">' + NK.esc((c.customerName || "?").charAt(0)) + '</div>';
                 h += '<div><div class="nm">' + NK.esc(c.customerName) + '</div>' +
                     '<div class="sub">' + NK.esc(c.customerCode || "—") + ' · ' + NK.esc(c._marketName || "") + '</div></div>';
+                h += '</div>';
                 h += '<div class="emipill">₹' + Number(c.emiAmount || 0).toFixed(0) + '/day</div>';
                 h += '</div>';
 
@@ -3647,6 +3660,8 @@
             });
 
             q("collList").innerHTML = h;
+            bindProfileTap(q("collList"));
+            loadCustomerPhotosIn(q("collList"));
 
             /* কাস্টমারে টাচ করলে পেমেন্ট পাতা খোলে */
             Array.prototype.forEach.call(q("collList").querySelectorAll("[data-pay]"), function (el) {
@@ -3975,10 +3990,11 @@
                         h += '<div class="item" data-pay="' + x.loanId +
                             '" data-name="' + NK.esc(x.customerName) +
                             '" data-amt="">';
-                        h += '<div class="av" style="background:#1F2937;color:#fff;font-size:12px;">' +
-                            x.daysOverdue + ltr('দি') + '</div>';
+                        h += '<div class="proftap" data-prof-tap="' + x.customerId + '">';
+                        h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
                         h += '<div class="mid"><b>' + NK.esc(x.customerName) + '</b>' +
-                            '<span>' + NK.esc(x.customerPhone || "—") + '</span></div>';
+                            '<span>' + NK.esc(x.customerPhone || "—") + ' · ' + x.daysOverdue + ltr(' দিন দেরি') + '</span></div>';
+                        h += '</div>';
                         h += '<div class="end"><b>' + NK.inrShort(x.outstanding) + '</b></div>';
                         h += '</div>';
                     });
@@ -3992,6 +4008,8 @@
 
                 q("today").innerHTML = h;
                 bindPay(q("today"));
+                bindProfileTap(q("today"));
+                loadCustomerPhotosIn(q("today"));
 
                 // Load collection list at bottom
                 loadCollectionList();
@@ -4037,8 +4055,8 @@
 
                     html += '<div class="rowbox1 ' + colorClass + '">';
                     html += '<div class="sl">' + (i + 1) + '</div>';
-                    html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
-                    html += '<div class="nm">' + NK.esc(item.customerName || "—") + '</div>';
+                    html += '<div class="av" data-prof-tap="' + item.customerId + '"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    html += '<div class="nm" data-prof-tap="' + item.customerId + '">' + NK.esc(item.customerName || "—") + '</div>';
                     html += '<div class="r1stat"><div class="lbl">Loan</div><div class="val">' + NK.inrShort(item.loanAmount || 0) + '</div></div>';
                     html += '<div class="r1stat"><div class="lbl">Out</div><div class="val">' + NK.inrShort(item.outstandingAmount || 0) + '</div></div>';
                     html += '<div class="r1stat"><div class="lbl">EMI</div><div class="val">' + NK.inrShort(item.amount) + '</div></div>';
@@ -4049,6 +4067,7 @@
 
                 box.innerHTML = html;
                 loadRecentCollPhotos();
+                bindProfileTap(box);
             }).catch(function (e) {
                 box.innerHTML = '<div class="recentcoll-empty">' + ltr('ত্রুটি') + ': ' + NK.esc(e.message) + '</div>';
             });
@@ -4933,13 +4952,13 @@
                     h += '<div class="bl-card" data-prof="' + x.customerId +
                         '" data-name="' + NK.esc(x.customerName) + '">';
 
-                    h += '<div class="av"><span class="d">' + x.daysOverdue +
-                        '</span><span class="u">' + ltr('দিন') + '</span></div>';
+                    h += '<div class="av" data-photo="' + x.customerId + '">' + NK.esc((x.customerName || "?").charAt(0)) + '</div>';
 
                     h += '<div class="mid">';
                     h += '<div class="nm">' + NK.esc(x.customerName) + '</div>';
                     h += '<div class="sub">' + NK.esc(x.customerPhone || "—") +
-                        (x.marketName ? ' · ' + NK.esc(x.marketName) : '') + '</div>';
+                        (x.marketName ? ' · ' + NK.esc(x.marketName) : '') +
+                        ' · ' + x.daysOverdue + ' ' + ltr('দিন') + '</div>';
                     h += '<div class="sub">' + ltr('লোন') + ' ₹' + NK.inr(x.principal) +
                         ' · #' + x.loanId + '</div>';
                     h += '</div>';
@@ -4959,6 +4978,7 @@
             }
 
             q("blackList").innerHTML = h;
+            loadCustomerPhotosIn(q("blackList"));
 
             if (q("blq")) {
                 q("blq").addEventListener("input", function () {
@@ -5072,7 +5092,7 @@
                     var days = Number(x.daysOverdue || 0);
 
                     h += '<div class="mcitem ' + flagCls + '" data-prof="' + x.customerId + '">';
-                    h += '<div class="av">' + initial + '</div>';
+                    h += '<div class="av" data-photo="' + x.customerId + '">' + initial + '</div>';
                     h += '<div class="mid"><b>' + NK.esc(x.fullName) + '</b>' +
                         '<span>' + NK.esc(x.customerCode || "—") + ' · ' + ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</span></div>';
                     if (days > 0) {
@@ -5083,6 +5103,7 @@
             }
 
             q("myList").innerHTML = h;
+            loadCustomerPhotosIn(q("myList"));
 
             // Search functionality
             if (q("myq")) {
@@ -5210,8 +5231,8 @@
                         var netToCollect = Math.max(0, arrears + emi - advance);
                         h += '<tr>';
                         h += '<td class="tsl">' + (i + 1) + '</td>';
-                        h += '<td><div class="tav" data-photo="' + c.customerId + '">' + NK.esc(initial) + '</div></td>';
-                        h += '<td class="tnm">' + NK.esc(c.customerName || "—") + '</td>';
+                        h += '<td><div class="tav" data-prof-tap="' + c.customerId + '" data-photo="' + c.customerId + '">' + NK.esc(initial) + '</div></td>';
+                        h += '<td class="tnm" data-prof-tap="' + c.customerId + '">' + NK.esc(c.customerName || "—") + '</td>';
                         h += '<td class="tph">' + NK.esc(c.customerPhone || "—") + '</td>';
                         h += '<td class="tval">' + NK.inr(arrears) + '</td>';
                         h += '<td class="tval">' + NK.inr(emi) + '</td>';
@@ -5239,6 +5260,7 @@
             h += '</tbody></table></div></div>';
             q("repMarkets").innerHTML = h;
             loadReportPhotos();
+            bindProfileTap(q("repMarkets"));
         }
 
         /* কাস্টমারের আসল প্রোফাইল ছবি — ফর্ম ফিলাপের সময় তোলা, টোকেন প্রোটেক্টেড
@@ -5978,6 +6000,35 @@
             return "****";
         }
 
+        /* কাস্টমার ছবি+নাম যেখানেই লিস্টে থাকে (OD, অঙ্ক-বক্স লিস্ট, কালেকশন,
+           বিতরণ-এর সইয়ের কার্ড, রিপোর্ট...) — এই দুটো helper সব জায়গায় শেয়ার হয়।
+           bindProfileTap() ইচ্ছে করেই stopPropagation() করে, যাতে যে সারির
+           নিজের অন্য কাজ আছে (টাকা জমা / সই তোলা) সেটা ছবি/নামের বাইরে টাচ
+           করলে আগের মতোই চলে — শুধু ছবি/নামটাই প্রোফাইলের আলাদা শর্টকাট। */
+        function bindProfileTap(box) {
+            if (!box) return;
+            Array.prototype.forEach.call(box.querySelectorAll("[data-prof-tap]"), function (el) {
+                el.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    openCustomerProfile(el.getAttribute("data-prof-tap"));
+                });
+            });
+        }
+
+        function loadCustomerPhotosIn(box) {
+            if (!box) return;
+            Array.prototype.forEach.call(box.querySelectorAll("[data-photo]"), function (el) {
+                var id = el.getAttribute("data-photo");
+                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
+                    if (!blob) return;
+                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    el.style.backgroundSize = "cover";
+                    el.style.backgroundPosition = "center";
+                    el.textContent = "";
+                }).catch(function () {});
+            });
+        }
+
         var PF_REQ_ID = 0;
         function openCustomerProfile(customerId) {
             var myReq = ++PF_REQ_ID;
@@ -6213,9 +6264,9 @@
                 var initial = NK.esc((r.customerName || "?").charAt(0));
                 h += '<div class="pend-card">';
                 h += '<div class="pend-top">';
-                h += '<div class="pend-avatar">' + initial + '</div>';
+                h += '<div class="pend-avatar" data-prof-tap="' + r.customerId + '" data-photo="' + r.customerId + '">' + initial + '</div>';
                 h += '<div class="pend-info">';
-                h += '<div class="pend-name">' + NK.esc(r.customerName || "—") + '</div>';
+                h += '<div class="pend-name" data-prof-tap="' + r.customerId + '">' + NK.esc(r.customerName || "—") + '</div>';
                 h += '<div class="pend-sub">' +
                     (r.reviewedAt ? NK.dtTime(r.reviewedAt) + ltr('-এ অনুমোদিত') : '') + '</div>';
                 h += '</div>';
@@ -6227,6 +6278,8 @@
             });
 
             box.innerHTML = h;
+            bindProfileTap(box);
+            loadCustomerPhotosIn(box);
 
             Array.prototype.forEach.call(box.querySelectorAll("[data-signloan]"), function (btn) {
                 btn.addEventListener("click", function () {
