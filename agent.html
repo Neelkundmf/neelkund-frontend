@@ -1352,16 +1352,33 @@
         .statbox.orange { background: linear-gradient(150deg, #FB923C, #C2410C); }
         .statbox.navy   { background: linear-gradient(150deg, #64748B, #334155); }
 
-        .mktbox { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.14); }
-        .mktbox .hd { background: linear-gradient(150deg, #1E3A8A, #2563EB); color: #fff; padding: 10px 14px; font-size: 13.5px; font-weight: 800; }
-        .mktbox .cust { padding: 10px 14px; }
-
-        .odsect { background: #FEF2F2; border-top: 2px solid #FCA5A5; padding: 10px 14px 12px; }
-        .odsect .lbl { font-size: 10px; font-weight: 800; color: #B91C1C; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-        .odsect .row { display: flex; gap: 8px; padding: 3px 0; font-size: 12.5px; }
-        .odsect .sl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #DC2626; width: 18px; flex-shrink: 0; }
-        .odsect .nm { color: #7F1D1D; font-weight: 700; }
-        .odsect .none { font-size: 11.5px; color: #94A0B4; font-style: italic; }
+        /* মার্কেট-অনুযায়ী গ্রাহক তালিকা — একটাই টেবিল, হেডিং একবার উপরে,
+           প্রতিটা মার্কেটের নাম আর OD/ব্ল্যাকলিস্ট নিজের নিজের রঙিন পূর্ণ-প্রস্থ সারি */
+        .tbox { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.14); }
+        .cwrap { overflow-x: auto; }
+        table.custtbl { width: 100%; border-collapse: collapse; min-width: 560px; }
+        table.custtbl thead th {
+            background: var(--blue-soft); color: var(--blue); font-size: 9px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .02em; padding: 8px 6px; text-align: left;
+            border-bottom: 1.5px solid #C7DBFD; white-space: nowrap;
+        }
+        table.custtbl td { padding: 6px; font-size: 11px; border-bottom: 1px solid #EEF1F5; vertical-align: middle; }
+        table.custtbl tbody tr:not(.mktrow):not(.odrow):nth-child(even) td { background: #FAFBFD; }
+        tr.mktrow td {
+            background: linear-gradient(150deg, #1E3A8A, #2563EB); color: #fff;
+            font-size: 12px; font-weight: 800; padding: 8px 10px;
+        }
+        tr.odrow td {
+            background: #FEF2F2; color: #7F1D1D; font-size: 10.5px; font-weight: 700;
+            padding: 7px 10px; border-bottom: 2px solid #FCA5A5;
+        }
+        tr.odrow .lbl { color: #B91C1C; text-transform: uppercase; letter-spacing: .03em; font-size: 9px; font-weight: 800; display: block; margin-bottom: 2px; }
+        .tsl { font-family: 'Manrope', sans-serif; font-weight: 700; color: #94A0B4; width: 20px; }
+        .tav { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+        .tnm { font-weight: 700; color: var(--ink); white-space: nowrap; }
+        .tph { color: var(--muted); white-space: nowrap; }
+        .tval { font-family: 'Manrope', sans-serif; font-weight: 700; color: var(--ink); white-space: nowrap; }
+        .trmk { color: #C4C9D4; }
 
         .alertbox { background: var(--amber-soft); border: 1.5px dashed #F59E0B; border-radius: 12px; padding: 11px 13px; margin: 6px 0 18px; display: flex; gap: 9px; align-items: flex-start; }
         .alertbox .ic { font-size: 15px; flex-shrink: 0; }
@@ -1401,27 +1418,19 @@
             #v-report .statbox .l { opacity: 1; color: #333 !important; font-size: 6px !important; }
             #v-report .statbox .v { font-size: 8px !important; margin-top: 0 !important; }
 
-            #v-report .mktbox { border: 1px solid #000; box-shadow: none; margin-bottom: 4px !important; }
-            #v-report .mktbox .hd { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; padding: 2px 5px !important; font-size: 9px !important; }
-            #v-report .mktbox .cust { padding: 3px 5px !important; }
-
-            #v-report .rowbox-list { column-count: 3; column-gap: 6px; gap: 0 !important; }
-            #v-report .rowbox1 {
-                background: #fff !important; color: #000 !important; border: .5px solid #999; box-shadow: none;
-                padding: 1.5px 3px !important; gap: 3px !important; margin-bottom: 2px;
-                break-inside: avoid;
-            }
-            #v-report .rowbox1::after { display: none; }
-            #v-report .rowbox1 .sl { width: 9px !important; height: 9px !important; background: #eee !important; color: #000 !important; font-size: 5px !important; border-radius: 2px; }
-            #v-report .rowbox1 .av { display: none; }
-            #v-report .rowbox1 .nm { width: auto !important; max-width: 46px; font-size: 6.5px !important; }
-            #v-report .rowbox1 .r1stat .lbl { color: #555 !important; font-size: 4.5px !important; }
-            #v-report .rowbox1 .r1stat .val { font-size: 6px !important; }
-
-            #v-report .odsect { background: #fff !important; border-top: 1px solid #000; padding: 3px 5px !important; }
-            #v-report .odsect .lbl { color: #000 !important; font-size: 6.5px !important; margin-bottom: 2px !important; }
-            #v-report .odsect .nm { color: #000 !important; }
-            #v-report .odsect .row { font-size: 7px !important; padding: 1px 0 !important; }
+            #v-report .tbox { border: 1px solid #000; box-shadow: none; }
+            #v-report table.custtbl { min-width: 0 !important; }
+            #v-report table.custtbl thead th { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; padding: 2px 4px !important; font-size: 6.5px !important; }
+            #v-report table.custtbl td { padding: 2px 4px !important; font-size: 7px !important; border-bottom: .5px solid #ccc; }
+            #v-report table.custtbl tbody tr:nth-child(even) td { background: #fff !important; }
+            #v-report tr.mktrow td { background: #fff !important; color: #000 !important; font-size: 8px !important; padding: 3px 4px !important; border-top: 1px solid #000; border-bottom: 1px solid #000; }
+            #v-report tr.odrow td { background: #fff !important; color: #000 !important; font-size: 6.5px !important; padding: 2px 4px !important; border-bottom: 1px solid #000; }
+            #v-report tr.odrow .lbl { color: #000 !important; }
+            #v-report table.custtbl th:nth-child(2), #v-report table.custtbl td:nth-child(2) { display: none; }
+            #v-report .tsl, #v-report .tval { color: #000 !important; }
+            #v-report .tnm { color: #000 !important; }
+            #v-report .tph { color: #000 !important; }
+            #v-report tr { break-inside: avoid; }
 
             #v-report .alertbox { background: #fff !important; border-color: #000; padding: 3px 5px !important; margin: 3px 0 6px !important; }
             #v-report .alertbox .tx { color: #000 !important; font-size: 6.5px !important; }
@@ -5334,49 +5343,47 @@
                 return;
             }
 
-            var h = '';
-            rows.forEach(function (m) {
-                h += '<div class="mktbox">';
-                h += '<div class="hd">' + NK.esc(m.marketName) + '</div>';
+            var h = '<div class="tbox"><div class="cwrap"><table class="custtbl"><thead><tr>' +
+                '<th>Sl</th><th>ছবি</th><th>নাম</th><th>ফোন</th><th>Loan</th><th>Out</th><th>EMI</th><th>Remarks</th>' +
+                '</tr></thead><tbody>';
 
-                h += '<div class="cust">';
+            rows.forEach(function (m) {
+                h += '<tr class="mktrow"><td colspan="8">🏬 ' + NK.esc(m.marketName) + '</td></tr>';
+
                 if (!m.customers.length) {
-                    h += '<div style="color:var(--muted);font-size:12.5px;">' + ltr('কেউ নেই') + '</div>';
+                    h += '<tr><td colspan="8" style="color:var(--muted);">' + ltr('কেউ নেই') + '</td></tr>';
                 } else {
-                    h += '<div class="rowbox-list">';
                     m.customers.forEach(function (c, i) {
                         var initial = (c.customerName || "?").charAt(0);
-                        var colorClass = "c" + (i % 5);
-                        h += '<div class="rowbox1 ' + colorClass + '">';
-                        h += '<div class="sl">' + (i + 1) + '</div>';
-                        h += '<div class="av">' + NK.esc(initial) + '</div>';
-                        h += '<div class="nm">' + NK.esc(c.customerName || "—") + '</div>';
-                        h += '<div class="r1stat"><div class="lbl">Loan</div><div class="val">' + NK.inrShort(c.loanAmount || 0) + '</div></div>';
-                        h += '<div class="r1stat"><div class="lbl">Out</div><div class="val">' + NK.inrShort(c.outstanding || 0) + '</div></div>';
-                        h += '<div class="r1stat"><div class="lbl">EMI</div><div class="val">' + NK.inrShort(c.emiAmount || 0) + '</div></div>';
-                        h += '</div>';
+                        h += '<tr>';
+                        h += '<td class="tsl">' + (i + 1) + '</td>';
+                        h += '<td><div class="tav">' + NK.esc(initial) + '</div></td>';
+                        h += '<td class="tnm">' + NK.esc(c.customerName || "—") + '</td>';
+                        h += '<td class="tph">' + NK.esc(c.customerPhone || "—") + '</td>';
+                        h += '<td class="tval">' + NK.inr(c.loanAmount || 0) + '</td>';
+                        h += '<td class="tval">' + NK.inr(c.outstanding || 0) + '</td>';
+                        h += '<td class="tval">' + NK.inr(c.emiAmount || 0) + '</td>';
+                        h += '<td class="trmk">—</td>';
+                        h += '</tr>';
                     });
-                    h += '</div>';
                 }
-                h += '</div>';
 
                 var odList = m.customers.filter(function (c) {
                     return Number(c.daysOverdue || 0) >= REPORT_OD_DAYS;
                 });
-                h += '<div class="odsect">';
-                h += '<div class="lbl">⛔ OD / ব্ল্যাকলিস্ট (' + REPORT_OD_DAYS + '+ দিন)</div>';
+                h += '<tr class="odrow"><td colspan="8">';
+                h += '<span class="lbl">⛔ OD / ব্ল্যাকলিস্ট (' + REPORT_OD_DAYS + '+ দিন)</span>';
                 if (!odList.length) {
-                    h += '<div class="none">' + ltr('কেউ নেই') + '</div>';
+                    h += ltr('কেউ নেই');
                 } else {
-                    odList.forEach(function (c, i) {
-                        h += '<div class="row"><span class="sl">' + (i + 1) + '.</span><span class="nm">' +
-                            NK.esc(c.customerName) + ' — ' + c.daysOverdue + ' ' + ltr('দিন') + '</span></div>';
-                    });
+                    h += odList.map(function (c) {
+                        return NK.esc(c.customerName) + ' (' + c.daysOverdue + ' ' + ltr('দিন') + ')';
+                    }).join(', ');
                 }
-                h += '</div>';
-
-                h += '</div>';
+                h += '</td></tr>';
             });
+
+            h += '</tbody></table></div></div>';
             q("repMarkets").innerHTML = h;
         }
 
@@ -5402,13 +5409,14 @@
 
             REPORT_MARKETS.forEach(function (m) {
                 csv += "\n" + NK.esc(m.marketName) + "\n";
-                csv += "নং,গ্রাহকের নাম,Loan,Out,EMI,কত দিন বাকি\n";
+                csv += "নং,নাম,ফোন,Loan,Out,EMI,কত দিন বাকি,Remarks\n";
                 m.customers.forEach(function (c, i) {
                     csv += (i + 1) + "," + NK.esc(c.customerName) + "," +
+                        (c.customerPhone || "") + "," +
                         NK.inr(Number(c.loanAmount || 0)) + "," +
                         NK.inr(Number(c.outstanding || 0)) + "," +
                         NK.inr(Number(c.emiAmount || 0)) + "," +
-                        Number(c.daysOverdue || 0) + "\n";
+                        Number(c.daysOverdue || 0) + ",\n";
                 });
 
                 var odList = m.customers.filter(function (c) {
