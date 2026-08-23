@@ -2469,7 +2469,6 @@
                 // Close all nested panels
                 q("loanX").classList.remove("on");
                 q("prof").classList.remove("on");
-                q("pay").classList.remove("on");
                 q("payPage").classList.remove("on");
                 q("payReceipt").classList.remove("on");
                 q("amtPage").classList.remove("on");
@@ -2567,6 +2566,7 @@
                     setPend(left);
 
                     toast(r.saved + ltr("টি জমা হয়েছে ✓"), "ok");
+                    loaded.report = false;
                     loadToday();
                 })
                 .catch(function (e) {
@@ -3702,6 +3702,10 @@
                     loadAmtDash();
                     loadToday();
                     loadTodayDisb();
+                    // রিপোর্ট ট্যাব একবার দেখা হয়ে গেলে আর নিজে থেকে তাজা হয় না
+                    // (loaded{} একবারই সত্যি হয়) — তাই এখানে পুরনো হয়ে যাওয়া মার্ক
+                    // করি, পরের বার রিপোর্ট ট্যাবে গেলে নতুন করে লোড হবে
+                    loaded.report = false;
                     showReceipt(resp, amount, remainingBefore - amount);
                 })
                 .catch(function (e) {
