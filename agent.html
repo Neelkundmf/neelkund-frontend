@@ -423,7 +423,23 @@
             display: flex; align-items: center; justify-content: center; font-size: 13px;
         }
 
-        /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড ---- */
+        /* ---- Dashboard ট্যাব — "আজকের বিতরণ" + "আজ বাকি" পাশাপাশি দুটো ছোট বক্স ---- */
+        .duobox-row { display: flex; gap: 10px; margin-bottom: 14px; }
+        .duobox-row > * { flex: 1; min-width: 0; }
+        .minibox {
+            border-radius: 18px; padding: 14px; color: #fff;
+            cursor: pointer; transition: transform .12s;
+            box-shadow: 0 14px 26px -16px rgba(15,41,66,.4);
+        }
+        .minibox:active { transform: scale(.97); }
+        .minibox.disb { background: linear-gradient(150deg, #34D399, #059669); }
+        .minibox.due  { background: linear-gradient(150deg, #FB923C, #DC2626); }
+        .minibox .mb-h { font-size: 10.5px; font-weight: 800; opacity: .9; margin-bottom: 8px; }
+        .minibox .mb-n { font-family: 'Manrope', sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+        .minibox .mb-sub { font-size: 10px; opacity: .85; margin-top: 4px; }
+
+        /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড (আপাতত অব্যবহৃত,
+           .minibox.disb এখন এই কাজটা করে — মুছিনি, জিজ্ঞেস না করে ডিলিট করি না) ---- */
         .todaydisb-card {
             background: rgba(255,255,255,.85);
             border: 1px solid rgba(139,92,246,.14);
@@ -1071,6 +1087,31 @@
             flex: 1; overflow-y: auto;
             padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
         }
+
+        /* ===== আজ বাকি — পূর্ণ তালিকা পাতা ===== */
+        #dueX {
+            position: fixed; inset: 0; z-index: 240;
+            background: #F4F6F8;
+            display: none; flex-direction: column;
+        }
+        #dueX.on { display: flex; }
+        #dueX .dxbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #dueX .dxbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #dueX .dxbar b { font-size: 15px; }
+        #dueX .dxin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+
         .fp-card {
             background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px;
             border: 1px solid #E2E8F0;
@@ -1784,7 +1825,10 @@
         <div class="view on" id="v-today">
             <div id="todaySummary"></div>
             <div id="amtDash"></div>
-            <div id="todayDisb"></div>
+            <div class="duobox-row">
+                <div id="todayDisb"></div>
+                <div id="todayDueBox"></div>
+            </div>
             <div id="today"><div class="loading">লোড হচ্ছে...</div></div>
 
             <!-- কালেকশন লিস্ট -->
@@ -2115,6 +2159,17 @@
     </div>
 </div>
 
+<!-- ================= আজ বাকি — পূর্ণ তালিকা ================= -->
+<div id="dueX">
+    <div class="dxbar">
+        <button id="dueXClose">←</button>
+        <b>📌 আজ বাকি</b>
+    </div>
+    <div class="dxin" id="dueXBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
+
 <!-- ================= ডিজিটাল আদায় রসিদ ================= -->
 <div id="payReceipt">
     <div class="receipt-card" id="receiptCard"></div>
@@ -2218,6 +2273,7 @@
             "আজ বাকি": "Due Today",
             "অগ্রিম থেকে মেটানো": "Settled from advance",
             "একাধিক লোন": "Multiple loans",
+            "তালিকা দেখতে টিপুন": "Tap to see the list",
             "অঙ্ক অনুযায়ী হিসাব": "Amount-wise Summary",
             "মোট বাকি": "Total due",
             "আজ ওঠার": "Due today",
@@ -2476,6 +2532,7 @@
                 q("notifSheet").classList.remove("on");
                 q("v-market-detail").classList.remove("on");
                 q("settingsX").classList.remove("on");
+                q("dueX").classList.remove("on");
             }
         });
 
@@ -3226,24 +3283,17 @@
             });
         }
 
+        /* "আজকের বিতরণ" ছোট বক্স — "আজ বাকি"-র পাশে বসে, টিপলে "বিতরণ" ট্যাবে যায়
+           (সেখানে পূর্ণ তালিকা এমনিতেই আছে, আলাদা করে নতুন পাতা বানানো লাগেনি) */
         function drawTodayDisb(list) {
-            var h = '<div class="todaydisb-card">';
-            h += '<div class="todaydisb-h">💸 ' + ltr('আজকের বিতরণ') + '</div>';
-
-            if (!list.length) {
-                h += '<div class="todaydisb-empty">' + ltr('আজ এখনও কোনো বিতরণ হয়নি') + '</div>';
-            } else {
-                list.forEach(function (disb, i) {
-                    h += '<div class="todaydisb-item">';
-                    h += '<div class="num">' + (i + 1) + '</div>';
-                    h += '<div class="nm">' + NK.esc(disb.customerName || '—') + '</div>';
-                    h += '<div class="amt">' + NK.inr(disb.amount || 0) + '</div>';
-                    h += '</div>';
-                });
-            }
-
+            var total = list.reduce(function (a, d) { return a + Number(d.amount || 0); }, 0);
+            var h = '<div class="minibox disb" id="todayDisbTap">';
+            h += '<div class="mb-h">💸 ' + ltr('আজকের বিতরণ') + '</div>';
+            h += '<div class="mb-n">' + NK.inrShort(total) + '</div>';
+            h += '<div class="mb-sub">' + list.length + ' ' + ltr('জন') + ' · ' + ltr('তালিকা দেখতে টিপুন') + '</div>';
             h += '</div>';
             q("todayDisb").innerHTML = h;
+            q("todayDisbTap").addEventListener("click", function () { show("disb"); });
         }
 
         function openAmtDashCustomers(amount) {
@@ -3631,10 +3681,12 @@
             });
         }
 
+        /* ফোনের ব্যাক বাটনের সাথে সিঙ্ক থাকার জন্য history.back() দিয়েই বন্ধ করি —
+           popstate handler-এর "else" অংশ payPage/amtPage/payReceipt বন্ধ করে দেয়
+           (loadColl() আলাদা করে এখানে লাগে না — doPay()-এর সফল হওয়ার পথেই আগে
+           থেকে রিফ্রেশ হয়ে গেছে, রসিদ দেখানোর আগেই) */
         function closePayPage() {
-            q("payPage").classList.remove("on");
-            q("amtPage").classList.remove("on");
-            loadColl(true);
+            history.back();
         }
 
         q("payPageClose").addEventListener("click", function () {
@@ -3757,6 +3809,83 @@
             q("todaySummary").innerHTML = h;
         }
 
+        /* কাস্টমার-অনুযায়ী গ্রুপ করা — একই কাস্টমারের একাধিক লোন থাকলে (স্বাভাবিক
+           না, কিন্তু পুরনো ডেটায় থাকতে পারে) একবারই দেখাই, টাকা যোগ করে */
+        function groupUnpaidByCustomer(unpaid) {
+            var byCust = {};
+            var order = [];
+            (unpaid || []).forEach(function (x) {
+                if (!byCust[x.customerId]) {
+                    byCust[x.customerId] = [];
+                    order.push(x.customerId);
+                }
+                byCust[x.customerId].push(x);
+            });
+            return order.map(function (custId) { return byCust[custId]; });
+        }
+
+        /* "আজ বাকি"-র সারিগুলোর HTML — ছোট বক্সে আর পূর্ণ তালিকা পাতায়, দুই
+           জায়গাতেই এই একই ফাংশন ব্যবহার হয় */
+        function renderUnpaidRows(groups) {
+            if (!groups.length) {
+                return '<div class="card"><div class="empty">' + ltr('আজ কারও কিস্তি নেই') + '</div></div>';
+            }
+            var h = '<div class="list">';
+            groups.forEach(function (rows) {
+                var first = rows[0];
+                var multi = rows.length > 1;
+                var totalDue = rows.reduce(function (a, x) { return a + Number(x.dueAmount || 0); }, 0);
+                var canPay = !multi && !first.coveredByAdvance;
+
+                h += '<div class="item"' +
+                    (canPay ? ' data-pay="' + first.loanId +
+                        '" data-name="' + NK.esc(first.customerName) +
+                        '" data-phone="' + NK.esc(first.customerPhone || "") + '"' : '') + '>';
+                h += '<div class="proftap" data-prof-tap="' + first.customerId + '">';
+                h += '<div class="av" data-photo="' + first.customerId + '">' + NK.esc((first.customerName || "?").charAt(0)) + '</div>';
+                h += '<div class="mid"><b>' + NK.esc(first.customerName) + '</b>' +
+                    '<span>' + NK.esc(first.customerPhone || "—") + '</span></div>';
+                h += '</div>';
+                h += '<div class="end"><b>' + NK.inrShort(totalDue) + '</b>' +
+                    (multi
+                        ? '<span class="b a" style="font-size:9.5px;">' + ltr('একাধিক লোন') + '</span>'
+                        : (canPay
+                            ? '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>'
+                            : '<span class="b g" style="font-size:9.5px;">' + ltr('অগ্রিম থেকে মেটানো') + '</span>')) +
+                    '</div>';
+                h += '</div>';
+            });
+            h += '</div>';
+            return h;
+        }
+
+        var TODAY_UNPAID_GROUPS = [];
+
+        /* "আজ বাকি" ছোট বক্স — "আজকের বিতরণ"-এর পাশে বসে, টিপলে পূর্ণ তালিকা খোলে */
+        function drawTodayDueBox() {
+            var count = TODAY_UNPAID_GROUPS.length;
+            var h = '<div class="minibox due" id="todayDueTap">';
+            h += '<div class="mb-h">📌 ' + ltr('আজ বাকি') + '</div>';
+            h += '<div class="mb-n">' + count + ' ' + ltr('জন') + '</div>';
+            h += '<div class="mb-sub">' + ltr('তালিকা দেখতে টিপুন') + '</div>';
+            h += '</div>';
+            q("todayDueBox").innerHTML = h;
+            q("todayDueTap").addEventListener("click", openTodayDueList);
+        }
+
+        function openTodayDueList() {
+            q("dueX").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "duelist" });
+            q("dueXBody").innerHTML = renderUnpaidRows(TODAY_UNPAID_GROUPS);
+            bindPay(q("dueXBody"));
+            bindProfileTap(q("dueXBody"));
+            loadCustomerPhotosIn(q("dueXBody"));
+        }
+
+        q("dueXClose").addEventListener("click", function () {
+            history.back();
+        });
+
         function loadToday(silent) {
             if (silent !== true) {
                 q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -3792,52 +3921,10 @@
                     h += '</div>';
                 }
 
-                /* আজ বাকি — যাদের আজকের কিস্তি এখনও জমা পড়েনি। একই কাস্টমারের
-                   নামে একসাথে দুটো সক্রিয় লোন সিস্টেম থেকে আটকানো আছে এখন, কিন্তু
-                   আগের কোনো পুরনো ডেটায় থেকে গেলে প্রতিটা লোন আলাদা লাইন হয়ে আসত —
-                   তাই এখানে কাস্টমার-অনুযায়ী একত্র করে একবারই দেখাই */
-                if (r.unpaid && r.unpaid.length) {
-                    var unpaidByCust = {};
-                    var unpaidOrder = [];
-                    r.unpaid.forEach(function (x) {
-                        if (!unpaidByCust[x.customerId]) {
-                            unpaidByCust[x.customerId] = [];
-                            unpaidOrder.push(x.customerId);
-                        }
-                        unpaidByCust[x.customerId].push(x);
-                    });
-
-                    h += '<h2 style="margin:16px 0 10px;">📌 ' + ltr('আজ বাকি') + ' (' + unpaidOrder.length + ')</h2>';
-                    h += '<div class="list">';
-
-                    unpaidOrder.forEach(function (custId) {
-                        var rows = unpaidByCust[custId];
-                        var first = rows[0];
-                        var multi = rows.length > 1;
-                        var totalDue = rows.reduce(function (a, x) { return a + Number(x.dueAmount || 0); }, 0);
-                        var canPay = !multi && !first.coveredByAdvance;
-
-                        h += '<div class="item"' +
-                            (canPay ? ' data-pay="' + first.loanId +
-                                '" data-name="' + NK.esc(first.customerName) +
-                                '" data-phone="' + NK.esc(first.customerPhone || "") + '"' : '') + '>';
-                        h += '<div class="proftap" data-prof-tap="' + custId + '">';
-                        h += '<div class="av" data-photo="' + custId + '">' + NK.esc((first.customerName || "?").charAt(0)) + '</div>';
-                        h += '<div class="mid"><b>' + NK.esc(first.customerName) + '</b>' +
-                            '<span>' + NK.esc(first.customerPhone || "—") + '</span></div>';
-                        h += '</div>';
-                        h += '<div class="end"><b>' + NK.inrShort(totalDue) + '</b>' +
-                            (multi
-                                ? '<span class="b a" style="font-size:9.5px;">' + ltr('একাধিক লোন') + '</span>'
-                                : (canPay
-                                    ? '<span style="font-size:10.5px;color:var(--muted);">' + ltr('টিপে জমা') + '</span>'
-                                    : '<span class="b g" style="font-size:9.5px;">' + ltr('অগ্রিম থেকে মেটানো') + '</span>')) +
-                            '</div>';
-                        h += '</div>';
-                    });
-
-                    h += '</div>';
-                }
+                /* আজ বাকি — এখন আলাদা ছোট বক্সে ("আজকের বিতরণ"-এর পাশে), এখানে
+                   শুধু হিসাবটা করে রাখি, বক্সে আর পূর্ণ তালিকা পাতায় দুই জায়গাতেই লাগবে */
+                TODAY_UNPAID_GROUPS = groupUnpaidByCustomer(r.unpaid);
+                drawTodayDueBox();
 
                 /* আজ দিয়ে দিয়েছে — শুধু দেখার জন্য, টাকা জমার বাটন নেই */
                 if (r.paid && r.paid.length) {
