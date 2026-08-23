@@ -1154,9 +1154,12 @@
     "ছবি ৫MB-র কম হতে হবে": "Photo must be under 5MB",
     "নাম দিন": "Enter a name",
     "ফোন ঠিক ১০ সংখ্যার হতে হবে": "Phone must be exactly 10 digits",
+    "সঠিক ১০ সংখ্যার ফোন নম্বর দিন (৬-৯ দিয়ে শুরু)": "Enter a valid 10-digit phone number (starting 6-9)",
     "পাসওয়ার্ড কমপক্ষে ৮ অক্ষর": "Password must be at least 8 characters",
     "আধার ঠিক ১২ সংখ্যার হতে হবে, নয়তো খালি রাখুন": "Aadhaar must be exactly 12 digits, or leave it empty",
+    "PAN ফরম্যাট ভুল (যেমন: AAAAA1234A), নয়তো খালি রাখুন": "PAN format is wrong (e.g. AAAAA1234A), or leave it empty",
     "জরুরি ফোন ঠিক ১০ সংখ্যার হতে হবে, নয়তো খালি রাখুন": "Emergency phone must be exactly 10 digits, or leave it empty",
+    "জরুরি ফোন নম্বর ঠিক নয় (৬-৯ দিয়ে শুরু, ১০ সংখ্যা), নয়তো খালি রাখুন": "Emergency phone is invalid (starting 6-9, 10 digits), or leave it empty",
     "কর্মী তৈরি হয়েছে ✓ প্রথম লগইনে সে নিজে পাসওয়ার্ড বদলাবে।": "Staff created ✓ They will set their own password on first login.",
     "কর্মী তৈরি হয়েছে": "Staff created",
     "কর্মী তৈরি করুন": "Create Staff",
@@ -3398,14 +3401,16 @@
             var phone = q("tm_phone").value.trim();
             var pass  = q("tm_pass").value;
             var aad   = q("tm_aad").value.trim();
+            var pan   = q("tm_pan").value.trim().toUpperCase();
             var ep    = q("tm_ep").value.trim();
 
             if (!TPICS.SELFIE)         return bad("tp_selfie", ltr("প্রোফাইল ছবি তুলুন"));
             if (!name)                 return bad("tm_name", ltr("নাম দিন"));
-            if (phone.length !== 10)   return bad("tm_phone", ltr("ফোন ঠিক ১০ সংখ্যার হতে হবে"));
+            if (!/^[6-9]\d{9}$/.test(phone)) return bad("tm_phone", ltr("সঠিক ১০ সংখ্যার ফোন নম্বর দিন (৬-৯ দিয়ে শুরু)"));
             if (pass.length < 8)       return bad("tm_pass", ltr("পাসওয়ার্ড কমপক্ষে ৮ অক্ষর"));
             if (aad && aad.length !== 12) return bad("tm_aad", ltr("আধার ঠিক ১২ সংখ্যার হতে হবে, নয়তো খালি রাখুন"));
-            if (ep && ep.length !== 10)   return bad("tm_ep", ltr("জরুরি ফোন ঠিক ১০ সংখ্যার হতে হবে, নয়তো খালি রাখুন"));
+            if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) return bad("tm_pan", ltr("PAN ফরম্যাট ভুল (যেমন: AAAAA1234A), নয়তো খালি রাখুন"));
+            if (ep && ep.length && !/^[6-9]\d{9}$/.test(ep)) return bad("tm_ep", ltr("জরুরি ফোন নম্বর ঠিক নয় (৬-৯ দিয়ে শুরু, ১০ সংখ্যা), নয়তো খালি রাখুন"));
 
             var b = q("tm_go");
             b.disabled = true;

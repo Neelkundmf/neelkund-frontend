@@ -1845,8 +1845,8 @@
                     </select>
                 </div>
                 <div class="avatar-pick">
-                    <div class="av" id="np_selfie">👤</div>
-                    <span>গ্রাহকের ছবি</span>
+                    <div class="av req" id="np_selfie">👤</div>
+                    <span>গ্রাহকের ছবি (বাধ্যতামূলক)</span>
                 </div>
                 <div class="msg" id="nMsg"></div>
                 <div id="dupBox" style="display:none;"></div>
@@ -1871,7 +1871,7 @@
                 </div>
                 <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
 
-                <div class="fld"><label>ভোটার আইডি নম্বর</label><input id="n_voter_id" maxlength="12"></div>
+                <div class="fld"><label>ভোটার আইডি নম্বর</label><input id="n_voter_id" maxlength="10" style="text-transform:uppercase"></div>
 
                 <div style="margin-top:20px;">
                     <label style="font-weight:600; display:block; margin-bottom:8px;">🎫 ভোটার আইডির ছবি (ঐচ্ছিক)</label>
@@ -4438,6 +4438,7 @@
                     el.classList.remove("has");
                 });
 
+            q("np_selfie").classList.add("req");
             q("np_aad").classList.add("req");
             q("np_aadb").classList.add("req");
         }
@@ -4506,9 +4507,10 @@
             }
 
             // Clear all field errors first
-            ["n_name","n_phone","n_aad","n_pan","n_voter_id"].forEach(function(id) {
+            ["n_name","n_phone","n_aad","n_pan","n_voter_id","n_gph"].forEach(function(id) {
                 q(id).style.borderColor = "";
             });
+            q("np_selfie").style.borderColor = "";
 
             // Field-level validation with specific error messages
             var name = q("n_name").value.trim();
@@ -4533,8 +4535,8 @@
                 q("n_phone").style.borderColor = "#ef4444";
                 return;
             }
-            if (!/^\d{10}$/.test(phone)) {
-                say("nMsg", ltr("ফোন নম্বর ঠিক ১০ ডিজিট হতে হবে"), false);
+            if (!/^[6-9]\d{9}$/.test(phone)) {
+                say("nMsg", ltr("সঠিক ১০ সংখ্যার ফোন নম্বর দিন (৬-৯ দিয়ে শুরু)"), false);
                 q("n_phone").style.borderColor = "#ef4444";
                 return;
             }
@@ -4558,6 +4560,22 @@
                 return;
             }
 
+            // Validate voter ID (optional, but if given must be valid — ৩টা অক্ষর + ৭টা সংখ্যা)
+            var voterId = q("n_voter_id").value.trim().toUpperCase();
+            if (voterId && !/^[A-Z]{3}[0-9]{7}$/.test(voterId)) {
+                say("nMsg", ltr("ভোটার আইডি ফরম্যাট ভুল (যেমন: ABC1234567)"), false);
+                q("n_voter_id").style.borderColor = "#ef4444";
+                return;
+            }
+
+            // Validate profile photo
+            if (!CPICS.SELFIE) {
+                say("nMsg", ltr("গ্রাহকের ছবি তুলুন"), false);
+                q("np_selfie").style.borderColor = "#ef4444";
+                q("np_selfie").scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+
             // Validate market
             var marketId = q("n_market").value;
             if (!marketId) {
@@ -4568,6 +4586,14 @@
             // Validate GPS
             if (!NGPS) {
                 say("nMsg", ltr("গ্রাহকের বাড়ির GPS লোকেশন নিন (অনুমতি দিন)"), false);
+                return;
+            }
+
+            // Validate guarantor phone (optional, but if given must be valid)
+            var gph = q("n_gph").value.trim();
+            if (gph && !/^[6-9]\d{9}$/.test(gph)) {
+                say("nMsg", ltr("জামিনদারের ফোন নম্বর ঠিক নয় (৬-৯ দিয়ে শুরু, ১০ সংখ্যা)"), false);
+                q("n_gph").style.borderColor = "#ef4444";
                 return;
             }
 
@@ -4587,7 +4613,7 @@
                 phone: q("n_phone").value.trim(),
                 aadhaar: q("n_aad").value.trim(),
                 pan: q("n_pan").value.trim().toUpperCase() || null,
-                voterId: q("n_voter_id").value.trim() || null,
+                voterId: q("n_voter_id").value.trim().toUpperCase() || null,
                 address: q("n_addr").value.trim() || null,
                 guarantorName: q("n_guar").value.trim() || null,
 
