@@ -438,39 +438,6 @@
         .minibox .mb-n { font-family: 'Manrope', sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
         .minibox .mb-sub { font-size: 10px; opacity: .85; margin-top: 4px; }
 
-        /* ---- Dashboard ট্যাব — আজকের বিতরণ, ভাসমান glass কার্ড (আপাতত অব্যবহৃত,
-           .minibox.disb এখন এই কাজটা করে — মুছিনি, জিজ্ঞেস না করে ডিলিট করি না) ---- */
-        .todaydisb-card {
-            background: rgba(255,255,255,.85);
-            border: 1px solid rgba(139,92,246,.14);
-            border-radius: 22px;
-            padding: 16px;
-            box-shadow: 0 20px 40px -22px rgba(76,29,149,.3);
-            backdrop-filter: blur(10px);
-            margin-bottom: 10px;
-        }
-        .todaydisb-h {
-            font-size: 13px; font-weight: 800; color: #4C1D95;
-            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-        }
-        .todaydisb-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 9px 0; border-bottom: 1px dashed rgba(139,92,246,.18);
-        }
-        .todaydisb-item:last-child { border-bottom: 0; padding-bottom: 0; }
-        .todaydisb-item .num {
-            width: 24px; height: 24px; border-radius: 9px; flex-shrink: 0;
-            background: linear-gradient(150deg, #34D399, #059669);
-            color: #fff; font-size: 11px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px -3px rgba(5,150,105,.5);
-        }
-        .todaydisb-item .nm { flex: 1; font-size: 12.5px; font-weight: 700; color: #312E81; }
-        .todaydisb-item .amt {
-            font-family: 'Fraunces', serif; font-size: 13.5px; font-weight: 700;
-            color: #059669; font-variant-numeric: tabular-nums;
-        }
-        .todaydisb-empty { font-size: 12px; color: #94A3B8; text-align: center; padding: 14px 0; }
 
         /* ---- Dashboard ট্যাব — সাম্প্রতিক কালেকশন, ভাসমান glass কার্ড ---- */
         .recentcoll-card {
@@ -2531,6 +2498,8 @@
                     openLoanDetail(e.state.panelId);
                 } else if (e.state.panel === "customer") {
                     openCustomerProfile(e.state.panelId);
+                } else if (e.state.panel === "market-detail") {
+                    openMarketDetailPage(e.state.panelId, e.state.panelName);
                 }
             } else if (e.state.panel === "settings") {
                 openSettings();
@@ -2662,13 +2631,12 @@
             });
         }
 
-        /* Back button for Market Detail — history.back() ব্যবহার করি যাতে
-           যে ট্যাব থেকে এসেছিল সেখানেই ফেরে (popstate handler-এর show() দিয়ে) */
+        /* Back button for Market Detail — ফোনের ব্যাক বাটনের সাথে সিঙ্ক থাকার
+           জন্য history.back() দিয়েই বন্ধ করি (openMarketDetailPage()-এ পুশ করা
+           state-এ ফিরে যাবে — popstate handler-এর show() যে ট্যাব থেকে
+           এসেছিল সেটাই আবার দেখাবে) */
         q("mktDetailBack").addEventListener("click", function() {
-            q("v-market-detail").classList.remove("on");
-            // Go back to the tab that was active before opening market detail
-            var backToView = PREV_VIEW_BEFORE_MARKET_DETAIL || "market";
-            show(backToView);
+            history.back();
         });
 
         /* =====================================================================
@@ -2957,17 +2925,15 @@
         var PREV_VIEW_BEFORE_MARKET_DETAIL = null;
 
         function openMarketDetailPage(marketId, marketName) {
-            PREV_VIEW_BEFORE_MARKET_DETAIL = CURRENT_VIEW;
-            q("v-" + CURRENT_VIEW).classList.remove("on");
+            var fromView = CURRENT_VIEW === "market-detail" ? (PREV_VIEW_BEFORE_MARKET_DETAIL || "market") : CURRENT_VIEW;
+            PREV_VIEW_BEFORE_MARKET_DETAIL = fromView;
+            q("v-" + fromView).classList.remove("on");
             q("v-market-detail").classList.add("on");
             CURRENT_VIEW = "market-detail";
             q("mktDetailTitle").textContent = marketName || "মার্কেট";
+            NK.pushNavState({ view: fromView, panel: "market-detail", panelId: marketId, panelName: marketName });
             loadMarketDropdown();
             updateMarketDashboard(marketId);
-
-            /* history-তে ধাপ যোগ করি, নাহলে ফোনের ব্যাক বাটন এই পাতা এড়িয়ে
-               সরাসরি অন্য জায়গায় চলে যায় */
-            history.pushState({ view: "market-detail" }, null, window.location.pathname);
         }
 
         function loadMarketDropdown() {
@@ -5142,7 +5108,7 @@
          * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
          * ===================================================================== */
         q("lxClose").addEventListener("click", function () {
-            q("loanX").classList.remove("on");
+            history.back();
         });
 
         /* =====================================================================
@@ -5151,7 +5117,7 @@
          * তাই সেই বাটনের click listener নিচের দিকের script block-এ বসানো
          * হয়েছে, openSettings() এখানে window-তে expose করা হলো) */
         q("setClose").addEventListener("click", function () {
-            q("settingsX").classList.remove("on");
+            history.back();
         });
 
         function openSettings() {
@@ -5780,7 +5746,7 @@
         }
 
         q("pfClose").addEventListener("click", function () {
-            q("prof").classList.remove("on");
+            history.back();
         });
 
         function maskSensitiveInfo(value, type, isAdmin) {
