@@ -441,7 +441,7 @@
         <!-- ---------------- মার্কেট ---------------- -->
         <div class="view" id="v-market">
             <div class="card">
-                <h2 style="margin-bottom:14px;">নতুন মার্কেট</h2>
+                <h2 style="margin-bottom:14px;" id="mk_formTtl">নতুন মার্কেট</h2>
                 <div class="msg" id="mkMsg"></div>
 
                 <div class="fld"><label>নাম *</label><input id="mk_name"><div class="error-msg" id="err_mk_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
@@ -450,6 +450,7 @@
                 <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
 
                 <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
+                <button class="btn block" id="mk_cancelEdit" style="display:none;margin-top:8px;background:var(--muted);">✕ বাতিল</button>
             </div>
 
             <div id="mkList"><div class="loading">লোড হচ্ছে...</div></div>
@@ -2776,6 +2777,8 @@
         /* =====================================================================
          * মার্কেট
          * ===================================================================== */
+        var MARKET_ROWS = [];
+
         function loadMarket() {
             Promise.all([fetchBranches(), fetchTeam()]).then(function () {
                 q("mk_br").innerHTML = brOpts(false);
@@ -2796,23 +2799,72 @@
                     return;
                 }
 
+                MARKET_ROWS = rows;
+
                 var html = '<div class="list">';
                 rows.forEach(function (m) {
-                    html += '<div class="item">';
+                    html += '<div class="item" style="cursor:pointer;" data-mk-id="' + m.id + '"' +
+                        (m.code ? ' data-mk="' + NK.esc(m.code) + '"' : '') + '>';
                     html += '<div class="av">🏬</div>';
-                    html += '<div class="mid"><b>' + NK.esc(m.name) + '</b>' +
+                    html += '<div class="mid"><b>' + NK.esc(m.name) +
+                        (m.code ? ' <span style="font-weight:600;color:var(--muted);">(' + NK.esc(m.code) + ')</span>' : '') + '</b>' +
                         '<span>' + NK.esc(m.branchName) + ' · ' +
                         m.customerCount + ltr(' গ্রাহক') +
                         (m.managerName ? ' · ' + NK.esc(m.managerName) : '') + '</span></div>';
+                    html += '<div class="end">✏️</div>';
                     html += '</div>';
                 });
                 html += '</div>';
 
                 q("mkList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("mkList").querySelectorAll("[data-mk-id]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var mk = MARKET_ROWS.find(function (r) { return String(r.id) === el.getAttribute("data-mk-id"); });
+                        if (mk) openMarketEdit(mk);
+                    });
+                });
             }).catch(function (e) {
                 q("mkList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* পুরনো মার্কেট এডিট মোডে খোলা — উপরের ফর্মেই নাম/কোড/ব্রাঞ্চ/ম্যানেজার
+           ভরে দেয়, mk_go চাপলে POST-এর বদলে PUT দিয়ে আপডেট হবে */
+        var EDIT_MARKET_ID = null;
+        var EDIT_MARKET_DESCRIPTION = null;
+
+        function openMarketEdit(m) {
+            EDIT_MARKET_ID = m.id;
+            EDIT_MARKET_DESCRIPTION = m.description || null;
+
+            q("mk_name").value = m.name || "";
+            q("mk_code").value = m.code || "";
+            q("mk_br").value = m.branchId || "";
+            q("mk_mg").value = m.managerId || "";
+
+            q("mk_formTtl").textContent = ltr("মার্কেট এডিট করুন");
+            q("mk_go").textContent = ltr("আপডেট করুন");
+            q("mk_cancelEdit").style.display = "block";
+
+            window.scrollTo(0, 0);
+        }
+
+        function exitMarketEdit() {
+            EDIT_MARKET_ID = null;
+            EDIT_MARKET_DESCRIPTION = null;
+
+            q("mk_name").value = "";
+            q("mk_code").value = "";
+            q("mk_br").value = "";
+            q("mk_mg").value = "";
+
+            q("mk_formTtl").textContent = ltr("নতুন মার্কেট");
+            q("mk_go").textContent = ltr("মার্কেট তৈরি করুন");
+            q("mk_cancelEdit").style.display = "none";
+        }
+
+        q("mk_cancelEdit").addEventListener("click", exitMarketEdit);
 
         q("mk_auto").addEventListener("click", function () {
             var name = q("mk_name").value.trim();
@@ -2851,22 +2903,27 @@
             }
 
             var b = q("mk_go");
+            var isEdit = EDIT_MARKET_ID != null;
             b.disabled = true;
-            b.innerHTML = ltr('<span class="spin"></span> তৈরি হচ্ছে...');
+            b.innerHTML = isEdit ? ltr('<span class="spin"></span> আপডেট হচ্ছে...') : ltr('<span class="spin"></span> তৈরি হচ্ছে...');
 
             var mgId = q("mk_mg").value;
-
-            NK.POST("/api/markets", {
+            var payload = {
                 name: q("mk_name").value.trim(),
                 code: q("mk_code").value.trim().toUpperCase() || null,
                 branchId: Number(q("mk_br").value),
                 managerId: mgId ? Number(mgId) : null,
-                description: null
-            }).then(function () {
-                say("mkMsg", ltr("মার্কেট তৈরি হয়েছে ✓"), true);
-                toast(ltr("মার্কেট তৈরি হয়েছে"), "ok");
-                q("mk_name").value = "";
-                q("mk_code").value = "";
+                description: isEdit ? EDIT_MARKET_DESCRIPTION : null
+            };
+
+            var req = isEdit
+                ? NK.PUT("/api/markets/" + EDIT_MARKET_ID, payload)
+                : NK.POST("/api/markets", payload);
+
+            req.then(function () {
+                say("mkMsg", isEdit ? ltr("মার্কেট আপডেট হয়েছে ✓") : ltr("মার্কেট তৈরি হয়েছে ✓"), true);
+                toast(isEdit ? ltr("মার্কেট আপডেট হয়েছে") : ltr("মার্কেট তৈরি হয়েছে"), "ok");
+                exitMarketEdit();
                 loadMarket();
             }).catch(function (e) {
                 NK.highlightFieldErrors(e);
@@ -2877,7 +2934,9 @@
                 say("mkMsg", msg, false);
             }).then(function () {
                 b.disabled = false;
-                b.textContent = ltr("মার্কেট তৈরি করুন");
+                // exitMarketEdit() (সফল হলে) EDIT_MARKET_ID আগেই null করে দিয়েছে —
+                // তাই isEdit-এর বাসি মান না দেখে, এখনকার আসল অবস্থা দেখেই বাটনের লেখা ঠিক করি
+                b.textContent = EDIT_MARKET_ID != null ? ltr("আপডেট করুন") : ltr("মার্কেট তৈরি করুন");
             });
         });
 

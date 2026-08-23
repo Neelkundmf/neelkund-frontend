@@ -138,109 +138,135 @@
             color: var(--muted);
         }
         /* ---- ম্যানেজার ড্যাশবোর্ড — স্বাগত ব্যানার ---- */
-        .mgr-hello {
-            background: linear-gradient(135deg, #0F766E, #2563EB);
-            border-radius: 18px;
-            padding: 18px 20px;
-            color: #fff;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 22px rgba(37,99,235,.18);
+        /* ===== হেডার — agent.html-এর সাথে হুবহু একই ডিজাইন (গ্রেডিয়েন্ট,
+           ছবি-কার্ড, শাখা/কোড বক্স) — শুধু "এজেন্ট" ব্যাজের বদলে "ম্যানেজার" ===== */
+        .topbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            padding: 14px 16px 16px;
+            padding-top: max(14px, env(safe-area-inset-top));
+            background:
+                radial-gradient(320px 200px at 88% -20%, rgba(244,63,94,.3), transparent 60%),
+                linear-gradient(150deg, #4F46E5 0%, #7C3AED 60%, #A855F7 100%);
+            box-shadow: 0 14px 30px -14px rgba(79,70,229,.55);
         }
-        .mgr-hello .br {
-            font-size: 12.5px;
-            opacity: .9;
-            text-transform: uppercase;
-            letter-spacing: .04em;
+        .topbar-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .topbar .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .topbar .brand-txt b {
+            display: block; font-size: 16.5px; font-weight: 800; letter-spacing: .02em;
         }
-        .mgr-hello .wel {
-            font-size: 21px;
-            font-weight: 800;
-            margin-top: 4px;
+        .topbar .brand-txt span {
+            display: block; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.62); font-weight: 700; margin-top: 1px;
+        }
+        .topbar .bell { flex-shrink: 0; }
+
+        .mgr-card {
+            margin-top: 14px; display: flex; align-items: center; gap: 11px;
+            background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+            border-radius: 16px; padding: 9px 11px;
+        }
+        .mgr-photo {
+            width: 46px; height: 46px; border-radius: 13px;
+            background: linear-gradient(155deg, rgba(255,255,255,.35), rgba(255,255,255,.12));
+            border: 2px solid rgba(255,255,255,.55);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 19px; font-weight: 800; flex-shrink: 0; color: #fff;
+            box-shadow: 0 6px 14px -6px rgba(0,0,0,.35);
+            font-family: 'Manrope', sans-serif;
+            background-size: cover; background-position: center;
+        }
+        .mgr-info { flex: 1; min-width: 0; }
+        .mgr-name {
+            font-size: 15px; font-weight: 800; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mgr-role { font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.68); margin-top: 1px; }
+
+        .info-grid { margin-top: 9px; display: flex; gap: 7px; }
+        .info-box {
+            flex: 1; min-width: 0; background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.24); border-radius: 13px;
+            padding: 8px 7px; text-align: center; backdrop-filter: blur(6px);
+        }
+        .info-box .lbl {
+            font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
+            color: rgba(255,255,255,.55); font-weight: 700;
+        }
+        .info-box .val {
+            font-size: 11.5px; font-weight: 800; color: #fff; margin-top: 3px;
+            line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
-        /* ---- উপরের ৪ বক্স ---- */
-        .mgr-top {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-        .mgr-stat {
-            border-radius: 16px;
-            padding: 15px;
-            color: #fff;
-            box-shadow: 0 6px 16px rgba(15,41,66,.12);
-        }
-        .mgr-stat .l { font-size: 12px; opacity: .92; }
-        .mgr-stat .v {
-            font-family: 'Manrope', sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            margin-top: 5px;
-        }
-        .mgr-stat .sub {
-            font-size: 11px;
-            opacity: .9;
-            margin-top: 6px;
-            line-height: 1.5;
-        }
-        .mgr-stat.s0 { background: linear-gradient(135deg, #DC2626, #F87171); }
-        .mgr-stat.s1 { background: linear-gradient(135deg, #16A34A, #4ADE80); }
-        .mgr-stat.s2 { background: linear-gradient(135deg, #2563EB, #60A5FA); }
-        .mgr-stat.s3 { background: linear-gradient(135deg, #7C3AED, #A78BFA); }
+        /* ---- উপরের ৪ বক্স — রঙিন গ্রেডিয়েন্ট ---- */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        .stat-card { border-radius: 18px; padding: 14px; color: #fff; box-shadow: 0 14px 26px -16px rgba(15,41,66,.4); }
+        .stat-card .l { font-size: 10.5px; font-weight: 800; opacity: .9; margin-bottom: 8px; }
+        .stat-card .v { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+        .stat-card .sub { font-size: 11px; font-weight: 700; opacity: .92; line-height: 1.6; margin-top: 2px; }
+        .stat-card.c0 { background: linear-gradient(150deg, #2563EB, #1D4ED8); }
+        .stat-card.c1 { background: linear-gradient(150deg, #34D399, #059669); }
+        .stat-card.c2 { background: linear-gradient(150deg, #FB923C, #DC2626); }
+        .stat-card.c3 { background: linear-gradient(150deg, #F472B6, #DB2777); }
 
-        /* ---- মার্কেট সারি ---- */
-        .mgr-mkt-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--navy);
-            margin: 4px 0 12px;
-            text-align: center;
+        /* ---- মার্কেট লিস্ট — agent.html-এর "মার্কেট" ট্যাবের .marketcard-এর
+           সাথে হুবহু একই প্যাটার্ন, ছোট/কমপ্যাক্ট সংস্করণ ---- */
+        .sec-title { font-size: 13.5px; font-weight: 800; color: var(--navy); margin: 4px 0 10px; display: flex; align-items: center; gap: 6px; }
+        .marketlist { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+        .marketcard { border-radius: 16px; padding: 11px 12px; color: #fff; cursor: pointer; position: relative; overflow: hidden; }
+        .marketcard::after { content: ""; position: absolute; top: -35%; right: -15%; width: 80px; height: 80px; background: rgba(255,255,255,.14); border-radius: 50%; filter: blur(2px); }
+        .marketcard.c0 { background: linear-gradient(150deg, #3B82F6, #1E3A8A); box-shadow: 0 12px 22px -14px rgba(30,58,138,.55); }
+        .marketcard.c1 { background: linear-gradient(150deg, #34D399, #047857); box-shadow: 0 12px 22px -14px rgba(4,120,87,.5); }
+        .marketcard.c2 { background: linear-gradient(150deg, #FB923C, #C2410C); box-shadow: 0 12px 22px -14px rgba(194,65,12,.5); }
+        .marketcard.c3 { background: linear-gradient(150deg, #FB7185, #BE123C); box-shadow: 0 12px 22px -14px rgba(190,18,60,.5); }
+        .marketcard .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: relative; z-index: 1; }
+        .marketcard .nm { font-size: 13px; font-weight: 800; color: #fff; }
+        .marketcard .code { font-size: 9.5px; color: rgba(255,255,255,.75); margin-top: 1px; font-weight: 600; }
+        .marketcard .chev { width: 20px; height: 20px; border-radius: 7px; flex-shrink: 0; background: rgba(255,255,255,.2); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .marketcard .chip { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; background: rgba(255,255,255,.22); color: #fff; font-size: 8.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+        .marketcard .chip.warn { background: #fff; color: var(--red); }
+        .marketcard .chip .dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+        .marketcard .progwrap { margin-top: 8px; position: relative; z-index: 1; }
+        .marketcard .progtxt { display: flex; justify-content: space-between; font-size: 8.5px; color: rgba(255,255,255,.85); font-weight: 600; margin-bottom: 3px; }
+        .marketcard .progtxt b { color: #fff; font-family: 'Manrope', sans-serif; font-weight: 800; }
+        .marketcard .progbar { height: 5px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; }
+        .marketcard .progbar i { display: block; height: 100%; background: #fff; border-radius: 999px; }
+        .marketcard .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(255,255,255,.22); position: relative; z-index: 1; }
+        .mstat { text-align: center; border-radius: 9px; padding: 4px 3px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22); }
+        .mstat.blue   { background: linear-gradient(150deg, rgba(96,165,250,.9), rgba(29,78,216,.9)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.35); }
+        .mstat.green  { background: linear-gradient(150deg, rgba(52,211,153,.9), rgba(4,120,87,.9)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.35); }
+        .mstat.orange { background: linear-gradient(150deg, rgba(251,146,60,.9), rgba(194,65,12,.9)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.35); }
+        .mstat .ic { font-size: 11px; }
+        .mstat .val { font-family: 'Fraunces', serif; font-size: 11.5px; font-weight: 700; margin-top: 1px; color: #fff; font-variant-numeric: tabular-nums; }
+        .mstat .lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; margin-top: 1px; letter-spacing: .02em; color: rgba(255,255,255,.85); }
+
+        /* ---- সাম্প্রতিক কালেকশন — table বাদ দিয়ে card লিস্ট ---- */
+        .recentcoll-card {
+            background: rgba(255,255,255,.85); border: 1px solid rgba(139,92,246,.14);
+            border-radius: 22px; padding: 14px;
+            box-shadow: 0 20px 40px -22px rgba(76,29,149,.3); backdrop-filter: blur(10px);
+            margin: 10px 0 24px;
         }
-        .mgr-mkt-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+        .recentcoll-h { font-size: 12.5px; font-weight: 800; color: #4C1D95; margin-bottom: 10px; }
+        .recentcoll-empty { font-size: 12px; color: #94A3B8; text-align: center; padding: 14px 0; }
+        .ccard {
+            background: #fff; border-radius: 14px; padding: 12px 13px; margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 8px 18px -12px rgba(15,41,66,.16);
+            border: 1px solid #EEF1F5;
         }
-        .mgr-mkt {
-            border-radius: 16px;
-            padding: 15px;
-            color: #fff;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(16,185,129,.18);
-            transition: transform .15s;
-            background: linear-gradient(135deg, #0EA5A4, #22C55E);
-        }
-        .mgr-mkt:nth-child(even) {
-            background: linear-gradient(135deg, #2563EB, #38BDF8);
-            box-shadow: 0 8px 20px rgba(37,99,235,.18);
-        }
-        .mgr-mkt:active { transform: scale(.97); }
-        .mgr-mkt .nm {
-            font-size: 15px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-        .mgr-mkt .rows > div {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            padding: 3px 0;
-            opacity: .95;
-        }
-        .mgr-mkt .rows b {
-            font-family: 'Manrope', sans-serif;
-            font-weight: 800;
-        }
-        .mgr-mkt .od {
-            margin-top: 8px;
-            background: rgba(0,0,0,.18);
-            border-radius: 9px;
-            padding: 5px 10px;
-            font-size: 12px;
-            text-align: center;
-            font-weight: 700;
-        }
+        .ccard:last-child { margin-bottom: 0; }
+        .ccard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .ccard-l { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ccard .av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background-size: cover; background-position: center; }
+        .ccard .nm { font-size: 13.5px; font-weight: 800; color: #0F1B3D; }
+        .ccard .sub { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ccard .amt { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 800; color: var(--green); flex-shrink: 0; text-align: right; }
+        .ccard .end { text-align: right; flex-shrink: 0; }
+        .statuspill { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; display: inline-block; margin-top: 4px; }
+        .statuspill.g { background: var(--green-soft); color: var(--green); }
+        .statuspill.a { background: var(--amber-soft); color: var(--amber); }
+        .statuspill.r { background: var(--red-soft); color: var(--red); }
         /* ---- এজেন্ট ট্যাব ---- */
         .ag-list .ag-item {
             display: flex;
@@ -898,12 +924,35 @@
 <div id="app" style="display:none;">
 
     <div class="topbar">
-        <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
-        <div class="ttl">
-            <b id="ttl">ড্যাশবোর্ড</b>
-            <span id="who">—</span>
+        <div class="topbar-top">
+            <div class="brand">
+                <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
+                <div class="brand-txt">
+                    <b>NEELKUND</b>
+                    <span>মাইক্রোফাইন্যান্স</span>
+                </div>
+            </div>
+            <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
         </div>
-        <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
+
+        <div class="mgr-card">
+            <div class="mgr-photo" id="mgrPhoto">👤</div>
+            <div class="mgr-info">
+                <div class="mgr-name" id="mgrName">—</div>
+                <div class="mgr-role">ম্যানেজার</div>
+            </div>
+        </div>
+
+        <div class="info-grid" id="mgrInfoGrid" style="display:none;">
+            <div class="info-box">
+                <div class="lbl">শাখা</div>
+                <div class="val" id="mgrBranch">—</div>
+            </div>
+            <div class="info-box">
+                <div class="lbl">শাখা কোড</div>
+                <div class="val" id="mgrBranchCode">—</div>
+            </div>
+        </div>
     </div>
 
     <div id="maint" style="display:none;position:sticky;top:58px;z-index:40;padding:10px 16px;background:rgba(239,68,68,0.9);color:#fff;font-size:13px;font-weight:600;text-align:center;">🔧 সিস্টেম রক্ষণাবেক্ষণ চলছে</div>
@@ -915,23 +964,9 @@
             <div id="dash"><div class="loading">লোড হচ্ছে...</div></div>
 
             <!-- কালেকশন লিস্ট -->
-            <div class="card" style="margin-top:24px;">
-                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>তারিখ</th>
-                            <th>গ্রাহক</th>
-                            <th>ফোন</th>
-                            <th>এজেন্ট</th>
-                            <th>অঙ্ক</th>
-                            <th>অবস্থা</th>
-                        </tr>
-                    </thead>
-                    <tbody id="collListBody">
-                        <tr><td colspan="6" class="loading">লোড হচ্ছে...</td></tr>
-                    </tbody>
-                </table>
+            <div class="recentcoll-card">
+                <div class="recentcoll-h">🧾 সাম্প্রতিক কালেকশন</div>
+                <div id="collListBody"><div class="loading">লোড হচ্ছে...</div></div>
             </div>
         </div>
         <!-- ---------------- এজেন্ট ---------------- -->
@@ -1501,7 +1536,6 @@
                 b.classList.toggle("on", b.getAttribute("data-v") === key);
             });
 
-            q("ttl").textContent = NK.tr(TITLES[key]);
             window.scrollTo(0, 0);
             history.pushState({ view: key }, null, window.location.pathname);
 
@@ -1835,9 +1869,6 @@
                 q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
-            var me = NK.me();
-            var mgrName = (me && me.fullName) ? me.fullName : ltr("ম্যানেজার");
-
             /* দুটো একসাথে আনি — মূল হিসাব + মার্কেট সারি */
             Promise.all([
                 NK.GET("/api/dashboard"),
@@ -1848,47 +1879,56 @@
 
                 var h = "";
 
-                /* ---- স্বাগত ব্যানার ---- */
-                h += '<div class="mgr-hello">';
-                h += '<div class="br">🏬 ' + NK.esc(d.branchName || ltr("ব্রাঞ্চ")) + '</div>';
-                h += '<div class="wel">' + ltr("স্বাগতম") + ', ' + NK.esc(mgrName) + '</div>';
-                h += '</div>';
+                /* ---- উপরের ৪ বক্স — রঙিন গ্রেডিয়েন্ট ---- */
+                h += '<div class="stat-grid">';
 
-                /* ---- উপরের ৪ বক্স ---- */
-                h += '<div class="mgr-top">';
-
-                h += '<div class="mgr-stat s0"><div class="l">' + ltr("আজ ওঠার কথা") + '</div>' +
+                h += '<div class="stat-card c0"><div class="l">' + ltr("আজ ওঠার কথা") + '</div>' +
                     '<div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
 
-                h += '<div class="mgr-stat s1"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
+                h += '<div class="stat-card c1"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
                     '<div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
 
-                h += '<div class="mgr-stat s2"><div class="l">' + ltr("চলমান গ্রাহক") + '</div>' +
+                h += '<div class="stat-card c2"><div class="l">' + ltr("চলমান গ্রাহক") + '</div>' +
                     '<div class="v">' + d.runningCustomers + '</div></div>';
 
-                h += '<div class="mgr-stat s3"><div class="l">' + ltr("এই মাসের রিপোর্ট") + '</div>' +
+                h += '<div class="stat-card c3"><div class="l">' + ltr("এই মাসের রিপোর্ট") + '</div>' +
                     '<div class="sub">' + ltr("বিতরণ") + ' ' + NK.inrShort(d.monthDisbursed) + '<br>' +
                     ltr("আদায়") + ' ' + NK.inrShort(d.monthCollected) + '</div></div>';
 
                 h += '</div>';
 
                 /* ---- মার্কেট সারি ---- */
-                h += '<div class="mgr-mkt-title">' + ltr("মার্কেট") + '</div>';
+                h += '<div class="sec-title">🏬 ' + ltr("মার্কেট") + '</div>';
 
                 var mkts = (m && m.markets) ? m.markets : [];
                 if (!mkts.length) {
                     h += '<div class="card"><div class="empty">' + ltr("এই ব্রাঞ্চে কোনো মার্কেট নেই") + '</div></div>';
                 } else {
-                    h += '<div class="mgr-mkt-grid">';
-                    mkts.forEach(function (x) {
-                        h += '<div class="mgr-mkt">';
-                        h += '<div class="nm">' + NK.esc(x.marketName) + '</div>';
-                        h += '<div class="rows">';
-                        h += '<div><span>' + ltr("আজ ওঠার") + '</span><b>' + NK.inrShort(x.todayDue) + '</b></div>';
-                        h += '<div><span>' + ltr("আজ উঠল") + '</span><b>' + NK.inrShort(x.todayCollected) + '</b></div>';
-                        h += '<div><span>' + ltr("চলমান") + '</span><b>' + x.runningCustomers + '</b></div>';
+                    h += '<div class="marketlist">';
+                    mkts.forEach(function (x, i) {
+                        var due = Number(x.todayDue || 0);
+                        var collected = Number(x.todayCollected || 0);
+                        var pct = due > 0 ? Math.min(100, (collected / due * 100)) : (collected > 0 ? 100 : 0);
+                        var od = Number(x.odCustomers || 0);
+
+                        h += '<div class="marketcard c' + (i % 4) + '">';
+                        h += '<div class="top">';
+                        h += '<div><div class="nm">' + NK.esc(x.marketName) + '</div>';
+                        if (x.marketCode) h += '<div class="code">Code: ' + NK.esc(x.marketCode) + '</div>';
+                        h += '<div class="chip' + (od > 0 ? ' warn' : '') + '"><span class="dot"></span>OD ' + od + ' ' + ltr("জন") + '</div>';
                         h += '</div>';
-                        h += '<div class="od">OD ' + x.odCustomers + ' ' + ltr("জন") + '</div>';
+                        h += '<div class="chev">›</div>';
+                        h += '</div>';
+                        h += '<div class="progwrap">';
+                        h += '<div class="progtxt"><span>' + ltr("আজকের কালেকশন") + '</span><b>' +
+                            NK.inrShort(collected) + ' / ' + NK.inrShort(due) + '</b></div>';
+                        h += '<div class="progbar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
+                        h += '</div>';
+                        h += '<div class="stats">';
+                        h += '<div class="mstat blue"><div class="ic">📊</div><div class="val">' + NK.inrShort(due) + '</div><div class="lbl">' + ltr("ওঠার কথা") + '</div></div>';
+                        h += '<div class="mstat green"><div class="ic">✅</div><div class="val">' + NK.inrShort(collected) + '</div><div class="lbl">' + ltr("উঠেছে") + '</div></div>';
+                        h += '<div class="mstat orange"><div class="ic">👥</div><div class="val">' + x.runningCustomers + '</div><div class="lbl">' + ltr("চলমান") + '</div></div>';
+                        h += '</div>';
                         h += '</div>';
                     });
                     h += '</div>';
@@ -1911,12 +1951,12 @@
         var collectionListRefreshInterval = null;
 
         function loadCollectionList() {
-            var table = q("collListBody");
-            if (!table) return; // Element doesn't exist
+            var box = q("collListBody");
+            if (!box) return; // Element doesn't exist
 
             NK.GET("/api/collections/recent?limit=50").then(function (list) {
                 if (!list || !list.length) {
-                    table.innerHTML = '<tr><td colspan="6" class="empty">' + ltr("কোনো কালেকশন নেই") + '</td></tr>';
+                    box.innerHTML = '<div class="recentcoll-empty">' + ltr("কোনো কালেকশন নেই") + '</div>';
                     return;
                 }
 
@@ -1924,21 +1964,42 @@
                 list.forEach(function (item) {
                     var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
                     var statusText = item.status === "PAID" ? ltr("দিয়েছে") : (item.status === "OVERDUE" ? ltr("দেরী") : ltr("সতর্কতা"));
-                    var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+                    var advanceTag = item.isAdvance ? " (" + ltr("অগ্রিম") + ")" : "";
+                    var initial = (item.customerName || "?").charAt(0);
+                    var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
 
-                    html += "<tr>";
-                    html += "<td>" + (item.paymentDate || "—") + "</td>";
-                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
-                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
-                    html += "<td>" + NK.esc(item.agentName || "—") + "</td>";
-                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
-                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
-                    html += "</tr>";
+                    html += '<div class="ccard">';
+                    html += '<div class="ccard-top">';
+                    html += '<div class="ccard-l">';
+                    html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    html += '<div><div class="nm">' + NK.esc(item.customerName || "—") + '</div>';
+                    html += '<div class="sub">' + NK.esc(item.agentName || "—") + ' · ' +
+                        (item.paymentDate ? NK.dt(item.paymentDate) : "—") + '</div></div>';
+                    html += '</div>';
+                    html += '<div class="end"><div class="amt">' + NK.inr(item.amount) + advanceTag + '</div>';
+                    html += '<span class="statuspill ' + statusClass + '">' + statusText + '</span></div>';
+                    html += '</div>';
+                    html += '</div>';
                 });
 
-                table.innerHTML = html;
+                box.innerHTML = html;
+                loadRecentCollPhotos();
             }).catch(function (e) {
-                table.innerHTML = '<tr><td colspan="6" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+                box.innerHTML = '<div class="recentcoll-empty">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>';
+            });
+        }
+
+        /* কাস্টমারের ছবি — টোকেন মেমরিতে থাকে বলে <img src> কাজ করে না,
+           blob এনে বসাতে হয় (agent.html-এর একই প্যাটার্ন) */
+        function loadRecentCollPhotos() {
+            var avs = document.querySelectorAll("#collListBody [data-photo]");
+            Array.prototype.forEach.call(avs, function (el) {
+                var id = el.getAttribute("data-photo");
+                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
+                    if (!blob) return;
+                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    el.textContent = "";
+                }).catch(function () {});
             });
         }
 
@@ -3757,7 +3818,25 @@
 
             q("gate").remove();
             q("app").style.display = "block";
-            q("who").textContent = u.fullName + " · " + ltr("ম্যানেজার");
+            q("mgrName").textContent = u.fullName;
+
+            /* নিজের শাখা/শাখা-কোড/ছবি — হেডারের উপরের প্যানেলে (এজেন্ট প্যানেলেরই
+               /api/agent/me endpoint — কারো নিজের তথ্য আনতে role-নির্বিশেষে কাজ করে) */
+            NK.GET("/api/agent/me").then(function (p) {
+                if (p.branchName) {
+                    q("mgrBranch").textContent = p.branchName;
+                    q("mgrBranchCode").textContent = p.branchCode || "—";
+                    q("mgrInfoGrid").style.display = "flex";
+                }
+                if (p.hasPhoto) {
+                    NK.GET("/api/agent/me/photo").then(function (blob) {
+                        if (!blob) return;
+                        var el = q("mgrPhoto");
+                        el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                        el.textContent = "";
+                    }).catch(function () {});
+                }
+            }).catch(function () {});
 
             // Access time warning (8am-10pm only)
             var now = new Date();
