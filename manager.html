@@ -3719,6 +3719,7 @@
             var box = q("notifSheetList");
             box.innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             q("notifSheet").classList.add("on");
+            NK.pushNavState({ view: window.CURRENT_VIEW, panel: "notif" });
 
             /* বেল খুলে দেখলেই "দেখা হয়েছে" মার্ক হয় — এই ইউজারের জন্য আলাদা,
                এরপর বেলের পাশের লাল সংখ্যা রিফ্রেশ করি */
@@ -3761,7 +3762,7 @@
            (HTML-এ script-এর নিচে থাকায়) কাজ করবে — সরাসরি বাঁধলে null আসত */
         document.addEventListener("click", function (e) {
             if (e.target && e.target.id === "notifSheetBg") {
-                q("notifSheet").classList.remove("on");
+                history.back();
                 return;
             }
             var goEl = e.target.closest ? e.target.closest("[data-notifgo]") : null;
@@ -3889,8 +3890,16 @@
     window.addEventListener("popstate", function (e) {
         if (!e.state || !e.state.view) return;
 
+        // dashboard থেকে সরাসরি খোলা কোনো প্যানেল (নোটিফিকেশন/প্রোফাইল/লোন) ব্যাক করে
+        // বন্ধ করলে যে অবস্থায় ফেরে সেটাও bare {view:"dash"} — এক্সিট-প্রোটেকশন
+        // তাই তখনই চলবে যখন সত্যিই কোনো প্যানেল/ওভারলে খোলা নেই
+        var anyOverlayOpen = ["profX", "loanX", "prof", "notifSheet"].some(function (id) {
+            var el = q(id);
+            return el && el.classList.contains("on");
+        });
+
         // Dashboard protection - double back to exit
-        if (e.state.view === "dash" && !e.state.panel) {
+        if (e.state.view === "dash" && !e.state.panel && !anyOverlayOpen) {
             backPressCount++;
 
             if (backPressCount === 1) {
@@ -3935,6 +3944,7 @@
             q("profX").classList.remove("on");
             q("loanX").classList.remove("on");
             q("prof").classList.remove("on");
+            q("notifSheet").classList.remove("on");
         }
     });
 
