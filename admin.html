@@ -546,8 +546,8 @@
                         <button type="button" id="tmSheetClose" style="width:32px;height:32px;border-radius:10px;border:0;background:var(--paper);color:var(--muted);font-size:16px;cursor:pointer;">✕</button>
                     </div>
                 <div class="avatar-pick">
-                    <div class="av" id="tp_selfie">👤</div>
-                    <span>প্রোফাইল ছবি</span>
+                    <div class="av req" id="tp_selfie">👤</div>
+                    <span>প্রোফাইল ছবি (বাধ্যতামূলক)</span>
                 </div>
                 <div class="msg" id="tmMsg"></div>
 
@@ -3367,6 +3367,7 @@
                 el.classList.remove("has");
             });
 
+            q("tp_selfie").classList.add("req");
             q("tp_aad").classList.add("req");
             q("tp_aadb").classList.add("req");
         }
@@ -3399,6 +3400,7 @@
             var aad   = q("tm_aad").value.trim();
             var ep    = q("tm_ep").value.trim();
 
+            if (!TPICS.SELFIE)         return bad("tp_selfie", ltr("প্রোফাইল ছবি তুলুন"));
             if (!name)                 return bad("tm_name", ltr("নাম দিন"));
             if (phone.length !== 10)   return bad("tm_phone", ltr("ফোন ঠিক ১০ সংখ্যার হতে হবে"));
             if (pass.length < 8)       return bad("tm_pass", ltr("পাসওয়ার্ড কমপক্ষে ৮ অক্ষর"));
