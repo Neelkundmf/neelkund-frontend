@@ -173,8 +173,14 @@
 
         return fetch(API + path, opts).then(function (r) {
 
-            /* টোকেনের মেয়াদ শেষ — একবার রিফ্রেশ করে আবার চেষ্টা */
-            if (r.status === 401 && !retried && getRefresh()) {
+            /* টোকেনের মেয়াদ শেষ — একবার রিফ্রেশ করে আবার চেষ্টা।
+               403-ও ধরছি কারণ এই ব্যাকএন্ডে access token মেয়াদ ফুরালে
+               JwtAuthFilter অনুরোধটাকে "না-লগইন" ধরে ছেড়ে দেয়, আর Spring
+               Security সেটাকে 401 না দিয়ে 403 (access denied) দেখায় —
+               ফর্ম অনেকক্ষণ ধরে ভরলে (অনেক ছবি তোলা ইত্যাদি) মাঝপথে টোকেন
+               ফুরিয়ে গেলে আগে এখানে ধরা পড়ত না, তাই সরাসরি "অনুমতি নেই"
+               দেখাত — আসল কারণ (মেয়াদ ফুরানো) না বুঝেই */
+            if ((r.status === 401 || r.status === 403) && !retried && getRefresh()) {
                 return refreshToken().then(function () {
                     return request(method, path, body, isForm, true);
                 });
