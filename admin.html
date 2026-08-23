@@ -17,6 +17,185 @@
     <meta name="apple-mobile-web-app-title" content="NEELKUND">
     <meta name="mobile-web-app-capable" content="yes">
     <style>
+        /* ===== হেডার — agent.html/manager.html/partner.html-এর সাথে হুবহু একই ডিজাইন
+           (গ্রেডিয়েন্ট, ছবি-কার্ড, শাখা/কোড বক্স) — "অ্যাডমিন" ব্যাজ ===== */
+        .topbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            padding: 14px 16px 16px;
+            padding-top: max(14px, env(safe-area-inset-top));
+            background:
+                radial-gradient(320px 200px at 88% -20%, rgba(244,63,94,.3), transparent 60%),
+                linear-gradient(150deg, #4F46E5 0%, #7C3AED 60%, #A855F7 100%);
+            box-shadow: 0 14px 30px -14px rgba(79,70,229,.55);
+        }
+        .topbar-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .topbar .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .topbar .brand-txt b {
+            display: block; font-size: 16.5px; font-weight: 800; letter-spacing: .02em;
+        }
+        .topbar .brand-txt span {
+            display: block; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.62); font-weight: 700; margin-top: 1px;
+        }
+        .topbar .bell { flex-shrink: 0; }
+
+        .adm-card {
+            margin-top: 14px; display: flex; align-items: center; gap: 11px;
+            background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+            border-radius: 16px; padding: 9px 11px;
+        }
+        .adm-photo {
+            width: 46px; height: 46px; border-radius: 13px;
+            background: linear-gradient(155deg, rgba(255,255,255,.35), rgba(255,255,255,.12));
+            border: 2px solid rgba(255,255,255,.55);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 19px; font-weight: 800; flex-shrink: 0; color: #fff;
+            box-shadow: 0 6px 14px -6px rgba(0,0,0,.35);
+            font-family: 'Manrope', sans-serif;
+            background-size: cover; background-position: center;
+        }
+        .adm-info { flex: 1; min-width: 0; }
+        .adm-name {
+            font-size: 15px; font-weight: 800; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .adm-role { font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.68); margin-top: 1px; }
+
+        .info-grid { margin-top: 9px; display: flex; gap: 7px; }
+        .info-box {
+            flex: 1; min-width: 0; background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.24); border-radius: 13px;
+            padding: 8px 7px; text-align: center; backdrop-filter: blur(6px);
+        }
+        .info-box .lbl {
+            font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
+            color: rgba(255,255,255,.55); font-weight: 700;
+        }
+        .info-box .val {
+            font-size: 11.5px; font-weight: 800; color: #fff; margin-top: 3px;
+            line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* ===== ড্যাশবোর্ড — agent.html/manager.html/partner.html-এর ডিজাইনে, একই ডেটা/লজিক ===== */
+        .sec-title { font-size: 13.5px; font-weight: 800; color: var(--navy); margin: 20px 0 10px; display: flex; align-items: center; gap: 6px; }
+        .sec-title:first-child { margin-top: 0; }
+
+        .fund-card { border-radius: 20px; padding: 16px; color: #fff; position: relative; overflow: hidden; background: linear-gradient(150deg,#2563EB,#1E3A8A); box-shadow: 0 16px 30px -16px rgba(30,58,138,.55); }
+        .fund-card::after { content: ""; position: absolute; top: -30%; right: -10%; width: 130px; height: 130px; background: rgba(255,255,255,.12); border-radius: 50%; }
+        .fund-card .t { font-size: 11.5px; font-weight: 700; opacity: .9; position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; }
+        .fund-card .big { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-top: 4px; position: relative; z-index: 1; }
+        .fund-split { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; position: relative; z-index: 1; }
+        .fund-split .fs { background: rgba(255,255,255,.14); border-radius: 11px; padding: 8px; text-align: center; }
+        .fund-split .fs .l { font-size: 8.5px; opacity: .85; }
+        .fund-split .fs .v { font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800; margin-top: 2px; }
+        .fund-split .fs .v.g { color: #A7F3D0; }
+
+        .proj-card { background: linear-gradient(150deg,#34D399,#047857); border-radius: 18px; padding: 15px; margin-top: 10px; position: relative; overflow: hidden; box-shadow: 0 16px 30px -16px rgba(4,120,87,.5); }
+        .proj-card::after { content: ""; position: absolute; top: -30%; right: -10%; width: 130px; height: 130px; background: rgba(255,255,255,.12); border-radius: 50%; }
+        .proj-card .hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; position: relative; z-index: 1; }
+        .proj-card .hd b { font-size: 13px; color: #fff; }
+        .proj-card .hd .n { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; color: #fff; }
+        .proj-bar { height: 8px; border-radius: 999px; overflow: hidden; display: flex; background: #EEF1F5; position: relative; z-index: 1; }
+        .proj-bar i { display: block; height: 100%; }
+        .proj-card .proj-bar { background: rgba(255,255,255,.25); }
+        .proj-lg { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .proj-lg span { font-size: 10px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .proj-card .proj-lg span { color: rgba(255,255,255,.85); }
+        .proj-lg i.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+        .gain-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #EEF1F5; position: relative; z-index: 1; }
+        .gain-row span { font-size: 11px; color: var(--muted); font-weight: 600; }
+        .gain-row b { font-family: 'Manrope', sans-serif; font-size: 13px; }
+        .gain-row b.g { color: var(--green); }
+        .gain-row b.r { color: var(--red); }
+        .proj-card .gain-row { border-top-color: rgba(255,255,255,.3); }
+        .proj-card .gain-row span { color: rgba(255,255,255,.85); }
+        .proj-card .gain-row b { color: #fff; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .stat-card { border-radius: 18px; padding: 14px; color: #fff; box-shadow: 0 14px 26px -16px rgba(15,41,66,.4); }
+        .stat-card .l { font-size: 10.5px; font-weight: 800; opacity: .9; margin-bottom: 8px; }
+        .stat-card .v { font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+        .stat-card.c0 { background: linear-gradient(150deg,#2563EB,#1D4ED8); }
+        .stat-card.c1 { background: linear-gradient(150deg,#34D399,#059669); }
+        .stat-card.c2 { background: linear-gradient(150deg,#FB923C,#DC2626); }
+        .stat-card.c3 { background: linear-gradient(150deg,#F472B6,#DB2777); }
+
+        .inv-card { background: #fff; border-radius: 18px; padding: 15px; margin-bottom: 10px; border: 1px solid #EEF1F5; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.18); }
+        .inv-split { display: flex; gap: 10px; margin-bottom: 10px; }
+        .inv-split div { flex: 1; }
+        .inv-split .l { font-size: 10px; color: var(--muted); font-weight: 600; }
+        .inv-split .v { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 800; margin-top: 2px; }
+
+        .marketlist { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+        .marketcard { border-radius: 16px; padding: 12px 13px; color: #fff; cursor: pointer; position: relative; overflow: hidden; }
+        .marketcard::after { content: ""; position: absolute; top: -35%; right: -15%; width: 85px; height: 85px; background: rgba(255,255,255,.14); border-radius: 50%; filter: blur(2px); }
+        .marketcard.c0 { background: linear-gradient(150deg,#3B82F6,#1E3A8A); box-shadow: 0 12px 22px -14px rgba(30,58,138,.55); }
+        .marketcard.c1 { background: linear-gradient(150deg,#34D399,#047857); box-shadow: 0 12px 22px -14px rgba(4,120,87,.5); }
+        .marketcard.c2 { background: linear-gradient(150deg,#FB923C,#C2410C); box-shadow: 0 12px 22px -14px rgba(194,65,12,.5); }
+        .marketcard.c3 { background: linear-gradient(150deg,#FB7185,#BE123C); box-shadow: 0 12px 22px -14px rgba(190,18,60,.5); }
+        .marketcard .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: relative; z-index: 1; }
+        .marketcard .nm { font-size: 13.5px; font-weight: 800; }
+        .marketcard .cap { font-size: 9.5px; opacity: .8; margin-top: 1px; position: relative; z-index: 1; }
+        .marketcard .chip { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; background: rgba(255,255,255,.22); font-size: 8.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+        .marketcard .chip.warn { background: #fff; color: var(--red); }
+        .marketcard .chev { width: 22px; height: 22px; border-radius: 7px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; z-index: 1; flex-shrink: 0; }
+        .marketcard .progwrap { margin-top: 9px; position: relative; z-index: 1; }
+        .marketcard .progtxt { display: flex; justify-content: space-between; font-size: 8.5px; opacity: .9; margin-bottom: 3px; }
+        .marketcard .progtxt b { font-family: 'Manrope', sans-serif; }
+        .marketcard .progbar { height: 5px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; }
+        .marketcard .progbar i { display: block; height: 100%; background: #fff; border-radius: 999px; }
+        .marketcard .stats3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.22); position: relative; z-index: 1; }
+        .marketcard .mstat { text-align: center; border-radius: 9px; padding: 5px 3px; }
+        .marketcard .mstat.blue { background: linear-gradient(150deg, rgba(96,165,250,.9), rgba(29,78,216,.9)); }
+        .marketcard .mstat.green { background: linear-gradient(150deg, rgba(52,211,153,.9), rgba(4,120,87,.9)); }
+        .marketcard .mstat.orange { background: linear-gradient(150deg, rgba(251,146,60,.9), rgba(194,65,12,.9)); }
+        .marketcard .mstat .val { font-family: 'Fraunces', serif; font-size: 11.5px; font-weight: 700; }
+        .marketcard .mstat .lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; margin-top: 1px; opacity: .9; }
+
+        /* #dash দিয়ে স্কোপ করা হলো — drawBranch()-এর নিজস্ব পুরনো .amtbox
+           (ব্রাঞ্চ-বিস্তারিত পাতায়, #pBody-তে) এর সাথে নাম মিলে যেন সেটার
+           রঙ/স্টাইল ভেঙে না যায় (সেটা এই দফায় বদলানো হয়নি) */
+        #dash .amtgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 20px; }
+        #dash .amtbox { border-radius: 16px; padding: 12px; color: #fff; cursor: pointer; position: relative; overflow: hidden; }
+        #dash .amtbox::after { content: ""; position: absolute; top: -35%; right: -15%; width: 70px; height: 70px; background: rgba(255,255,255,.14); border-radius: 50%; }
+        #dash .amtbox.c0 { background: linear-gradient(150deg,#3B82F6,#1E3A8A); }
+        #dash .amtbox.c1 { background: linear-gradient(150deg,#34D399,#047857); }
+        #dash .amtbox.c2 { background: linear-gradient(150deg,#FB923C,#C2410C); }
+        #dash .amtbox.c3 { background: linear-gradient(150deg,#FB7185,#BE123C); }
+        #dash .amtbox.c4 { background: linear-gradient(150deg,#A78BFA,#6D28D9); }
+        #dash .amtbox .ahead { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+        #dash .amtbox .a { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 800; }
+        #dash .amtbox .chev { width: 20px; height: 20px; border-radius: 7px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+        #dash .amtbox .mini3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 10px; position: relative; z-index: 1; }
+        #dash .amtbox .mini3 div { background: rgba(255,255,255,.16); border-radius: 8px; text-align: center; padding: 4px 2px; }
+        #dash .amtbox .mini3 .n { font-family: 'Fraunces', serif; font-size: 12px; font-weight: 700; }
+        #dash .amtbox .mini3 .k { font-size: 6.5px; opacity: .85; text-transform: uppercase; }
+        #dash .amtbox .out { margin-top: 8px; font-size: 9.5px; opacity: .9; position: relative; z-index: 1; }
+        #dash .amtbox .out b { font-family: 'Manrope', sans-serif; }
+
+        .od-alert { border-radius: 18px; padding: 16px; color: #fff; background: linear-gradient(150deg,#F87171,#B91C1C); box-shadow: 0 16px 30px -16px rgba(185,28,28,.5); margin-bottom: 20px; text-align: center; }
+        .od-alert .t { font-size: 12px; font-weight: 700; opacity: .95; }
+        .od-alert .n { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin: 4px 0; }
+        .od-alert .a { font-size: 12.5px; font-weight: 700; opacity: .95; }
+
+        .recentcoll-card { background: rgba(255,255,255,.85); border: 1px solid rgba(139,92,246,.14); border-radius: 22px; padding: 14px; box-shadow: 0 20px 40px -22px rgba(76,29,149,.3); margin-bottom: 10px; }
+        .recentcoll-h { font-size: 12.5px; font-weight: 800; color: #4C1D95; margin-bottom: 10px; }
+        .recentcoll-empty { font-size: 12px; color: #94A3B8; text-align: center; padding: 14px 0; }
+        .ccard { background: #fff; border-radius: 14px; padding: 12px 13px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 8px 18px -12px rgba(15,41,66,.16); border: 1px solid #EEF1F5; }
+        .ccard:last-child { margin-bottom: 0; }
+        .ccard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .ccard-l { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ccard .av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+        .ccard .nm { font-size: 13.5px; font-weight: 800; color: #0F1B3D; }
+        .ccard .sub { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+        .ccard .amt { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 800; color: var(--green); text-align: right; }
+        .statuspill { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; display: inline-block; margin-top: 4px; }
+        .statuspill.g { background: var(--green-soft); color: var(--green); }
+        .statuspill.a { background: var(--amber-soft); color: var(--amber); }
+        .statuspill.r { background: var(--red-soft); color: var(--red); }
+
         /* ===== নতুন কাস্টমার প্রোফাইল পাতা ===== */
         #profX {
             position: fixed; inset: 0; z-index: 400;
@@ -301,14 +480,37 @@
 
     <!-- উপরের বার -->
     <div class="topbar">
-        <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
-        <div class="ttl">
-            <b id="ttl">ড্যাশবোর্ড</b>
-            <span id="who">—</span>
+        <div class="topbar-top">
+            <div class="brand">
+                <button class="logo" id="logoBtn"><img src="assets/logo.png" alt=""></button>
+                <div class="brand-txt">
+                    <b>NEELKUND</b>
+                    <span>মাইক্রোফাইন্যান্স</span>
+                </div>
+            </div>
+            <button class="bell" id="bell">
+                🔔<span class="dot" id="dot">0</span>
+            </button>
         </div>
-        <button class="bell" id="bell">
-            🔔<span class="dot" id="dot">0</span>
-        </button>
+
+        <div class="adm-card">
+            <div class="adm-photo" id="admPhoto">👤</div>
+            <div class="adm-info">
+                <div class="adm-name" id="admName">—</div>
+                <div class="adm-role">অ্যাডমিন</div>
+            </div>
+        </div>
+
+        <div class="info-grid" id="admInfoGrid" style="display:none;">
+            <div class="info-box">
+                <div class="lbl">শাখা</div>
+                <div class="val" id="admBranch">—</div>
+            </div>
+            <div class="info-box">
+                <div class="lbl">শাখা কোড</div>
+                <div class="val" id="admBranchCode">—</div>
+            </div>
+        </div>
     </div>
 
     <div class="body">
@@ -333,23 +535,9 @@
             </div>
 
             <!-- কালেকশন লিস্ট -->
-            <div class="card" style="margin-top:24px;">
-                <h2 style="margin-bottom:14px;">সাম্প্রতিক কালেকশন</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>তারিখ</th>
-                            <th>গ্রাহক</th>
-                            <th>ফোন</th>
-                            <th>এজেন্ট</th>
-                            <th>অঙ্ক</th>
-                            <th>অবস্থা</th>
-                        </tr>
-                    </thead>
-                    <tbody id="collListBody">
-                        <tr><td colspan="6" class="loading">লোড হচ্ছে...</td></tr>
-                    </tbody>
-                </table>
+            <div class="recentcoll-card">
+                <div class="recentcoll-h">🧾 সাম্প্রতিক কালেকশন</div>
+                <div id="collListBody"><div class="loading">লোড হচ্ছে...</div></div>
             </div>
         </div>
 
@@ -1454,7 +1642,6 @@
                 b.classList.toggle("on", b.getAttribute("data-v") === key);
             });
 
-            q("ttl").textContent = NK.tr(TITLES[key] || key);
             q("backbar").classList.remove("on");
             window.scrollTo(0, 0);
 
@@ -1521,7 +1708,6 @@
                     x.classList.remove("on");
                 });
 
-                q("ttl").textContent = b.textContent.trim();
                 q("backbar").classList.add("on");
                 window.scrollTo(0, 0);
                 history.pushState({ view: go }, null, window.location.pathname);
@@ -1550,68 +1736,64 @@
                 var html = "";
 
                 /* ---- উপরের সংখ্যা ---- */
-                html += '<div class="stats">';
-                html += st(ltr("আজ ওঠার কথা"), NK.inrShort(d.todayDue));
-                html += st(ltr("আজ উঠেছে"), NK.inrShort(d.todayCollected), "g");
-                html += st(ltr("চলমান গ্রাহক"), d.runningCustomers);
-                html += st(ltr("শোধ হয়েছে"), d.completedCustomers, "g");
+                html += '<div class="sec-title">📊 ' + ltr('আজকের হিসাব') + '</div>';
+                html += '<div class="stat-grid">';
+                html += '<div class="stat-card c0"><div class="l">' + ltr('আজ ওঠার কথা') + '</div><div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
+                html += '<div class="stat-card c1"><div class="l">' + ltr('আজ উঠেছে') + '</div><div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
+                html += '<div class="stat-card c2"><div class="l">' + ltr('চলমান গ্রাহক') + '</div><div class="v">' + d.runningCustomers + '</div></div>';
+                html += '<div class="stat-card c3"><div class="l">' + ltr('শোধ হয়েছে') + '</div><div class="v">' + d.completedCustomers + '</div></div>';
                 html += "</div>";
 
                 /* ---- এই মাস ---- */
-                html += '<div class="card">';
-                html += ltr('<h2 style="margin-bottom:12px;">এই মাস</h2>');
-                html += '<div class="stats" style="margin:0;">';
-                html += st(ltr("বিতরণ"), NK.inrShort(d.monthDisbursed));
-                html += st(ltr("আদায়"), NK.inrShort(d.monthCollected), "g");
-                html += st(ltr("খরচ"), NK.inrShort(d.monthExpenses), "r");
-                html += st(ltr("নিট লাভ"), NK.inrShort(d.monthNetProfit),
-                    Number(d.monthNetProfit) >= 0 ? "g" : "r");
-                html += "</div></div>";
+                html += '<div class="sec-title">📅 ' + ltr('এই মাস') + '</div>';
+                html += '<div class="stat-grid">';
+                html += '<div class="stat-card c0"><div class="l">' + ltr('বিতরণ') + '</div><div class="v">' + NK.inrShort(d.monthDisbursed) + '</div></div>';
+                html += '<div class="stat-card c1"><div class="l">' + ltr('আদায়') + '</div><div class="v">' + NK.inrShort(d.monthCollected) + '</div></div>';
+                html += '<div class="stat-card c2"><div class="l">' + ltr('খরচ') + '</div><div class="v">' + NK.inrShort(d.monthExpenses) + '</div></div>';
+                html += '<div class="stat-card ' + (Number(d.monthNetProfit) >= 0 ? "c1" : "c2") + '"><div class="l">' + ltr('নিট লাভ') + '</div><div class="v">' + NK.inrShort(d.monthNetProfit) + '</div></div>';
+                html += "</div>";
 
                 /* ---- বিনিয়োগ ---- */
                 if (Number(d.totalCapital) > 0) {
-                    html += '<div class="card">';
-                    html += ltr('<h2 style="margin-bottom:12px;">বিনিয়োগ</h2>');
-                    html += '<div class="stats" style="margin:0;">';
-                    html += st(ltr("পার্টনার"), NK.inrShort(d.partnerCapital));
-                    html += st(ltr("বাইরের"), NK.inrShort(d.investorCapital));
+                    html += '<div class="sec-title">🤝 ' + ltr('বিনিয়োগ') + '</div>';
+                    html += '<div class="inv-card">';
+                    html += '<div class="inv-split">';
+                    html += '<div><div class="l">' + ltr('পার্টনার') + '</div><div class="v">' + NK.inrShort(d.partnerCapital) + '</div></div>';
+                    html += '<div><div class="l">' + ltr('বাইরের') + '</div><div class="v">' + NK.inrShort(d.investorCapital) + '</div></div>';
+                    html += '</div>';
 
                     var totCap = Number(d.partnerCapital) + Number(d.investorCapital);
                     if (totCap <= 0) totCap = 1;
                     var ppc = (Number(d.partnerCapital) / totCap * 100).toFixed(1);
                     var pic = (Number(d.investorCapital) / totCap * 100).toFixed(1);
 
+                    html += '<div class="proj-bar" style="height:16px;border-radius:8px;">';
+                    html += '<i style="width:' + ppc + '%;background:#16A34A;"></i>';
+                    html += '<i style="width:' + pic + '%;background:#60A5FA;"></i>';
                     html += '</div>';
-                    html += '<div class="bar" style="height:20px;border-radius:8px;overflow:hidden;display:flex;margin-top:12px;">';
-                    html += '<i style="width:' + ppc + '%;background:#16A34A;display:block;"></i>';
-                    html += '<i style="width:' + pic + '%;background:#60A5FA;display:block;"></i>';
-                    html += '</div>';
-                    html += '<div class="lg" style="margin-top:8px;">';
-                    html += ltr('<span><i style="background:#16A34A;"></i>পার্টনার ') + ppc + '%</span>';
-                    html += ltr('<span><i style="background:#60A5FA;"></i>বাইরের ') + pic + '%</span>';
+                    html += '<div class="proj-lg" style="margin-top:8px;">';
+                    html += '<span><i class="dot" style="background:#16A34A;"></i>' + ltr('পার্টনার') + ' ' + ppc + '%</span>';
+                    html += '<span><i class="dot" style="background:#60A5FA;"></i>' + ltr('বাইরের') + ' ' + pic + '%</span>';
                     html += '</div>';
                     html += '</div>';
                 }
                 /* ---- ৫টা ব্লক (clickable) ---- */
-                html += ltr('<h2 style="margin:18px 0 12px;">লোনের অঙ্ক অনুযায়ী</h2>');
+                html += '<div class="sec-title">💵 ' + ltr('লোনের অঙ্ক অনুযায়ী') + '</div>';
                 html += '<div class="amtgrid">';
 
-                (d.blocks || []).forEach(function (b) {
-                    html += '<div class="amtbox" data-amt="' + NK.esc(b.amount) + '">';
+                (d.blocks || []).forEach(function (b, i) {
+                    html += '<div class="amtbox c' + (i % 5) + '" data-amt="' + NK.esc(b.amount) + '">';
 
-                    html += '<div class="amthead"><div class="a">' + NK.inr(b.amount) +
-                        '</div><div class="go">›</div></div>';
+                    html += '<div class="ahead"><div class="a">' + NK.inr(b.amount) +
+                        '</div><div class="chev">›</div></div>';
 
-                    html += '<div class="mini">';
-                    html += '<div class="m run"><div class="n">' + b.running +
-                        ltr('</div><div class="k">চলমান</div></div>');
-                    html += '<div class="m od"><div class="n">' + b.od +
-                        '</div><div class="k">OD</div></div>';
-                    html += '<div class="m done"><div class="n">' + b.completed +
-                        ltr('</div><div class="k">শোধ</div></div>');
+                    html += '<div class="mini3">';
+                    html += '<div><div class="n">' + b.running + '</div><div class="k">' + ltr('চলমান') + '</div></div>';
+                    html += '<div><div class="n">' + b.od + '</div><div class="k">OD</div></div>';
+                    html += '<div><div class="n">' + b.completed + '</div><div class="k">' + ltr('শোধ') + '</div></div>';
                     html += '</div>';
 
-                    html += ltr('<div class="amtout">বাকি <b>') +
+                    html += '<div class="out">' + ltr('বাকি') + ' <b>' +
                         NK.inrShort(b.outstandingAmount) + '</b></div>';
 
                     html += '</div>';
@@ -1619,10 +1801,10 @@
 
                 html += '</div>';
                 /* ---- OD বাক্স ---- */
-                html += '<div class="od-box">';
-                html += '<div class="t">⛔ ' + d.odDaysThreshold + ltr('+ দিন দেয়নি</div>');
-                html += '<div class="n">' + d.totalOdCustomers + ltr(' জন</div>');
-                html += '<div class="a">' + NK.inr(d.totalOdAmount) + ltr(' আটকে আছে</div>');
+                html += '<div class="od-alert">';
+                html += '<div class="t">⛔ ' + d.odDaysThreshold + ltr('+ দিন দেয়নি') + '</div>';
+                html += '<div class="n">' + d.totalOdCustomers + ' ' + ltr('জন') + '</div>';
+                html += '<div class="a">' + NK.inr(d.totalOdAmount) + ' ' + ltr('আটকে আছে') + '</div>';
                 html += "</div>";
 
                 q("dash").innerHTML = html;
@@ -1854,27 +2036,33 @@
                     return;
                 }
 
-                var h = ltr('<h2 style="margin:18px 0 12px;">ব্রাঞ্চ অনুযায়ী <span style="font-size:12px;color:var(--muted);font-weight:400;">· লাইভ</span></h2>');
-                h += '<div class="brgrid">';
+                var h = '<div class="sec-title">🏬 ' + ltr('ব্রাঞ্চ অনুযায়ী') + '</div>';
+                h += '<div class="marketlist">';
 
-                d.branches.forEach(function (b) {
-                    h += '<div class="brbox" data-br="' + NK.esc(b.branchId) +
+                d.branches.forEach(function (b, i) {
+                    var due = Number(b.todayDue || 0);
+                    var collected = Number(b.todayCollected || 0);
+                    var pct = due > 0 ? Math.min(100, (collected / due * 100)) : (collected > 0 ? 100 : 0);
+                    var od = Number(b.odCustomers || 0);
+
+                    h += '<div class="marketcard c' + (i % 4) + '" data-br="' + NK.esc(b.branchId) +
                         '" data-name="' + NK.esc(b.branchName) + '">';
-
-                    h += '<div class="bh"><b>' + NK.esc(b.branchName) + '</b>' +
-                        ltr('<span class="live"><i></i>লাইভ</span></div>');
-
-                    h += '<div class="big">' + NK.inr(b.todayCollected) + '</div>';
-                    h += ltr('<div class="cap">আজ উঠেছে · ওঠার কথা ') +
-                        NK.inrShort(b.todayDue) + '</div>';
-
-                    h += ltr('<div class="brrow"><span>চলমান</span><b>') +
-                        b.runningCustomers + '</b></div>';
-                    h += '<div class="brrow od"><span>OD</span><b>' +
-                        b.odCustomers + '</b></div>';
-                    h += ltr('<div class="brrow"><span>বাকি</span><b>') +
-                        NK.inrShort(b.outstanding) + '</b></div>';
-
+                    h += '<div class="top">';
+                    h += '<div><div class="nm">' + NK.esc(b.branchName) + '</div>';
+                    h += '<div class="chip' + (od > 0 ? ' warn' : '') + '">OD ' + od + ' ' + ltr('জন') + '</div>';
+                    h += '</div>';
+                    h += '<div class="chev">›</div>';
+                    h += '</div>';
+                    h += '<div class="progwrap">';
+                    h += '<div class="progtxt"><span>' + ltr('আজকের কালেকশন') + '</span><b>' +
+                        NK.inrShort(collected) + ' / ' + NK.inrShort(due) + '</b></div>';
+                    h += '<div class="progbar"><i style="width:' + pct.toFixed(0) + '%;"></i></div>';
+                    h += '</div>';
+                    h += '<div class="stats3">';
+                    h += '<div class="mstat blue"><div class="val">' + b.runningCustomers + '</div><div class="lbl">' + ltr('চলমান') + '</div></div>';
+                    h += '<div class="mstat green"><div class="val">' + od + '</div><div class="lbl">OD</div></div>';
+                    h += '<div class="mstat orange"><div class="val">' + NK.inrShort(b.outstanding) + '</div><div class="lbl">' + ltr('বাকি') + '</div></div>';
+                    h += '</div>';
                     h += '</div>';
                 });
 
@@ -1915,23 +2103,22 @@
                     return;
                 }
 
-                var h = ltr('<h2 style="margin:18px 0 12px;">মার্কেট <span style="font-size:12px;color:var(--muted);font-weight:400;">· লাইভ</span></h2>');
-                h += '<div class="brgrid">';
+                var h = '<div class="sec-title">📍 ' + ltr('মার্কেট') + '</div>';
+                h += '<div class="marketlist">';
 
-                d.forEach(function (m) {
-                    h += '<div class="brbox" data-market="' + NK.esc(m.id) +
+                d.forEach(function (m, i) {
+                    h += '<div class="marketcard c' + (i % 4) + '" data-market="' + NK.esc(m.id) +
                         '" data-name="' + NK.esc(m.name) + '">';
-
-                    h += '<div class="bh"><b>' + NK.esc(m.name) + '</b>' +
-                        ltr('<span class="live"><i></i>লাইভ</span></div>');
-
-                    h += '<div class="cap">' + NK.esc(m.code || "") + '</div>';
-
-                    h += ltr('<div class="brrow"><span>গ্রাহক</span><b>') +
-                        m.customerCount + '</b></div>';
-                    h += ltr('<div class="brrow"><span>চলমান লোন</span><b>') +
-                        (m.managerName ? NK.esc(m.managerName) : "-") + '</b></div>';
-
+                    h += '<div class="top">';
+                    h += '<div><div class="nm">' + NK.esc(m.name) + '</div>' +
+                        (m.code ? '<div class="cap">' + NK.esc(m.code) + '</div>' : '') + '</div>';
+                    h += '<div class="chev">›</div>';
+                    h += '</div>';
+                    h += '<div class="stats3">';
+                    h += '<div class="mstat blue"><div class="val">' + m.customerCount + '</div><div class="lbl">' + ltr('গ্রাহক') + '</div></div>';
+                    h += '<div class="mstat green" style="grid-column:span 2;"><div class="val" style="font-size:10px;">' +
+                        (m.managerName ? NK.esc(m.managerName) : "—") + '</div><div class="lbl">' + ltr('ম্যানেজার') + '</div></div>';
+                    h += '</div>';
                     h += '</div>';
                 });
 
@@ -2043,44 +2230,46 @@
             var h = "";
 
             /* ---- এখন হাতে ---- */
-            h += '<div class="fund">';
-            h += ltr('<div class="t">💰 এখন হাতে আছে<span class="tick"></span></div>');
+            h += '<div class="sec-title">💰 ' + ltr('ফান্ড') + '</div>';
+            h += '<div class="fund-card">';
+            h += '<div class="t">' + ltr('এখন হাতে আছে') + '</div>';
             h += '<div class="big">' + NK.inr(cash) + '</div>';
 
-            h += '<div class="split">';
-            h += ltr('<div><div class="l">মোট বিনিয়োগ</div>') +
+            h += '<div class="fund-split">';
+            h += '<div class="fs"><div class="l">' + ltr('মোট বিনিয়োগ') + '</div>' +
                 '<div class="v">' + NK.inrShort(d.totalInvested) + '</div></div>';
-            h += ltr('<div><div class="l">লোনে গেছে</div>') +
+            h += '<div class="fs"><div class="l">' + ltr('লোনে গেছে') + '</div>' +
                 '<div class="v">' + NK.inrShort(d.disbursed) + '</div></div>';
-            h += ltr('<div><div class="l">ফেরত এসেছে</div>') +
+            h += '<div class="fs"><div class="l">' + ltr('ফেরত এসেছে') + '</div>' +
                 '<div class="v g">' + NK.inrShort(d.collected) + '</div></div>';
             h += '</div>';
 
             h += '</div>';
 
             /* ---- সব ফেরত এলে ---- */
-            h += '<div class="proj">';
+            h += '<div class="proj-card">';
 
             h += '<div class="hd">';
-            h += ltr('<b>📈 সব ফেরত এলে</b>');
+            h += '<b>📈 ' + ltr('সব ফেরত এলে') + '</b>';
             h += '<span class="n">' + NK.inr(proj) + '</span>';
             h += '</div>';
 
-            h += '<div class="bar">';
-            h += '<i class="cash" style="width:' + pc + '%;"></i>';
-            h += '<i class="good" style="width:' + pg + '%;"></i>';
-            h += '<i class="od" style="width:' + po + '%;"></i>';
+            h += '<div class="proj-bar">';
+            h += '<i style="width:' + pc + '%;background:#fff;"></i>';
+            h += '<i style="width:' + pg + '%;background:rgba(255,255,255,.55);"></i>';
+            h += '<i style="width:' + po + '%;background:#FB923C;"></i>';
             h += '</div>';
 
-            h += '<div class="lg">';
-            h += ltr('<span><i style="background:#16A34A;"></i>হাতে ') + NK.inrShort(cash) + '</span>';
-            h += ltr('<span><i style="background:#60A5FA;"></i>আসবে ') + NK.inrShort(good) + '</span>';
-            h += '<span><i style="background:#1F2937;"></i>OD ' + NK.inrShort(od) + '</span>';
+            h += '<div class="proj-lg">';
+            h += '<span><i class="dot" style="background:#fff;"></i>' + ltr('হাতে') + ' ' + NK.inrShort(cash) + '</span>';
+            h += '<span><i class="dot" style="background:rgba(255,255,255,.55);"></i>' + ltr('আসবে') + ' ' + NK.inrShort(good) + '</span>';
+            h += '<span><i class="dot" style="background:#FB923C;"></i>OD ' + NK.inrShort(od) + '</span>';
             h += '</div>';
 
-            h += '<div class="gain">';
-            h += ltr('<span>মোট লাভ</span>');
-            h += '<b>' + (Number(d.profitProjected) >= 0 ? '+' : '') +
+            var gainPositive = Number(d.profitProjected) >= 0;
+            h += '<div class="gain-row">';
+            h += '<span>' + ltr('মোট লাভ') + '</span>';
+            h += '<b>' + (gainPositive ? '+' : '') +
                 NK.inr(d.profitProjected) + ' (' +
                 (Number(d.growthPercent) >= 0 ? '+' : '') +
                 Number(d.growthPercent).toFixed(1) + '%)</b>';
@@ -2604,12 +2793,12 @@
         var collectionListRefreshInterval = null;
 
         function loadCollectionList() {
-            var table = q("collListBody");
-            if (!table) return; // Element doesn't exist
+            var box = q("collListBody");
+            if (!box) return; // Element doesn't exist
 
             NK.GET("/api/collections/recent?limit=50").then(function (list) {
                 if (!list || !list.length) {
-                    table.innerHTML = '<tr><td colspan="6" class="empty">কোনো কালেকশন নেই</td></tr>';
+                    box.innerHTML = '<div class="recentcoll-empty">কোনো কালেকশন নেই</div>';
                     return;
                 }
 
@@ -2618,20 +2807,43 @@
                     var statusClass = item.status === "PAID" ? "g" : (item.status === "OVERDUE" ? "r" : "a");
                     var statusText = item.status === "PAID" ? "দিয়েছে" : (item.status === "OVERDUE" ? "দেরী" : "সতর্কতা");
                     var advanceTag = item.isAdvance ? " (অগ্রিম)" : "";
+                    var initial = (item.customerName || "?").charAt(0);
+                    var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
 
-                    html += "<tr>";
-                    html += "<td>" + (item.paymentDate || "—") + "</td>";
-                    html += "<td><b>" + NK.esc(item.customerName || "—") + "</b></td>";
-                    html += "<td>" + NK.esc(item.customerPhone || "—") + "</td>";
-                    html += "<td>" + NK.esc(item.agentName || "—") + "</td>";
-                    html += "<td><b>" + NK.inr(item.amount) + advanceTag + "</b></td>";
-                    html += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
-                    html += "</tr>";
+                    html += '<div class="ccard">';
+                    html += '<div class="ccard-top">';
+                    html += '<div class="ccard-l">';
+                    html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    html += '<div><div class="nm">' + NK.esc(item.customerName || "—") + '</div>';
+                    html += '<div class="sub">' + NK.esc(item.agentName || "—") +
+                        (item.paymentDate ? ' · ' + NK.esc(item.paymentDate) : '') + '</div></div>';
+                    html += '</div>';
+                    html += '<div style="text-align:right;"><div class="amt">' + NK.inr(item.amount) + advanceTag + '</div>';
+                    html += '<span class="statuspill ' + statusClass + '">' + statusText + '</span></div>';
+                    html += '</div>';
+                    html += '</div>';
                 });
 
-                table.innerHTML = html;
+                box.innerHTML = html;
+                loadRecentCollPhotos();
             }).catch(function (e) {
-                table.innerHTML = '<tr><td colspan="6" class="empty">ত্রুটি: ' + NK.esc(e.message) + '</td></tr>';
+                box.innerHTML = '<div class="recentcoll-empty">ত্রুটি: ' + NK.esc(e.message) + '</div>';
+            });
+        }
+
+        /* কাস্টমারের ছবি — টোকেন মেমরিতে থাকে বলে <img src> কাজ করে না,
+           blob এনে বসাতে হয় */
+        function loadRecentCollPhotos() {
+            var avs = document.querySelectorAll("#collListBody [data-photo]");
+            Array.prototype.forEach.call(avs, function (el) {
+                var id = el.getAttribute("data-photo");
+                NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
+                    if (!blob) return;
+                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    el.style.backgroundSize = "cover";
+                    el.style.backgroundPosition = "center";
+                    el.textContent = "";
+                }).catch(function () {});
             });
         }
 
@@ -5822,7 +6034,27 @@
 
             q("gate").remove();
             q("app").style.display = "block";
-            q("who").textContent = u.fullName + ltr(" · অ্যাডমিন");
+            q("admName").textContent = u.fullName;
+
+            /* নিজের শাখা/শাখা-কোড/ছবি — হেডারের উপরের প্যানেলে (এজেন্ট প্যানেলেরই
+               /api/agent/me endpoint — কারো নিজের তথ্য আনতে role-নির্বিশেষে কাজ করে;
+               অ্যাডমিন নির্দিষ্ট কোনো ব্রাঞ্চ ছাড়াই থাকতে পারেন, তখন ব্রাঞ্চ
+               বক্সদুটো লুকানোই থাকবে) */
+            NK.GET("/api/agent/me").then(function (p) {
+                if (p.branchName) {
+                    q("admBranch").textContent = p.branchName;
+                    q("admBranchCode").textContent = p.branchCode || "—";
+                    q("admInfoGrid").style.display = "flex";
+                }
+                if (p.hasPhoto) {
+                    NK.GET("/api/agent/me/photo").then(function (blob) {
+                        if (!blob) return;
+                        var el = q("admPhoto");
+                        el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                        el.textContent = "";
+                    }).catch(function () {});
+                }
+            }).catch(function () {});
 
             loadDash();
             loadBranches();
