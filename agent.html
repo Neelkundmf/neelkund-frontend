@@ -4347,7 +4347,8 @@
             b.disabled = true;
             b.textContent = "...";
 
-            NK.GET("/api/customers/next-code")
+            var autoMarketId = q("n_market") ? q("n_market").value : "";
+            NK.GET("/api/customers/next-code" + (autoMarketId ? "?marketId=" + autoMarketId : ""))
                 .then(function (r) {
                     q("n_code").value = r.customerCode || "";
                     toast(ltr("কোড বসানো হল ✓"), "ok");
