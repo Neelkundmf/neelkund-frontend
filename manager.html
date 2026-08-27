@@ -1518,9 +1518,12 @@
         window.CURRENT_VIEW = CURRENT_VIEW;
 
         /* auto-refresh শুধু এই view-গুলোতে — "এজেন্ট" ট্যাবে ভেতরে ধাপে-ধাপে
-           (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো */
+           (তালিকা → মার্কেট → বিস্তারিত) থাকে বলে সেটা বাদ রাখা হলো। "বিতরণ"
+           আর "অনুরোধ"-ও বাদ দেওয়া হলো — দুটোতেই অনুমোদন/নাকচ বাটন আছে, প্রতি
+           ১২ সেকেন্ডে পুরো তালিকা নতুন করে বসিয়ে দিলে (কোনো লোডিং চিহ্ন ছাড়াই,
+           চোখে "রিলোড"-এর মতো লাগে) মাঝপথে বাটনে চাপতে গেলে গোলমাল হতে পারে */
         var SAFE_REFRESH = {
-            dash: loadDash, req: loadReq, disb: loadDisb, sheet: loadSheet,
+            dash: loadDash, sheet: loadSheet,
             cust: loadCust, od: loadOd, report: loadReport
         };
 

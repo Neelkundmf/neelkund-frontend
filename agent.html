@@ -2662,10 +2662,13 @@
         var disbState = { page: 0, pageSize: 20, allData: [] };
 
         /* auto-refresh শুধু এই view-গুলোতে — "নতুন গ্রাহক" ফর্মে ভরা তথ্য
-           মুছে যেতে পারে বলে সেটা বাদ রাখা হলো */
+           মুছে যেতে পারে বলে সেটা বাদ রাখা হলো। "বিতরণ"-ও বাদ — ওখানে
+           অনুমোদিত-কিন্তু-সই-বাকি কার্ডে চাপলে ক্যামেরা খোলে, মাঝপথে তালিকা
+           নতুন করে বসে গেলে সেই ফ্লো ভেঙে যেতে পারে (আলাদা ১৫-সেকেন্ডের
+           টাইমারও নিচে বন্ধ করা হলো, একই কারণে) */
         var SAFE_REFRESH = {
             today: loadToday, market: loadMkt, coll: refreshCollView, mycust: loadMyCust,
-            report: loadReport, disb: loadDisb, black: loadBlack
+            report: loadReport, black: loadBlack
         };
 
         function show(key, isRestore) {
@@ -6328,15 +6331,6 @@
                 window.scrollTo(0, 0);
             }
         });
-
-        // Auto-refresh disbursement view every 15 seconds
-        setInterval(function () {
-            if (CURRENT_VIEW !== "disb") return;
-            if (document.visibilityState !== "visible") return;
-            var ae = document.activeElement;
-            if (ae && (ae.tagName === "BUTTON")) return; // Don't refresh while clicking
-            loadDisb(true);
-        }, 15000);
 
         /* =====================================================================
          * নোটিফিকেশন
