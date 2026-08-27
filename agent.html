@@ -2484,8 +2484,11 @@
                 if (backPressTimer) clearTimeout(backPressTimer);
             }
 
-            // Switch view
-            show(e.state.view);
+            // Switch view — true = popstate-থেকে restore, তাই আবার নতুন
+            // history entry push করবে না (নাহলে প্রতিটা back-এ একটা নতুন
+            // entry বসে যেত, ফলে পরের back কিছুই করত না — এভাবেই "ব্যাক
+            // আটকে যাওয়া" বাগটা হতো)
+            show(e.state.view, true);
 
             // কালেকশন ট্যাবে ব্যাক করে ফিরলে তালিকা তাজা করি
             if (e.state.view === "coll" && typeof loadColl === "function") {
@@ -2495,14 +2498,21 @@
             // Restore nested panel state if exists
             if (e.state.panel && e.state.panelId) {
                 if (e.state.panel === "loan") {
-                    openLoanDetail(e.state.panelId);
+                    openLoanDetail(e.state.panelId, true);
                 } else if (e.state.panel === "customer") {
-                    openCustomerProfile(e.state.panelId);
+                    openCustomerProfile(e.state.panelId, true);
                 } else if (e.state.panel === "market-detail") {
-                    openMarketDetailPage(e.state.panelId, e.state.panelName);
+                    openMarketDetailPage(e.state.panelId, e.state.panelName, true);
                 }
             } else if (e.state.panel === "settings") {
-                openSettings();
+                openSettings(true);
+            } else if (e.state.panel === "amt" || e.state.panel === "duelist") {
+                // পেমেন্ট পাতা (amt/due তালিকার উপরে বসানো) বন্ধ করি, কিন্তু
+                // নিচের অঙ্ক/আজ-বাকি তালিকা খোলাই থাকবে — আগে এখানেও "সব বন্ধ"
+                // চলে যেত, ফলে একজনের পেমেন্ট পাতা থেকে ব্যাক করলে পুরো
+                // তালিকাটাই বন্ধ হয়ে সরাসরি ড্যাশবোর্ডে চলে যেত
+                q("payPage").classList.remove("on");
+                q("payReceipt").classList.remove("on");
             } else {
                 // Close all nested panels
                 q("loanX").classList.remove("on");
@@ -2653,7 +2663,7 @@
             report: loadReport, disb: loadDisb, black: loadBlack
         };
 
-        function show(key) {
+        function show(key, isRestore) {
             CURRENT_VIEW = key;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
                 v.classList.remove("on");
@@ -2665,7 +2675,9 @@
             });
 
             window.scrollTo(0, 0);
-            history.pushState({ view: key }, null, window.location.pathname);
+            if (!isRestore) {
+                history.pushState({ view: key }, null, window.location.pathname);
+            }
 
             if (!loaded[key]) {
                 loaded[key] = true;
@@ -2924,14 +2936,16 @@
         var CURRENT_MARKET = null;
         var PREV_VIEW_BEFORE_MARKET_DETAIL = null;
 
-        function openMarketDetailPage(marketId, marketName) {
+        function openMarketDetailPage(marketId, marketName, isRestore) {
             var fromView = CURRENT_VIEW === "market-detail" ? (PREV_VIEW_BEFORE_MARKET_DETAIL || "market") : CURRENT_VIEW;
             PREV_VIEW_BEFORE_MARKET_DETAIL = fromView;
             q("v-" + fromView).classList.remove("on");
             q("v-market-detail").classList.add("on");
             CURRENT_VIEW = "market-detail";
             q("mktDetailTitle").textContent = marketName || "মার্কেট";
-            NK.pushNavState({ view: fromView, panel: "market-detail", panelId: marketId, panelName: marketName });
+            if (!isRestore) {
+                NK.pushNavState({ view: fromView, panel: "market-detail", panelId: marketId, panelName: marketName });
+            }
             loadMarketDropdown();
             updateMarketDashboard(marketId);
         }
@@ -5146,9 +5160,11 @@
             history.back();
         });
 
-        function openSettings() {
+        function openSettings(isRestore) {
             q("settingsX").classList.add("on");
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "settings" });
+            if (!isRestore) {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "settings" });
+            }
             loadSettingsPage();
         }
 
@@ -5358,14 +5374,16 @@
         }
 
         var LX_REQ_ID = 0;
-        function openLoanDetail(loanId) {
+        function openLoanDetail(loanId, isRestore) {
             var myReq = ++LX_REQ_ID;
             q("loanX").classList.add("on");
             q("lxSm").textContent = ltr("লোন") + " #" + loanId;
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
             q("lxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+            if (!isRestore) {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+            }
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
                 // দ্রুত একাধিক লোনে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
@@ -5822,7 +5840,7 @@
         }
 
         var PF_REQ_ID = 0;
-        function openCustomerProfile(customerId) {
+        function openCustomerProfile(customerId, isRestore) {
             var myReq = ++PF_REQ_ID;
             q("prof").classList.add("on");
             q("pfCid").textContent = ltr("লোড হচ্ছে...");
@@ -5832,7 +5850,11 @@
                 // দ্রুত একাধিক গ্রাহকে ক্লিক করলে পুরনো response যেন নতুনটাকে ওভাররাইট না করে
                 if (myReq !== PF_REQ_ID) return;
                 // Push nav state AFTER API response to avoid race condition
-                NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
+                // (isRestore হলে push করব না — popstate থেকে ডাকা হয়েছে মানে
+                // history-তে entry আগে থেকেই আছে)
+                if (!isRestore) {
+                    NK.pushNavState({ view: CURRENT_VIEW, panel: "customer", panelId: customerId });
+                }
                 var c = p.customer || {};
                 var loans = p.loans || [];
                 var me = NK.me();
