@@ -779,6 +779,11 @@
         }
         .pbtn:active { transform: scale(.98); }
         .pbtn:disabled { opacity: .6; }
+        .cancelbtn {
+            width: 100%; border: 0; background: transparent; color: var(--muted);
+            font-family: inherit; font-size: 12.5px; font-weight: 700;
+            padding: 6px; cursor: pointer; text-align: center;
+        }
 
         /* ফোরক্লোজার */
         .fcbtn {
@@ -3594,11 +3599,39 @@
                     h += '<button class="no" id="pyNo" style="grid-column:1 / -1;">ঠিক আছে, ফিরে যান</button>';
                     h += '</div>';
                 } else {
+                    h += '<div id="pyNormalBox">';
                     h += '<div class="sectlabel">' + ltr('✓ দিলে আজকের EMI জমা · ✗ দিলে আজ বাদ') + '</div>';
                     h += '<div class="yn">';
                     h += '<button class="yes" id="pyYes"><span class="big">✓</span>' + ltr('দিয়েছে') + ' (₹' +
                         emi.toFixed(0) + ')</button>';
                     h += '<button class="no" id="pyNo"><span class="big">✗</span>' + ltr('দেয়নি') + '</button>';
+                    h += '</div>';
+                    h += '<div style="text-align:center;margin-bottom:4px;">';
+                    h += '<button class="btn ghost sm" id="pyEditToggle">✏️ ' + ltr('ভিন্ন অঙ্ক দিয়েছে?') + '</button>';
+                    h += '</div>';
+                    h += '</div>';
+
+                    /* কম/বেশি অঙ্ক লিখে জমা — ✓/✗-এর বদলে, "ভিন্ন অঙ্ক দিয়েছে?"
+                       চাপলে দেখা যায়। নিচের অঙ্ক লেখার ব্লকটা BEHIND-কেসের
+                       #pyAmt/#pyNote/#pyPay-এর মতোই (একই সময় দুটো একসাথে DOM-এ
+                       থাকে না — তাই id দুটোতে একই থাকলেও সংঘর্ষ হয় না), তাই
+                       নিচের বাঁধা-কোডই (if (q("pyPay"))...) এটাও চালায়, নতুন
+                       কোনো বাইন্ডিং লাগেনি */
+                    h += '<div id="pyEditBox" style="display:none;">';
+                    h += '<div class="sectlabel">' + ltr('কত টাকা দিয়েছে লিখুন') + '</div>';
+                    h += '<input class="pinput" id="pyAmt" type="number" inputmode="numeric" ' +
+                        'placeholder="₹0" value="' + emi.toFixed(0) + '">';
+                    h += '<div class="quickrow">';
+                    [50, 100, 150, 200, 250].forEach(function (qv) {
+                        h += '<button class="qbtn" data-q="' + qv + '">+' + qv + '</button>';
+                    });
+                    h += '</div>';
+                    h += '<div class="hint" style="margin:-4px 0 12px;">' +
+                        ltr('বেশি দিলে বাকিটা অ্যাডভান্স হিসেবে থাকবে। পুরনো দিন আগে মিটবে।') + '</div>';
+                    h += '<div class="notelbl">নোট (ঐচ্ছিক মন্তব্য)</div>';
+                    h += '<input class="noteinput" id="pyNote" type="text" maxlength="200" placeholder="যেমনঃ বাকিটা কাল দেবে বলেছে">';
+                    h += '<button class="pbtn" id="pyPay">' + ltr('জমা নিন') + '</button>';
+                    h += '<button class="cancelbtn" id="pyEditCancel">✕ ' + ltr('বাতিল, ঠিক অঙ্কই আছে') + '</button>';
                     h += '</div>';
                 }
             } else {
@@ -3639,6 +3672,18 @@
                 q("pyNo").addEventListener("click", function () {
                     if (!todayAlreadyPaid) toast(ltr("আজ বাদ রাখা হল"), "in");
                     closePayPage();
+                });
+            }
+            if (q("pyEditToggle")) {
+                q("pyEditToggle").addEventListener("click", function () {
+                    q("pyNormalBox").style.display = "none";
+                    q("pyEditBox").style.display = "block";
+                });
+            }
+            if (q("pyEditCancel")) {
+                q("pyEditCancel").addEventListener("click", function () {
+                    q("pyEditBox").style.display = "none";
+                    q("pyNormalBox").style.display = "block";
                 });
             }
             if (q("pyPay")) {
