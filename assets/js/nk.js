@@ -114,7 +114,7 @@
                    নয়, তাই সাথে সাথে হাল না ছেড়ে আরও কয়েকবার চেষ্টা করি */
                 if (!e.isAuthRejection && retriesLeft > 0) {
                     return new Promise(function (resolve) {
-                        setTimeout(resolve, 1200);
+                        setTimeout(resolve, 2500);
                     }).then(function () {
                         return refreshAttempt(rt, retriesLeft - 1);
                     });
@@ -129,7 +129,10 @@
         var rt = getRefresh();
         if (!rt) return Promise.reject(new Error("লগইন করা নেই"));
 
-        refreshing = refreshAttempt(rt, 2)
+        // ব্যাকএন্ড মাঝেমধ্যে রিস্টার্ট/ধীর হয় (Render ফ্রি-টায়ার) — আগে ২ বার
+        // (~২.৪ সেকেন্ড) রিট্রাই করত, যা যথেষ্ট না হলে টোকেন ঠিক থাকা সত্ত্বেও
+        // লগইন-স্ক্রিনে ফেলে দিত। এখন ৬ বার (~১৫ সেকেন্ড) চেষ্টা করবে
+        refreshing = refreshAttempt(rt, 6)
             .then(function (d) {
                 accessToken = d.accessToken;
                 setRefresh(d.refreshToken);
