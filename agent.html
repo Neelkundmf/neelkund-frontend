@@ -1081,6 +1081,49 @@
             padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
         }
 
+        /* ===== এজেন্টের নিজের প্রোফাইল পাতা ===== */
+        #myProfileX {
+            position: fixed; inset: 0; z-index: 600;
+            background: #F4F6F8;
+            display: none; flex-direction: column;
+        }
+        #myProfileX.on { display: flex; }
+        #myProfileX .sbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #myProfileX .sbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #myProfileX .sin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+        .mp-sec {
+            background: #fff; border: 1px solid var(--line); border-radius: 14px;
+            padding: 14px 16px; margin-bottom: 12px;
+        }
+        .mp-sec h4 { margin: 0 0 10px; font-size: 13px; color: var(--navy); }
+        .mp-row {
+            display: flex; justify-content: space-between; gap: 10px; padding: 7px 0;
+            border-bottom: 1px solid var(--line); font-size: 12.5px;
+        }
+        .mp-row:last-child { border-bottom: 0; }
+        .mp-row span { color: var(--muted); }
+        .mp-row b { color: var(--ink); text-align: right; }
+        .mp-doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .mp-doc-box { background: var(--paper); border-radius: 10px; padding: 8px; text-align: center; }
+        .mp-doc-box .t { font-size: 10.5px; color: var(--muted); margin-bottom: 6px; font-weight: 700; }
+        .mp-doc-box .ph {
+            height: 64px; background: #E4E9EF; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; color: #94A0B4; font-size: 10px;
+        }
+        .mp-doc-box img { width: 100%; height: 64px; object-fit: cover; border-radius: 6px; cursor: pointer; }
+
         /* ===== আজ বাকি — পূর্ণ তালিকা পাতা ===== */
         #dueX {
             position: fixed; inset: 0; z-index: 240;
@@ -2157,6 +2200,18 @@
     </div>
 </div>
 
+<div id="myProfileX">
+    <div class="sbar">
+        <button id="mpClose">←</button>
+        <div style="flex:1;">
+            <b>👤 আমার প্রোফাইল</b>
+        </div>
+    </div>
+    <div class="sin" id="mpBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
+
 <!-- ================= আজ বাকি — পূর্ণ তালিকা ================= -->
 <div id="dueX">
     <div class="dxbar">
@@ -2481,7 +2536,7 @@
             // প্যানেলটা তখন আর বন্ধই হতো না। তাই এক্সিট-প্রোটেকশন শুধু তখনই
             // চলবে যখন সত্যিই কোনো প্যানেল/ওভারলে খোলা নেই
             var anyOverlayOpen = ["loanX", "prof", "payPage", "payReceipt", "amtPage",
-                "notifSheet", "v-market-detail", "settingsX", "dueX"].some(function (id) {
+                "notifSheet", "v-market-detail", "settingsX", "dueX", "myProfileX"].some(function (id) {
                 var el = q(id);
                 return el && el.classList.contains("on");
             });
@@ -2537,6 +2592,8 @@
                 }
             } else if (e.state.panel === "settings") {
                 openSettings(true);
+            } else if (e.state.panel === "myProfile") {
+                openMyProfile(true);
             } else if (e.state.panel === "amt" || e.state.panel === "duelist") {
                 // পেমেন্ট পাতা (amt/due তালিকার উপরে বসানো) বন্ধ করি, কিন্তু
                 // নিচের অঙ্ক/আজ-বাকি তালিকা খোলাই থাকবে — আগে এখানেও "সব বন্ধ"
@@ -2555,6 +2612,7 @@
                 q("v-market-detail").classList.remove("on");
                 q("settingsX").classList.remove("on");
                 q("dueX").classList.remove("on");
+                q("myProfileX").classList.remove("on");
             }
         });
 
@@ -5332,6 +5390,96 @@
         });
 
         /* =====================================================================
+         * এজেন্ট নিজের প্রোফাইল দেখে — ফোন, ঠিকানা, জন্মতারিখ, ইমার্জেন্সি
+         * যোগাযোগ, KYC। myProfileBtn-ও "আরও" মেনুতে থাকে বলে (DOM-এ পরে লোড
+         * হয়) সেই বাটনের click listener নিচের দিকের script block-এ, openMyProfile()
+         * এখানে window-তে expose করা হলো — settingsBtn-এর মতোই */
+        q("mpClose").addEventListener("click", function () {
+            history.back();
+        });
+
+        function openMyProfile(isRestore) {
+            q("myProfileX").classList.add("on");
+            if (!isRestore) {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "myProfile" });
+            }
+            loadMyProfilePage();
+        }
+
+        var genderMapMp = { MALE: ltr("পুরুষ"), FEMALE: ltr("মহিলা"), OTHER: ltr("অন্য") };
+
+        function loadMyProfilePage() {
+            q("mpBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            NK.GET("/api/agent/me/full-profile").then(function (u) {
+                function mrow(label, value) {
+                    if (value === null || value === undefined || value === "") return "";
+                    return '<div class="mp-row"><span>' + NK.esc(label) + '</span><b>' +
+                        NK.esc(String(value)) + '</b></div>';
+                }
+
+                var h = "";
+                h += '<div class="mp-sec"><h4>' + ltr("ব্যক্তিগত তথ্য") + '</h4>';
+                h += mrow(ltr("ফোন"), u.phone);
+                h += mrow(ltr("পিতা/স্বামীর নাম"), u.fatherOrHusband);
+                h += mrow(ltr("জন্মতারিখ"), u.dateOfBirth ? NK.dt(u.dateOfBirth) : "");
+                h += mrow(ltr("লিঙ্গ"), genderMapMp[u.gender] || u.gender);
+                h += mrow(ltr("রক্তের গ্রুপ"), u.bloodGroup);
+                h += mrow(ltr("যোগদানের তারিখ"), u.joinedDate ? NK.dt(u.joinedDate) : "");
+                h += '<div class="mp-row"><span>' + ltr("কমিশন") + '</span><b style="color:var(--muted);font-style:italic;">' +
+                    ltr("শীঘ্রই আসছে") + '</b></div>';
+                h += '</div>';
+
+                var addrRows = mrow(ltr("স্থায়ী ঠিকানা"), u.permanentAddress) +
+                    mrow(ltr("বর্তমান ঠিকানা"), u.currentAddress);
+                if (addrRows) {
+                    h += '<div class="mp-sec"><h4>' + ltr("ঠিকানা") + '</h4>' + addrRows + '</div>';
+                }
+
+                var emgRows = mrow(ltr("নাম"), u.emergencyName) + mrow(ltr("ফোন"), u.emergencyPhone);
+                if (emgRows) {
+                    h += '<div class="mp-sec"><h4>' + ltr("ইমার্জেন্সি যোগাযোগ") + '</h4>' + emgRows + '</div>';
+                }
+
+                var kycRows = mrow(ltr("আধার"), u.aadhaarMasked) + mrow(ltr("প্যান"), u.panMasked);
+                var docs = [];
+                if (u.aadhaarPhotoUrl) docs.push({ type: "AADHAAR", label: ltr("আধার (সামনে)") });
+                if (u.aadhaarBackPhotoUrl) docs.push({ type: "AADHAAR_BACK", label: ltr("আধার (পিছনে)") });
+                if (u.panPhotoUrl) docs.push({ type: "PAN", label: ltr("প্যান") });
+                if (u.panBackPhotoUrl) docs.push({ type: "PAN_BACK", label: ltr("প্যান (পিছনে)") });
+
+                if (kycRows || docs.length) {
+                    h += '<div class="mp-sec"><h4>KYC</h4>' + kycRows;
+                    if (docs.length) {
+                        h += '<div class="mp-doc-grid">';
+                        docs.forEach(function (d) {
+                            h += '<div class="mp-doc-box"><div class="t">' + d.label + '</div>' +
+                                '<div class="ph" id="mpDoc_' + d.type + '">' + ltr("লোড হচ্ছে...") + '</div></div>';
+                        });
+                        h += '</div>';
+                    }
+                    h += '</div>';
+                }
+
+                q("mpBody").innerHTML = h;
+
+                docs.forEach(function (d) {
+                    NK.GET("/api/agent/me/document?type=" + d.type).then(function (blob) {
+                        var el = q("mpDoc_" + d.type);
+                        if (!el || !blob) return;
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        el.replaceWith(img);
+                    }).catch(function () {});
+                });
+            }).catch(function (e) {
+                q("mpBody").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        window.openMyProfile = openMyProfile;
+
+        /* =====================================================================
          * সেটিংস — ফিঙ্গারপ্রিন্ট ম্যানেজমেন্ট
          * (settingsBtn নিজে "আরও" মেনুতে থাকে, যেটা DOM-এ পরে লোড হয় —
          * তাই সেই বাটনের click listener নিচের দিকের script block-এ বসানো
@@ -6884,6 +7032,9 @@
 
         <div class="menu-grid">
             <div style="border:1.5px solid #0066CC;border-radius:10px;padding:10px;background:rgba(0,102,204,0.05);">
+                <button id="myProfileBtn" style="width:100%;background:#0066CC;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:600;cursor:pointer;"><i>👤</i>আমার প্রোফাইল</button>
+            </div>
+            <div style="border:1.5px solid #0066CC;border-radius:10px;padding:10px;background:rgba(0,102,204,0.05);">
                 <button id="settingsBtn" style="width:100%;background:#0066CC;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:600;cursor:pointer;"><i>⚙️</i>সেটিংস</button>
             </div>
             <button data-go="logout"><i>🚪</i>লগ আউট</button>
@@ -6918,6 +7069,16 @@ if (settingsBtnEl) {
         var sheetEl = document.getElementById("sheet");
         if (sheetEl) sheetEl.classList.remove("on"); // "আরও" মেনু বন্ধ করি
         if (typeof window.openSettings === "function") window.openSettings();
+    });
+}
+
+// আমার প্রোফাইল বাটন হ্যান্ডলার - এটাও HTML লোড হওয়ার পরে বসাতে হয়
+var myProfileBtnEl = document.getElementById("myProfileBtn");
+if (myProfileBtnEl) {
+    myProfileBtnEl.addEventListener("click", function () {
+        var sheetEl = document.getElementById("sheet");
+        if (sheetEl) sheetEl.classList.remove("on"); // "আরও" মেনু বন্ধ করি
+        if (typeof window.openMyProfile === "function") window.openMyProfile();
     });
 }
 </script>
