@@ -5935,6 +5935,11 @@
             NK.UPLOAD("/api/loans/" + loanId + "/sign-customer", formData, "PUT")
                 .then(function () {
                     toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
+                    // "বিতরণ" ট্যাব আগে দেখা থাকলে পরের বার নতুন করে লোড হোক —
+                    // নাহলে এই লোনটা "সইয়ের ছবি বাকি" তালিকায় থেকে যেত
+                    // (celebration-flow-এর closeLoanCelebrate()-এ এই ফিক্স আগে
+                    // থেকেই ছিল, এই আলাদা সই-দেওয়ার পথে ছিল না)
+                    loaded.disb = false;
                     setTimeout(function () {
                         openLoanDetail(loanId);
                     }, 500);
