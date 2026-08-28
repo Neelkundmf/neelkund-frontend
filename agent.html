@@ -6763,7 +6763,7 @@
                         statusEl.textContent = ltr("✓ সংরক্ষিত হয়েছে");
                         toast(ltr("ছবি জমা হয়েছে ✓"), "ok");
                         setTimeout(function () {
-                            window.closeLoanCelebrate();
+                            showAdvanceCollectPrompt(loanId, loanRequest.customerName);
                         }, 900);
                     })
                     .catch(function (e) {
@@ -6773,6 +6773,34 @@
                     });
             });
         };
+
+        /* সই জমার পরপরই — কাস্টমার ডিসবার্সের দিনই কিছু কিস্তি অগ্রিম দিতে
+           চাইলে সরাসরি existing পেমেন্ট পাতায় নিয়ে যাই, নতুন কোনো আলাদা
+           ইনপুট-সিস্টেম বানাতে হয়নি */
+        function showAdvanceCollectPrompt(loanId, customerName) {
+            var el = q("loanCelebrateOverlay");
+            if (!el) { window.closeLoanCelebrate(); return; }
+
+            el.innerHTML =
+                '<div style="font-size:56px;margin-bottom:12px;">✓</div>' +
+                '<h2 style="margin:8px 0;font-size:22px;">' + ltr('সই জমা হয়েছে') + '</h2>' +
+                '<p style="font-size:15px;margin:8px 0 24px;opacity:.9;">' +
+                ltr('এখনই কিছু কিস্তি অগ্রিম নেবেন?') + '</p>' +
+                '<button id="advCollectYes" class="btn block" style="background:#fff;color:#16A34A;' +
+                'font-weight:700;padding:16px;font-size:16px;border-radius:12px;border:none;' +
+                'width:100%;max-width:320px;margin-bottom:10px;">' + ltr('হ্যাঁ, নিচ্ছি') + '</button>' +
+                '<button id="advCollectNo" class="btn block" style="background:rgba(255,255,255,.15);' +
+                'color:#fff;border:none;padding:14px;font-size:15px;border-radius:12px;' +
+                'width:100%;max-width:320px;">' + ltr('না, পরে') + '</button>';
+
+            q("advCollectYes").addEventListener("click", function () {
+                window.closeLoanCelebrate();
+                openPayPage(loanId, customerName || "", "", "");
+            });
+            q("advCollectNo").addEventListener("click", function () {
+                window.closeLoanCelebrate();
+            });
+        }
 
         window.closeLoanCelebrate = function () {
             var el = q("loanCelebrateOverlay");
