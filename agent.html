@@ -2047,6 +2047,10 @@
                             <span>👤 Agent: <span id="mktAgent">-</span></span>
                             <span>ID: <span id="mktAgentId">-</span></span>
                         </div>
+                        <div id="mktAssignedRow" style="display:none;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.25);font-size:11.5px;opacity:0.9;justify-content:space-between;">
+                            <span>📅 দেওয়া হয়েছে: <span id="mktAssignedAt">-</span></span>
+                            <span id="mktAssignedBy"></span>
+                        </div>
                     </div>
 
                     <select id="mktDetailDropdown" style="width: 100%; margin-bottom: 20px;">
@@ -3015,6 +3019,14 @@
             q("mktManager").textContent = d.managerName || '-';
             q("mktAgent").textContent = NK.me().fullName || 'Agent';
             q("mktAgentId").textContent = NK.me().userId || '-';
+
+            if (d.assignedAt) {
+                q("mktAssignedRow").style.display = "flex";
+                q("mktAssignedAt").textContent = NK.dt(d.assignedAt);
+                q("mktAssignedBy").textContent = d.assignedByName ? "Admin: " + d.assignedByName : "";
+            } else {
+                q("mktAssignedRow").style.display = "none";
+            }
 
             var h = '';
             h += '<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-bottom:20px;">';
