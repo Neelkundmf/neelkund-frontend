@@ -2073,18 +2073,39 @@
                 var initial = NK.esc((c.fullName || "?").charAt(0));
                 var h = "";
 
+                function kfld(label, inputHtml) {
+                    return '<div style="margin-bottom:12px;">' +
+                        '<label style="display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:5px;">' +
+                        NK.esc(label) + '</label>' + inputHtml + '</div>';
+                }
+                var kInputStyle = "width:100%;border:1.5px solid var(--line);border-radius:8px;" +
+                    "padding:9px 10px;font-size:13.5px;font-family:'Hind Siliguri',sans-serif;color:var(--ink);";
+
                 /* ছবি + তথ্য */
                 h += '<div class="pf-head">';
                 h += '<div class="pf-photo" id="pxPhoto"' +
                     (c.photoUrl ? ' data-photo="' + customerId + '"' : '') + '>' + initial + '</div>';
-                h += '<div class="pf-info">';
+                h += '<div class="pf-info" id="pxHeadView">';
                 h += '<div class="nm">' + NK.esc(c.fullName || "—") + '</div>';
                 h += '<div class="li"><span>📞</span><b>' + NK.esc(c.phone || "—") + '</b></div>';
                 if (c.fatherOrHusband)
                     h += '<div class="li"><span>👤</span><b>' + NK.esc(c.fatherOrHusband) + '</b></div>';
                 if (c.address)
                     h += '<div class="li"><span>🏠</span><b>' + NK.esc(c.address) + '</b></div>';
-                h += '</div></div>';
+                h += '</div>';
+                h += '<button class="btn ghost sm" id="pxHeadEditBtn" style="padding:6px 10px;min-height:auto;flex-shrink:0;">✏️</button>';
+                h += '</div>';
+
+                h += '<div id="pxHeadEdit" style="display:none;margin-bottom:14px;">';
+                h += kfld(ltr("নাম"), '<input type="text" id="pxhName" value="' + NK.esc(c.fullName || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("ফোন"), '<input type="text" id="pxhPhone" value="' + NK.esc(c.phone || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("পিতা/স্বামীর নাম"), '<input type="text" id="pxhFOH" value="' + NK.esc(c.fatherOrHusband || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("ঠিকানা"), '<input type="text" id="pxhAddr" value="' + NK.esc(c.address || "") + '" style="' + kInputStyle + '">');
+                h += '<div style="display:flex;gap:8px;">';
+                h += '<button class="btn block" id="pxHeadSave" style="flex:1;">' + ltr("সংরক্ষণ করুন") + '</button>';
+                h += '<button class="btn ghost block" id="pxHeadCancel" style="flex:1;">' + ltr("বাতিল") + '</button>';
+                h += '</div>';
+                h += '</div>';
 
                 if (c.mapsUrl) {
                     h += '<a href="' + NK.esc(c.mapsUrl) + '" target="_blank" rel="noopener" ' +
@@ -2126,14 +2147,6 @@
                         '<span style="color:var(--muted);">' + NK.esc(label) + '</span>' +
                         '<b style="color:var(--ink);text-align:right;">' + NK.esc(String(value)) + '</b></div>';
                 }
-                function kfld(label, inputHtml) {
-                    return '<div style="margin-bottom:12px;">' +
-                        '<label style="display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:5px;">' +
-                        NK.esc(label) + '</label>' + inputHtml + '</div>';
-                }
-                var kInputStyle = "width:100%;border:1.5px solid var(--line);border-radius:8px;" +
-                    "padding:9px 10px;font-size:13.5px;font-family:'Hind Siliguri',sans-serif;color:var(--ink);";
-
                 var detailRows = drow(ltr("লিঙ্গ"), genderMap[c.gender] || c.gender) +
                     drow(ltr("জন্মতারিখ"), c.dateOfBirth ? NK.dt(c.dateOfBirth) : "") +
                     drow(ltr("স্থায়ী ঠিকানা"), c.permanentAddress) +
@@ -2358,6 +2371,44 @@
                         }).catch(function (e) {
                             toast(e.message, "er");
                             btn.disabled = false; btn.textContent = ltr("Remark সংরক্ষণ করুন");
+                        });
+                    });
+                }
+
+                /* নাম/ফোন/পিতা-স্বামী/ঠিকানা এডিট (হেডার) */
+                var pxHeadEditBtn = q("pxHeadEditBtn");
+                if (pxHeadEditBtn) {
+                    pxHeadEditBtn.addEventListener("click", function () {
+                        q("pxHeadView").style.display = "none";
+                        q("pxHeadEdit").style.display = "block";
+                        pxHeadEditBtn.style.display = "none";
+                    });
+                }
+                var pxHeadCancelBtn = q("pxHeadCancel");
+                if (pxHeadCancelBtn) {
+                    pxHeadCancelBtn.addEventListener("click", function () {
+                        q("pxHeadEdit").style.display = "none";
+                        q("pxHeadView").style.display = "";
+                        if (pxHeadEditBtn) pxHeadEditBtn.style.display = "inline-flex";
+                    });
+                }
+                var pxHeadSaveBtn = q("pxHeadSave");
+                if (pxHeadSaveBtn) {
+                    pxHeadSaveBtn.addEventListener("click", function () {
+                        pxHeadSaveBtn.disabled = true;
+                        pxHeadSaveBtn.textContent = ltr("সংরক্ষণ হচ্ছে...");
+                        NK.PUT("/api/customers/" + customerId, {
+                            fullName: q("pxhName").value.trim(),
+                            phone: q("pxhPhone").value.trim(),
+                            fatherOrHusband: q("pxhFOH").value.trim(),
+                            address: q("pxhAddr").value.trim()
+                        }).then(function () {
+                            toast(ltr("তথ্য সংরক্ষিত হয়েছে ✓"), "ok");
+                            openCustomerProfile(customerId);   // রিফ্রেশ
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                            pxHeadSaveBtn.disabled = false;
+                            pxHeadSaveBtn.textContent = ltr("সংরক্ষণ করুন");
                         });
                     });
                 }
