@@ -4925,7 +4925,7 @@
                                 } else if (lr.status === "REJECTED") {
                                     clearInterval(window.pendingCheckTimer);
                                     q("loanWait").classList.remove("on");
-                                    say("nMsg", "❌ " + ltr("আপনার লোন নাকচ করা হয়েছে"), false);
+                                    say("nMsg", "❌ " + ltr("আপনার লোন নাকচ করা হয়েছে") + (lr.rejectionReason ? " — " + ltr("কারণ:") + " " + lr.rejectionReason : ""), false);
                                 }
                             })
                             .catch(function(e) {
@@ -6870,7 +6870,7 @@
                         showLoanApprovalSuccess(lr);
                     } else if (lr.status === "REJECTED") {
                         if (window.pendingCheckTimer) clearInterval(window.pendingCheckTimer);
-                        say("nMsg", "❌ লোন নাকচ করা হয়েছে", false);
+                        say("nMsg", "❌ লোন নাকচ করা হয়েছে" + (lr.rejectionReason ? " — কারণ: " + lr.rejectionReason : ""), false);
                         q("loanWait").classList.remove("on");
                     }
                 })
