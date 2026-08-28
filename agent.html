@@ -749,6 +749,27 @@
             margin-bottom: 14px; text-align: center;
         }
 
+        /* "আজকের কিস্তি জমা হয়ে গেছে"-এর পরও এডিট/আরও টাকা নেওয়ার টগল-কার্ড */
+        .extra-toggle {
+            width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; border: 1.5px dashed #B9C6D6;
+            border-radius: 14px; padding: 14px 16px;
+            min-height: var(--tap);
+            cursor: pointer; margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .extra-toggle .left { display: flex; align-items: center; gap: 10px; }
+        .extra-toggle .ic {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: var(--blue-soft); color: var(--blue);
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+            flex-shrink: 0;
+        }
+        .extra-toggle .txt { font-size: 14px; font-weight: 700; color: var(--ink); }
+        .extra-toggle .sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+        .extra-toggle .chev { color: #94A0B4; font-size: 18px; }
+
         /* ডিউ — অঙ্ক লেখা */
         .pinput {
             width: 100%;
@@ -3569,6 +3590,20 @@
                 });
             }
 
+            /* আজকের এন্ট্রি এডিট করতে হলে কোন পেমেন্ট আইডি বাতিল করে নতুন করে
+               জমা নেবো — payments (PayDay) না, paymentLog (PayLog)-এই id থাকে */
+            var todayPaymentId = null, todayPaymentAmount = 0;
+            if (todayAlreadyPaid && PAY_LOAN_DETAIL.paymentLog && PAY_LOAN_DETAIL.paymentLog.length) {
+                var todayLogs = PAY_LOAN_DETAIL.paymentLog.filter(function (p) {
+                    return p.paymentDate === collTodayISO() && Number(p.amount || 0) > 0;
+                });
+                if (todayLogs.length) {
+                    var lastLog = todayLogs[todayLogs.length - 1];
+                    todayPaymentId = lastLog.id;
+                    todayPaymentAmount = Number(lastLog.amount || 0);
+                }
+            }
+
             var h = "";
 
             /* ---- উপরের তথ্য ---- */
@@ -3598,6 +3633,32 @@
             if (standing === "UP_TO_DATE" || standing === "ADVANCE") {
                 if (todayAlreadyPaid) {
                     h += '<div class="covernote">✓ আজকের কিস্তি ইতিমধ্যে জমা হয়ে গেছে</div>';
+
+                    if (todayPaymentId) {
+                        h += '<div class="extra-toggle" id="pyEditReToggle">';
+                        h += '<div class="left"><div class="ic">✏️</div><div>';
+                        h += '<div class="txt">' + ltr('অঙ্ক ভুল হয়েছে বা আরও দিচ্ছেন?') + '</div>';
+                        h += '<div class="sub">' + ltr('এডিট করতে চাপুন') + '</div>';
+                        h += '</div></div>';
+                        h += '<div class="chev">›</div>';
+                        h += '</div>';
+
+                        h += '<div id="pyReEditBox" style="display:none;">';
+                        h += '<div class="sectlabel">' + ltr('আজকের সঠিক মোট অঙ্ক লিখুন') + '</div>';
+                        h += '<input class="pinput" id="pyReAmt" type="number" inputmode="numeric" ' +
+                            'placeholder="₹0" value="' + todayPaymentAmount.toFixed(0) + '">';
+                        h += '<div class="quickrow">';
+                        [50, 100, 150, 200, 250].forEach(function (qv) {
+                            h += '<button class="qbtn" data-req="' + qv + '">+' + qv + '</button>';
+                        });
+                        h += '</div>';
+                        h += '<div class="hint" style="margin:-4px 0 12px;">' +
+                            ltr('আগের অঙ্ক বাতিল হয়ে নতুন অঙ্কটাই জমা হবে।') + '</div>';
+                        h += '<button class="pbtn" id="pyReSubmit">' + ltr('এডিট করে জমা দিন') + '</button>';
+                        h += '<button class="cancelbtn" id="pyReCancel">✕ ' + ltr('বাতিল') + '</button>';
+                        h += '</div>';
+                    }
+
                     h += '<div class="yn">';
                     h += '<button class="no" id="pyNo" style="grid-column:1 / -1;">ঠিক আছে, ফিরে যান</button>';
                     h += '</div>';
@@ -3701,6 +3762,62 @@
                     if (!amt || amt <= 0) { toast(ltr("অঙ্ক লিখুন"), "er"); return; }
                     var note = q("pyNote") ? q("pyNote").value.trim() : "";
                     doPay(amt, NK.inr(amt) + " " + ltr("জমা হয়েছে"), note || null);
+                });
+            }
+
+            /* ---- আজকের এন্ট্রি এডিট (বাতিল + নতুন অঙ্ক জমা, একসাথে) ---- */
+            if (q("pyEditReToggle")) {
+                q("pyEditReToggle").addEventListener("click", function () {
+                    q("pyEditReToggle").style.display = "none";
+                    q("pyReEditBox").style.display = "block";
+                });
+            }
+            if (q("pyReCancel")) {
+                q("pyReCancel").addEventListener("click", function () {
+                    q("pyReEditBox").style.display = "none";
+                    q("pyEditReToggle").style.display = "flex";
+                });
+            }
+            if (q("pyReSubmit")) {
+                Array.prototype.forEach.call(q("payPageBody").querySelectorAll("[data-req]"), function (qb) {
+                    qb.addEventListener("click", function () {
+                        var cur = Number(q("pyReAmt").value || 0);
+                        q("pyReAmt").value = cur + Number(qb.getAttribute("data-req"));
+                    });
+                });
+                q("pyReSubmit").addEventListener("click", function () {
+                    var newAmt = Number(q("pyReAmt").value || 0);
+                    if (!newAmt || newAmt <= 0) { toast(ltr("অঙ্ক লিখুন"), "er"); return; }
+
+                    var btn = q("pyReSubmit");
+                    btn.disabled = true;
+                    btn.textContent = ltr("হচ্ছে...");
+
+                    NK.POST("/api/payments/" + todayPaymentId + "/reverse", {
+                        reason: "এজেন্ট এডিট করেছে · ₹" + todayPaymentAmount.toFixed(0) +
+                            " → ₹" + newAmt.toFixed(0)
+                    })
+                        .then(function () {
+                            return NK.POST("/api/payments", {
+                                loanId: PAY_LOAN,
+                                amount: newAmt,
+                                note: "এডিট করা হয়েছে",
+                                clientEntryId: uid()
+                            });
+                        })
+                        .then(function (resp) {
+                            loadAmtDash();
+                            loadToday();
+                            loadTodayDisb();
+                            loadColl(true);
+                            loaded.report = false;
+                            showReceipt(resp, newAmt, remaining + todayPaymentAmount - newAmt);
+                        })
+                        .catch(function (e) {
+                            toast(e.message, "er");
+                            btn.disabled = false;
+                            btn.textContent = ltr("এডিট করে জমা দিন");
+                        });
                 });
             }
 
