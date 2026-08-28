@@ -210,6 +210,53 @@
         .stat-card.c2 { background: linear-gradient(150deg, #FB923C, #DC2626); }
         .stat-card.c3 { background: linear-gradient(150deg, #F472B6, #DB2777); }
 
+        /* ---- আজকের বিতরণ — এজেন্ট অনুযায়ী (ড্যাশবোর্ড বক্স) ---- */
+        .disb-box {
+            border-radius: 18px; padding: 16px; margin-bottom: 18px;
+            background: linear-gradient(150deg, #8B5CF6, #6D28D9);
+            color: #fff; box-shadow: 0 14px 26px -16px rgba(109,40,217,.5);
+            cursor: pointer;
+        }
+        .disb-box .top { display: flex; align-items: center; justify-content: space-between; }
+        .disb-box .l { font-size: 12px; font-weight: 800; opacity: .92; }
+        .disb-box .chev { font-size: 18px; opacity: .8; }
+        .disb-box .row { display: flex; gap: 20px; margin-top: 10px; }
+        .disb-box .met .v { font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 800; }
+        .disb-box .met .lbl { font-size: 10.5px; opacity: .85; margin-top: 2px; }
+
+        /* ---- আজকের বিতরণ পাতা — এজেন্ট-ভিত্তিক কার্ড, চাপলে গ্রাহকের তালিকা খোলে ---- */
+        #disbByAgentX {
+            position: fixed; inset: 0; z-index: 500;
+            background: var(--bg, #F4F6F8);
+            display: none; flex-direction: column;
+        }
+        #disbByAgentX.on { display: flex; }
+        #disbByAgentX .lin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+        .acard {
+            background: #fff; border: 1px solid var(--line); border-radius: 14px;
+            padding: 13px 14px; margin-bottom: 10px; cursor: pointer;
+        }
+        .acard .top { display: flex; align-items: center; gap: 10px; }
+        .acard .av {
+            width: 36px; height: 36px; border-radius: 10px; background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: var(--navy); flex-shrink: 0;
+        }
+        .acard .nm { font-size: 14px; font-weight: 700; color: var(--ink); }
+        .acard .cnt { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+        .acard .amt { margin-left: auto; text-align: right; font-family: 'Manrope',sans-serif; font-weight: 800; color: var(--green); font-size: 15px; }
+        .acard .chev { color: #94A0B4; font-size: 16px; margin-left: 4px; transition: transform .15s; }
+        .acard.open .chev { transform: rotate(90deg); }
+        .cust-list { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: none; }
+        .acard.open .cust-list { display: block; }
+        .cust-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12.5px; }
+        .cust-row .nm { color: var(--ink); font-weight: 600; }
+        .cust-row .t { color: var(--muted); font-size: 11px; }
+        .cust-row .a { font-family: 'Manrope',sans-serif; font-weight: 700; color: var(--ink); }
+
         /* ---- মার্কেট লিস্ট — agent.html-এর "মার্কেট" ট্যাবের .marketcard-এর
            সাথে হুবহু একই প্যাটার্ন, ছোট/কমপ্যাক্ট সংস্করণ ---- */
         .sec-title { font-size: 13.5px; font-weight: 800; color: var(--navy); margin: 4px 0 10px; display: flex; align-items: center; gap: 6px; }
@@ -1112,6 +1159,19 @@
     </div>
 </div>
 
+<div id="disbByAgentX">
+    <div class="lbar">
+        <button id="dbaClose">←</button>
+        <div style="flex:1;">
+            <div class="sm">আজকের বিতরণ</div>
+            <b>এজেন্ট অনুযায়ী</b>
+        </div>
+    </div>
+    <div class="lin" id="dbaBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
+
 <!-- ================= সাইড মেনু ================= -->
 <div id="sheet">
     <div class="bg" id="sheetBg"></div>
@@ -1873,13 +1933,15 @@
                 q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
-            /* দুটো একসাথে আনি — মূল হিসাব + মার্কেট সারি */
+            /* তিনটে একসাথে আনি — মূল হিসাব + মার্কেট সারি + আজকের বিতরণ */
             Promise.all([
                 NK.GET("/api/dashboard"),
-                NK.GET("/api/dashboard/manager-markets")
+                NK.GET("/api/dashboard/manager-markets"),
+                NK.GET("/api/disbursements/manager/today")
             ]).then(function (res) {
                 var d = res[0];
                 var m = res[1];
+                var disbList = res[2] || [];
 
                 var h = "";
 
@@ -1900,6 +1962,23 @@
                     ltr("আদায়") + ' ' + NK.inrShort(d.monthCollected) + '</div></div>';
 
                 h += '</div>';
+
+                /* ---- আজকের বিতরণ — এজেন্ট অনুযায়ী ---- */
+                DISB_TODAY_LIST = disbList;
+                var disbAgentIds = {};
+                var disbCustAmt = 0;
+                disbList.forEach(function (x) {
+                    disbAgentIds[x.agentId] = true;
+                    disbCustAmt += Number(x.amount || 0);
+                });
+                h += '<div class="disb-box" id="disbBoxTap">';
+                h += '<div class="top"><div class="l">💸 ' + ltr("আজকের বিতরণ — এজেন্ট অনুযায়ী") + '</div>' +
+                    '<div class="chev">›</div></div>';
+                h += '<div class="row">';
+                h += '<div class="met"><div class="v">' + Object.keys(disbAgentIds).length + '</div><div class="lbl">' + ltr("এজেন্ট") + '</div></div>';
+                h += '<div class="met"><div class="v">' + disbList.length + '</div><div class="lbl">' + ltr("গ্রাহক") + '</div></div>';
+                h += '<div class="met"><div class="v">' + NK.inrShort(disbCustAmt) + '</div><div class="lbl">' + ltr("মোট টাকা") + '</div></div>';
+                h += '</div></div>';
 
                 /* ---- মার্কেট সারি ---- */
                 h += '<div class="sec-title">🏬 ' + ltr("মার্কেট") + '</div>';
@@ -1939,6 +2018,9 @@
                 }
 
                 q("dash").innerHTML = h;
+
+                var disbBoxTapEl = q("disbBoxTap");
+                if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", openDisbByAgent);
 
                 // Load collection list at bottom
                 loadCollectionList();
@@ -2850,6 +2932,66 @@
                     NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* =====================================================================
+         * আজকের বিতরণ — এজেন্ট অনুযায়ী (ড্যাশবোর্ডের নতুন বক্স থেকে খোলে)
+         * loadDash()-এই একবার আনা তালিকা পুনর্ব্যবহার করে — আলাদা করে আবার
+         * আনতে হয় না
+         * ===================================================================== */
+        var DISB_TODAY_LIST = [];
+
+        function openDisbByAgent() {
+            q("disbByAgentX").classList.add("on");
+            NK.pushNavState({ view: CURRENT_VIEW, panel: "disbByAgent" });
+
+            var byAgent = {};
+            var order = [];
+            DISB_TODAY_LIST.forEach(function (x) {
+                if (!byAgent[x.agentId]) {
+                    byAgent[x.agentId] = { agentName: x.agentName, rows: [], total: 0 };
+                    order.push(x.agentId);
+                }
+                byAgent[x.agentId].rows.push(x);
+                byAgent[x.agentId].total += Number(x.amount || 0);
+            });
+            order.sort(function (a, b) { return byAgent[b].total - byAgent[a].total; });
+
+            var h = "";
+            if (!order.length) {
+                h = '<div class="card"><div class="empty">' + ltr("আজ কোনো বিতরণ হয়নি") + '</div></div>';
+            } else {
+                order.forEach(function (agentId) {
+                    var g = byAgent[agentId];
+                    var initial = NK.esc((g.agentName || "?").charAt(0));
+                    h += '<div class="acard" data-agent="' + agentId + '">';
+                    h += '<div class="top">';
+                    h += '<div class="av">' + initial + '</div>';
+                    h += '<div><div class="nm">' + NK.esc(g.agentName || "—") + '</div>' +
+                        '<div class="cnt">' + g.rows.length + ' ' + ltr("জন গ্রাহক") + '</div></div>';
+                    h += '<div class="amt">' + NK.inr(g.total) + '</div>';
+                    h += '<div class="chev">›</div>';
+                    h += '</div>';
+
+                    h += '<div class="cust-list">';
+                    g.rows.forEach(function (r) {
+                        h += '<div class="cust-row"><div><div class="nm">' + NK.esc(r.customerName || "—") + '</div>' +
+                            (r.createdAt ? '<div class="t">' + NK.dtTime(r.createdAt) + '</div>' : '') + '</div>' +
+                            '<div class="a">' + NK.inr(r.amount) + '</div></div>';
+                    });
+                    h += '</div></div>';
+                });
+            }
+            q("dbaBody").innerHTML = h;
+
+            Array.prototype.forEach.call(q("dbaBody").querySelectorAll("[data-agent]"), function (card) {
+                card.querySelector(".top").addEventListener("click", function () {
+                    card.classList.toggle("open");
+                });
+            });
+        }
+
+        var dbaCloseEl = q("dbaClose");
+        if (dbaCloseEl) dbaCloseEl.addEventListener("click", function () { history.back(); });
 
         /* =====================================================================
          * ব্যাচ ৩ — স্বাক্ষর ক্যাপচার সাপোর্ট
@@ -4057,7 +4199,7 @@
         // dashboard থেকে সরাসরি খোলা কোনো প্যানেল (নোটিফিকেশন/প্রোফাইল/লোন) ব্যাক করে
         // বন্ধ করলে যে অবস্থায় ফেরে সেটাও bare {view:"dash"} — এক্সিট-প্রোটেকশন
         // তাই তখনই চলবে যখন সত্যিই কোনো প্যানেল/ওভারলে খোলা নেই
-        var anyOverlayOpen = ["profX", "loanX", "prof", "notifSheet"].some(function (id) {
+        var anyOverlayOpen = ["profX", "loanX", "disbByAgentX", "prof", "notifSheet"].some(function (id) {
             var el = q(id);
             return el && el.classList.contains("on");
         });
@@ -4103,10 +4245,13 @@
             } else if (e.state.panel === "loan") {
                 openLoanDetail(e.state.panelId);
             }
+        } else if (e.state.panel === "disbByAgent") {
+            openDisbByAgent();
         } else {
             // Close all nested panels
             q("profX").classList.remove("on");
             q("loanX").classList.remove("on");
+            q("disbByAgentX").classList.remove("on");
             q("prof").classList.remove("on");
             q("notifSheet").classList.remove("on");
         }
