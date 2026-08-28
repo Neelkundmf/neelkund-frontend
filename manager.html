@@ -932,6 +932,7 @@
                     <span>মাইক্রোফাইন্যান্স</span>
                 </div>
             </div>
+            <button class="refresh" id="refreshBtn">🔄</button>
             <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
         </div>
 
@@ -3897,6 +3898,28 @@
 
         var bell = q("bell");
         if (bell) bell.addEventListener("click", openNotifSheet);
+
+        /* ম্যানুয়াল রিফ্রেশ — pull-to-refresh বন্ধ থাকায় এটাই এখন একমাত্র
+           উপায় ইচ্ছে করে রিফ্রেশ করার। show()-এর dispatch টেবিলের সাথে
+           হুবহু মেলানো, কিন্তু loaded[key] গার্ড ছাড়া */
+        function manualRefresh() {
+            var btn = q("refreshBtn");
+            if (btn) {
+                btn.classList.remove("spinning");
+                void btn.offsetWidth;
+                btn.classList.add("spinning");
+            }
+            if (CURRENT_VIEW === "dash")   loadDash();
+            else if (CURRENT_VIEW === "agent")  loadAgents();
+            else if (CURRENT_VIEW === "report") loadReport();
+            else if (CURRENT_VIEW === "req")    loadReq();
+            else if (CURRENT_VIEW === "disb")   loadDisb();
+            else if (CURRENT_VIEW === "sheet")  loadSheet();
+            else if (CURRENT_VIEW === "cust")   loadCust();
+            else if (CURRENT_VIEW === "od")     loadOd();
+        }
+        var refreshBtnEl = q("refreshBtn");
+        if (refreshBtnEl) refreshBtnEl.addEventListener("click", manualRefresh);
 
         /* notifSheet-এর ভেতরের ও বাইরের (background) টাচ — document-এ একবারই
            বাঁধা হয় (event delegation), তাই #notifSheet পাতায় পরে যোগ হলেও

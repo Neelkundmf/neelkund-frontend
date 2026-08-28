@@ -73,6 +73,30 @@ body {
 }
 .topbar .bell:active { background: rgba(255,255,255,.12); }
 
+/* ম্যানুয়াল রিফ্রেশ বাটন — বেলের পাশে, একই লুক। উপর-নিচ স্লাইড করে
+   রিফ্রেশ করাটা (pull-to-refresh) স্ক্রল করার সময় ভুলবশত হয়ে যেত বলে
+   বন্ধ করা হয়েছিল — এটা তার বদলে, ইচ্ছে করে চাপলে তবেই রিফ্রেশ হবে */
+.topbar .refresh {
+    position: relative;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: none;
+    border: 0;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+}
+.topbar .refresh:active { background: rgba(255,255,255,.12); }
+.topbar .refresh.spinning { animation: nkRefreshSpin .6s linear; }
+@keyframes nkRefreshSpin { to { transform: rotate(360deg); } }
+
 .topbar .bell .dot {
     position: absolute;
     top: 5px;

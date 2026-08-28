@@ -1778,6 +1778,7 @@
                     <span>মাইক্রোফাইন্যান্স</span>
                 </div>
             </div>
+            <button class="refresh" id="refreshBtn">🔄</button>
             <button class="bell" id="bell">🔔<span class="dot" id="dot">0</span></button>
         </div>
 
@@ -6517,6 +6518,28 @@
         }
 
         q("bell").addEventListener("click", openNotifSheet);
+
+        /* ম্যানুয়াল রিফ্রেশ — pull-to-refresh বন্ধ থাকায় এটাই এখন একমাত্র
+           উপায় ইচ্ছে করে রিফ্রেশ করার। show()-এর dispatch টেবিলের সাথে
+           হুবহু মেলানো, কিন্তু loaded[key] গার্ড ছাড়া — এই ট্যাব আগে
+           লোড হয়ে থাকলেও আবার লোড করবে */
+        function manualRefresh() {
+            var btn = q("refreshBtn");
+            if (btn) {
+                btn.classList.remove("spinning");
+                void btn.offsetWidth;   // রিস্টার্ট animation
+                btn.classList.add("spinning");
+            }
+            if (CURRENT_VIEW === "today") loadToday();
+            else if (CURRENT_VIEW === "market") loadMkt();
+            else if (CURRENT_VIEW === "coll") loadColl();
+            else if (CURRENT_VIEW === "mycust") loadMyCust();
+            else if (CURRENT_VIEW === "report") loadReport();
+            else if (CURRENT_VIEW === "disb") loadDisb();
+            else if (CURRENT_VIEW === "black") loadBlack();
+            else if (CURRENT_VIEW === "new") loadNewCustomerMarkets();
+        }
+        q("refreshBtn").addEventListener("click", manualRefresh);
 
         /* একাধিক লোন একসাথে অনুমোদিত হলে (তাই actionUrl-এ নির্দিষ্ট loanId নেই) —
            কোনটা খুলবেন বেছে নেওয়ার জন্য এই sheet-টাকেই ছোট লিস্টে বদলে দিই */
