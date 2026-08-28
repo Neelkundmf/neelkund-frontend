@@ -2115,7 +2115,10 @@
                 h += '<button class="btn block" id="pxSave">' + ltr("Remark সংরক্ষণ করুন") + '</button>';
                 h += '</div>';
 
-                /* এজেন্টের ভরা সম্পূর্ণ ফর্মের তথ্য */
+                /* এজেন্টের ভরা সম্পূর্ণ ফর্মের তথ্য — ম্যানেজার এখান থেকেই
+                   এজেন্টের ভুল এন্ট্রি শুধরাতে পারবে (PUT /api/customers/{id},
+                   CorrectionService-এর একই endpoint যেটা এজেন্ট নিজের ভুল
+                   শোধরাতে ব্যবহার করে) */
                 var genderMap = { MALE: ltr("পুরুষ"), FEMALE: ltr("মহিলা"), OTHER: ltr("অন্য") };
                 function drow(label, value) {
                     if (value === null || value === undefined || value === "") return "";
@@ -2123,6 +2126,14 @@
                         '<span style="color:var(--muted);">' + NK.esc(label) + '</span>' +
                         '<b style="color:var(--ink);text-align:right;">' + NK.esc(String(value)) + '</b></div>';
                 }
+                function kfld(label, inputHtml) {
+                    return '<div style="margin-bottom:12px;">' +
+                        '<label style="display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:5px;">' +
+                        NK.esc(label) + '</label>' + inputHtml + '</div>';
+                }
+                var kInputStyle = "width:100%;border:1.5px solid var(--line);border-radius:8px;" +
+                    "padding:9px 10px;font-size:13.5px;font-family:'Hind Siliguri',sans-serif;color:var(--ink);";
+
                 var detailRows = drow(ltr("লিঙ্গ"), genderMap[c.gender] || c.gender) +
                     drow(ltr("জন্মতারিখ"), c.dateOfBirth ? NK.dt(c.dateOfBirth) : "") +
                     drow(ltr("স্থায়ী ঠিকানা"), c.permanentAddress) +
@@ -2131,12 +2142,46 @@
                     drow(ltr("জামিনদারের নাম"), c.guarantorName) +
                     drow(ltr("জামিনদারের ফোন"), c.guarantorPhone) +
                     drow(ltr("জামিনদারের ঠিকানা"), c.guarantorAddress);
-                if (detailRows) {
-                    h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
-                    h += '<h4 style="margin-bottom:8px;">🧾 ' + ltr("সম্পূর্ণ তথ্য (এজেন্টের ভরা ফর্ম)") + '</h4>';
-                    h += detailRows;
-                    h += '</div>';
-                }
+
+                h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
+                h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+                h += '<h4 style="margin:0;">🧾 ' + ltr("সম্পূর্ণ তথ্য (এজেন্টের ভরা ফর্ম)") + '</h4>';
+                h += '<button class="btn ghost sm" id="pxKycEditBtn" style="padding:6px 12px;min-height:auto;">✏️ ' +
+                    ltr("এডিট") + '</button>';
+                h += '</div>';
+
+                h += '<div id="pxKycView">';
+                h += detailRows || '<div class="empty" style="padding:10px 0;">' + ltr("কোনো তথ্য নেই") + '</div>';
+                h += '</div>';
+
+                h += '<div id="pxKycEdit" style="display:none;">';
+                h += kfld(ltr("লিঙ্গ"),
+                    '<select id="pxkGender" style="' + kInputStyle + '">' +
+                    '<option value="MALE"' + (c.gender === "MALE" ? " selected" : "") + '>' + ltr("পুরুষ") + '</option>' +
+                    '<option value="FEMALE"' + (c.gender === "FEMALE" ? " selected" : "") + '>' + ltr("মহিলা") + '</option>' +
+                    '<option value="OTHER"' + (c.gender === "OTHER" ? " selected" : "") + '>' + ltr("অন্য") + '</option>' +
+                    '</select>');
+                h += kfld(ltr("জন্মতারিখ"),
+                    '<input type="date" id="pxkDob" value="' + (c.dateOfBirth || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("স্থায়ী ঠিকানা"),
+                    '<input type="text" id="pxkPermAddr" value="' + NK.esc(c.permanentAddress || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("ব্যবসার ঠিকানা"),
+                    '<input type="text" id="pxkBizAddr" value="' + NK.esc(c.businessAddress || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("ব্যবসার ধরন"),
+                    '<input type="text" id="pxkBizType" value="' + NK.esc(c.businessType || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("জামিনদারের নাম"),
+                    '<input type="text" id="pxkGName" value="' + NK.esc(c.guarantorName || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("জামিনদারের ফোন"),
+                    '<input type="text" id="pxkGPhone" value="' + NK.esc(c.guarantorPhone || "") + '" style="' + kInputStyle + '">');
+                h += kfld(ltr("জামিনদারের ঠিকানা"),
+                    '<input type="text" id="pxkGAddr" value="' + NK.esc(c.guarantorAddress || "") + '" style="' + kInputStyle + '">');
+                h += '<div style="display:flex;gap:8px;margin-top:14px;">';
+                h += '<button class="btn block" id="pxKycSave" style="flex:1;">' + ltr("সংরক্ষণ করুন") + '</button>';
+                h += '<button class="btn ghost block" id="pxKycCancel" style="flex:1;">' + ltr("বাতিল") + '</button>';
+                h += '</div>';
+                h += '</div>';
+
+                h += '</div>';
 
                 /* KYC ডকুমেন্ট — আধার, প্যান, ভোটার আইডি — নম্বর ও ছবি একসাথে, আলাদা সেগমেন্টে */
                 h += '<div style="margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:12px;">';
@@ -2313,6 +2358,48 @@
                         }).catch(function (e) {
                             toast(e.message, "er");
                             btn.disabled = false; btn.textContent = ltr("Remark সংরক্ষণ করুন");
+                        });
+                    });
+                }
+
+                /* সম্পূর্ণ তথ্য এডিট */
+                var pxKycEditBtn = q("pxKycEditBtn");
+                if (pxKycEditBtn) {
+                    pxKycEditBtn.addEventListener("click", function () {
+                        q("pxKycView").style.display = "none";
+                        q("pxKycEdit").style.display = "block";
+                        pxKycEditBtn.style.display = "none";
+                    });
+                }
+                var pxKycCancelBtn = q("pxKycCancel");
+                if (pxKycCancelBtn) {
+                    pxKycCancelBtn.addEventListener("click", function () {
+                        q("pxKycEdit").style.display = "none";
+                        q("pxKycView").style.display = "block";
+                        if (pxKycEditBtn) pxKycEditBtn.style.display = "inline-flex";
+                    });
+                }
+                var pxKycSaveBtn = q("pxKycSave");
+                if (pxKycSaveBtn) {
+                    pxKycSaveBtn.addEventListener("click", function () {
+                        pxKycSaveBtn.disabled = true;
+                        pxKycSaveBtn.textContent = ltr("সংরক্ষণ হচ্ছে...");
+                        NK.PUT("/api/customers/" + customerId, {
+                            gender: q("pxkGender").value,
+                            dateOfBirth: q("pxkDob").value || null,
+                            permanentAddress: q("pxkPermAddr").value.trim(),
+                            businessAddress: q("pxkBizAddr").value.trim(),
+                            businessType: q("pxkBizType").value.trim(),
+                            guarantorName: q("pxkGName").value.trim(),
+                            guarantorPhone: q("pxkGPhone").value.trim(),
+                            guarantorAddress: q("pxkGAddr").value.trim()
+                        }).then(function () {
+                            toast(ltr("তথ্য সংরক্ষিত হয়েছে ✓"), "ok");
+                            openCustomerProfile(customerId);   // রিফ্রেশ
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                            pxKycSaveBtn.disabled = false;
+                            pxKycSaveBtn.textContent = ltr("সংরক্ষণ করুন");
                         });
                     });
                 }
