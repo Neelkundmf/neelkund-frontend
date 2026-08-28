@@ -3123,7 +3123,7 @@
                 h += '<table style="width:100%;border-collapse:collapse;">';
                 h += '<tr style="border-bottom:2px solid #e2e8f0;"><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">গ্রাহক নাম</th><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">ঋণ পরিমাণ</th><th style="font-size:12px;font-weight:700;color:#64748b;text-align:left;padding:12px 0;">বাকি দিন</th></tr>';
                 d.odCustomers.slice(0, 10).forEach(function(c) {
-                    h += '<tr style="border-bottom:1px solid #f1f5f9;"><td style="font-size:13px;padding:12px 0;font-weight:600;">' + NK.esc(c.customerName || '') + '</td><td style="font-size:13px;padding:12px 0;font-weight:700;">₹' + NK.inr(c.outstandingAmount || 0) + '</td><td style="font-size:13px;padding:12px 0;"><span style="background:#fecaca;color:#dc2626;padding:2px 8px;border-radius:4px;font-weight:700;">' + (c.overdueDays || 0) + ' দিন</span></td></tr>';
+                    h += '<tr style="border-bottom:1px solid #f1f5f9;"><td style="font-size:13px;padding:12px 0;font-weight:600;">' + NK.esc(c.name || '') + '</td><td style="font-size:13px;padding:12px 0;font-weight:700;">₹' + NK.inr(c.outstandingAmount || 0) + '</td><td style="font-size:13px;padding:12px 0;"><span style="background:#fecaca;color:#dc2626;padding:2px 8px;border-radius:4px;font-weight:700;">' + (c.overdueDays || 0) + ' দিন</span></td></tr>';
                 });
                 h += '</table>';
             } else {
@@ -6199,13 +6199,14 @@
 
                 var h = "";
 
-                // Blacklist warning
-                if (c.isBlacklisted || (p.daysOverdue && Number(p.daysOverdue) > 120)) {
-                    var daysOD = Number(p.daysOverdue || 0);
+                // নতুন লোন আটকানোর কারণ থাকলে সতর্কবার্তা — canTakeNewLoan/blockReason
+                // (openDupProfile()-এ যেভাবে সঠিকভাবে ব্যবহার হয় সেটার সাথে মিলিয়ে।
+                // আগে এখানে c.isBlacklisted চেক করা হতো যেটা আদৌ কোনো ডেটাতেই
+                // নেই, তাই এই সতর্কবার্তা কখনোই দেখাত না)
+                if (p.canTakeNewLoan === false) {
                     h += '<div style="background:var(--red-soft);border:2px solid var(--red);border-radius:12px;padding:12px;margin-bottom:14px;text-align:center;">';
-                    h += '<div style="color:var(--red);font-weight:800;font-size:15px;">⛔ ' + ltr('ব্ল্যাকলিস্ট') + '</div>';
-                    h += '<div style="color:var(--red);font-size:12px;margin-top:4px;">' + ltr('নতুন লোন দেওয়া যাবে না') + '</div>';
-                    h += '<div style="color:var(--red);font-size:12.5px;margin-top:6px;">' + daysOD + ltr(' দিন বেশি দেয়নি') + '</div>';
+                    h += '<div style="color:var(--red);font-weight:800;font-size:15px;">⛔ ' + ltr('নতুন লোন দেওয়া যাবে না') + '</div>';
+                    h += '<div style="color:var(--red);font-size:12.5px;margin-top:6px;">' + NK.esc(p.blockReason || '') + '</div>';
                     h += '</div>';
                 }
 
