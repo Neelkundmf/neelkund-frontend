@@ -6687,8 +6687,7 @@
             // Access time warning (8am-10pm only)
             var now = new Date();
             var hour = now.getHours();
-            var hasEarlyLateAccess = u.canAccessBeforeOfficeHours || u.canAccessAfterOfficeHours;
-            if ((hour < 8 || hour >= 22) && !hasEarlyLateAccess) {
+            if (hour < 8 || hour >= 22) {
                 toast(ltr("🔐 সিস্টেম অফিস সময়ের বাইরে বন্ধ (সকাল ৮টা - রাত ১০টা)"), "in");
             }
 
