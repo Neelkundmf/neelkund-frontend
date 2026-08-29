@@ -4381,10 +4381,12 @@
            না, সবসময় নিচের ফলব্যাকেই থেকে যেত */
         var LOAN_MARKUP_MULT = 1.15;
         var LOAN_TENURE_DAYS = 46;
+        var LOAN_OD_DAYS = 120;
         function loadLoanCalcSettings() {
             NK.GET("/api/admin/settings/loan-calc").then(function (s) {
                 if (s && s.markupMultiplier) LOAN_MARKUP_MULT = Number(s.markupMultiplier);
                 if (s && s.tenureDays) LOAN_TENURE_DAYS = Number(s.tenureDays);
+                if (s && s.odDays) LOAN_OD_DAYS = Number(s.odDays);
                 nCalc();
             }).catch(function () { /* fallback সংখ্যা দিয়েই চলবে */ });
         }
@@ -5040,7 +5042,6 @@
         /* =====================================================================
          * ব্ল্যাকলিস্ট — ১২০+ দিন
          * ===================================================================== */
-        var OD_LIMIT = 120;
         var BL_ALL = [];
         var blTimer = null;
         /* =====================================================================
@@ -5055,7 +5056,7 @@
             NK.GET("/api/dashboard/agent-overdue-customers").then(function (list) {
                 var rows = NK.rows(list);
                 BL_ALL = rows.filter(function (x) {
-                    return Number(x.daysOverdue || 0) > OD_LIMIT;
+                    return Number(x.daysOverdue || 0) > LOAN_OD_DAYS;
                 });
                 drawBlList();
             }).catch(function (e) {
@@ -5285,8 +5286,6 @@
          * ===================================================================== */
         var REPORT_DATA = null;
         var REPORT_MARKETS = [];
-        var REPORT_OD_DAYS = 120;   // ব্ল্যাকলিস্ট/OD-এর সিস্টেম-ওয়াইড সীমা (CLAUDE.md-এর নিয়ম অনুযায়ী)
-
         function loadReport(silent) {
             if (silent !== true) {
                 q("repStats").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -5389,10 +5388,10 @@
                 }
 
                 var odList = m.customers.filter(function (c) {
-                    return Number(c.daysOverdue || 0) >= REPORT_OD_DAYS;
+                    return Number(c.daysOverdue || 0) > LOAN_OD_DAYS;
                 });
                 h += '<tr class="odrow"><td colspan="8">';
-                h += '<span class="lbl">⛔ OD / ব্ল্যাকলিস্ট (' + REPORT_OD_DAYS + '+ দিন)</span>';
+                h += '<span class="lbl">⛔ OD / ব্ল্যাকলিস্ট (' + LOAN_OD_DAYS + '+ দিন)</span>';
                 if (!odList.length) {
                     h += ltr('কেউ নেই');
                 } else {
@@ -5463,9 +5462,9 @@
                 });
 
                 var odList = m.customers.filter(function (c) {
-                    return Number(c.daysOverdue || 0) >= REPORT_OD_DAYS;
+                    return Number(c.daysOverdue || 0) > LOAN_OD_DAYS;
                 });
-                csv += "\nOD/ব্ল্যাকলিস্ট (" + REPORT_OD_DAYS + "+ দিন)\n";
+                csv += "\nOD/ব্ল্যাকলিস্ট (" + LOAN_OD_DAYS + "+ দিন)\n";
                 if (!odList.length) {
                     csv += "কেউ নেই\n";
                 } else {
