@@ -5160,6 +5160,8 @@
                         '<span>' + NK.esc(x.customerCode || "—") + ' · ' + ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</span></div>';
                     if (days > 0) {
                         h += '<div class="od">' + days + '<span>' + ltr('দিন') + '</span></div>';
+                    } else if (x.remainingDays !== undefined && x.remainingDays !== null && x.remainingDays > 0) {
+                        h += '<div class="od" style="color:var(--muted);">' + x.remainingDays + '<span>' + ltr('দিন বাকি') + '</span></div>';
                     }
                     h += '</div>';
                 });
