@@ -6400,20 +6400,18 @@
             });
         }
 
-        /* অনুমোদিত হয়েছে কিন্তু গ্রাহকের সইয়ের ছবি এখনও তোলা হয়নি — এমন লোন
-           (loan-requests থেকে, যেগুলোর জন্য আজকের disbursement রেকর্ড এখনও নেই) */
+        /* অনুমোদিত হয়েছে কিন্তু গ্রাহকের সইয়ের ছবি এখনও তোলা হয়নি — এমন লোন।
+           r.hasSignature সরাসরি লোনের নিজের রেকর্ড দেখে বলে (আগে "আজকের
+           disbursement লিস্টে আছে কিনা" দিয়ে বোঝা হতো, যেটা ভুল ছিল — অন্য
+           দিন সই হওয়া লোনও "বাকি" দেখাত, কারণ আজকের লিস্টে সেটা থাকতোই না) */
         function loadPendingSignatureLoans() {
             NK.GET("/api/loan-requests/mine").then(function (list) {
                 var since = Date.now() - 3 * 24 * 60 * 60 * 1000;
-                var doneLoanIds = {};
-                disbState.allData.forEach(function (d) {
-                    if (d.loanId) doneLoanIds[d.loanId] = true;
-                });
 
                 var pending = (list || []).filter(function (r) {
                     return r.status === "APPROVED" && r.reviewedAt &&
                         new Date(r.reviewedAt).getTime() > since &&
-                        r.createdLoanId && !doneLoanIds[r.createdLoanId];
+                        r.createdLoanId && !r.hasSignature;
                 });
 
                 drawDisbStats(pending.length);
