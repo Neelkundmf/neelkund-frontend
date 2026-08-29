@@ -715,6 +715,7 @@
         }
         .pinfo-card .cell .v.r { color: var(--red); }
         .pinfo-card .cell .v.g { color: #16A34A; }
+        .pinfo-card .cell .sub { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; }
 
         /* রেগুলার — ✓ / ✗ */
         .yn {
@@ -3696,8 +3697,11 @@
                 NK.inr(remaining) + '</div></div>';
 
             if (advance > 0) {
+                var daysAhead = emi > 0 ? Math.floor(advance / emi) : 0;
                 h += '<div class="cell"><div class="l">' + ltr('অ্যাডভান্স জমা') + '</div><div class="v g">' +
-                    NK.inr(advance) + '</div></div>';
+                    NK.inr(advance) + '</div>' +
+                    (daysAhead > 0 ? '<div class="sub">' + daysAhead + ' ' + ltr('দিন এগিয়ে আছেন') + '</div>' : '') +
+                    '</div>';
             } else {
                 h += '<div class="cell"><div class="l">' + ltr('নরমাল ডিউ') + '</div><div class="v ' +
                     (arrears > 0 ? 'r' : 'g') + '">' + NK.inr(arrears) + '</div></div>';
