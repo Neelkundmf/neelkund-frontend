@@ -3827,18 +3827,12 @@
                     btn.disabled = true;
                     btn.textContent = ltr("হচ্ছে...");
 
-                    NK.POST("/api/payments/" + todayPaymentId + "/reverse", {
+                    NK.PUT("/api/payments/" + todayPaymentId + "/edit", {
+                        amount: newAmt,
+                        note: "এডিট করা হয়েছে",
                         reason: "এজেন্ট এডিট করেছে · ₹" + todayPaymentAmount.toFixed(0) +
                             " → ₹" + newAmt.toFixed(0)
                     })
-                        .then(function () {
-                            return NK.POST("/api/payments", {
-                                loanId: PAY_LOAN,
-                                amount: newAmt,
-                                note: "এডিট করা হয়েছে",
-                                clientEntryId: uid()
-                            });
-                        })
                         .then(function (resp) {
                             loadAmtDash();
                             loadToday();
