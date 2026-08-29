@@ -5124,7 +5124,7 @@
                 if (!s) {
                     // status filter
                     if (filter === "ACTIVE") return c.status === "ACTIVE";
-                    if (filter === "COMPLETED") return c.status === "COMPLETED" || c.status === "SETTLED";
+                    if (filter === "COMPLETED") return c.status === "CLOSED";
                     if (filter === "ALL") return true;
                 } else {
                     // search filter
@@ -5134,7 +5134,7 @@
                     if (!matches) return false;
                     // then apply status filter
                     if (filter === "ACTIVE") return c.status === "ACTIVE";
-                    if (filter === "COMPLETED") return c.status === "COMPLETED" || c.status === "SETTLED";
+                    if (filter === "COMPLETED") return c.status === "CLOSED";
                     return true;
                 }
                 return true;
