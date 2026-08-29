@@ -4657,6 +4657,9 @@
             var types = Object.keys(CPICS);
             if (!types.length) return Promise.resolve();
 
+            var MANDATORY_PICS = ["SELFIE", "AADHAAR", "AADHAAR_BACK"];
+            var failedTypes = [];
+
             var box = q("custUploadProgress");
             box.style.display = "block";
             box.innerHTML = types.map(function (t) {
@@ -4686,17 +4689,32 @@
                             }
                         })
                         .catch(function (e) {
+                            failedTypes.push(t);
                             if (row) {
                                 row.className = "upload-row failed";
                                 row.querySelector(".thumb").textContent = "❌";
                                 row.querySelector(".st").textContent = ltr("ব্যর্থ");
                             }
-                            throw e;
+                            // এখানে re-throw করা হচ্ছে না ইচ্ছাকৃতভাবে — একটা ছবি
+                            // ব্যর্থ হলেও বাকি ছবিগুলো যেন আপলোডের চেষ্টা চালিয়ে
+                            // যায় (আগে একটা ব্যর্থ হলেই বাকিগুলো "অপেক্ষায়"
+                            // অবস্থায় আটকে থেকে যেত, চেষ্টাই করত না)
                         });
                 });
             });
 
-            return chain;
+            return chain.then(function () {
+                var failedMandatory = failedTypes.filter(function (t) {
+                    return MANDATORY_PICS.indexOf(t) !== -1;
+                });
+                if (failedMandatory.length) {
+                    throw new Error(ltr("বাধ্যতামূলক ছবি আপলোড হয়নি (") +
+                        failedMandatory.map(function (t) { return CPIC_LABELS[t] || t; }).join(", ") +
+                        ltr(") — নেট চেক করে আবার চেষ্টা করুন"));
+                }
+                // ঐচ্ছিক ছবি (প্যান/ভোটার/গ্যারান্টার) ব্যর্থ হলে গ্রাহক তৈরি ও
+                // লোন রিকোয়েস্ট আটকাবে না — বাধ্যতামূলক ছবি ঠিকই থাকলে চলবে
+            });
         }
 
         function resetCPics() {
