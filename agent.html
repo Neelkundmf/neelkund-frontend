@@ -6426,7 +6426,7 @@
             var box = q("disbPending");
             if (!pending.length) { box.innerHTML = ""; return; }
 
-            var h = '<div class="pend-eyebrow">✅ ' + ltr("অনুমোদিত — সইয়ের ছবি বাকি") +
+            var h = '<div class="pend-eyebrow">✅ ' + ltr("অনুমোদিত — ফর্মের ছবি বাকি") +
                 '<span class="n">' + pending.length + '</span></div>';
 
             pending.forEach(function (r) {
@@ -6934,7 +6934,7 @@
                 '<p style="opacity:.85;margin:0 0 6px;">' + ltr('গ্রাহককে নগদ দিন') + '</p>' +
                 '<p style="font-size:34px;font-weight:800;margin:0;">₹' + amountInr + '</p>' +
                 '</div>' +
-                '<button id="loanCelebrateBtn" class="btn block" style="background:#fff;color:#16A34A;font-weight:700;padding:16px;font-size:16px;border-radius:12px;border:none;width:100%;max-width:320px;">📷 ' + ltr('সইয়ের ছবি তুলুন') + '</button>' +
+                '<button id="loanCelebrateBtn" class="btn block" style="background:#fff;color:#16A34A;font-weight:700;padding:16px;font-size:16px;border-radius:12px;border:none;width:100%;max-width:320px;">📷 ' + ltr('ফর্মের ছবি তুলুন') + '</button>' +
                 '<div id="loanCelebrateStatus" style="margin-top:14px;font-size:14px;min-height:20px;"></div>' +
                 '<input type="file" id="loanCelebrateFile" accept="image/*" capture="environment" style="display:none;">' +
                 '</div>';
@@ -6993,7 +6993,7 @@
 
             el.innerHTML =
                 '<div style="font-size:56px;margin-bottom:12px;">✓</div>' +
-                '<h2 style="margin:8px 0;font-size:22px;">' + ltr('সই জমা হয়েছে') + '</h2>' +
+                '<h2 style="margin:8px 0;font-size:22px;">' + ltr('ফর্ম জমা হয়েছে') + '</h2>' +
                 '<p style="font-size:15px;margin:8px 0 24px;opacity:.9;">' +
                 ltr('এখনই কিছু কিস্তি অগ্রিম নেবেন?') + '</p>' +
                 '<button id="advCollectYes" class="btn block" style="background:#fff;color:#16A34A;' +
