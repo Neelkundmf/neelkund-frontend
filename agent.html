@@ -2832,7 +2832,10 @@
                 if (!NEW_CUST_MARKETS.length) {
                     say("nMsg", ltr("আপনার কোনো মার্কেট নেই — অ্যাডমিনকে জানান"), false);
                 }
-            }).catch(function () {});
+            }).catch(function () {
+                loaded.new = false;
+                say("nMsg", ltr("মার্কেট লোড করা যায়নি — ট্যাব বদলে আবার আসুন"), false);
+            });
         }
 
         function drawNewCustBranches() {
