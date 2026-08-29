@@ -569,6 +569,21 @@
         .ccard .delaychip.d1 { background: var(--amber-soft); color: var(--amber); }
         .ccard .delaychip.d2 { background: var(--red-soft); color: var(--red); }
         .ccard .defaultchip { display: inline-block; margin-top: 7px; margin-right: 6px; font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--red); color: #fff; }
+
+        /* নতুন গ্রাহকের ছবি — একটার পর একটা আপলোডের অগ্রগতি */
+        .upload-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+        .upload-row:last-child { border-bottom: 0; }
+        .upload-row .thumb { width: 32px; height: 32px; border-radius: 8px; background: var(--paper); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .upload-row .nm { flex: 1; font-size: 12.5px; font-weight: 600; }
+        .upload-row .st { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+        .upload-row.done .thumb { background: var(--green-soft); }
+        .upload-row.done .st { color: #16A34A; }
+        .upload-row.uploading .st { color: var(--blue); }
+        .upload-row.waiting .thumb, .upload-row.waiting .nm { opacity: .45; }
+        .upload-row.failed .thumb { background: var(--red-soft); }
+        .upload-row.failed .st { color: var(--red); }
+        .upl-spin { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--blue); border-top-color: transparent; border-radius: 50%; animation: uplspin .7s linear infinite; vertical-align: -1px; margin-right: 3px; }
+        @keyframes uplspin { to { transform: rotate(360deg); } }
         .ccard .pbartrack { height: 6px; background: #EEF1F5; border-radius: 999px; overflow: hidden; margin: 11px 0 9px; }
         .ccard .pbarfill { height: 100%; background: linear-gradient(90deg, #16A34A, #34D399); border-radius: 999px; }
         .ccard .moneyrow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
@@ -2009,6 +2024,7 @@
                 </div>
 
                 <button class="btn block" id="n_go">গ্রাহক যোগ করে লোন অনুরোধ পাঠান</button>
+                <div id="custUploadProgress" style="display:none;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 14px;"></div>
             </div>
         </div>
 
@@ -4690,21 +4706,70 @@
             }
         });
 
+        var CPIC_LABELS = {
+            SELFIE: "গ্রাহকের ছবি",
+            AADHAAR: "আধার — সামনে",
+            AADHAAR_BACK: "আধার — পিছনে",
+            PAN: "প্যান — সামনে",
+            PAN_BACK: "প্যান — পিছনে",
+            VOTER_ID: "ভোটার আইডি — সামনে",
+            VOTER_ID_BACK: "ভোটার আইডি — পিছনে",
+            GUARANTOR: "গ্যারান্টারের ছবি"
+        };
+
+        /* ছবিগুলো একটার পর একটা (সমান্তরালে না) আপলোড হয় — একসাথে পাঠালে
+           সার্ভারে একটার সেভ আরেকটাকে মুছে দিচ্ছিল (একই গ্রাহকের রেকর্ড
+           একই সময়ে দুবার লেখা হলে শেষেরটাই টেকে, বাকিগুলো হারিয়ে যেত) */
         function uploadCustPics(custId) {
             var types = Object.keys(CPICS);
             if (!types.length) return Promise.resolve();
 
-            var jobs = types.map(function (t) {
-                var fd = new FormData();
-                fd.append("file", CPICS[t]);
-                return NK.UPLOAD("/api/customers/" + custId + "/document?type=" + t, fd);
+            var box = q("custUploadProgress");
+            box.style.display = "block";
+            box.innerHTML = types.map(function (t) {
+                return '<div class="upload-row waiting" id="uplrow_' + t + '">' +
+                    '<div class="thumb">📷</div>' +
+                    '<div class="nm">' + (CPIC_LABELS[t] || t) + '</div>' +
+                    '<div class="st">' + ltr('অপেক্ষায়') + '</div>' +
+                    '</div>';
+            }).join("");
+
+            var chain = Promise.resolve();
+            types.forEach(function (t) {
+                chain = chain.then(function () {
+                    var row = q("uplrow_" + t);
+                    if (row) {
+                        row.className = "upload-row uploading";
+                        row.querySelector(".st").innerHTML = '<span class="upl-spin"></span>' + ltr('পাঠানো হচ্ছে');
+                    }
+                    var fd = new FormData();
+                    fd.append("file", CPICS[t]);
+                    return NK.UPLOAD("/api/customers/" + custId + "/document?type=" + t, fd)
+                        .then(function () {
+                            if (row) {
+                                row.className = "upload-row done";
+                                row.querySelector(".thumb").textContent = "✅";
+                                row.querySelector(".st").textContent = ltr("সেভ হয়েছে");
+                            }
+                        })
+                        .catch(function (e) {
+                            if (row) {
+                                row.className = "upload-row failed";
+                                row.querySelector(".thumb").textContent = "❌";
+                                row.querySelector(".st").textContent = ltr("ব্যর্থ");
+                            }
+                            throw e;
+                        });
+                });
             });
 
-            return Promise.all(jobs);
+            return chain;
         }
 
         function resetCPics() {
             CPICS = {};
+            var uplBox = q("custUploadProgress");
+            if (uplBox) { uplBox.style.display = "none"; uplBox.innerHTML = ""; }
 
             ["np_selfie", "np_aad", "np_aadb", "np_pan", "np_panb", "np_guar", "np_voter", "np_voterb"]
                 .forEach(function (id) {

@@ -2563,42 +2563,34 @@
                         voterUploadBtn.disabled = true;
                         voterUploadBtn.textContent = "আপলোড হচ্ছে...";
 
-                        var uploadCount = 0;
-                        var uploadTotal = (front ? 1 : 0) + (back ? 1 : 0);
-
-                        var onUploadComplete = function() {
-                            uploadCount++;
-                            if (uploadCount === uploadTotal) {
-                                toast("ভোটার আইডি আপলোড হয়েছে ✓", "ok");
-                                voterUploadBtn.disabled = false;
-                                voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
-                                openCustomerProfile(customerId);
-                            }
-                        };
-
+                        // সামনে-পিছনে একসাথে (সমান্তরালে) পাঠালে সার্ভারে একটার
+                        // সেভ আরেকটাকে মুছে দিচ্ছিল — তাই একটার পর একটা
+                        var chain = Promise.resolve();
                         if (front) {
-                            var fd = new FormData();
-                            fd.append("file", front);
-                            NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID", fd)
-                                .then(onUploadComplete)
-                                .catch(function(e) {
-                                    toast("আপলোড ব্যর্থ: " + e.message, "er");
-                                    voterUploadBtn.disabled = false;
-                                    voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
-                                });
+                            chain = chain.then(function () {
+                                var fd = new FormData();
+                                fd.append("file", front);
+                                return NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID", fd);
+                            });
+                        }
+                        if (back) {
+                            chain = chain.then(function () {
+                                var fd = new FormData();
+                                fd.append("file", back);
+                                return NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID_BACK", fd);
+                            });
                         }
 
-                        if (back) {
-                            var fd = new FormData();
-                            fd.append("file", back);
-                            NK.UPLOAD("/api/customers/" + customerId + "/document?type=VOTER_ID_BACK", fd)
-                                .then(onUploadComplete)
-                                .catch(function(e) {
-                                    toast("আপলোড ব্যর্থ: " + e.message, "er");
-                                    voterUploadBtn.disabled = false;
-                                    voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
-                                });
-                        }
+                        chain.then(function () {
+                            toast("ভোটার আইডি আপলোড হয়েছে ✓", "ok");
+                            voterUploadBtn.disabled = false;
+                            voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
+                            openCustomerProfile(customerId);
+                        }).catch(function (e) {
+                            toast("আপলোড ব্যর্থ: " + e.message, "er");
+                            voterUploadBtn.disabled = false;
+                            voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
+                        });
                     });
                 }
 
