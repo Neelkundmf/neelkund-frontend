@@ -254,36 +254,6 @@
             });
     }
 
-    /* ফিঙ্গারপ্রিন্ট দিয়ে লগইন — /api/auth/login-এর বদলে /api/fingerprint/verify
-       কল করে, কিন্তু সফল হলে ঠিক login()-এর মতোই session বসায় (accessToken,
-       refreshToken, saveMe) — যাতে fingerprint login-এর পরেও বাকি সব পাতা
-       স্বাভাবিক password-login-এর মতোই ব্যবহার করতে পারে */
-    function loginWithFingerprint(phone, fingerprintData, deviceId) {
-        return fetch(API + "/api/fingerprint/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone: phone, fingerprintData: fingerprintData, deviceId: deviceId })
-        })
-            .then(function (r) {
-                return r.json().catch(function () { return null; }).then(function (b) {
-                    if (!r.ok) throw mkErr(r.status, b);
-                    return b;
-                });
-            })
-            .then(function (d) {
-                accessToken = d.accessToken;
-                setRefresh(d.refreshToken);
-                saveMe({
-                    userId: d.userId,
-                    fullName: d.fullName,
-                    role: d.role,
-                    mustChangePassword: d.mustChangePassword,
-                    canEditSalary: d.canEditSalary
-                });
-                return d;
-            });
-    }
-
     function logout() {
         clearAll();
     }
@@ -684,7 +654,6 @@
         setLang: function (l) { setLang(l); window.location.reload(); },
 
         login: login,
-        loginWithFingerprint: loginWithFingerprint,
         logout: logout,
         boot: boot,
         getToken: function () { return accessToken; },
