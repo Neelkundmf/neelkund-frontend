@@ -5145,9 +5145,18 @@
                     var initial = NK.esc((x.fullName || "?").charAt(0));
                     var days = Number(x.daysOverdue || 0);
 
+                    /* রিপিট গ্রাহক — কত নম্বর লোন সেটা সার্কেলে, পাশে "রিপিট" লেখা
+                       (SVG দিয়ে, কারণ CSS দিয়ে বাংলা/লাতিন সংখ্যা circle-এর ঠিক
+                       মাঝে বসানো ফন্ট-মেট্রিক্সের কারণে ভরসাযোগ্য না) */
+                    var repeatBadge = "";
+                    if (x.isRepeat) {
+                        repeatBadge = ' <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;flex-shrink:0;"><circle cx="9" cy="9" r="8" fill="none" stroke="#64748B" stroke-width="1.5"/><text x="9" y="9" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="#64748B">' +
+                            (x.cycleNumber || "") + '</text></svg> <span style="font-size:10.5px;font-weight:800;color:#64748B;">' + ltr('রিপিট') + '</span>';
+                    }
+
                     h += '<div class="mcitem ' + flagCls + '" data-prof="' + x.customerId + '">';
                     h += '<div class="av" data-photo="' + x.customerId + '">' + initial + '</div>';
-                    h += '<div class="mid"><b>' + NK.esc(x.fullName) + '</b>' +
+                    h += '<div class="mid"><b>' + NK.esc(x.fullName) + repeatBadge + '</b>' +
                         '<span>' + NK.esc(x.customerCode || "—") + ' · ' + ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</span></div>';
                     if (days > 0) {
                         h += '<div class="od">' + days + '<span>' + ltr('দিন') + '</span></div>';
