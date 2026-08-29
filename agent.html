@@ -3638,6 +3638,7 @@
         var PAY_STATUS = null;
         var PAY_LOAN_DETAIL = null;
         var PAY_REQ_ID = 0;
+        var PAY_BUSY = false;
 
         /* loanId ছাড়া এই পাতা আর কারও ওপর নির্ভর করে না — কালেকশন/আজ/মার্কেট
            যেখান থেকেই ডাকা হোক, নিজেই /loans/{id}/detail থেকে EMI-লোন অঙ্ক-
@@ -3994,6 +3995,8 @@
         /* ---- আসল টাকা জমা ---- */
         function doPay(amount, okMsg, note) {
             if (!PAY_LOAN || !amount || amount <= 0) return;
+            if (PAY_BUSY) return;
+            PAY_BUSY = true;
 
             var entry = {
                 clientEntryId: uid(),
@@ -4008,6 +4011,7 @@
                 addPend(entry);
                 toast(ltr("ফোনে জমা রাখা হল — নেট এলে পাঠাবেন"), "in");
                 closePayPage();
+                PAY_BUSY = false;
                 return;
             }
 
@@ -4020,6 +4024,7 @@
                 clientEntryId: entry.clientEntryId
             })
                 .then(function (resp) {
+                    PAY_BUSY = false;
                     loadAmtDash();
                     loadToday();
                     loadTodayDisb();
@@ -4035,6 +4040,7 @@
                     showReceipt(resp, amount, remainingBefore - amount);
                 })
                 .catch(function (e) {
+                    PAY_BUSY = false;
                     if (!e.status) {
                         addPend(entry);
                         toast(ltr("ফোনে জমা রাখা হল"), "in");
