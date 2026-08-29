@@ -4466,7 +4466,7 @@
                 locationAccuracy: NGPS ? NGPS.acc : null,
                 address: null,
                 agentNote: null,
-                clientEntryId: null,
+                clientEntryId: uid(),
                 clientCreatedAt: null
             })
                 .then(function () {
@@ -4920,7 +4920,7 @@
                         locationAccuracy: NGPS ? NGPS.acc : null,
                         address: null,
                         agentNote: null,
-                        clientEntryId: null,
+                        clientEntryId: uid(),
                         clientCreatedAt: null
                     });
                 })
