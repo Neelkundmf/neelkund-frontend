@@ -513,6 +513,7 @@
         }
         .rowbox1 .pdword.paid { background: #D1FAE5; color: #059669; }
         .rowbox1 .pdword.due { background: #FFE4E6; color: #E11D48; }
+        .rowbox1 .pdword.advance { background: #DBEAFE; color: #2563EB; }
 
         /* ভেতরের গ্রাহক তালিকার ট্যাব */
         #amtPage .atabs {
@@ -4231,8 +4232,8 @@
                 var html = '<div class="rowbox-list">';
                 list.forEach(function (item, i) {
                     var isDue = item.status !== "PAID"; // OVERDUE/WARNING — দুটোই "বাকি" হিসেবে ধরা হচ্ছে
-                    var pdClass = isDue ? "due" : "paid";
-                    var pdText = isDue ? ltr("Due") : ltr("Paid");
+                    var pdClass = isDue ? "due" : (item.isAdvance ? "advance" : "paid");
+                    var pdText = isDue ? ltr("Due") : (item.isAdvance ? "Advance" : ltr("Paid"));
                     var initial = (item.customerName || "?").charAt(0);
                     var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
                     var colorClass = "c" + (i % 5);
