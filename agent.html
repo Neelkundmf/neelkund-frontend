@@ -4930,6 +4930,11 @@
                     window.pendingAmount = loanReq.principal;
                     window.pendingCustomerId = newCust.id;
 
+                    // আগের কোনো পেন্ডিং লোনের পোলিং চলতে থাকলে আগে বন্ধ করি — নাহলে
+                    // এই নতুন টাইমার window.pendingCheckTimer ওভাররাইট করে আগেরটাকে
+                    // অনাথ করে দিতো (কখনও বন্ধ করার উপায় থাকতো না)
+                    if (window.pendingCheckTimer) clearInterval(window.pendingCheckTimer);
+
                     window.pendingCheckTimer = setInterval(function() {
                         NK.GET("/api/loan-requests/" + loanReq.id)
                             .then(function(lr) {
