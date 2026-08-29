@@ -4329,6 +4329,7 @@
         /* ---- ডুপ্লিকেট ধরা — পুরনো গ্রাহক কিনা ---- */
         var DUP = null;
         var dupTimer = null;
+        var DUP_REQ_ID = 0;
 
         function checkDup() {
             var phone = q("n_phone").value.trim();
@@ -4338,6 +4339,7 @@
             var ok = (phone.length === 10) || (aad.length === 12) ||
                 (pan.length === 10);
             if (!ok) {
+                DUP_REQ_ID++;   // আগের কোনো চেক এখনও চলতে থাকলে সেটার উত্তর যেন এখন আর না বসে
                 DUP = null;
                 q("dupBox").style.display = "none";
                 return;
@@ -4348,8 +4350,13 @@
             if (aad.length === 12)   qs.push("aadhaar=" + encodeURIComponent(aad));
             if (pan.length === 10)   qs.push("pan=" + encodeURIComponent(pan));
 
+            // দ্রুত পরপর টাইপ করলে একাধিক চেক একসাথে চলতে পারে — শুধু সবচেয়ে
+            // শেষেরটার উত্তরই গুরুত্ব পাবে, পুরনো (ধীর) উত্তর এসে নতুনটাকে
+            // ওভাররাইট করে সত্যিকারের ডুপ্লিকেট-সতর্কতা মুছে দিতে পারবে না
+            var myReq = ++DUP_REQ_ID;
             NK.GET("/api/customers/check-existing?" + qs.join("&"))
                 .then(function (c) {
+                    if (myReq !== DUP_REQ_ID) return;
                     if (c && c.id) {
                         DUP = c;
                         showDup(c);
@@ -4359,6 +4366,7 @@
                     }
                 })
                 .catch(function () {
+                    if (myReq !== DUP_REQ_ID) return;
                     DUP = null;
                     q("dupBox").style.display = "none";
                 });
