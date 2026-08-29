@@ -2904,7 +2904,8 @@
 
         function loadMkt() {
             NK.GET("/api/agent/my-markets").then(function (d) {
-                MKT = { markets: (d && d.markets) ? d.markets : [] };
+                MKT = d || { markets: [] };
+                if (!MKT.markets) MKT.markets = [];
                 drawMkt();
             }).catch(function (e) {
                 console.error("মার্কেট লোড ব্যর্থ:", e);
@@ -2923,6 +2924,17 @@
             var h = '';
 
             h += '<div class="pagetitle">' + ltr('আমার মার্কেট') + ' <span>My Assigned Markets</span></div>';
+
+            /* সব মার্কেট মিলিয়ে সারাংশ — একাধিক মার্কেট থাকলেই দরকার,
+               একটা থাকলে নিচের কার্ডেই তো একই সংখ্যা দেখাবে */
+            if (markets.length > 1) {
+                h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">';
+                h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#DC2626;">' + NK.inrShort(MKT.totalOutstanding || 0) + '</div><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600;">' + ltr('মোট বাকি') + '</div></div>';
+                h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#16A34A;">' + NK.inrShort(MKT.todayCollected || 0) + '</div><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600;">' + ltr('আজ উঠেছে') + '</div></div>';
+                h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#1e293b;">' + (MKT.activeCustomers || 0) + '</div><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600;">' + ltr('সক্রিয় গ্রাহক') + '</div></div>';
+                h += '<div style="background:#f8fafc;padding:14px;border-radius:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#5B4EF5;">' + (MKT.odCustomers || 0) + '</div><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600;">' + ltr('OD গ্রাহক') + '</div></div>';
+                h += '</div>';
+            }
 
             /* ড্রপডাউন — আগের মতোই কাজ করে, শুধু নতুন style */
             h += '<div class="sect-label">' + ltr('মার্কেট নির্বাচন করুন') + '</div>';
