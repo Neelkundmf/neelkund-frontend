@@ -3074,14 +3074,14 @@
         }
 
         function loadMarketDropdown() {
-            NK.GET("/api/markets/all").then(function (markets) {
+            NK.GET("/api/agent/my-markets").then(function (d) {
                 var dd = q("mktDetailDropdown");
                 if (!dd) return;
                 dd.innerHTML = '<option value="">মার্কেট নির্বাচন করুন</option>';
-                (markets || []).forEach(function (m) {
+                ((d && d.markets) || []).forEach(function (m) {
                     var opt = document.createElement("option");
-                    opt.value = m.id;
-                    opt.textContent = m.name;
+                    opt.value = m.marketId;
+                    opt.textContent = m.marketName;
                     dd.appendChild(opt);
                 });
             }).catch(function (e) {
