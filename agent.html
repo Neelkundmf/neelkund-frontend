@@ -4078,10 +4078,12 @@
                     (canPay ? ' data-pay="' + first.loanId +
                         '" data-name="' + NK.esc(first.customerName) +
                         '" data-phone="' + NK.esc(first.customerPhone || "") + '"' : '') + '>';
+                var instText = (!multi && first.installmentNumber)
+                    ? (' · ' + first.installmentNumber + ltr(' নম্বর কিস্তি')) : '';
                 h += '<div class="proftap" data-prof-tap="' + first.customerId + '">';
                 h += '<div class="av" data-photo="' + first.customerId + '">' + NK.esc((first.customerName || "?").charAt(0)) + '</div>';
                 h += '<div class="mid"><b>' + NK.esc(first.customerName) + '</b>' +
-                    '<span>' + NK.esc(first.customerPhone || "—") + '</span></div>';
+                    '<span>' + NK.esc(first.customerPhone || "—") + instText + '</span></div>';
                 h += '</div>';
                 h += '<div class="end"><b>' + NK.inrShort(totalDue) + '</b>' +
                     (multi
