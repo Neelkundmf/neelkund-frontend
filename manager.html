@@ -3388,7 +3388,10 @@
             }).catch(function () {});
         }
 
+        var SH_REQ_ID = 0;
+
         function showSheet() {
+            var myReq = ++SH_REQ_ID;
             var id = q("sh_ag").value;
             var d = q("sh_d").value;
 
@@ -3405,6 +3408,7 @@
                 (d ? "?date=" + d : "");
 
             NK.GET(url).then(function (s) {
+                if (myReq !== SH_REQ_ID) return;
                 var eve = s.sheetType === "EVENING";
 
                 var h = '<div class="sheet">';
@@ -3515,6 +3519,7 @@
                 q("sh_print").style.display = "flex";
 
             }).catch(function (e) {
+                if (myReq !== SH_REQ_ID) return;
                 q("shBox").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
                 q("sh_print").style.display = "none";
             });
