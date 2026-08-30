@@ -2819,6 +2819,7 @@
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
             if (f) f(true);
+            loadNotif();   // বেলের লাল সংখ্যা — যে ট্যাবেই থাকুন না কেন, সবসময় আপডেট হবে
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -6536,6 +6537,7 @@
             else if (CURRENT_VIEW === "disb") loadDisb();
             else if (CURRENT_VIEW === "black") loadBlack();
             else if (CURRENT_VIEW === "new") loadNewCustomerMarkets();
+            loadNotif();   // বেলের লাল সংখ্যাও ম্যানুয়াল রিফ্রেশে আপডেট হবে
         }
         q("refreshBtn").addEventListener("click", manualRefresh);
 

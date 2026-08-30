@@ -1572,6 +1572,7 @@
             if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT")) return;
             var f = SAFE_REFRESH[CURRENT_VIEW];
             if (f) f(true);
+            loadNotif();   // বেলের লাল সংখ্যা — যে ট্যাবেই থাকুন না কেন, সবসময় আপডেট হবে
         }, 12000);
 
         Array.prototype.forEach.call(document.querySelectorAll(".tabs button[data-v]"), function (b) {
@@ -3716,6 +3717,7 @@
             else if (CURRENT_VIEW === "sheet")  loadSheet();
             else if (CURRENT_VIEW === "cust")   loadCust();
             else if (CURRENT_VIEW === "od")     loadOd();
+            loadNotif();   // বেলের লাল সংখ্যাও ম্যানুয়াল রিফ্রেশে আপডেট হবে
         }
         var refreshBtnEl = q("refreshBtn");
         if (refreshBtnEl) refreshBtnEl.addEventListener("click", manualRefresh);
