@@ -1535,8 +1535,7 @@
 
         function excelDownload(url, fileName) {
             try {
-                fetch(url)
-                    .then(r => r.blob())
+                NK.GET(url)
                     .then(blob => {
                         var blobUrl = URL.createObjectURL(blob);
                         var a = document.createElement("a");
