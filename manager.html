@@ -900,99 +900,6 @@
             resize: vertical; min-height: 60px; margin-bottom: 10px;
         }
 
-        /* ---- বিতরণ (Disbursement) ---- */
-        .disb-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 14px rgba(15,41,66,.07);
-            margin-bottom: 14px;
-        }
-        .disb-table thead {
-            background: var(--navy);
-            color: #fff;
-        }
-        .disb-table th {
-            padding: 12px 10px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-        .disb-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--line);
-            font-size: 13px;
-        }
-        .disb-table tr:last-child td { border-bottom: 0; }
-        .disb-table th.r, .disb-table td.r { text-align: right; }
-
-        .disb-status {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .3px;
-        }
-        .disb-status.pending { background: #FEF9E7; color: #B45309; }
-        .disb-status.approved { background: #DBEAFE; color: #1D4ED8; }
-        .disb-status.rejected { background: #FEE2E2; color: #B91C1C; }
-        .disb-status.completed { background: #ECFDF5; color: #047857; }
-
-        .disb-actions {
-            display: flex;
-            gap: 6px;
-        }
-        .disb-actions button {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 0;
-            font-size: 11.5px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .disb-actions .approve {
-            background: #16A34A;
-            color: #fff;
-        }
-        .disb-actions .reject {
-            background: #DC2626;
-            color: #fff;
-        }
-        .disb-actions button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        .disb-pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .disb-pagination button {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--line);
-            background: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-        }
-        .disb-pagination button:hover {
-            background: var(--paper);
-        }
-        .disb-pagination button:disabled {
-            opacity: .4;
-            cursor: not-allowed;
-        }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/logo.png">
@@ -1139,11 +1046,6 @@
             <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
-        <!-- ---------------- বিতরণ (Disbursement) ---------------- -->
-        <div class="view" id="v-disb">
-            <div id="disbList"><div class="loading">লোড হচ্ছে...</div></div>
-        </div>
-
         <div class="view" id="v-exp">
             <div style="padding:14px;margin-bottom:14px;background:var(--card);border-radius:12px;">
                 <div style="display:grid;gap:10px;grid-template-columns:repeat(2,1fr);font-size:12px;">
@@ -1160,7 +1062,6 @@
         <button data-v="agent"><i>👥</i>এজেন্ট</button>
         <button data-v="report"><i>📄</i>রিপোর্ট</button>
         <button data-v="req"><i>📝</i><span id="reqTabLbl">অনুরোধ</span><span class="dot" id="rdot" style="display:none;"></span></button>
-        <button data-v="disb"><i>💰</i><span id="disbTabLbl">বিতরণ</span><span class="dot" id="ddot" style="display:none;"></span></button>
         <button data-v="cust"><i>🧑‍🤝‍🧑</i>গ্রাহক</button>
         <button data-v="od"><i>⛔</i>ব্ল্যাকলিস্ট</button>
         <button data-v="sheet"><i>🖨️</i>কাগজ</button>
@@ -1483,14 +1384,6 @@
 
             /* বিতরণ (Disbursement) */
             "বিতরণ": "Disbursement",
-            "বিতরণ তালিকা": "Disbursement List",
-            "অনুমোদিত ✓": "Approved ✓",
-            "নাকচ করা হয়েছে": "Rejected",
-            "নাকচের কারণ:": "Rejection reason:",
-            "বিতরণ অনুমোদন করবেন?": "Approve this disbursement?",
-            "বিতরণ অনুমোদিত ✓": "Disbursement approved ✓",
-            "বিতরণ নাকচ করা হল": "Disbursement rejected",
-            "✓ অনুমোদন করুন": "✓ Approve",
             "✗ নাকচ করুন": "✗ Reject",
             "অনুমোদন নোটস (ঐচ্ছিক)": "Approval notes (optional)",
             "এখানে কোনো নিলাম অপেক্ষা করছে না": "No disbursements pending",
@@ -1531,7 +1424,6 @@
                 sh_print: "🖨️ প্রিন্ট করুন",
                 bcBoxesTitle: "অঙ্ক অনুযায়ী",
                 reqTabLbl: "অনুরোধ",
-                disbTabLbl: "বিতরণ",
                 pxHeaderTitle: "কাস্টমার প্রোফাইল",
                 pTitle: "প্রোফাইল",
                 lxSm: "লোন",
@@ -1667,7 +1559,6 @@
                 if (key === "agent")  loadAgents();
                 if (key === "report") loadReport();
                 if (key === "req")    loadReq();
-                if (key === "disb")   loadDisb();
                 if (key === "sheet")  loadSheet();
                 if (key === "cust")   loadCust();
                 if (key === "od")     loadOd();
@@ -3196,180 +3087,6 @@
         }
 
         /* =====================================================================
-         * বিতরণ (Disbursement) — অনুমোদন
-         * ===================================================================== */
-        var DISB_PAGE = 0;
-        var DISB_SIZE = 20;
-
-        function loadDisb(silent) {
-            if (silent !== true) {
-                q("disbList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
-            }
-
-            var url = "/api/disbursements/manager/pending?page=" + DISB_PAGE + "&limit=" + DISB_SIZE;
-
-            NK.GET(url).then(function (resp) {
-                var list = NK.rows(resp && resp.content ? resp.content : []);
-                var totalElements = resp && resp.totalElements ? resp.totalElements : 0;
-                var totalPages = resp && resp.totalPages ? resp.totalPages : 1;
-
-                if (!list.length) {
-                    q("disbList").innerHTML = '<div class="card"><div class="empty">' +
-                        ltr("এখানে কোনো নিলাম অপেক্ষা করছে না") + '</div></div>';
-                    return;
-                }
-
-                var h = '<table class="disb-table">';
-                h += '<thead><tr>';
-                h += '<th>' + ltr("তারিখ") + '</th>';
-                h += '<th>' + ltr("লোন আইডি") + '</th>';
-                h += '<th>' + ltr("গ্রাহকের নাম") + '</th>';
-                h += '<th class="r">' + ltr("অঙ্ক") + '</th>';
-                h += '<th>' + ltr("এজেন্টের নাম") + '</th>';
-                h += '<th>' + ltr("অবস্থা") + '</th>';
-                h += '<th>' + ltr("ক্রিয়া") + '</th>';
-                h += '</tr></thead>';
-                h += '<tbody>';
-
-                list.forEach(function (d) {
-                    var statusMap = {
-                        PENDING: { label: ltr("অপেক্ষা") || "PENDING", cls: "pending" },
-                        APPROVED: { label: ltr("অনুমোদিত ✓") || "APPROVED", cls: "approved" },
-                        REJECTED: { label: ltr("নাকচ করা হয়েছে") || "REJECTED", cls: "rejected" },
-                        COMPLETED: { label: ltr("সম্পন্ন") || "COMPLETED", cls: "completed" }
-                    };
-                    var status = statusMap[d.status] || { label: d.status, cls: "" };
-
-                    h += '<tr>';
-                    h += '<td>' + (d.createdAt ? NK.dt(d.createdAt) : "—") + '</td>';
-                    h += '<td><b>' + NK.esc(d.loanId || "—") + '</b></td>';
-                    h += '<td>' + NK.esc(d.customerName || "—") + '</td>';
-                    h += '<td class="r"><b>' + NK.inr(d.amount || 0) + '</b></td>';
-                    h += '<td>' + NK.esc(d.agentName || "—") + '</td>';
-                    h += '<td><span class="disb-status ' + status.cls + '">' + NK.esc(status.label) + '</span></td>';
-
-                    h += '<td>';
-                    if (d.status === "PENDING") {
-                        h += '<div class="disb-actions">';
-                        h += '<button class="approve" data-disb-id="' + d.id + '" data-disb-type="approve">' +
-                            ltr("✓") + '</button>';
-                        h += '<button class="reject" data-disb-id="' + d.id + '" data-disb-type="reject">' +
-                            ltr("✗") + '</button>';
-                        h += '</div>';
-                    } else {
-                        h += '<span style="font-size:11px;color:var(--muted);">—</span>';
-                    }
-                    h += '</td>';
-
-                    h += '</tr>';
-                });
-
-                h += '</tbody>';
-                h += '</table>';
-
-                /* পেজিনেশন */
-                if (totalPages > 1) {
-                    h += '<div class="disb-pagination">';
-                    if (DISB_PAGE > 0) {
-                        h += '<button id="disbPrev">' + ltr("পূর্ববর্তী") + '</button>';
-                    }
-                    h += '<span style="align-self:center;font-size:12px;color:var(--muted);">' +
-                        (DISB_PAGE + 1) + ' / ' + totalPages + '</span>';
-                    if (DISB_PAGE < totalPages - 1) {
-                        h += '<button id="disbNext">' + ltr("পরবর্তী") + '</button>';
-                    }
-                    h += '</div>';
-                }
-
-                q("disbList").innerHTML = h;
-
-                /* অনুমোদন বাটন */
-                Array.prototype.forEach.call(q("disbList").querySelectorAll("[data-disb-type='approve']"), function (b) {
-                    b.addEventListener("click", function () {
-                        var disbId = b.getAttribute("data-disb-id");
-                        if (!confirm(ltr("বিতরণ অনুমোদন করবেন?"))) return;
-                        approveDisbursement(disbId, b);
-                    });
-                });
-
-                /* নাকচ বাটন */
-                Array.prototype.forEach.call(q("disbList").querySelectorAll("[data-disb-type='reject']"), function (b) {
-                    b.addEventListener("click", function () {
-                        var disbId = b.getAttribute("data-disb-id");
-                        var reason = prompt(ltr("নাকচের কারণ:"));
-                        if (!reason || !reason.trim()) {
-                            toast(ltr("কারণ লিখতেই হবে"), "er");
-                            return;
-                        }
-                        rejectDisbursement(disbId, reason.trim(), b);
-                    });
-                });
-
-                /* পেজিনেশন বাটন */
-                var prevBtn = q("disbPrev");
-                if (prevBtn) {
-                    prevBtn.addEventListener("click", function () {
-                        if (DISB_PAGE > 0) {
-                            DISB_PAGE--;
-                            loadDisb();
-                            window.scrollTo(0, 0);
-                        }
-                    });
-                }
-
-                var nextBtn = q("disbNext");
-                if (nextBtn) {
-                    nextBtn.addEventListener("click", function () {
-                        if (DISB_PAGE < totalPages - 1) {
-                            DISB_PAGE++;
-                            loadDisb();
-                            window.scrollTo(0, 0);
-                        }
-                    });
-                }
-
-            }).catch(function (e) {
-                q("disbList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
-            });
-        }
-
-        function approveDisbursement(disbId, btn) {
-            btn.disabled = true;
-            var originalText = btn.textContent;
-            btn.textContent = "...";
-
-            NK.PATCH("/api/disbursements/manager/" + disbId + "/approve", {})
-                .then(function () {
-                    toast(ltr("বিতরণ অনুমোদিত ✓"), "ok");
-                    DISB_PAGE = 0;
-                    loadDisb();
-                })
-                .catch(function (e) {
-                    toast(e.message, "er");
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                });
-        }
-
-        function rejectDisbursement(disbId, reason, btn) {
-            btn.disabled = true;
-            var originalText = btn.textContent;
-            btn.textContent = "...";
-
-            NK.PATCH("/api/disbursements/manager/" + disbId + "/reject", { rejectionReason: reason })
-                .then(function () {
-                    toast(ltr("বিতরণ নাকচ করা হল"), "ok");
-                    DISB_PAGE = 0;
-                    loadDisb();
-                })
-                .catch(function (e) {
-                    toast(e.message, "er");
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                });
-        }
-
-        /* =====================================================================
          * কাগজ
          * ===================================================================== */
         var shType = "MORNING";
@@ -3933,7 +3650,7 @@
         function notifNavKey(url) {
             if (!url) return null;
             if (url.indexOf("/loan-requests") === 0) return "req";
-            if (url.indexOf("/disbursements") === 0) return "disb";
+            if (url.indexOf("/disbursements") === 0) return "dash";
             if (url.indexOf("/customers") === 0) return "cust";
             return null;
         }
@@ -3996,7 +3713,6 @@
             else if (CURRENT_VIEW === "agent")  loadAgents();
             else if (CURRENT_VIEW === "report") loadReport();
             else if (CURRENT_VIEW === "req")    loadReq();
-            else if (CURRENT_VIEW === "disb")   loadDisb();
             else if (CURRENT_VIEW === "sheet")  loadSheet();
             else if (CURRENT_VIEW === "cust")   loadCust();
             else if (CURRENT_VIEW === "od")     loadOd();
