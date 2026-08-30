@@ -2874,7 +2874,84 @@
                     cur = new Date(yy, mm + 1, 1);
                 }
 
+                /* ---- পেমেন্টের সময় — ঠিক করার বাটন সহ ---- */
+                if (d.paymentLog && d.paymentLog.length) {
+                    h += '<div class="ld-title">🕒 ' + ltr('পেমেন্টের সময়') + '</div>';
+                    h += '<div class="list">';
+                    d.paymentLog.forEach(function (p) {
+                        h += '<div class="item">';
+                        h += '<div class="av">₹</div>';
+                        h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
+                            '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span></div>';
+                        if (Number(p.amount) > 0) {
+                            h += '<button class="btn ghost sm" data-correct="' + p.id +
+                                '" data-amt="' + p.amount + '">✏️ ' + ltr('ঠিক করুন') + '</button>';
+                        }
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+
+                /* ---- গ্রাহকের সইয়ের ছবি (শুধু দেখার জন্য — এখান থেকে তোলা যায় না) ---- */
+                if (d.customerSignaturePath) {
+                    h += '<div class="ld-title">✍️ ' + ltr('গ্রাহকের সই') + '</div>';
+                    h += '<div class="card" id="lxSigCard" style="text-align:center;">' +
+                        '<div class="empty">' + ltr('লোড হচ্ছে...') + '</div></div>';
+                }
+
                 q("lxBody").innerHTML = h;
+
+                if (d.customerSignaturePath) {
+                    NK.GET("/api/loans/" + loanId + "/signature").then(function (blob) {
+                        if (myReq !== LX_REQ_ID) return;
+                        var card = q("lxSigCard");
+                        if (!card || !blob) return;
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        img.alt = ltr("গ্রাহকের সই");
+                        img.style.maxWidth = "100%";
+                        img.style.borderRadius = "8px";
+                        card.innerHTML = "";
+                        card.appendChild(img);
+                    }).catch(function () {
+                        if (myReq !== LX_REQ_ID) return;
+                        var card = q("lxSigCard");
+                        if (card) card.innerHTML = '<div class="empty">' +
+                            ltr('সই লোড করা যায়নি') + '</div>';
+                    });
+                }
+
+                Array.prototype.forEach.call(q("lxBody").querySelectorAll("[data-correct]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var pid = b.getAttribute("data-correct");
+                        var oldAmt = Number(b.getAttribute("data-amt"));
+                        var newAmtStr = prompt(ltr("সঠিক অঙ্ক কত?") + " (" + ltr("আগে ছিল") + " " + NK.inr(oldAmt) + ")");
+                        if (!newAmtStr) return;
+                        var newAmt = Number(newAmtStr);
+                        if (!newAmt || newAmt <= 0) { toast(ltr("সঠিক অঙ্ক লিখুন"), "er"); return; }
+
+                        var reason = prompt(ltr("কেন সংশোধন করছেন? (কারণ লিখুন)"));
+                        if (!reason || !reason.trim()) { toast(ltr("কারণ লিখতেই হবে"), "er"); return; }
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.PUT("/api/payments/" + pid + "/edit", {
+                            amount: newAmt,
+                            note: ltr("ম্যানেজার সংশোধন করেছেন"),
+                            reason: reason.trim() + " · ₹" + oldAmt.toFixed(0) + " → ₹" + newAmt.toFixed(0)
+                        })
+                            .then(function () {
+                                toast(ltr("সংশোধন হয়েছে ✓"), "ok");
+                                openLoanDetail(loanId);
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "✏️ " + ltr("ঠিক করুন");
+                            });
+                    });
+                });
 
             }).catch(function (e) {
                 if (myReq !== LX_REQ_ID) return;
