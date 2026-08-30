@@ -1447,27 +1447,7 @@
             color: var(--muted);
         }
 
-        /* ---- বিতরণ অ্যাকশন বাটন ---- */
-        .disb-action-btn {
-            background: #16A34A;
-            color: #fff;
-            border: 0;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform .12s;
-        }
-        .disb-action-btn:active {
-            transform: scale(.96);
-        }
-        .disb-action-btn:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        /* ---- বিতরণ নোটস/কারণ ---- */
+        /* ---- বিতরণ নোটস ---- */
         .disb-notes {
             max-width: 300px;
             font-size: 12px;
@@ -1475,10 +1455,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-        .disb-notes.error {
-            color: var(--red);
-            font-weight: 600;
         }
 
         /* ---- খালি স্ক্রিন ---- */
@@ -6358,7 +6334,6 @@
 
             pageData.forEach(function (disb) {
                 var statusLower = (disb.status || '').toLowerCase();
-                var canAction = statusLower === 'approved';
 
                 h += '<tr>';
                 h += '<td class="time">' + (disb.createdAt ? NK.dtTime(disb.createdAt) : '—') + '</td>';
@@ -6366,32 +6341,8 @@
                 h += '<td>' + NK.esc(disb.customerName || '—') + '</td>';
                 h += '<td class="amt">₹' + NK.inr(disb.amount || 0) + '</td>';
                 h += '<td>' + getStatusBadge(disb.status) + '</td>';
-                h += '<td style="text-align:right;">';
-
-                if (canAction) {
-                    h += '<button class="disb-action-btn" onclick="markDisbursementCompleted(' +
-                        disb.id + ', event)">' +
-                        ltr("✓ সম্পন্ন") + '</button>';
-                }
-
-                h += '</td>';
+                h += '<td></td>';
                 h += '</tr>';
-
-                // Show manager notes if present
-                if (disb.managerNotes && statusLower !== 'completed') {
-                    h += '<tr style="background:var(--paper);">';
-                    h += '<td colspan="6">';
-                    h += '<div class="disb-notes">' + NK.esc("📝 " + disb.managerNotes) + '</div>';
-                    h += '</td></tr>';
-                }
-
-                // Show rejection reason if present
-                if (disb.rejectionReason && statusLower === 'rejected') {
-                    h += '<tr style="background:#FEF2F2;">';
-                    h += '<td colspan="6">';
-                    h += '<div class="disb-notes error">' + NK.esc("❌ " + disb.rejectionReason) + '</div>';
-                    h += '</td></tr>';
-                }
 
                 // Show completion time if present
                 if (disb.completedAt && statusLower === 'completed') {
@@ -6414,27 +6365,6 @@
             q("disbNextBtn").disabled = (disbState.page + 1) >= totalPages;
             q("disbPagination").style.display = totalPages > 1 ? 'flex' : 'none';
         }
-
-        window.markDisbursementCompleted = function (disbId, e) {
-            if (e) e.preventDefault();
-
-            var btn = e ? e.target : null;
-            if (!btn) return;
-            btn.disabled = true;
-            btn.textContent = '⏳...';
-
-            NK.PATCH("/api/disbursements/agent/" + disbId + "/mark-completed", {})
-                .then(function (response) {
-                    btn.disabled = false;
-                    toast(ltr("বিতরণ আপডেট হয়েছে"), "ok");
-                    loadDisb(); // Reload the list
-                })
-                .catch(function (e) {
-                    btn.disabled = false;
-                    btn.textContent = ltr("✓ সম্পন্ন");
-                    toast(ltr("সম্পন্ন করা যায়নি") + ": " + e.message, "er");
-                });
-        };
 
         // Pagination handlers
         q("disbPrevBtn").addEventListener("click", function () {
