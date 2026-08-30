@@ -3082,18 +3082,11 @@
                 formData.append("file", file);
             }
 
-            // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
-            fetch("/api/loans/" + loanId + "/sign-customer", {
-                method: "PUT",
-                body: formData,
-                headers: {
-                    "Authorization": "Bearer " + NK.getToken()
-                }
-            })
-                .then(function (res) {
-                    if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
-                    return res.json();
-                })
+            // ফাইল আপলোডের জন্য FormData — NK.UPLOAD ব্যবহার করি, যাতে অন্য সব
+            // API কলের মতোই সঠিক সার্ভারে যায় আর টোকেন মেয়াদ শেষ হলে নিজে থেকেই
+            // নতুন টোকেন নিয়ে আবার চেষ্টা করে (আগে raw fetch() ব্যবহার হতো,
+            // যেটা এসব কিছুই করত না — মাঝপথে টোকেন মেয়াদ শেষ হলে সইটাই হারিয়ে যেত)
+            NK.UPLOAD("/api/loans/" + loanId + "/sign-customer", formData, "PUT")
                 .then(function (data) {
                     toast(ltr("স্বাক্ষর সফলভাবে সংরক্ষণ করা হয়েছে ✓"), "ok");
                     setTimeout(function () {
