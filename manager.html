@@ -1751,7 +1751,10 @@
             q("agDetWrap").style.display = "none";
             q("agMktWrap").style.display = "block";
         });
+        var AG_REQ_ID = 0;
+
         function openAgentMarkets(agentId, agentName) {
+            var myReq = ++AG_REQ_ID;
             AG_ID = agentId;
             AG_NAME = agentName || ltr("এজেন্ট");
 
@@ -1771,6 +1774,7 @@
             q("agMktList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
             NK.GET("/api/agent/" + agentId + "/markets").then(function (d) {
+                if (myReq !== AG_REQ_ID) return;
                 var mkts = (d && d.markets) ? d.markets : [];
 
                 if (!mkts.length) {
@@ -1799,6 +1803,7 @@
                 /* মার্কেট ডেটা ধরে রাখি হিসাবের জন্য */
                 AG_MKTS = mkts;
             }).catch(function (e) {
+                if (myReq !== AG_REQ_ID) return;
                 q("agMktList").innerHTML =
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
