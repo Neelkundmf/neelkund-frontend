@@ -3924,30 +3924,33 @@
             loadDash();
             loadNotif();
 
-            // Expense tab click
-            var expBtn = document.querySelector('button[data-v="exp"]');
-            if (expBtn) {
-                expBtn.addEventListener("click", function() {
-                    var type = q("expType").value;
-                    q("expList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
-                    var url = type ? "/api/expenses?type=" + type : "/api/expenses";
-                    NK.GET(url).then(function(list) {
-                        var rows = NK.rows(list);
-                        var html = '';
-                        rows.forEach(function(r) {
-                            var date = NK.dt(r.date);
-                            var amt = NK.inr(r.amount);
-                            html += '<div class="row" style="padding:12px;border-bottom:1px solid var(--line);">';
-                            html += '<div><div style="font-size:13px;font-weight:600;">' + NK.esc(r.description || r.type) + '</div>';
-                            html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date + '</div></div>';
-                            html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
-                            html += '</div>';
-                        });
-                        if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">' + ltr("কোনো খরচ নেই") + '</div>';
-                        q("expList").innerHTML = html;
-                    }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>'; });
-                });
+            // Expense tab — ট্যাব চাপলে বা "ধরন" ড্রপডাউন বদলালে, দুটোতেই তালিকা নতুন করে লোড হবে
+            function loadExpenses() {
+                var type = q("expType").value;
+                q("expList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
+                var url = type ? "/api/expenses?type=" + type : "/api/expenses";
+                NK.GET(url).then(function(list) {
+                    var rows = NK.rows(list);
+                    var html = '';
+                    rows.forEach(function(r) {
+                        var date = NK.dt(r.date);
+                        var amt = NK.inr(r.amount);
+                        html += '<div class="row" style="padding:12px;border-bottom:1px solid var(--line);">';
+                        html += '<div><div style="font-size:13px;font-weight:600;">' + NK.esc(r.description || r.type) + '</div>';
+                        html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date + '</div></div>';
+                        html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
+                        html += '</div>';
+                    });
+                    if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">' + ltr("কোনো খরচ নেই") + '</div>';
+                    q("expList").innerHTML = html;
+                }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>'; });
             }
+
+            var expBtn = document.querySelector('button[data-v="exp"]');
+            if (expBtn) expBtn.addEventListener("click", loadExpenses);
+
+            var expTypeEl = q("expType");
+            if (expTypeEl) expTypeEl.addEventListener("change", loadExpenses);
         });
 
     })();
