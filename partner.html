@@ -1410,6 +1410,7 @@
 
         var loaded = {};
         var CURRENT_VIEW = "dash";
+        var MY_ID = null;
 
         /* সব view-র loader — "আরও" মেনু এটা ব্যবহার করে */
         var LOADERS = {
@@ -3132,8 +3133,10 @@
             Promise.all([fetchBranches(), fetchTeam()]).then(function () {
                 q("fd_br").innerHTML = brOpts(true);
 
+                // পার্টনার শুধু নিজের নামেই জমা/তোলা রেকর্ড করতে পারবেন — অন্য
+                // কারো নামে না, তাই ড্রপডাউনে শুধু নিজেকেই দেখানো হচ্ছে
                 var ps = TEAM.filter(function (u) {
-                    return u.role === "PARTNER" || u.role === "ADMIN";
+                    return u.id === MY_ID;
                 });
                 var o = "";
                 ps.forEach(function (p) {
@@ -4999,6 +5002,7 @@
             q("gate").remove();
             q("app").style.display = "block";
             q("ptnName").textContent = u.fullName;
+            MY_ID = u.id;
 
             /* নিজের শাখা/শাখা-কোড/ছবি — হেডারের উপরের প্যানেলে (এজেন্ট প্যানেলেরই
                /api/agent/me endpoint — কারো নিজের তথ্য আনতে role-নির্বিশেষে কাজ করে;
