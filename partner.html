@@ -554,20 +554,6 @@
 
         <!-- ---------------- ব্রাঞ্চ ---------------- -->
         <div class="view" id="v-branch">
-            <div class="card">
-                <h2 style="margin-bottom:14px;">নতুন ব্রাঞ্চ</h2>
-                <div class="msg" id="brMsg"></div>
-
-                <div class="fld"><label>নাম *</label><input id="br_name"><div class="error-msg" id="err_br_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"><div class="error-msg" id="err_br_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>কোডের ছাঁচ (ঐচ্ছিক)</label><input id="br_pattern" maxlength="40" placeholder="যেমন PTL/25-A/"><div class="hint">ফাঁকা রাখলে পুরনো নিয়ম: কোড-নম্বর (যেমন PTL-000001)</div><div class="error-msg" id="err_br_pattern" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>নম্বর কত অঙ্কের</label><input id="br_digits" type="number" min="3" max="9" value="6"><div class="hint">৬ হলে 000001</div><div class="error-msg" id="err_br_digits" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"><div class="error-msg" id="err_br_start" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>ঠিকানা</label><input id="br_addr"><div class="error-msg" id="err_br_addr" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-
-                <button class="btn block" id="br_go">ব্রাঞ্চ তৈরি করুন</button>
-            </div>
-
             <div id="brList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
@@ -787,10 +773,9 @@
         <div class="view" id="v-stages">
             <div class="card">
                 <h2 style="margin-bottom:6px;">গ্রাহকের ধাপ</h2>
-                <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">
+                <p style="color:var(--muted);font-size:13px;margin:0;">
                     প্রথম EMI-র তারিখ থেকে কত দিন হলে কোন ধাপ
                 </p>
-                <button class="btn ghost block sm" id="stRefresh">এখনই সব হিসাব করুন</button>
             </div>
 
             <div id="stList"><div class="loading">লোড হচ্ছে...</div></div>
@@ -817,8 +802,6 @@
                     </select>
                 </div>
                 <div class="error-msg" id="err_pm_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-
-                <button class="btn block" id="pm_save">সংরক্ষণ করুন</button>
             </div>
 
             <div id="pmList"><div class="loading">লোড হচ্ছে...</div></div>
@@ -897,18 +880,6 @@
         </div>
 
 
-        <!-- ---------------- কর্মীর প্রোফাইল ---------------- -->
-        <div class="view" id="v-profile">
-            <div class="card">
-                <h2 style="margin-bottom:14px;">কর্মী বাছুন</h2>
-                <div class="fld" style="margin:0;">
-                    <select id="pf_u"><option value="">— বাছুন —</option></select>
-                </div>
-                <div class="error-msg" id="err_pf_u" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-            </div>
-
-            <div id="pfBox"><div class="empty">উপরে একজন কর্মী বাছুন</div></div>
-        </div>
 
 
         <!-- ---------------- গ্রাহকের KYC ---------------- -->
@@ -1013,7 +984,6 @@
             <button data-go="money"><i>🏦</i>ফান্ড</button>
             <button data-go="expense"><i>💸</i>খরচ</button>
             <button data-go="salary"><i>💰</i>বেতন</button>
-            <button data-go="profile"><i>🪪</i>কর্মীর ডিটেলস</button>
             <button data-go="kyc"><i>📷</i>KYC ছবি</button>
             <button data-go="od"><i>🚨</i>OD তালিকা</button>
             <button data-go="stages"><i>🎨</i>ধাপ</button>
@@ -1446,7 +1416,7 @@
             od: loadOd, branch: loadBranch, market: loadMarket, team: loadTeam,
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
-            profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
+            kyc: loadKyc, access: loadAccess, report: loadReport,
             export: loadExport
         };
 
@@ -2754,7 +2724,7 @@
             });
         }
 
-        q("br_go").addEventListener("click", function () {
+        if (q("br_go")) q("br_go").addEventListener("click", function () {
             hide("brMsg");
 
             // Clear errors first
@@ -2940,11 +2910,7 @@
                     html += '<div class="end"><span class="b n">' +
                         (ROLE_BN2[u.role] || u.role) + '</span>' +
                         (off ? ltr('<br><span class="b r">বন্ধ</span>') : '') +
-                        '<div style="margin-top:6px;display:flex;gap:6px;">' +
-                        '<button class="btn ghost sm" data-en="' + u.id + '" data-v="' +
-                        (off ? 'true' : 'false') + '">' + (off ? ltr('চালু') : ltr('বন্ধ')) + '</button>' +
-                        '<button class="btn sm danger" data-del="' + u.id + '">' + ltr('মুছুন') + '</button>' +
-                        '</div></div>';
+                        '</div>';
                     html += '</div>';
                 });
                 html += '</div>';
@@ -2953,50 +2919,6 @@
                 Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-agent]"), function (el) {
                     el.addEventListener("click", function () {
                         openAgent(el.getAttribute("data-agent"));
-                    });
-                });
-                /* চালু / বন্ধ */
-                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-en]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var id = b.getAttribute("data-en");
-                        var v = b.getAttribute("data-v");
-
-                        b.disabled = true;
-                        b.textContent = "...";
-
-                        NK.PATCH("/api/admin/users/" + id + "/enabled?enabled=" + v)
-                            .then(function () {
-                                toast(v === "true" ? ltr("চালু করা হল") : ltr("বন্ধ করা হল"), "ok");
-                                loadTeam();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                                b.textContent = (v === "true") ? ltr("চালু") : ltr("বন্ধ");
-                            });
-                    });
-                });
-
-                /* মুছুন */
-                Array.prototype.forEach.call(q("tmList").querySelectorAll("[data-del]"), function (b) {
-                    b.addEventListener("click", function () {
-                        if (!confirm(ltr("সত্যিই মুছে ফেলবেন? ফেরত পাওয়া যাবে না।"))) return;
-
-                        var id = b.getAttribute("data-del");
-
-                        b.disabled = true;
-                        b.textContent = "...";
-
-                        NK.DELETE("/api/admin/users/" + id)
-                            .then(function () {
-                                toast(ltr("মুছে ফেলা হল"), "ok");
-                                loadTeam();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                                b.textContent = ltr("মুছুন");
-                            });
                     });
                 });
             }).catch(function (e) {
@@ -3102,7 +3024,7 @@
             q("tp_aad").classList.add("req");
             q("tp_aadb").classList.add("req");
         }
-        q("tm_go").addEventListener("click", function () {
+        if (q("tm_go")) q("tm_go").addEventListener("click", function () {
             hide("tmMsg");
 
             // Clear errors first
@@ -3434,7 +3356,7 @@
             });
         }
 
-        q("stRefresh").addEventListener("click", function () {
+        if (q("stRefresh")) q("stRefresh").addEventListener("click", function () {
             var b = q("stRefresh");
             b.disabled = true;
             b.innerHTML = ltr('<span class="spin"></span> হিসাব হচ্ছে...');
@@ -3457,7 +3379,7 @@
         function loadSettings() {
             q("setList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
-            // Maintenance status
+            // Maintenance status — শুধু দেখার জন্য, শুরু/বন্ধ করা শুধু অ্যাডমিনের কাজ
             NK.GET("/api/maintenance/status").then(function (status) {
                 var html = '';
                 if (status.active) {
@@ -3465,49 +3387,11 @@
                     var now = new Date();
                     var mins = Math.floor((endTime - now) / 60000);
                     html = '<div class="card" style="padding:14px;background:rgba(239,68,68,0.1);border:1.5px solid var(--red);">';
-                    html += '<div style="font-size:13px;font-weight:600;color:var(--red);">🔴 চলছে</div>';
+                    html += '<div style="font-size:13px;font-weight:600;color:var(--red);">🔴 রক্ষণাবেক্ষণ চলছে</div>';
                     html += '<div style="font-size:12px;color:var(--muted);margin-top:6px;">সময়: ' + NK.dtTime(endTime) + ' পর্যন্ত</div>';
                     html += '<div style="font-size:12px;color:var(--red);margin-top:4px;font-weight:600;">⏱ ' + mins + ' মিনিট বাকি</div>';
-                    html += '<button class="btn sm" id="stopBtn" style="margin-top:10px;background:var(--green);color:white;width:100%;">● STOP</button>';
                     html += '</div>';
-                } else {
-                    html = '<div class="card" style="padding:14px;">';
-                    html += '<div style="font-size:13px;font-weight:600;">🔧 রক্ষণাবেক্ষণ শুরু করুন</div>';
-                    html += '<div style="display:grid;gap:10px;margin-top:12px;">';
-                    html += '<div><label style="font-size:11px;color:var(--muted);">সময় (ঘণ্টা)</label>';
-                    html += '<select id="durationHours" style="width:100%;">';
-                    html += '<option value="">নির্বাচন করুন</option>';
-                    html += '<option value="1">1 ঘণ্টা</option>';
-                    html += '<option value="2">2 ঘণ্টা</option>';
-                    html += '<option value="3">3 ঘণ্টা</option>';
-                    html += '<option value="4">4 ঘণ্টা</option>';
-                    html += '<option value="6">6 ঘণ্টা</option>';
-                    html += '<option value="8">8 ঘণ্টা</option>';
-                    html += '</select></div>';
-                    html += '<div class="error-msg" id="err_durationHours" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
-                    html += '</div>';
-                    html += '<button class="btn sm" id="startBtn" style="margin-top:10px;background:var(--blue);color:white;width:100%;">▶ START</button>';
-                    html += '</div>';
-                }
-                q("setList").innerHTML = html;
-
-                if (status.active && q("stopBtn")) {
-                    q("stopBtn").addEventListener("click", function() {
-                        if (!confirm("সাথে সাথে maintenance বন্ধ করবেন?")) return;
-                        NK.POST("/api/maintenance/stop", {}).then(function() {
-                            toast("বন্ধ হয়েছে ✓", "ok");
-                            setTimeout(function() { loadSettings(); }, 1000);
-                        }).catch(function(e) { toast(e.message, "er"); });
-                    });
-                } else if (q("startBtn")) {
-                    q("startBtn").addEventListener("click", function() {
-                        var hours = q("durationHours").value;
-                        if (!hours) { toast("সময় নির্বাচন করুন", "er"); return; }
-                        NK.POST("/api/maintenance/start?hours=" + hours, {}).then(function() {
-                            toast("শুরু হয়েছে ✓", "ok");
-                            setTimeout(function() { loadSettings(); }, 1000);
-                        }).catch(function(e) { toast(e.message, "er"); });
-                    });
+                    q("setList").innerHTML = html;
                 }
             }).catch(function() {});
 
@@ -3521,41 +3405,16 @@
                         NK.esc(s.label || s.key) + '</div>';
 
                     html += '<div style="display:flex;gap:8px;align-items:center;">';
-                    html += '<input type="number" value="' + NK.esc(s.value) +
-                        '" data-k="' + NK.esc(s.key) + '" ' +
-                        'style="flex:1;min-height:44px;padding:10px 12px;border:1.5px solid var(--line);' +
-                        'border-radius:10px;font-size:16px;">';
+                    html += '<div style="flex:1;min-height:44px;padding:10px 12px;border:1.5px solid var(--line);' +
+                        'border-radius:10px;font-size:16px;background:var(--bg,#F4F6F8);">' + NK.esc(s.value) + '</div>';
                     html += '<span style="color:var(--muted);font-size:13px;min-width:40px;">' +
                         NK.esc(s.unit || "") + '</span>';
-                    html += '<button class="btn sm" data-save="' + NK.esc(s.key) + ltr('">সেভ</button>');
                     html += '</div>';
 
                     html += '</div>';
                 });
 
                 q("setList").innerHTML = html;
-
-                Array.prototype.forEach.call(q("setList").querySelectorAll("[data-save]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var key = b.getAttribute("data-save");
-                        var inp = q("setList").querySelector('[data-k="' + key + '"]');
-
-                        b.disabled = true;
-                        b.textContent = "...";
-
-                        NK.PUT("/api/admin/settings/" + key, { value: inp.value })
-                            .then(function () {
-                                toast(ltr("সংরক্ষিত ✓"), "ok");
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                            })
-                            .then(function () {
-                                b.disabled = false;
-                                b.textContent = ltr("সেভ");
-                            });
-                    });
-                });
 
             }).catch(function (e) {
                 q("setList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
@@ -3577,7 +3436,7 @@
                 rows.forEach(function (p) {
                     html += '<label style="display:flex;align-items:center;gap:10px;' +
                         'padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;">';
-                    html += '<input type="checkbox" data-p="' + NK.esc(p.permissionKey) + '"' +
+                    html += '<input type="checkbox" disabled' +
                         (p.enabled ? ' checked' : '') +
                         ' style="width:20px;height:20px;flex-shrink:0;">';
                     html += '<span style="font-size:14px;">' + NK.esc(p.label) + '</span>';
@@ -3594,7 +3453,7 @@
 
         q("pm_role").addEventListener("change", loadPerm);
 
-        q("pm_save").addEventListener("click", function () {
+        if (q("pm_save")) q("pm_save").addEventListener("click", function () {
             // Clear errors first
             ["pm_role"].forEach(id => NK.validate.clearError(id));
 
@@ -3877,7 +3736,7 @@
             });
         }
 
-        q("pf_u").addEventListener("change", function () {
+        if (q("pf_u")) q("pf_u").addEventListener("change", function () {
             var id = this.value;
 
             if (!id) {
