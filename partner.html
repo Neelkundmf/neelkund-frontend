@@ -943,38 +943,6 @@
                 <div id="acReq"><div class="loading">লোড হচ্ছে...</div></div>
             </div>
 
-            <div class="card">
-                <h2 style="margin-bottom:14px;">সময়সীমা বসান</h2>
-                <div class="msg" id="acMsg"></div>
-
-                <div class="fld"><label>পদ *</label>
-                    <select id="ac_role">
-                        <option value="AGENT">এজেন্ট</option>
-                        <option value="MANAGER">ম্যানেজার</option>
-                    </select>
-                </div>
-                <div class="error-msg" id="err_ac_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-
-                <div class="fld"><label>শুরু (ঘন্টা ০–২৩) *</label><input id="ac_s" type="number" min="0" max="23" value="8"></div>
-                <div class="error-msg" id="err_ac_s" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-                <div class="fld"><label>শেষ (ঘন্টা ০–২৩) *</label><input id="ac_e" type="number" min="0" max="23" value="20"></div>
-                <div class="error-msg" id="err_ac_e" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-
-                <button class="btn block" id="ac_go">বসান</button>
-            </div>
-
-            <div class="card">
-                <h2 style="margin-bottom:14px;">ছুটির দিন</h2>
-                <div class="msg" id="hoMsg"></div>
-
-                <div class="fld"><label>তারিখ *</label><input id="ho_d" type="date"></div>
-                <div class="error-msg" id="err_ho_d" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-                <div class="fld"><label>কারণ</label><input id="ho_n" placeholder="যেমন দুর্গাপূজা"></div>
-                <div class="error-msg" id="err_ho_n" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-
-                <button class="btn block" id="ho_go">ছুটি যোগ করুন</button>
-            </div>
-
             <div id="acList"></div>
 
             <div class="card">
@@ -4257,9 +4225,7 @@
          * অ্যাক্সেস
          * ===================================================================== */
         function loadAccess() {
-            if (!q("ho_d").value) q("ho_d").value = today();
-
-            /* অনুরোধ */
+            /* অনুরোধ — শুধু দেখার জন্য, অনুমোদন/নাকচ শুধু অ্যাডমিন করবেন */
             NK.GET("/api/admin/access/requests/pending").then(function (list) {
                 var rows = NK.rows(list);
 
@@ -4271,71 +4237,21 @@
                 var html = '<div class="list">';
 
                 rows.forEach(function (r) {
-                    html += '<div class="item" style="flex-wrap:wrap;">';
+                    html += '<div class="item">';
                     html += '<div class="av" style="background:var(--amber-soft);color:var(--amber);">⏰</div>';
                     html += '<div class="mid"><b>' + NK.esc(r.userName) + '</b>' +
                         '<span>' + NK.esc(r.userPhone) + ' · ' + NK.dtTime(r.requestedAt) + '</span></div>';
-
-                    html += '<div style="width:100%;display:flex;gap:6px;margin-top:10px;">';
-                    html += '<input type="number" value="2" min="1" max="24" data-h="' + r.id +
-                        '" style="width:70px;min-height:38px;padding:6px 10px;border:1.5px solid var(--line);' +
-                        'border-radius:8px;font-size:14px;">';
-                    html += '<button class="btn sm success" data-ap="' + r.id + ltr('" style="flex:1;">অনুমতি</button>');
-                    html += '<button class="btn sm danger" data-rj="' + r.id + ltr('" style="flex:1;">নাকচ</button>');
-                    html += '</div>';
-
                     html += '</div>';
                 });
 
                 html += '</div>';
                 q("acReq").innerHTML = html;
 
-                Array.prototype.forEach.call(q("acReq").querySelectorAll("[data-ap]"), function (b) {
-                    b.addEventListener("click", function () {
-                        var id = b.getAttribute("data-ap");
-                        var hInp = q("acReq").querySelector('[data-h="' + id + '"]');
-                        if (!hInp) return;
-                        var h = hInp.value;
-
-                        b.disabled = true;
-
-                        NK.POST("/api/admin/access/requests/" + id + "/approve",
-                            { hours: Number(h), note: null })
-                            .then(function () {
-                                toast(h + ltr(" ঘন্টার অনুমতি দেওয়া হল"), "ok");
-                                loadAccess();
-                                loadNotif();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                            });
-                    });
-                });
-
-                Array.prototype.forEach.call(q("acReq").querySelectorAll("[data-rj]"), function (b) {
-                    b.addEventListener("click", function () {
-                        b.disabled = true;
-
-                        NK.POST("/api/admin/access/requests/" + b.getAttribute("data-rj") + "/reject",
-                            { hours: 1, note: ltr("নাকচ") })
-                            .then(function () {
-                                toast(ltr("নাকচ করা হল"), "ok");
-                                loadAccess();
-                                loadNotif();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                            });
-                    });
-                });
-
             }).catch(function () {
                 q("acReq").innerHTML = ltr('<div class="empty">লোড করা গেল না</div>');
             });
 
-            /* চালু নিয়ম */
+            /* চালু নিয়ম — শুধু দেখার জন্য */
             NK.GET("/api/admin/access").then(function (list) {
                 var rows = NK.rows(list);
 
@@ -4356,97 +4272,17 @@
                             : (a.role ? ROLE_BN2[a.role] : ltr("সবাই")) + ": " +
                             a.startHour + ":00 – " + a.endHour + ":00") + '</b>' +
                         '<span>' + NK.esc(a.description || "") + '</span></div>';
-                    html += '<div class="end"><button class="btn sm danger" data-del="' +
-                        a.id + ltr('">মুছুন</button></div>');
                     html += '</div>';
                 });
 
                 html += '</div></div>';
                 q("acList").innerHTML = html;
 
-                Array.prototype.forEach.call(q("acList").querySelectorAll("[data-del]"), function (b) {
-                    b.addEventListener("click", function () {
-                        b.disabled = true;
-
-                        NK.DELETE("/api/admin/access/" + b.getAttribute("data-del"))
-                            .then(function () {
-                                toast(ltr("মুছে ফেলা হল"), "ok");
-                                loadAccess();
-                            })
-                            .catch(function (e) {
-                                toast(e.message, "er");
-                                b.disabled = false;
-                            });
-                    });
-                });
-
             }).catch(function () {});
 
             /* লগইন-লগআউট */
             renderLoginLog("acLogList");
         }
-
-        q("ac_go").addEventListener("click", function () {
-            hide("acMsg");
-
-            // Clear errors first
-            ["ac_role", "ac_s", "ac_e"].forEach(id => NK.validate.clearError(id));
-
-            // Validate
-            if (!NK.validate.isFormValid(["ac_role", "ac_s", "ac_e"])) {
-                return; // Stop submission
-            }
-
-            var b = q("ac_go");
-            b.disabled = true;
-            b.innerHTML = ltr('<span class="spin"></span> বসানো হচ্ছে...');
-
-            NK.POST("/api/admin/access/time-window", {
-                role: q("ac_role").value,
-                startHour: Number(q("ac_s").value),
-                endHour: Number(q("ac_e").value)
-            }).then(function () {
-                say("acMsg", ltr("সময়সীমা বসানো হয়েছে ✓"), true);
-                toast(ltr("সময়সীমা বসানো হল"), "ok");
-                loadAccess();
-            }).catch(function (e) {
-                say("acMsg", e.message, false);
-            }).then(function () {
-                b.disabled = false;
-                b.textContent = ltr("বসান");
-            });
-        });
-
-        q("ho_go").addEventListener("click", function () {
-            hide("hoMsg");
-
-            // Clear errors first
-            ["ho_d"].forEach(id => NK.validate.clearError(id));
-
-            // Validate
-            if (!NK.validate.isFormValid(["ho_d"])) {
-                return; // Stop submission
-            }
-
-            var b = q("ho_go");
-            b.disabled = true;
-            b.innerHTML = ltr('<span class="spin"></span> যোগ হচ্ছে...');
-
-            NK.POST("/api/admin/access/holiday", {
-                holidayDate: q("ho_d").value,
-                description: q("ho_n").value.trim() || null
-            }).then(function () {
-                say("hoMsg", ltr("ছুটি যোগ হয়েছে ✓"), true);
-                toast(ltr("ছুটি যোগ হল"), "ok");
-                q("ho_n").value = "";
-                loadAccess();
-            }).catch(function (e) {
-                say("hoMsg", e.message, false);
-            }).then(function () {
-                b.disabled = false;
-                b.textContent = ltr("ছুটি যোগ করুন");
-            });
-        });
 
 
         /* =====================================================================
