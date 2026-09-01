@@ -2115,7 +2115,7 @@
             if (cLoading) return;
 
             var s = q("cq").value.trim();
-            var path = "/api/customers?page=" + cPage + "&size=50";
+            var path = "/api/customers/list?tab=" + encodeURIComponent(cTab);
             if (s) path += "&search=" + encodeURIComponent(s);
 
             if (silent !== true) {
@@ -2127,28 +2127,17 @@
                 var rows = NK.rows(resp);
 
                 if (!rows.length) {
-                    if (cPage === 0) {
-                        q("cList").innerHTML = ltr('<div class="card"><div class="empty">কেউ নেই</div></div>');
-                    } else {
-                        if (q("cMore")) q("cMore").style.display = "none";
-                    }
-                    cHasMore = false;
+                    q("cList").innerHTML = ltr('<div class="card"><div class="empty">কেউ নেই</div></div>');
                     cLoading = false;
                     return;
                 }
 
-                var html = '';
-                if (cPage === 0) html = '<div class="list">';
-                else {
-                    var existingList = q("cList").querySelector(".list");
-                    if (existingList) html = existingList.innerHTML;
-                }
+                var html = '<div class="list">';
 
                 rows.forEach(function (c) {
                     var f = FLAG_BN[c.flag] || ["—", "n"];
-                    var custId = c.customerId || c.id;
 
-                    html += '<div class="item" data-cust="' + NK.esc(custId) + '">';
+                    html += '<div class="item" data-cust="' + NK.esc(c.customerId) + '">';
                     html += '<div class="av">' + NK.esc((c.fullName || "?").charAt(0)) + '</div>';
 
                     html += '<div class="mid">';
@@ -2167,20 +2156,7 @@
 
                 html += '</div>';
 
-                cHasMore = rows.length >= 50;
-                var moreBtn = '';
-                if (cHasMore) {
-                    moreBtn = '<button class="btn ghost block" id="cMore" ' +
-                        ltr('style="margin-top:12px;">আরও দেখুন</button>');
-                }
-
-                q("cList").innerHTML = html + moreBtn;
-                if (q("cMore")) {
-                    q("cMore").addEventListener("click", function () {
-                        cPage++;
-                        loadCust(true);
-                    });
-                }
+                q("cList").innerHTML = html;
                 Array.prototype.forEach.call(q("cList").querySelectorAll("[data-cust]"), function (el) {
                     el.addEventListener("click", function () {
                         openCustomer(el.getAttribute("data-cust"));
