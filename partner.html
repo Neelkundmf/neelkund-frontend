@@ -560,18 +560,6 @@
 
         <!-- ---------------- মার্কেট ---------------- -->
         <div class="view" id="v-market">
-            <div class="card">
-                <h2 style="margin-bottom:14px;">নতুন মার্কেট</h2>
-                <div class="msg" id="mkMsg"></div>
-
-                <div class="fld"><label>নাম *</label><input id="mk_name"><div class="error-msg" id="err_mk_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>কোড</label><div style="display:flex;gap:8px;"><input id="mk_code" maxlength="10" style="text-transform:uppercase;flex:1;"><button type="button" class="btn sm" id="mk_auto" style="flex-shrink:0;">Auto</button></div><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select><div class="error-msg" id="err_mk_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
-                <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
-
-                <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
-            </div>
-
             <div id="mkList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
@@ -2750,18 +2738,7 @@
          * মার্কেট
          * ===================================================================== */
         function loadMarket() {
-            Promise.all([fetchBranches(), fetchTeam()]).then(function () {
-                q("mk_br").innerHTML = brOpts(false);
-
-                var mgs = TEAM.filter(function (u) { return u.role === "MANAGER"; });
-                var o = ltr('<option value="">— নেই —</option>');
-                mgs.forEach(function (m) {
-                    o += '<option value="' + NK.esc(m.id) + '">' + NK.esc(m.fullName) + '</option>';
-                });
-                q("mk_mg").innerHTML = o;
-
-                return NK.GET("/api/markets");
-            }).then(function (list) {
+            NK.GET("/api/markets").then(function (list) {
                 var rows = NK.rows(list);
 
                 if (!rows.length) {
@@ -2786,73 +2763,6 @@
                 q("mkList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
-
-        q("mk_auto").addEventListener("click", function () {
-            var name = q("mk_name").value.trim();
-            if (!name) {
-                toast(ltr("নাম লিখুন আগে"), "er");
-                return;
-            }
-            var prefix = name.substring(0, 2).toUpperCase();
-            var list = q("mkList").querySelectorAll("[data-mk]");
-            var nums = [];
-            list.forEach(function (el) {
-                var code = el.getAttribute("data-mk");
-                if (code && code.startsWith(prefix + "-")) {
-                    var num = parseInt(code.substring(3));
-                    if (!isNaN(num)) nums.push(num);
-                }
-            });
-            var next = 1;
-            if (nums.length > 0) {
-                nums.sort(function (a, b) { return a - b; });
-                next = nums[nums.length - 1] + 1;
-            }
-            var suggested = prefix + "-" + String(next).padStart(2, "0");
-            q("mk_code").value = suggested;
-        });
-
-        q("mk_go").addEventListener("click", function () {
-            hide("mkMsg");
-
-            // Clear errors first
-            ["mk_name", "mk_code", "mk_br"].forEach(id => NK.validate.clearError(id));
-
-            // Validate
-            if (!NK.validate.isFormValid(["mk_name", "mk_br"])) {
-                return; // Stop submission
-            }
-
-            var b = q("mk_go");
-            b.disabled = true;
-            b.innerHTML = ltr('<span class="spin"></span> তৈরি হচ্ছে...');
-
-            var mgId = q("mk_mg").value;
-
-            NK.POST("/api/markets", {
-                name: q("mk_name").value.trim(),
-                code: q("mk_code").value.trim().toUpperCase() || null,
-                branchId: Number(q("mk_br").value),
-                managerId: mgId ? Number(mgId) : null,
-                description: null
-            }).then(function () {
-                say("mkMsg", ltr("মার্কেট তৈরি হয়েছে ✓"), true);
-                toast(ltr("মার্কেট তৈরি হয়েছে"), "ok");
-                q("mk_name").value = "";
-                q("mk_code").value = "";
-                loadMarket();
-            }).catch(function (e) {
-                NK.highlightFieldErrors(e);
-                var msg = e.message;
-                if (e.fieldErrors) {
-                    msg += NK.formatFieldErrors(e.fieldErrors);
-                }
-                say("mkMsg", msg, false);
-            }).then(function () {
-                b.disabled = false;
-                b.textContent = ltr("মার্কেট তৈরি করুন");
-            });
-        });
 
 
         /* =====================================================================
@@ -2904,9 +2814,8 @@
         }
         q("tm_br").addEventListener("change", fillMarketsForBranch);
         q("tm_role").addEventListener("change", fillMarketsForBranch);
-        q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
-        q("mk_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
-        q("tm_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+        if (q("br_code")) q("br_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+        if (q("tm_code")) q("tm_code").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
         q("tm_pan").addEventListener("input", function () {
             this.value = this.value.toUpperCase();
             var ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(this.value);
@@ -4478,25 +4387,10 @@
                 }
 
                 var flagCls = { GREEN: "g", YELLOW: "a", RED: "r" }[c.flag] || "";
-                if (c.flagReason || (c.flag && c.flag !== "GREEN")) {
-                    var flagTxt = { GREEN: ltr('ভালো'), YELLOW: ltr('সাবধান'), RED: ltr('খারাপ') }[c.flag] || "";
-                    h += '<div class="pf-remark ' + flagCls + '">';
-                    h += '<div class="rl">Remark</div>';
-                    h += '<div class="rt">' + NK.esc(c.flagReason || flagTxt) + '</div>';
-                    h += '</div>';
-                }
-
-                h += '<div class="pf-remark-edit">';
-                h += ltr('<div class="h">Remark সেট করুন</div>');
-                h += '<div class="pf-colors" id="pxColors">';
-                h += '<button data-f="GREEN" class="gsel' + (c.flag === "GREEN" ? " on" : "") + ltr('">সবুজ</button>');
-                h += '<button data-f="YELLOW" class="asel' + (c.flag === "YELLOW" ? " on" : "") + ltr('">হলুদ</button>');
-                h += '<button data-f="RED" class="rsel' + (c.flag === "RED" ? " on" : "") + ltr('">লাল</button>');
-                h += '</div>';
-                h += ltr('<textarea id="pxReason" placeholder="নোট লিখুন (যেমন: দেরি করে, সাবধান)">') +
-                    NK.esc(c.flagReason || "") + '</textarea>';
-                h += '<div class="error-msg" id="err_pxReason" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
-                h += ltr('<button class="btn block" id="pxSave">Remark সংরক্ষণ করুন</button>');
+                var flagTxt = { GREEN: ltr('ভালো'), YELLOW: ltr('সাবধান'), RED: ltr('খারাপ') }[c.flag] || "";
+                h += '<div class="pf-remark ' + flagCls + '">';
+                h += '<div class="rl">Remark</div>';
+                h += '<div class="rt">' + NK.esc(c.flagReason || flagTxt) + '</div>';
                 h += '</div>';
 
                 var lastLoan = loans.length ? loans[0] : null;
@@ -4551,40 +4445,6 @@
                         pe.textContent = "";
                     }).catch(function () {});
                 }
-
-                var pickedFlag = c.flag || "GREEN";
-                Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (btn) {
-                    btn.addEventListener("click", function () {
-                        pickedFlag = btn.getAttribute("data-f");
-                        Array.prototype.forEach.call(q("pxColors").querySelectorAll("[data-f]"), function (x) {
-                            x.classList.remove("on");
-                        });
-                        btn.classList.add("on");
-                    });
-                });
-
-                q("pxSave").addEventListener("click", function () {
-                    // Clear errors first
-                    ["pxReason"].forEach(fid => NK.validate.clearError(fid));
-
-                    // Validate
-                    if (!NK.validate.isFormValid(["pxReason"])) {
-                        return; // Stop submission
-                    }
-
-                    var btn = q("pxSave");
-                    btn.disabled = true; btn.textContent = ltr('সংরক্ষণ হচ্ছে...');
-                    NK.PATCH("/api/customers/" + id + "/flag", {
-                        flag: pickedFlag,
-                        reason: q("pxReason").value.trim()
-                    }).then(function () {
-                        toast(ltr('Remark সংরক্ষিত হয়েছে ✓'), "ok");
-                        openCustomer(id);
-                    }).catch(function (e) {
-                        toast(e.message, "er");
-                        btn.disabled = false; btn.textContent = ltr('Remark সংরক্ষণ করুন');
-                    });
-                });
 
                 Array.prototype.forEach.call(q("pxBody").querySelectorAll("[data-loan]"), function (el) {
                     el.addEventListener("click", function () {
