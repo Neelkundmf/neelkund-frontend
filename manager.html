@@ -1597,7 +1597,7 @@
             cust: loadCust, od: loadOd, report: loadReport
         };
 
-        function show(key) {
+        function show(key, skipPush) {
             CURRENT_VIEW = key;
             window.CURRENT_VIEW = CURRENT_VIEW;
             Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
@@ -1610,7 +1610,13 @@
             });
 
             window.scrollTo(0, 0);
-            history.pushState({ view: key }, null, window.location.pathname);
+
+            // popstate (ফিজিক্যাল/in-app Back)-এর জবাবে ডাকা হলে আবার push করব
+            // না — নাহলে প্রতিটা Back-চাপায় সাথে সাথে আরেকটা নতুন state বসে
+            // যেত, ফলে history.back() কখনও আসল "আগের পাতা"-য় পৌঁছাতে পারত না
+            if (!skipPush) {
+                history.pushState({ view: key }, null, window.location.pathname);
+            }
 
             if (!loaded[key]) {
                 loaded[key] = true;
@@ -2149,10 +2155,7 @@
         var PROFILE_CUST = null;
 
         var pxClose = q("pxClose");
-        if (pxClose) pxClose.addEventListener("click", function () {
-            q("profX").classList.remove("on");
-            NK.replaceNavState({ view: CURRENT_VIEW });
-        });
+        if (pxClose) pxClose.addEventListener("click", function () { history.back(); });
 
         var PX_REQ_ID = 0;
         function openCustomerProfile(customerId, loanRequestId) {
@@ -2629,8 +2632,7 @@
                         NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/approve", {})
                             .then(function() {
                                 toast("লোন অনুমোদন সম্পন্ন ✓", "ok");
-                                q("profX").classList.remove("on");
-                                NK.replaceNavState({ view: CURRENT_VIEW });
+                                history.back();
                                 loadReq();
                                 loadNotif();
                             })
@@ -2655,8 +2657,7 @@
                         NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/reject", { reason: reason.trim() })
                             .then(function() {
                                 toast("লোন নাকচ করা হয়েছে", "ok");
-                                q("profX").classList.remove("on");
-                                NK.replaceNavState({ view: CURRENT_VIEW });
+                                history.back();
                                 loadReq();
                                 loadNotif();
                             })
@@ -2679,14 +2680,7 @@
          * লোন ডিটেইল পাতা + EMI ক্যালেন্ডার
          * ===================================================================== */
         var lxClose = q("lxClose");
-        if (lxClose) lxClose.addEventListener("click", function () {
-            q("loanX").classList.remove("on");
-            // profX (400) loanX (500)-এর নিচে খোলা থাকলে সেটা এখনও দেখা যাবে,
-            // না থাকলে (সরাসরি অন্য কোথাও থেকে খোলা হলে) ড্যাশবোর্ডে ফিরবে
-            NK.replaceNavState(q("profX").classList.contains("on")
-                ? { view: CURRENT_VIEW, panel: "customerProfile", panelId: PROFILE_CUST }
-                : { view: CURRENT_VIEW });
-        });
+        if (lxClose) lxClose.addEventListener("click", function () { history.back(); });
 
         /* =====================================================================
          * আমার প্রোফাইল
@@ -3105,10 +3099,7 @@
         }
 
         var dbaCloseEl = q("dbaClose");
-        if (dbaCloseEl) dbaCloseEl.addEventListener("click", function () {
-            q("disbByAgentX").classList.remove("on");
-            NK.replaceNavState({ view: CURRENT_VIEW });
-        });
+        if (dbaCloseEl) dbaCloseEl.addEventListener("click", function () { history.back(); });
 
         function pfRow(label, value) {
             if (value === null || value === undefined || value === "") return "";
@@ -4141,7 +4132,7 @@
         }
 
         // Switch view
-        show(e.state.view);
+        show(e.state.view, true);
 
         // Restore nested panel state if exists
         if (e.state.panel && e.state.panelId) {
