@@ -138,18 +138,23 @@
             color: var(--muted);
         }
 
-        /* ---- সকালের কালেকশন চার্ট — কাগজের হুবহু ফরম্যাট ---- */
+        /* ---- সকালের কালেকশন চার্ট — কাগজের হুবহু ফরম্যাট ----
+           print-color-adjust না দিলে অনেক ব্রাউজার/প্রিন্টারে "Background graphics"
+           অপশন বন্ধ থাকলে এই রংগুলো (হেডার বার, কলাম-হেডের হলুদ) সাদা হয়ে প্রিন্ট হয় */
         .chart-bar1 {
             background: #1F3A52; color: #fff; text-align: center;
             font-weight: 800; font-size: 13px; padding: 5px; letter-spacing: .4px;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
         .chart-bar2 {
             background: #3C5A73; color: #fff; text-align: center;
             font-weight: 700; font-size: 11px; padding: 3px;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
         .chart-bar3 {
             background: #D9E4B0; color: #1F2937; text-align: center;
             font-weight: 700; font-size: 11px; padding: 3px; margin-top: 2px;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
         table.chart {
             width: 100%; border-collapse: collapse; font-size: 9.5px; margin-bottom: 2px;
@@ -159,6 +164,7 @@
         }
         table.chart th {
             background: #F5E96B; font-weight: 700; text-align: center; font-size: 9px; padding: 2px 3px;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
         table.chart td.c { text-align: center; }
         table.chart td.today { background: #FAFAFA; height: 14px; }
