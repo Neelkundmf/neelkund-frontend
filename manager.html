@@ -261,7 +261,7 @@
 
         /* ---- আজকের বিতরণ পাতা — এজেন্ট-ভিত্তিক রঙিন কার্ড, গ্রাহকের নাম সবসময় দেখা যায় ---- */
         #disbByAgentX {
-            position: fixed; inset: 0; z-index: 500;
+            position: fixed; inset: 0; z-index: 450;
             background: var(--bg, #F4F6F8);
             display: none; flex-direction: column;
         }
@@ -699,7 +699,7 @@
 
         /* ===== নতুন কাস্টমার প্রোফাইল পাতা ===== */
         #profX {
-            position: fixed; inset: 0; z-index: 400;
+            position: fixed; inset: 0; z-index: 500;
             background: var(--bg, #F4F6F8);
             display: none; flex-direction: column;
         }
@@ -795,7 +795,7 @@
         .pf-colors button.on { border-color: var(--navy); }
         /* ===== লোন ডিটেইল পাতা ===== */
         #loanX {
-            position: fixed; inset: 0; z-index: 500;
+            position: fixed; inset: 0; z-index: 550;
             background: var(--bg, #F4F6F8);
             display: none; flex-direction: column;
         }
@@ -2042,7 +2042,7 @@
                 q("dash").innerHTML = h;
 
                 var disbBoxTapEl = q("disbBoxTap");
-                if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", openDisbByAgent);
+                if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", function () { openDisbByAgent(); });
 
                 // Load collection list at bottom
                 loadCollectionList();
@@ -3037,9 +3037,11 @@
          * ===================================================================== */
         var DISB_TODAY_LIST = [];
 
-        function openDisbByAgent() {
+        function openDisbByAgent(skipPush) {
             q("disbByAgentX").classList.add("on");
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "disbByAgent" });
+            if (!skipPush) {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "disbByAgent" });
+            }
 
             var byAgent = {};
             var order = [];
@@ -3086,13 +3088,9 @@
 
             Array.prototype.forEach.call(q("dbaBody").querySelectorAll("[data-prof]"), function (el) {
                 el.addEventListener("click", function () {
-                    // #disbByAgentX (z-index 500) #profX (400)-এর ওপরে থাকে, তাই
-                    // বন্ধ না করে প্রোফাইল খুললে সেটা আড়ালে চলে যেত — আগে বন্ধ করি।
-                    // history-তেও "disbByAgent" state-টা bare dashboard দিয়ে
-                    // replace করে দিচ্ছি (push না) — নাহলে প্রোফাইল থেকে Back
-                    // চাপলে disbByAgent আবার খুলে যেত, ড্যাশবোর্ডে সরাসরি ফেরা যেত না
-                    q("disbByAgentX").classList.remove("on");
-                    NK.replaceNavState({ view: CURRENT_VIEW });
+                    // #profX (z-index 500) এখন #disbByAgentX (450)-এর ওপরেই খোলে,
+                    // তাই আগে বন্ধ করার দরকার নেই — স্বাভাবিক push, Back চাপলে
+                    // ঠিকভাবেই এই "আজকের বিতরণ" পাতায় ফিরে আসবে
                     openCustomerProfile(el.getAttribute("data-prof"));
                 });
             });
@@ -4144,7 +4142,10 @@
                 openLoanDetail(e.state.panelId);
             }
         } else if (e.state.panel === "disbByAgent") {
-            openDisbByAgent();
+            // #profX (500) #disbByAgentX (450)-এর ওপরে খোলে, তাই এখান থেকে
+            // ফিরলে প্রোফাইল বন্ধ না করলে এখনও আড়ালে ঢেকে রাখবে
+            q("profX").classList.remove("on");
+            openDisbByAgent(true);
         } else if (e.state.panel === "myProfile") {
             openMyProfile(true);
         } else {
