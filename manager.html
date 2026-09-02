@@ -137,6 +137,35 @@
             text-align: center;
             color: var(--muted);
         }
+
+        /* ---- সকালের কালেকশন চার্ট — কাগজের হুবহু ফরম্যাট ---- */
+        .chart-bar1 {
+            background: #1F3A52; color: #fff; text-align: center;
+            font-weight: 800; font-size: 13px; padding: 5px; letter-spacing: .4px;
+        }
+        .chart-bar2 {
+            background: #3C5A73; color: #fff; text-align: center;
+            font-weight: 700; font-size: 11px; padding: 3px;
+        }
+        .chart-bar3 {
+            background: #D9E4B0; color: #1F2937; text-align: center;
+            font-weight: 700; font-size: 11px; padding: 3px; margin-top: 2px;
+        }
+        table.chart {
+            width: 100%; border-collapse: collapse; font-size: 9.5px; margin-bottom: 2px;
+        }
+        table.chart th, table.chart td {
+            border: 1px solid #333; padding: 1.5px 4px; text-align: left; line-height: 1.3;
+        }
+        table.chart th {
+            background: #F5E96B; font-weight: 700; text-align: center; font-size: 9px; padding: 2px 3px;
+        }
+        table.chart td.c { text-align: center; }
+        table.chart td.today { background: #FAFAFA; height: 14px; }
+        .chart-foot {
+            display: flex; justify-content: space-between; padding: 8px 4px;
+            font-size: 10px; color: var(--muted);
+        }
         /* ---- ম্যানেজার ড্যাশবোর্ড — স্বাগত ব্যানার ---- */
         /* ===== হেডার — agent.html-এর সাথে হুবহু একই ডিজাইন (গ্রেডিয়েন্ট,
            ছবি-কার্ড, শাখা/কোড বক্স) — শুধু "এজেন্ট" ব্যাজের বদলে "ম্যানেজার" ===== */
@@ -3205,6 +3234,79 @@
 
         var SH_REQ_ID = 0;
 
+        /* সকালের কাগজ — এজেন্ট মাঠে নিয়ে যান, কাগজের হুবহু ফরম্যাটে */
+        function renderMorningChart(s) {
+            var todayLbl = NK.dt(s.date);
+            var h = '<div class="sheet">';
+
+            h += '<div class="chart-bar1">NEELKUND COLLECTION CHART</div>';
+            h += '<div class="chart-bar2">RO NAME-' + NK.esc((s.agentName || "").toUpperCase()) + '</div>';
+
+            (s.markets || []).forEach(function (m) {
+                h += '<div class="chart-bar3">' + NK.esc((m.marketName || "").toUpperCase()) + '</div>';
+                h += '<table class="chart"><thead><tr>';
+                h += '<th>SL</th><th>CID</th><th>' + ltr('নাম') + '</th><th>PH</th>' +
+                    '<th>LCN</th><th>DBD</th><th>LA</th><th>OUT</th><th>ADV</th><th>ARR</th>' +
+                    '<th>EMI</th><th>' + ltr('আজ মোট') + '</th><th>' + todayLbl + '</th>';
+                h += '</tr></thead><tbody>';
+
+                (m.rows || []).forEach(function (r) {
+                    var arrTxt = Number(r.arrears) > 0
+                        ? NK.inr(r.arrears) + ' (' + r.arrearsDays + ltr(' দিন)')
+                        : '—';
+                    var advTxt = Number(r.advanceHeld) > 0 ? NK.inr(r.advanceHeld) : '—';
+
+                    h += '<tr>';
+                    h += '<td class="c">' + r.serial + '</td>';
+                    h += '<td class="c">' + NK.esc(r.customerCode || '') + '</td>';
+                    h += '<td>' + NK.esc(r.customerName) + '</td>';
+                    h += '<td>' + NK.esc(r.customerPhone || '') + '</td>';
+                    h += '<td class="c">' + (r.cycleNumber || 1) + '</td>';
+                    h += '<td class="c">' + NK.dt(r.disbursedDate) + '</td>';
+                    h += '<td class="c">' + NK.inr(r.loanAmount) + '</td>';
+                    h += '<td class="c">' + NK.inr(r.outstanding) + '</td>';
+                    h += '<td class="c">' + advTxt + '</td>';
+                    h += '<td class="c">' + arrTxt + '</td>';
+                    h += '<td class="c">' + NK.inr(r.todayDue) + '</td>';
+                    h += '<td class="c"><b>' + NK.inr(r.netToCollect) + '</b></td>';
+                    h += '<td class="today"></td>';
+                    h += '</tr>';
+                });
+
+                h += '</tbody></table>';
+            });
+
+            if (s.odCustomers && s.odCustomers.length) {
+                h += '<div class="chart-bar3">⛔ ' + ltr('পিছিয়ে থাকা (OD) গ্রাহক') + '</div>';
+                h += '<table class="chart"><thead><tr>';
+                h += '<th>SL</th><th>CID</th><th>' + ltr('নাম') + '</th><th>PH</th>' +
+                    '<th>' + ltr('কত দিন') + '</th><th>OUT</th>';
+                h += '</tr></thead><tbody>';
+
+                s.odCustomers.forEach(function (o, i) {
+                    h += '<tr>';
+                    h += '<td class="c">' + (i + 1) + '</td>';
+                    h += '<td class="c">' + NK.esc(o.customerCode || '') + '</td>';
+                    h += '<td>' + NK.esc(o.customerName) + '</td>';
+                    h += '<td>' + NK.esc(o.customerPhone || '') + '</td>';
+                    h += '<td class="c">' + o.daysOverdue + '</td>';
+                    h += '<td class="c">' + NK.inr(o.outstanding) + '</td>';
+                    h += '</tr>';
+                });
+
+                h += '</tbody></table>';
+            }
+
+            h += '<div class="chart-foot">';
+            h += '<div>' + ltr('মোট গ্রাহক') + ': <b>' + s.totalCustomers + '</b></div>';
+            h += '<div>' + ltr('এজেন্টের সই') + ': ______________</div>';
+            h += '<div>' + ltr('ম্যানেজারের সই') + ': ______________</div>';
+            h += '</div>';
+
+            h += '</div>';
+            return h;
+        }
+
         function showSheet() {
             var myReq = ++SH_REQ_ID;
             var id = q("sh_ag").value;
@@ -3225,6 +3327,12 @@
             NK.GET(url).then(function (s) {
                 if (myReq !== SH_REQ_ID) return;
                 var eve = s.sheetType === "EVENING";
+
+                if (!eve) {
+                    q("shBox").innerHTML = renderMorningChart(s);
+                    q("sh_print").style.display = "flex";
+                    return;
+                }
 
                 var h = '<div class="sheet">';
 
