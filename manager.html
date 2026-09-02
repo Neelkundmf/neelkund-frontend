@@ -2150,7 +2150,10 @@
 
         var pxClose = q("pxClose");
         if (pxClose) pxClose.addEventListener("click", function () {
-            q("profX").classList.remove("on");
+            // classList সরাসরি বদলানোর বদলে history.back() — নাহলে history-তে
+            // "customerProfile" state থেকেই যেত, পরে অন্য কিছু খুললে ফিজিক্যাল
+            // Back চাপলে এই বন্ধ করা প্রোফাইলটাই আবার খুলে যেত
+            history.back();
         });
 
         var PX_REQ_ID = 0;
@@ -2628,7 +2631,7 @@
                         NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/approve", {})
                             .then(function() {
                                 toast("লোন অনুমোদন সম্পন্ন ✓", "ok");
-                                q("profX").classList.remove("on");
+                                history.back();
                                 loadReq();
                                 loadNotif();
                             })
@@ -2653,7 +2656,7 @@
                         NK.POST("/api/loan-requests/" + window.selectedLoanRequestId + "/reject", { reason: reason.trim() })
                             .then(function() {
                                 toast("লোন নাকচ করা হয়েছে", "ok");
-                                q("profX").classList.remove("on");
+                                history.back();
                                 loadReq();
                                 loadNotif();
                             })
@@ -2677,7 +2680,7 @@
          * ===================================================================== */
         var lxClose = q("lxClose");
         if (lxClose) lxClose.addEventListener("click", function () {
-            q("loanX").classList.remove("on");
+            history.back();
         });
 
         /* =====================================================================
@@ -3085,8 +3088,12 @@
             Array.prototype.forEach.call(q("dbaBody").querySelectorAll("[data-prof]"), function (el) {
                 el.addEventListener("click", function () {
                     // #disbByAgentX (z-index 500) #profX (400)-এর ওপরে থাকে, তাই
-                    // বন্ধ না করে প্রোফাইল খুললে সেটা আড়ালে চলে যেত — আগে বন্ধ করি
+                    // বন্ধ না করে প্রোফাইল খুললে সেটা আড়ালে চলে যেত — আগে বন্ধ করি।
+                    // history-তেও "disbByAgent" state-টা bare dashboard দিয়ে
+                    // replace করে দিচ্ছি (push না) — নাহলে প্রোফাইল থেকে Back
+                    // চাপলে disbByAgent আবার খুলে যেত, ড্যাশবোর্ডে সরাসরি ফেরা যেত না
                     q("disbByAgentX").classList.remove("on");
+                    NK.replaceNavState({ view: CURRENT_VIEW });
                     openCustomerProfile(el.getAttribute("data-prof"));
                 });
             });
