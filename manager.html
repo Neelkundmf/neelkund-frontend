@@ -4162,6 +4162,11 @@
     // Initialize history for first page load (will be set after CURRENT_VIEW is ready)
     setTimeout(function() {
         history.replaceState({ view: window.CURRENT_VIEW }, null, window.location.pathname);
+        // একটা বাড়তি "কুশন" entry — নাহলে সব প্যানেল বন্ধ করে ড্যাশবোর্ডে
+        // থাকা অবস্থায় Back চাপলে অ্যাপের নিজের history ফুরিয়ে গিয়ে সরাসরি
+        // ব্রাউজার পুরো পাতা থেকেই বেরিয়ে যেত (ডাবল-ট্যাপ-এক্সিট সুরক্ষা
+        // ধরারই সময় পেত না) — এই কুশনটাই প্রথম Back-এ ধরা পড়বে
+        history.pushState({ view: window.CURRENT_VIEW }, null, window.location.pathname);
     }, 0);
 </script>
 <script>
