@@ -2234,6 +2234,11 @@
 
             show("dash");
             q("backbar").classList.remove("on");
+
+            /* history.state-ও ড্যাশবোর্ডে মিলিয়ে দিই — নাহলে ফিজিক্যাল Back
+               চাপলে এখানে খোলা ছিল এমন প্যানেল আবার খুলে যায় */
+            CURRENT_VIEW = "dash";
+            NK.replaceNavState({ view: "dash" });
         }
 
         q("backBtn").addEventListener("click", backToDash);
@@ -5241,13 +5246,17 @@
         /* =====================================================================
    * এজেন্টের প্রোফাইল
    * ===================================================================== */
-        function openAgent(id) {
+        function openAgent(id, skipPush) {
             q("prof").classList.add("on");
             q("pTitle").textContent = ltr('কর্মী');
             q("pBody").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
             window.scrollTo(0, 0);
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "agent", panelId: id });
+            /* মার্কেট থেকে সবাইকে সরানোর পর নিজেকেই আবার রিফ্রেশ করতে ডাকলে (skipPush)
+               নতুন করে push করি না — নাহলে একই প্যানেলের জন্য দুটো history entry জমে যায় */
+            if (!skipPush) {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "agent", panelId: id });
+            }
 
             Promise.all([
                 NK.GET("/api/manager/users/" + id + "/profile"),
@@ -5458,7 +5467,7 @@
                             return NK.PATCH("/api/customers/" + c.id + "/market", { marketId: null });
                         })).then(function () {
                             toast(ltr("✓ সরানো হয়েছে"), "ok");
-                            setTimeout(function () { openAgent(id); }, 900);
+                            setTimeout(function () { openAgent(id, true); }, 900);
                         }).catch(function (e) {
                             toast(e.message, "er");
                             btn.disabled = false;
