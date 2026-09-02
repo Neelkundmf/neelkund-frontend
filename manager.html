@@ -1828,8 +1828,10 @@
         /* =====================================================================
          * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB
          * ===================================================================== */
-        function loadReport() {
-            q("reportBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+        function loadReport(silent) {
+            if (silent !== true) {
+                q("reportBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
 
             Promise.all([
                 NK.GET("/api/dashboard/agent-today-report"),
