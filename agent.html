@@ -4829,13 +4829,6 @@
                 return;
             }
 
-            // Validate voter ID (optional, but if given must be valid — ৩টা অক্ষর + ৭টা সংখ্যা)
-            var voterId = q("n_voter_id").value.trim().toUpperCase();
-            if (voterId && !/^[A-Z]{3}[0-9]{7}$/.test(voterId)) {
-                say("nMsg", ltr("ভোটার আইডি ফরম্যাট ভুল (যেমন: ABC1234567)"), false);
-                q("n_voter_id").style.borderColor = "#ef4444";
-                return;
-            }
 
             // Validate profile photo
             if (!CPICS.SELFIE) {
