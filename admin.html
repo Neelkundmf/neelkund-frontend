@@ -458,6 +458,54 @@
 
         .tabs button:active { transform: translateY(-3px) scale(.97); }
         .tabs button.on:active { transform: translateY(-9px) scale(.97); }
+
+        /* ---- লোনের অনুরোধ ---- */
+        .req {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--amber);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .req .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .req .top b { font-size: 15.5px; }
+        .req .amt {
+            font-family: 'Manrope', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .req .info {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.9;
+            padding: 10px 12px;
+            background: var(--paper);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .req .info b { color: var(--ink); }
+
+        .req .warn {
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .req .warn.ok   { background: var(--green-soft); color: var(--green); }
+        .req .warn.mid  { background: var(--amber-soft); color: var(--amber); }
+        .req .warn.bad  { background: var(--red-soft);   color: var(--red); }
+
+        .req .acts { display: flex; gap: 8px; }
+        .req .acts button { flex: 1; }
     </style>
 </head>
 <body>
@@ -604,6 +652,11 @@
         <!-- ---------------- OD তালিকা ---------------- -->
         <div class="view" id="v-od">
             <div id="odList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- ---------------- লোন-রিকোয়েস্ট ---------------- -->
+        <div class="view" id="v-loanreq">
+            <div id="reqList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
 
@@ -1190,6 +1243,7 @@
             <button data-go="profile"><i>🪪</i>কর্মীর ডিটেলস</button>
             <button data-go="kyc"><i>📷</i>KYC ছবি</button>
             <button data-go="od"><i>🚨</i>OD তালিকা</button>
+            <button data-go="loanreq"><i>📝</i>লোন-রিকোয়েস্ট</button>
             <button data-go="stages"><i>🎨</i>ধাপ</button>
             <button data-go="settings"><i>⚙️</i>সেটিংস</button>
             <button data-go="perm"><i>🔐</i>পারমিশন</button>
@@ -1624,7 +1678,7 @@
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
             profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
-            export: loadExport, "market-transfer": loadMarketTransfer
+            export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq
         };
 
         /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
@@ -2915,6 +2969,137 @@
 
             }).catch(function (e) {
                 q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        /* =====================================================================
+         * লোন-রিকোয়েস্ট (অনুমোদন / নাকচ)
+         * ===================================================================== */
+        function loadLoanReq(silent) {
+            if (silent !== true) {
+                q("reqList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+            }
+
+            NK.GET("/api/loan-requests/pending").then(function (list) {
+                var rows = NK.rows(list);
+
+                if (!rows.length) {
+                    q("reqList").innerHTML = '<div class="card"><div class="empty">' + ltr("✓ কোনো অনুরোধ নেই") + '</div></div>';
+                    return;
+                }
+
+                var h = "";
+
+                rows.forEach(function (r) {
+                    var wc = "ok";
+                    if (r.warning && r.warning.indexOf("⛔") !== -1) wc = "bad";
+                    else if (r.warning && r.warning.indexOf("🔴") !== -1) wc = "bad";
+                    else if (r.warning && r.warning.indexOf("🟡") !== -1) wc = "mid";
+
+                    h += '<div class="req">';
+
+                    h += '<div class="top" data-prof="' + r.customerId + '" style="cursor:pointer;">';
+                    h += '<div style="display:flex;align-items:center;gap:11px;">';
+                    h += '<div style="width:42px;height:42px;border-radius:50%;flex-shrink:0;' +
+                        'background:linear-gradient(135deg,#2563EB,#0EA5A4);color:#fff;' +
+                        'display:flex;align-items:center;justify-content:center;' +
+                        'font-size:17px;font-weight:800;">' +
+                        NK.esc((r.customerName || "?").charAt(0)) + '</div>';
+                    h += '<div><b>' + NK.esc(r.customerName) + '</b><br>' +
+                        '<span style="font-size:12px;color:var(--muted);">' +
+                        NK.esc(r.customerPhone) + '</span></div>';
+                    h += '</div>';
+                    h += '<div class="amt">' + NK.inr(r.principal) + '</div>';
+                    h += '</div>';
+
+                    if (r.warning) {
+                        h += '<div class="warn ' + wc + '">' + NK.esc(r.warning) + '</div>';
+                    }
+
+                    h += '<div class="info">';
+                    h += ltr("এজেন্ট") + ': <b>' + NK.esc(r.agentName) + '</b><br>';
+                    h += ltr("মোট প্রাপ্য") + ': <b>' + NK.inr(r.totalRepayable) + '</b> · ' + ltr("দৈনিক") + ' <b>' +
+                        NK.inr(r.dailyEmi) + '</b><br>';
+                    h += ltr("আগের লোন") + ': <b>' + r.previousLoans + '</b>' + ltr("টি") + ' · ' + ltr("শোধ") + ' <b>' +
+                        r.closedLoans + '</b>' + ltr("টি") + '<br>';
+
+                    if (Number(r.outstandingAmount) > 0) {
+                        h += ltr("এখনও বাকি") + ': <b style="color:var(--red);">' +
+                            NK.inr(r.outstandingAmount) + '</b><br>';
+                    }
+
+                    if (r.address) {
+                        h += ltr("স্থান") + ': <b>' + NK.esc(r.address) + '</b><br>';
+                    }
+
+                    h += ltr("সময়") + ': <b>' + NK.dtTime(r.requestedAt) + '</b>';
+                    h += '</div>';
+
+                    h += '<div class="acts">';
+                    h += '<button class="btn success" data-ap="' + r.id + '">' + ltr("✓ অনুমোদন") + '</button>';
+                    h += '<button class="btn danger" data-rj="' + r.id + '">' + ltr("✗ নাকচ") + '</button>';
+                    h += '</div>';
+
+                    h += '</div>';
+                });
+
+                q("reqList").innerHTML = h;
+
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-prof]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openCustomer(el.getAttribute("data-prof"));
+                    });
+                });
+
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-ap]"), function (b) {
+                    b.addEventListener("click", function () {
+                        if (!confirm(ltr("লোন অনুমোদন করবেন?"))) return;
+
+                        b.disabled = true;
+                        b.innerHTML = '<span class="spin"></span>';
+
+                        NK.POST("/api/loan-requests/" + b.getAttribute("data-ap") + "/approve")
+                            .then(function () {
+                                toast(ltr("লোন অনুমোদিত ✓ এজেন্ট টাকা দিতে পারবেন"), "ok");
+                                loadLoanReq();
+                                loadNotif();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = ltr("✓ অনুমোদন");
+                            });
+                    });
+                });
+
+                Array.prototype.forEach.call(q("reqList").querySelectorAll("[data-rj]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var reason = prompt(ltr("নাকচের কারণ লিখুন (বাধ্যতামূলক):"));
+                        if (!reason || !reason.trim()) {
+                            toast(ltr("কারণ লিখতেই হবে"), "er");
+                            return;
+                        }
+
+                        b.disabled = true;
+                        b.innerHTML = '<span class="spin"></span>';
+
+                        NK.POST("/api/loan-requests/" + b.getAttribute("data-rj") + "/reject",
+                            { reason: reason.trim() })
+                            .then(function () {
+                                toast(ltr("নাকচ করা হল"), "ok");
+                                loadLoanReq();
+                                loadNotif();
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = ltr("✗ নাকচ");
+                            });
+                    });
+                });
+
+            }).catch(function (e) {
+                q("reqList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
@@ -5911,7 +6096,11 @@
                 url.indexOf("/access-requests") === 0;
         }
         function notifGoTo(url) {
-            if (url.indexOf("/loan-requests") === 0) { show("loan"); return; }
+            if (url.indexOf("/loan-requests") === 0) {
+                var reqBtn = document.querySelector('[data-go="loanreq"]');
+                if (reqBtn) reqBtn.click();
+                return;
+            }
             if (url.indexOf("/customers") === 0) { show("cust"); return; }
             if (url.indexOf("/access-requests") === 0) {
                 var btn = document.querySelector('[data-go="access"]');
