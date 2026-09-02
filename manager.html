@@ -2068,7 +2068,7 @@
                     var initial = (item.customerName || "?").charAt(0);
                     var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
 
-                    html += '<div class="ccard">';
+                    html += '<div class="ccard" data-prof="' + NK.esc(item.customerId) + '" style="cursor:pointer;">';
                     html += '<div class="ccard-top">';
                     html += '<div class="ccard-l">';
                     html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
@@ -2084,6 +2084,12 @@
 
                 box.innerHTML = html;
                 loadRecentCollPhotos();
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-prof]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openCustomerProfile(el.getAttribute("data-prof"));
+                    });
+                });
             }).catch(function (e) {
                 box.innerHTML = '<div class="recentcoll-empty">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>';
             });
@@ -3063,7 +3069,9 @@
 
                     h += '<div class="cust-list">';
                     g.rows.forEach(function (r, ri) {
-                        h += '<div class="cust-row ' + ROW_COLORS[ri % ROW_COLORS.length] + '"><div><div class="nm">' + NK.esc(r.customerName || "—") + '</div>' +
+                        h += '<div class="cust-row ' + ROW_COLORS[ri % ROW_COLORS.length] +
+                            '" data-prof="' + NK.esc(r.customerId) + '" style="cursor:pointer;">' +
+                            '<div><div class="nm">' + NK.esc(r.customerName || "—") + '</div>' +
                             (r.createdAt ? '<div class="t">' + NK.dtTime(r.createdAt) + '</div>' : '') + '</div>' +
                             '<div class="a">' + NK.inr(r.amount) + '</div></div>';
                     });
@@ -3071,6 +3079,15 @@
                 });
             }
             q("dbaBody").innerHTML = h;
+
+            Array.prototype.forEach.call(q("dbaBody").querySelectorAll("[data-prof]"), function (el) {
+                el.addEventListener("click", function () {
+                    // #disbByAgentX (z-index 500) #profX (400)-এর ওপরে থাকে, তাই
+                    // বন্ধ না করে প্রোফাইল খুললে সেটা আড়ালে চলে যেত — আগে বন্ধ করি
+                    q("disbByAgentX").classList.remove("on");
+                    openCustomerProfile(el.getAttribute("data-prof"));
+                });
+            });
         }
 
         var dbaCloseEl = q("dbaClose");
