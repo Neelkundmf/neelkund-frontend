@@ -1868,7 +1868,7 @@
                 Array.prototype.forEach.call(
                     q("dash").querySelectorAll("[data-amt]"), function (el) {
                         el.addEventListener("click", function () {
-                            openAmount(Number(el.getAttribute("data-amt")));
+                            openAmount(Number(el.getAttribute("data-amt")), q("br").value || null);
                         });
                     });
 
@@ -1885,10 +1885,12 @@
         var AMT_VAL = null;
         var AMT_TAB = "ACTIVE";
         var AMT_LOANS = [];
+        var AMT_BRANCH = null;
 
-        function openAmount(amt) {
+        function openAmount(amt, branchId) {
             AMT_VAL = amt;
             AMT_TAB = "ACTIVE";
+            AMT_BRANCH = branchId || null;
 
             q("prof").classList.add("on");
             q("pTitle").textContent = NK.inr(amt) + ltr(" লোন");
@@ -1899,7 +1901,8 @@
 
             NK.GET("/api/loans?page=0&size=1000").then(function (r) {
                 AMT_LOANS = NK.rows(r).filter(function (l) {
-                    return Number(l.principal) === AMT_VAL;
+                    return Number(l.principal) === AMT_VAL &&
+                        (!AMT_BRANCH || String(l.branchId) === String(AMT_BRANCH));
                 });
                 drawAmount();
             }).catch(function (e) {
@@ -2064,6 +2067,14 @@
 
                 q("pBody").innerHTML = h;
                 BR_DRAW_BUSY = false;
+
+                /* ব্লকে ক্লিক → এই ব্রাঞ্চের ওই অঙ্কের গ্রাহক তালিকা */
+                Array.prototype.forEach.call(
+                    q("pBody").querySelectorAll("[data-bramt]"), function (el) {
+                        el.addEventListener("click", function () {
+                            openAmount(Number(el.getAttribute("data-bramt")), BR_ID);
+                        });
+                    });
             }).catch(function (e) {
                 BR_DRAW_BUSY = false;
                 q("pBody").innerHTML = '<div class="card"><div class="empty">' +
@@ -2208,13 +2219,13 @@
                 h += ltr('<div class="split" style="margin-bottom:16px;">');
                 h += ltr('<div><div class="l">ব্রাঞ্চ</div><div class="v">') + NK.esc(d.branchName) + '</div></div>';
                 h += ltr('<div><div class="l">গ্রাহক</div><div class="v">') + d.customerCount + '</div></div>';
-                h += ltr('<div><div class="l">চলমান লোন</div><div class="v">') + d.activeLoansCount + '</div></div>';
+                h += ltr('<div><div class="l">চলমান লোন</div><div class="v">') + d.activeLoanCount + '</div></div>';
                 h += '</div>';
 
                 h += ltr('<div class="split">');
                 h += ltr('<div><div class="l">বাকি টাকা</div><div class="v">') + NK.inr(d.outstandingAmount) + '</div></div>';
                 h += ltr('<div><div class="l">আজ জমা</div><div class="v g">') + NK.inr(d.todayCollection) + '</div></div>';
-                h += ltr('<div><div class="l">OD</div><div class="v r">') + d.odCustomersCount + '</div></div>';
+                h += ltr('<div><div class="l">OD</div><div class="v r">') + d.odCustomerCount + '</div></div>';
                 h += '</div></div>';
 
                 q("pBody").innerHTML = h;
