@@ -2158,7 +2158,7 @@
         if (pxClose) pxClose.addEventListener("click", function () { history.back(); });
 
         var PX_REQ_ID = 0;
-        function openCustomerProfile(customerId, loanRequestId) {
+        function openCustomerProfile(customerId, loanRequestId, skipPush) {
             var myReq = ++PX_REQ_ID;
             PROFILE_CUST = customerId;
             window.selectedLoanRequestId = loanRequestId || null;
@@ -2166,7 +2166,14 @@
             q("pxCid").textContent = ltr("লোড হচ্ছে...");
             q("pxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
+            // popstate-এর জবাবে (Back চেপে ফেরার সময়) বা এই পাতা খোলা অবস্থায়
+            // ভেতরে কিছু সেভ করে রিফ্রেশ করার সময় — নতুন করে push করব না,
+            // নাহলে প্রতি রিফ্রেশে history-তে বাড়তি এন্ট্রি জমে যেত
+            if (skipPush) {
+                NK.replaceNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
+            } else {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "customerProfile", panelId: customerId });
+            }
 
             /* pending loan request থেকে খোলা হলেই সার্ভার পুরো (মাস্ক ছাড়া) KYC নম্বর দেখাবে —
                বাকি সব সময় মাস্ক করা থাকবে (নিরাপত্তার জন্য), সার্ভারই যাচাই করে নেয় */
@@ -2476,7 +2483,7 @@
                             reason: q("pxReason").value.trim()
                         }).then(function () {
                             toast(ltr("Remark সংরক্ষিত হয়েছে ✓"), "ok");
-                            openCustomerProfile(customerId);   // রিফ্রেশ
+                            openCustomerProfile(customerId, null, true);   // রিফ্রেশ (history-তে নতুন এন্ট্রি না)
                         }).catch(function (e) {
                             toast(e.message, "er");
                             btn.disabled = false; btn.textContent = ltr("Remark সংরক্ষণ করুন");
@@ -2513,7 +2520,7 @@
                             address: q("pxhAddr").value.trim()
                         }).then(function () {
                             toast(ltr("তথ্য সংরক্ষিত হয়েছে ✓"), "ok");
-                            openCustomerProfile(customerId);   // রিফ্রেশ
+                            openCustomerProfile(customerId, null, true);   // রিফ্রেশ (history-তে নতুন এন্ট্রি না)
                         }).catch(function (e) {
                             toast(e.message, "er");
                             pxHeadSaveBtn.disabled = false;
@@ -2555,7 +2562,7 @@
                             guarantorAddress: q("pxkGAddr").value.trim()
                         }).then(function () {
                             toast(ltr("তথ্য সংরক্ষিত হয়েছে ✓"), "ok");
-                            openCustomerProfile(customerId);   // রিফ্রেশ
+                            openCustomerProfile(customerId, null, true);   // রিফ্রেশ (history-তে নতুন এন্ট্রি না)
                         }).catch(function (e) {
                             toast(e.message, "er");
                             pxKycSaveBtn.disabled = false;
@@ -2611,7 +2618,7 @@
                             toast("ভোটার আইডি আপলোড হয়েছে ✓", "ok");
                             voterUploadBtn.disabled = false;
                             voterUploadBtn.textContent = "✓ ভোটার আইডি আপলোড";
-                            openCustomerProfile(customerId);
+                            openCustomerProfile(customerId, null, true);   // রিফ্রেশ (history-তে নতুন এন্ট্রি না)
                         }).catch(function (e) {
                             toast("আপলোড ব্যর্থ: " + e.message, "er");
                             voterUploadBtn.disabled = false;
@@ -2798,14 +2805,18 @@
         }
 
         var LX_REQ_ID = 0;
-        function openLoanDetail(loanId) {
+        function openLoanDetail(loanId, skipPush) {
             var myReq = ++LX_REQ_ID;
             q("loanX").classList.add("on");
             q("lxSm").textContent = ltr("লোন #") + loanId;
             q("lxTitle").textContent = ltr("লোড হচ্ছে...");
             q("lxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
-            NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+            if (skipPush) {
+                NK.replaceNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+            } else {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "loan", panelId: loanId });
+            }
 
             NK.GET("/api/loans/" + loanId + "/detail").then(function (d) {
                 if (myReq !== LX_REQ_ID) return;
@@ -3012,7 +3023,7 @@
                         })
                             .then(function () {
                                 toast(ltr("সংশোধন হয়েছে ✓"), "ok");
-                                openLoanDetail(loanId);
+                                openLoanDetail(loanId, true);   // রিফ্রেশ (history-তে নতুন এন্ট্রি না)
                             })
                             .catch(function (e) {
                                 toast(e.message, "er");
@@ -3741,7 +3752,7 @@
 
         var pClose = q("pClose");
         if (pClose) pClose.addEventListener("click", function () {
-            q("prof").classList.remove("on");
+            history.back();
         });
 
         var P_REQ_ID = 0;
@@ -3970,6 +3981,7 @@
             if (!it) return;
             var navKey = notifNavKey(it.actionUrl);
             q("notifSheet").classList.remove("on");
+            NK.replaceNavState({ view: window.CURRENT_VIEW });   // notif-এর history এন্ট্রি বাতিল
             if (navKey) show(navKey);
         });
 
@@ -4095,7 +4107,7 @@
         // dashboard থেকে সরাসরি খোলা কোনো প্যানেল (নোটিফিকেশন/প্রোফাইল/লোন) ব্যাক করে
         // বন্ধ করলে যে অবস্থায় ফেরে সেটাও bare {view:"dash"} — এক্সিট-প্রোটেকশন
         // তাই তখনই চলবে যখন সত্যিই কোনো প্যানেল/ওভারলে খোলা নেই
-        var anyOverlayOpen = ["profX", "loanX", "disbByAgentX", "prof", "notifSheet"].some(function (id) {
+        var anyOverlayOpen = ["profX", "loanX", "disbByAgentX", "prof", "notifSheet", "myProfileX"].some(function (id) {
             var el = q(id);
             return el && el.classList.contains("on");
         });
@@ -4137,9 +4149,9 @@
             if (e.state.panel === "customerProfile" || e.state.panel === "customer") {
                 /* "customer" পুরনো/বাদ দেওয়া ডিজাইনের নাম ছিল — পুরনো ব্রাউজার
                    হিস্ট্রি থেকে এলেও এখন সবসময় নতুন সঠিক প্রোফাইল খুলবে */
-                openCustomerProfile(e.state.panelId);
+                openCustomerProfile(e.state.panelId, null, true);
             } else if (e.state.panel === "loan") {
-                openLoanDetail(e.state.panelId);
+                openLoanDetail(e.state.panelId, true);
             }
         } else if (e.state.panel === "disbByAgent") {
             // #profX (500) #disbByAgentX (450)-এর ওপরে খোলে, তাই এখান থেকে
