@@ -3629,7 +3629,7 @@
                 mtTransfer.disabled = true;
                 mtTransfer.textContent = "...";
 
-                NK.POST("/api/admin/transfer-market", {
+                NK.POST("/api/admin/users/transfer-market", {
                     marketId: parseInt(marketId),
                     fromAgentId: parseInt(fromId),
                     toAgentId: parseInt(toId)
