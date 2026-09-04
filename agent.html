@@ -3590,13 +3590,18 @@
             /* আজকের কিস্তি আগেই জমা পড়েছে কিনা — /loans/{id}/detail-এর payments
                লিস্টে আজকের তারিখে কোনো এন্ট্রি আছে কিনা দেখে (আগে কালেকশন
                ট্যাবের নিজস্ব last7Days দিয়ে হতো, এখন সব জায়গা থেকেই কাজ করে) */
+            var todayISO = collTodayISO();
             var todayAlreadyPaid = false;
             if (PAY_LOAN_DETAIL && PAY_LOAN_DETAIL.payments && PAY_LOAN_DETAIL.payments.length) {
-                var todayISO = collTodayISO();
                 todayAlreadyPaid = PAY_LOAN_DETAIL.payments.some(function (p) {
                     return p.paymentDate === todayISO && Number(p.amount || 0) > 0;
                 });
             }
+
+            /* আজই ডিসবার্স হওয়া লোনের প্রথম কিস্তি আগামীকাল থেকে শুরু হয় —
+               তাই আজকের দিনে এখনও কোনো কিস্তিই চালু হয়নি */
+            var noEmiYet = !!(PAY_LOAN_DETAIL && PAY_LOAN_DETAIL.emiStartDate &&
+                PAY_LOAN_DETAIL.emiStartDate > todayISO);
 
             /* আজকের এন্ট্রি এডিট করতে হলে কোন পেমেন্ট আইডি বাতিল করে নতুন করে
                জমা নেবো — payments (PayDay) না, paymentLog (PayLog)-এই id থাকে */
@@ -3642,7 +3647,13 @@
 
             /* ---- রেগুলার (UP_TO_DATE / ADVANCE) — ✓ / ✗ ---- */
             if (standing === "UP_TO_DATE" || standing === "ADVANCE") {
-                if (todayAlreadyPaid) {
+                if (noEmiYet) {
+                    h += '<div class="covernote">🗓️ আজ ডিসবার্স হয়েছে — প্রথম কিস্তি ' +
+                        NK.dt(PAY_LOAN_DETAIL.emiStartDate) + ' থেকে শুরু হবে, আজ কোনো কিস্তি নেই</div>';
+                    h += '<div class="yn">';
+                    h += '<button class="no" id="pyNoEmiBack" style="grid-column:1 / -1;">ঠিক আছে, ফিরে যান</button>';
+                    h += '</div>';
+                } else if (todayAlreadyPaid) {
                     h += '<div class="covernote">✓ আজকের কিস্তি ইতিমধ্যে জমা হয়ে গেছে</div>';
 
                     if (todayPaymentId) {
@@ -3746,6 +3757,11 @@
             if (q("pyNo")) {
                 q("pyNo").addEventListener("click", function () {
                     if (!todayAlreadyPaid) toast(ltr("আজ বাদ রাখা হল"), "in");
+                    closePayPage();
+                });
+            }
+            if (q("pyNoEmiBack")) {
+                q("pyNoEmiBack").addEventListener("click", function () {
                     closePayPage();
                 });
             }
