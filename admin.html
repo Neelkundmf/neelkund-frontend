@@ -677,6 +677,31 @@
             </div>
 
             <div id="brList"><div class="loading">লোড হচ্ছে...</div></div>
+
+            <!-- ⚠️ ব্রাঞ্চ Factory Reset প্যানেল -->
+            <div class="card" id="brResetPanel" style="display:none;border:1.5px solid #FCA5A5;">
+                <h2 style="margin-bottom:14px;color:#DC2626;">⚠️ Factory Reset — <span id="brResetName"></span></h2>
+                <div class="msg" id="brResetMsg"></div>
+
+                <div class="fld">
+                    <label>ব্যাকআপ</label>
+                    <button type="button" class="btn sm" id="brResetBackupBtn">⬇️ ব্যাকআপ (CSV) ডাউনলোড করুন</button>
+                </div>
+
+                <div class="fld">
+                    <label>কী মুছবে</label>
+                    <select id="brResetScope">
+                        <option value="data">শুধু ডেটা মুছুন (মার্কেট + এজেন্ট/ম্যানেজারের লগইন থাকবে)</option>
+                        <option value="full">পুরো ব্রাঞ্চ মুছুন (মার্কেট + লগইনও মুছে যাবে)</option>
+                    </select>
+                </div>
+
+                <div class="fld"><label>ব্রাঞ্চের নাম হুবহু টাইপ করুন</label><input id="brResetNameConfirm" placeholder=""></div>
+                <div class="fld"><label>আপনার অ্যাডমিন পাসওয়ার্ড</label><input id="brResetPassword" type="password"></div>
+
+                <button class="btn block" id="brResetGo" style="background:#DC2626;">🗑️ স্থায়ীভাবে মুছে ফেলুন</button>
+                <button class="btn block ghost" id="brResetCancel" style="margin-top:8px;">বাতিল</button>
+            </div>
         </div>
 
 
@@ -3106,11 +3131,20 @@
                         '<span>' + NK.esc(b.nextCodePreview || b.code || "") +
                         ' · ' + b.customerCount + ltr(' গ্রাহক</span></div>');
                     html += '<div class="end"><b>#' + b.nextCustomerNumber + '</b></div>';
+                    html += '<button type="button" class="btn sm" data-reset-branch="' + b.id +
+                        '" data-reset-name="' + NK.esc(b.name) +
+                        '" style="margin-left:8px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;flex-shrink:0;">🏭</button>';
                     html += '</div>';
                 });
                 html += '</div>';
 
                 q("brList").innerHTML = html;
+
+                Array.prototype.forEach.call(q("brList").querySelectorAll("[data-reset-branch]"), function (el) {
+                    el.addEventListener("click", function () {
+                        openBranchResetPanel(el.getAttribute("data-reset-branch"), el.getAttribute("data-reset-name"));
+                    });
+                });
             });
         }
 
@@ -3155,6 +3189,88 @@
             }).then(function () {
                 b.disabled = false;
                 b.textContent = ltr("ব্রাঞ্চ তৈরি করুন");
+            });
+        });
+
+        /* =====================================================================
+         * ⚠️ ব্রাঞ্চ Factory Reset
+         * ===================================================================== */
+        var BR_RESET_ID = null;
+
+        function openBranchResetPanel(id, name) {
+            BR_RESET_ID = id;
+            q("brResetName").textContent = name;
+            q("brResetNameConfirm").value = "";
+            q("brResetPassword").value = "";
+            q("brResetScope").value = "data";
+            hide("brResetMsg");
+            q("brResetPanel").style.display = "block";
+            q("brResetPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        q("brResetCancel").addEventListener("click", function () {
+            BR_RESET_ID = null;
+            q("brResetPanel").style.display = "none";
+        });
+
+        q("brResetBackupBtn").addEventListener("click", function () {
+            if (!BR_RESET_ID) return;
+            var btn = q("brResetBackupBtn");
+            btn.disabled = true;
+            btn.textContent = ltr("ডাউনলোড হচ্ছে...");
+            NK.GET("/api/branches/" + BR_RESET_ID + "/reset-backup").then(function (blob) {
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "branch-" + BR_RESET_ID + "-backup.csv";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+                toast(ltr("ব্যাকআপ ডাউনলোড হয়েছে ✓"), "ok");
+            }).catch(function (e) {
+                toast(ltr("ব্যাকআপ ডাউনলোড ব্যর্থ") + ": " + e.message, "er");
+            }).then(function () {
+                btn.disabled = false;
+                btn.textContent = ltr("⬇️ ব্যাকআপ (CSV) ডাউনলোড করুন");
+            });
+        });
+
+        q("brResetGo").addEventListener("click", function () {
+            if (!BR_RESET_ID) return;
+            hide("brResetMsg");
+
+            var nameConfirm = q("brResetNameConfirm").value.trim();
+            var password = q("brResetPassword").value;
+            var fullReset = q("brResetScope").value === "full";
+
+            if (!nameConfirm) { say("brResetMsg", ltr("ব্রাঞ্চের নাম টাইপ করুন"), false); return; }
+            if (!password) { say("brResetMsg", ltr("পাসওয়ার্ড দিন"), false); return; }
+
+            var scopeWarn = fullReset
+                ? ltr("পুরো ব্রাঞ্চ (মার্কেট + লগইন সহ) স্থায়ীভাবে মুছে যাবে। এটা ফেরানো যাবে না। এগোবেন?")
+                : ltr("এই ব্রাঞ্চের সব ডেটা (কাস্টমার/লোন/পেমেন্ট) স্থায়ীভাবে মুছে যাবে। এটা ফেরানো যাবে না। এগোবেন?");
+            if (!confirm(scopeWarn)) return;
+
+            var b = q("brResetGo");
+            b.disabled = true;
+            b.innerHTML = ltr('<span class="spin"></span> মুছে ফেলা হচ্ছে...');
+
+            NK.POST("/api/branches/" + BR_RESET_ID + "/factory-reset", {
+                fullReset: fullReset,
+                branchNameConfirm: nameConfirm,
+                password: password
+            }).then(function (r) {
+                toast(ltr("ব্রাঞ্চ রিসেট হয়েছে ✓"), "ok");
+                q("brResetPanel").style.display = "none";
+                BR_RESET_ID = null;
+                loadBranch();
+                loadBranches();
+            }).catch(function (e) {
+                say("brResetMsg", e.message, false);
+            }).then(function () {
+                b.disabled = false;
+                b.textContent = ltr("🗑️ স্থায়ীভাবে মুছে ফেলুন");
             });
         });
 
