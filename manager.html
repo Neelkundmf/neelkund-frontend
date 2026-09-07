@@ -1268,6 +1268,8 @@
             "আজ বিতরণ": "Today's Disbursement",
             "আজ ওঠার কথা": "Due Today",
             "আজকের ডিউ": "Due Today",
+            "লোন এগ্রিমেন্টের ছবি": "Loan Agreement Photo",
+            "ডিসবার্স": "Disbursed",
             "সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট": "Total of all agents' still-unpaid EMIs today",
             "আজ উঠেছে": "Collected Today",
             "আজ উঠল": "Collected Today",
@@ -2344,6 +2346,23 @@
                 h += kycSegment("🎫 " + ltr("ভোটার আইডি"), c.voterIdMasked,
                     c.voterIdPhotoUrl, "kycImg_VOTER_ID", c.voterIdBackPhotoUrl, "kycImg_VOTER_ID_BACK");
 
+                /* লোন এগ্রিমেন্টের ছবি — চলমান লোনের ডিসবার্সের প্রমাণ */
+                var agreementLoan = loans.find(function (l) {
+                    return l.status === "ACTIVE" && l.hasAgreementPhoto;
+                });
+                if (agreementLoan) {
+                    h += '<div style="margin-bottom:14px; padding:12px; background:var(--paper); border-radius:10px;">';
+                    h += '<div style="font-weight:700; font-size:13px; margin-bottom:8px;">📝 ' + ltr("লোন এগ্রিমেন্টের ছবি") + '</div>';
+                    h += '<div id="kycImg_AGREEMENT" data-loan-id="' + agreementLoan.loanId +
+                        '" style="width:100%; min-height:60px; border-radius:8px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;">' +
+                        ltr("লোড হচ্ছে...") + '</div>';
+                    if (agreementLoan.disbursedAt) {
+                        h += '<div style="font-size:11px; color:var(--muted); margin-top:6px;">' +
+                            ltr("ডিসবার্স") + ' ' + NK.dtTime(agreementLoan.disbursedAt) + '</div>';
+                    }
+                    h += '</div>';
+                }
+
                 /* গ্যারান্টারের ছবি */
                 if (c.guarantorPhotoUrl) {
                     h += '<div style="margin-bottom:14px; padding:12px; background:var(--paper); border-radius:10px;">';
@@ -2459,6 +2478,24 @@
                         if (el2) el2.textContent = ltr("ছবি লোড করা যায়নি");
                     });
                 });
+
+                /* লোন এগ্রিমেন্টের ছবি — auth লাগে, তাই এটাও blob এনে দেখাতে হয় */
+                var agreementImgEl = q("kycImg_AGREEMENT");
+                if (agreementImgEl) {
+                    var agreementLoanId = agreementImgEl.getAttribute("data-loan-id");
+                    NK.GET("/api/loans/" + agreementLoanId + "/signature").then(function (blob) {
+                        var el2 = q("kycImg_AGREEMENT");
+                        if (!el2 || !blob) return;
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        img.style.cssText = "width:100%; max-height:150px; border-radius:8px; cursor:pointer; border:1px solid var(--line);";
+                        img.addEventListener("click", function () { window.viewPhoto(img.src); });
+                        el2.replaceWith(img);
+                    }).catch(function () {
+                        var el2 = q("kycImg_AGREEMENT");
+                        if (el2) el2.textContent = ltr("ছবি লোড করা যায়নি");
+                    });
+                }
 
                 /* রং বাছা */
                 var pickedFlag = c.flag || "GREEN";
