@@ -1267,6 +1267,8 @@
             "মোট DB": "Total DB",
             "আজ বিতরণ": "Today's Disbursement",
             "আজ ওঠার কথা": "Due Today",
+            "আজকের ডিউ": "Due Today",
+            "সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট": "Total of all agents' still-unpaid EMIs today",
             "আজ উঠেছে": "Collected Today",
             "আজ উঠল": "Collected Today",
             "আজ ওঠার": "Due Today",
@@ -1859,7 +1861,7 @@
                     agents.forEach(function (a) {
                         h += '<div class="rep-ag">';
                         h += '<div class="nm">' + NK.esc(a.agentName) + '</div>';
-                        h += '<div class="r"><span>' + ltr("আজ ওঠার") + '</span><b>' + NK.inrShort(a.todayDue) + '</b></div>';
+                        h += '<div class="r"><span>' + ltr("আজকের ডিউ") + '</span><b>' + NK.inrShort(a.todayDue) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("আজ উঠল") + '</span><b>' + NK.inrShort(a.todayCollected) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("OD উঠল") + '</span><b>' + NK.inrShort(a.odCollected) + '</b></div>';
                         h += '</div>';
@@ -1970,8 +1972,9 @@
                 /* ---- উপরের ৪ বক্স — রঙিন গ্রেডিয়েন্ট ---- */
                 h += '<div class="stat-grid">';
 
-                h += '<div class="stat-card c0"><div class="l">' + ltr("আজ ওঠার কথা") + '</div>' +
-                    '<div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
+                h += '<div class="stat-card c0"><div class="l">' + ltr("আজকের ডিউ") + '</div>' +
+                    '<div class="v">' + NK.inrShort(d.todayDue) + '</div>' +
+                    '<div class="sub">' + ltr("সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট") + '</div></div>';
 
                 h += '<div class="stat-card c1"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
                     '<div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
