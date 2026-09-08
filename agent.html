@@ -501,8 +501,12 @@
             background-size: cover; background-position: center;
         }
         .rowbox1 .nm {
-            width: 46px; flex-shrink: 0; font-size: 9.5px; font-weight: 800;
+            width: 52px; flex-shrink: 0; font-size: 9.5px; font-weight: 800;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+        }
+        .rowbox1 .nm .tm {
+            font-size: 7px; font-weight: 700; opacity: .75;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .rowbox1 .r1stat { flex: 1; text-align: center; min-width: 0; }
         .rowbox1 .r1stat .lbl { font-size: 6px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,.68); }
@@ -4174,8 +4178,10 @@
                 bindProfileTap(q("today"));
                 loadCustomerPhotosIn(q("today"));
 
-                // Load collection list at bottom
-                loadCollectionList();
+                // Load collection list at bottom — silent রিফ্রেশে না, শুধু আসল
+                // লোডে, নাহলে নিচের ৩০ সে. টাইমারের সাথে দুইবার রিফ্রেশ হয়ে
+                // ছবি বারবার ঝিলিক দিত
+                if (silent !== true) loadCollectionList();
 
             }).catch(function (e) {
                 q("today").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
@@ -4187,6 +4193,9 @@
          * ===================================================================== */
         var collectionListRefreshInterval = null;
         var collSelectedDate = ""; // খালি থাকলে আজকের তারিখ ধরা হয়
+        // একবার আনা ছবি মনে রাখা হয় (customerId → blob URL) — রিফ্রেশে আবার
+        // ডাউনলোড না করে সাথে সাথে বসিয়ে দেওয়া যায়, তাই ছবি আর ঝিলিক দেয় না
+        var RECENT_COLL_PHOTO_CACHE = {};
 
         function collTodayISO() {
             var d = new Date();
@@ -4213,13 +4222,27 @@
                     var pdClass = isDue ? "due" : (item.isAdvance ? "advance" : "paid");
                     var pdText = isDue ? ltr("Due") : (item.isAdvance ? "Advance" : ltr("Paid"));
                     var initial = (item.customerName || "?").charAt(0);
-                    var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
+                    var cachedPhoto = item.customerId ? RECENT_COLL_PHOTO_CACHE[item.customerId] : null;
                     var colorClass = "c" + (i % 5);
+                    var timeStr = "";
+                    if (item.paymentTime) {
+                        var tdt = new Date(item.paymentTime);
+                        if (!isNaN(tdt.getTime())) {
+                            timeStr = tdt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+                        }
+                    }
 
                     html += '<div class="rowbox1 ' + colorClass + '">';
                     html += '<div class="sl">' + (i + 1) + '</div>';
-                    html += '<div class="av" data-prof-tap="' + item.customerId + '"' + photoAttr + '>' + NK.esc(initial) + '</div>';
-                    html += '<div class="nm" data-prof-tap="' + item.customerId + '">' + NK.esc(item.customerName || "—") + '</div>';
+                    if (cachedPhoto) {
+                        html += '<div class="av" data-prof-tap="' + item.customerId + '" style="background-image:url(' +
+                            cachedPhoto + ');"></div>';
+                    } else {
+                        var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
+                        html += '<div class="av" data-prof-tap="' + item.customerId + '"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    }
+                    html += '<div class="nm" data-prof-tap="' + item.customerId + '">' + NK.esc(item.customerName || "—") +
+                        (timeStr ? '<div class="tm">' + NK.esc(timeStr) + '</div>' : '') + '</div>';
                     html += '<div class="r1stat"><div class="lbl">Loan</div><div class="val">' + NK.inrShort(item.loanAmount || 0) + '</div></div>';
                     html += '<div class="r1stat"><div class="lbl">Out</div><div class="val">' + NK.inrShort(item.outstandingAmount || 0) + '</div></div>';
                     html += '<div class="r1stat"><div class="lbl">EMI</div><div class="val">' + NK.inrShort(item.amount) + '</div></div>';
@@ -4263,7 +4286,9 @@
                 var id = el.getAttribute("data-photo");
                 NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
                     if (!blob) return;
-                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    var url = URL.createObjectURL(blob);
+                    RECENT_COLL_PHOTO_CACHE[id] = url;
+                    el.style.backgroundImage = "url(" + url + ")";
                     el.style.backgroundSize = "cover";
                     el.style.backgroundPosition = "center";
                     el.textContent = "";

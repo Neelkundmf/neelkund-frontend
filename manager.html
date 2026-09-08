@@ -2183,8 +2183,10 @@
                     });
                 });
 
-                // Load collection list at bottom
-                loadCollectionList();
+                // Load collection list at bottom — silent রিফ্রেশে না, শুধু আসল
+                // লোডে, নাহলে নিচের ৩০ সে. টাইমারের সাথে দুইবার রিফ্রেশ হয়ে
+                // ছবি বারবার ঝিলিক দিত
+                if (silent !== true) loadCollectionList();
 
             }).catch(function (e) {
                 q("dash").innerHTML =
@@ -2196,6 +2198,9 @@
          * সাম্প্রতিক কালেকশন লিস্ট
          * ===================================================================== */
         var collectionListRefreshInterval = null;
+        // একবার আনা ছবি মনে রাখা হয় (customerId → blob URL) — রিফ্রেশে আবার
+        // ডাউনলোড না করে সাথে সাথে বসিয়ে দেওয়া যায়, তাই ছবি আর ঝিলিক দেয় না
+        var RECENT_COLL_PHOTO_CACHE = {};
 
         function loadCollectionList() {
             var box = q("collListBody");
@@ -2213,15 +2218,22 @@
                     var statusText = item.status === "PAID" ? ltr("দিয়েছে") : (item.status === "OVERDUE" ? ltr("দেরী") : ltr("সতর্কতা"));
                     var advanceTag = item.isAdvance ? " (" + ltr("অগ্রিম") + ")" : "";
                     var initial = (item.customerName || "?").charAt(0);
-                    var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
+                    var cachedPhoto = item.customerId ? RECENT_COLL_PHOTO_CACHE[item.customerId] : null;
 
                     html += '<div class="ccard" data-prof="' + NK.esc(item.customerId) + '" style="cursor:pointer;">';
                     html += '<div class="ccard-top">';
                     html += '<div class="ccard-l">';
-                    html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    if (cachedPhoto) {
+                        html += '<div class="av" style="background-image:url(' + cachedPhoto +
+                            ');background-size:cover;background-position:center;"></div>';
+                    } else {
+                        var photoAttr = (item.hasPhoto && item.customerId) ? ' data-photo="' + item.customerId + '"' : "";
+                        html += '<div class="av"' + photoAttr + '>' + NK.esc(initial) + '</div>';
+                    }
                     html += '<div><div class="nm">' + NK.esc(item.customerName || "—") + '</div>';
                     html += '<div class="sub">' + NK.esc(item.agentName || "—") + ' · ' +
-                        (item.paymentDate ? NK.dt(item.paymentDate) : "—") + '</div></div>';
+                        (item.paymentTime ? NK.dtTime(item.paymentTime) :
+                            (item.paymentDate ? NK.dt(item.paymentDate) : "—")) + '</div></div>';
                     html += '</div>';
                     html += '<div class="end"><div class="amt">' + NK.inr(item.amount) + advanceTag + '</div>';
                     html += '<span class="statuspill ' + statusClass + '">' + statusText + '</span></div>';
@@ -2250,7 +2262,9 @@
                 var id = el.getAttribute("data-photo");
                 NK.GET("/api/customers/" + id + "/photo").then(function (blob) {
                     if (!blob) return;
-                    el.style.backgroundImage = "url(" + URL.createObjectURL(blob) + ")";
+                    var url = URL.createObjectURL(blob);
+                    RECENT_COLL_PHOTO_CACHE[id] = url;
+                    el.style.backgroundImage = "url(" + url + ")";
                     el.textContent = "";
                 }).catch(function () {});
             });
