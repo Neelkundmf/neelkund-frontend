@@ -2504,6 +2504,9 @@
                 if (e.state.panel === "loan") {
                     openLoanDetail(e.state.panelId, true);
                 } else if (e.state.panel === "customer") {
+                    // #loanX (z-index 500) #prof (400)-এর ওপরে খোলে — লোন ডিটেইল
+                    // থেকে এখানে ফিরলে সেটা বন্ধ না করলে এখনও ওপরে ঢেকে রাখবে
+                    q("loanX").classList.remove("on");
                     openCustomerProfile(e.state.panelId, true);
                 } else if (e.state.panel === "market-detail") {
                     openMarketDetailPage(e.state.panelId, e.state.panelName, true);
