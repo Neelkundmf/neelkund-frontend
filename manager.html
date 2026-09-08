@@ -62,7 +62,7 @@
 
         /* ---- কাগজ ---- */
         @media print {
-            .topbar, .tabs, .noprint { display: none !important; }
+            .topbar, .tabs, .noprint, .noprint-temp { display: none !important; }
             body { background: #fff; }
             .body { padding: 0; }
             .sheet { box-shadow: none; border: 0; }
@@ -1052,6 +1052,10 @@
 
         <!-- ---------------- আজকের রিপোর্ট ---------------- -->
         <div class="view" id="v-report">
+            <div class="card noprint" style="margin-bottom:12px;">
+                <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">আজকের রিপোর্টের তারিখ</label>
+                <input type="date" id="repDate">
+            </div>
             <div id="reportBox"><div class="empty" id="reportComingSoon">শীঘ্রই আসছে</div></div>
         </div>
 
@@ -1844,17 +1848,25 @@
                 q("reportBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
+            var repDateEl = q("repDate");
+            if (repDateEl && !repDateEl.value) repDateEl.value = todayStamp();
+            var repDateVal = repDateEl ? repDateEl.value : todayStamp();
+            var dq = "?date=" + repDateVal;
+
             Promise.all([
-                NK.GET("/api/dashboard/agent-today-report"),
-                NK.GET("/api/dashboard/branch-today-report"),
-                NK.GET("/api/dashboard/today-db-report")
+                NK.GET("/api/dashboard/agent-today-report" + dq),
+                NK.GET("/api/dashboard/branch-today-report" + dq),
+                NK.GET("/api/dashboard/today-db-report" + dq),
+                NK.GET("/api/manager/reports/summary")
             ]).then(function (res) {
                 var ag = res[0];
                 var br = res[1];
                 var db = res[2];
+                var tot = res[3];
 
                 var h = "";
 
+                h += '<div id="repSectionDaily">';
                 h += '<div class="rep-sec">' + ltr("👥 এজেন্ট অনুযায়ী") + '</div>';
                 var agents = (ag && ag.agents) ? ag.agents : [];
                 if (!agents.length) {
@@ -1901,56 +1913,58 @@
                 h += '<div class="cell"><div class="l">' + ltr("আজ বিতরণ") + '</div><div class="v">' + NK.inrShort(db.todayAmount) + '</div></div>';
                 h += '</div>';
 
-                h += '<button class="rep-dl" id="repDl" style="background:#10B981;">' + ltr("📥 CSV রিপোর্ট") + '</button>';
-                h += '<button class="rep-dl" id="repXl" style="background:#3B82F6;">' + ltr("📊 Excel রিপোর্ট") + '</button>';
+                h += '<button class="rep-dl noprint" id="repXlDaily" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
+                h += '<button class="rep-dl noprint" id="repPrintDaily" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '</div>'; // #repSectionDaily
+
+                h += '<div id="repSectionTotal">';
+                h += '<div class="rep-sec">' + ltr("📈 Total ব্রাঞ্চের হিসাব") + '</div>';
+                h += '<div class="rep-branch">';
+                if (tot) {
+                    h += '<div class="line"><span class="l">' + ltr("সক্রিয় লোন") + '</span><span class="v">' + tot.activeLoansCount + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("বন্ধ লোন") + '</span><span class="v">' + tot.closedLoansCount + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("ডিফল্ট লোন") + '</span><span class="v">' + tot.defaultedLoansCount + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট ডিসবার্স") + '</span><span class="v">' + NK.inr(tot.totalPrincipalDisbursed || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট কালেকশন") + '</span><span class="v g">' + NK.inr(tot.totalCollected || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট বকেয়া") + '</span><span class="v">' + NK.inr(tot.totalOutstanding || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট খরচ") + '</span><span class="v">' + NK.inr(tot.totalExpenses || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("নেট মুনাফা") + '</span><span class="v g">' + NK.inr(tot.netProfit || 0) + '</span></div>';
+                } else {
+                    h += '<div class="card"><div class="empty">' + ltr("কোনো ডেটা নেই") + '</div></div>';
+                }
+                h += '</div>';
+                h += '<button class="rep-dl noprint" id="repXlTotal" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
+                h += '<button class="rep-dl noprint" id="repPrintTotal" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '</div>'; // #repSectionTotal
 
                 q("reportBox").innerHTML = h;
 
-                var repDlBtn = q("repDl");
-                if (repDlBtn) repDlBtn.addEventListener("click", function () {
-                    var rows = [];
-                    rows.push([ltr("NEELKUND — আজকের রিপোর্ট")]);
-                    rows.push([ltr("তারিখ"), todayStamp()]);
-                    rows.push([]);
+                function printReportSection(idToHide) {
+                    var el = q(idToHide);
+                    if (el) el.classList.add("noprint-temp");
+                    window.print();
+                    if (el) el.classList.remove("noprint-temp");
+                }
 
-                    rows.push([ltr("এজেন্ট অনুযায়ী")]);
-                    rows.push([ltr("এজেন্ট"), ltr("আজ ওঠার কথা"), ltr("আজ উঠল"), ltr("OD উঠল")]);
-                    if (!agents.length) {
-                        rows.push([ltr("আজ কোনো এজেন্টের হিসাব নেই")]);
-                    } else {
-                        agents.forEach(function (a) {
-                            rows.push([
-                                a.agentName || "",
-                                Number(a.todayDue || 0),
-                                Number(a.todayCollected || 0),
-                                Number(a.odCollected || 0)
-                            ]);
-                        });
-                    }
-                    rows.push([]);
-
-                    rows.push([ltr("ব্রাঞ্চের মোট হিসাব")]);
-                    rows.push([ltr("আজ ওঠার কথা"), Number(br.todayCollection || 0)]);
-                    rows.push([ltr("আজ উঠল"), Number(br.todayCollected || 0)]);
-                    rows.push([ltr("আজ OD উঠল"), Number(br.todayOdCollected || 0)]);
-                    rows.push([ltr("ব্ল্যাকলিস্ট OD উঠল"), Number(br.todayBlacklistCollected || 0)]);
-                    rows.push([ltr("ব্রাঞ্চ OD গ্রাহক (জন)"), Number(br.branchOdCustomers || 0)]);
-                    rows.push([ltr("ব্রাঞ্চ OD টাকা"), Number(br.branchOdAmount || 0)]);
-                    rows.push([]);
-
-                    rows.push([ltr("আজকের বিতরণ (DB)")]);
-                    rows.push([ltr("নতুন গ্রাহক"), Number(db.todayNewDb || 0)]);
-                    rows.push([ltr("পুরনো (আবার)"), Number(db.todayRepeatDb || 0)]);
-                    rows.push([ltr("মোট DB"), Number(db.totalDb || 0)]);
-                    rows.push([ltr("আজ বিতরণ"), Number(db.todayAmount || 0)]);
-                    rows.push([]);
-
-                    csvDownload("NEELKUND-" + ltr("আজকের-রিপোর্ট") + "-" + todayStamp() + ".csv", rows);
+                var repXlDailyBtn = q("repXlDaily");
+                if (repXlDailyBtn) repXlDailyBtn.addEventListener("click", function () {
+                    excelDownload("/api/manager/reports/daily/excel?date=" + repDateVal,
+                        "NEELKUND-Daily-Report-" + repDateVal + ".xlsx");
                 });
 
-                var repXlBtn = q("repXl");
-                if (repXlBtn) repXlBtn.addEventListener("click", function () {
-                    excelDownload("/api/manager/reports/summary/excel", "NEELKUND-" + ltr("রিপোর্ট") + "-" + todayStamp() + ".xlsx");
+                var repPrintDailyBtn = q("repPrintDaily");
+                if (repPrintDailyBtn) repPrintDailyBtn.addEventListener("click", function () {
+                    printReportSection("repSectionTotal");
+                });
+
+                var repXlTotalBtn = q("repXlTotal");
+                if (repXlTotalBtn) repXlTotalBtn.addEventListener("click", function () {
+                    excelDownload("/api/manager/reports/summary/excel", "NEELKUND-Total-Branch-Summary.xlsx");
+                });
+
+                var repPrintTotalBtn = q("repPrintTotal");
+                if (repPrintTotalBtn) repPrintTotalBtn.addEventListener("click", function () {
+                    printReportSection("repSectionDaily");
                 });
 
             }).catch(function (e) {
@@ -1958,6 +1972,9 @@
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+        var repDateInputEl = q("repDate");
+        if (repDateInputEl) repDateInputEl.addEventListener("change", function () { loadReport(); });
+
         function loadDash(silent) {
             if (silent !== true) {
                 q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
