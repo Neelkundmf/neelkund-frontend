@@ -5723,7 +5723,9 @@
                         h += '<div class="item">';
                         h += '<div class="av">₹</div>';
                         h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
-                            '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span></div>';
+                            '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span>' +
+                            (p.editedByName ? '<span style="color:var(--muted);">' + ltr('এডিট করেছেন') + ' ' + NK.esc(p.editedByName) + '</span>' : '') +
+                            '</div>';
                         if (Number(p.amount) > 0) {
                             h += '<button class="btn ghost sm" data-reverse="' + p.id + '">✏️ ' + ltr('ভুল?') + '</button>';
                         }
