@@ -4149,9 +4149,11 @@
             if (expTypeEl) expTypeEl.addEventListener("change", loadExpenses);
         });
 
-    })();
-</script>
-<script>
+    // নিচের Back-বাটন হ্যান্ডলিং এই একই IIFE-এর ভেতরেই থাকতে হবে, নাহলে
+    // q()/show()/openLoanDetail() ইত্যাদি (সবই এই ফাংশনের ভেতরে ডিফাইন করা)
+    // এখান থেকে অ্যাক্সেস করা যায় না — "q is not defined" এরর দিয়ে পুরো
+    // popstate হ্যান্ডলারটাই থেমে যেত, তাই Back চাপলে স্ক্রিনে কিছুই বদলাত না
+
     // Back button handling with dashboard double-press exit
     var backPressCount = 0;
     var backPressTimer = null;
@@ -4239,6 +4241,8 @@
         // ধরারই সময় পেত না) — এই কুশনটাই প্রথম Back-এ ধরা পড়বে
         history.pushState({ view: window.CURRENT_VIEW }, null, window.location.pathname);
     }, 0);
+
+    })();
 </script>
 <script>
     if ("serviceWorker" in navigator) {
