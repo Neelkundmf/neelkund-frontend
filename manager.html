@@ -1269,6 +1269,7 @@
             "আজ ওঠার কথা": "Due Today",
             "আজকের ডিউ": "Due Today",
             "লোন এগ্রিমেন্টের ছবি": "Loan Agreement Photo",
+            "বদলি/নিষ্ক্রিয়": "Transferred/Inactive",
             "ডিসবার্স": "Disbursed",
             "সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট": "Total of all agents' still-unpaid EMIs today",
             "আজ উঠেছে": "Collected Today",
@@ -1861,8 +1862,11 @@
                 } else {
                     h += '<div class="rep-ag-grid">';
                     agents.forEach(function (a) {
-                        h += '<div class="rep-ag">';
-                        h += '<div class="nm">' + NK.esc(a.agentName) + '</div>';
+                        h += '<div class="rep-ag"' + (a.currentAgent === false ? ' style="opacity:.65;"' : '') + '>';
+                        h += '<div class="nm">' + NK.esc(a.agentName) +
+                            (a.currentAgent === false ? ' <span style="font-size:9.5px;background:rgba(255,255,255,.3);' +
+                                'padding:2px 6px;border-radius:20px;font-weight:700;vertical-align:middle;">' +
+                                ltr("বদলি/নিষ্ক্রিয়") + '</span>' : '') + '</div>';
                         h += '<div class="r"><span>' + ltr("আজকের ডিউ") + '</span><b>' + NK.inr(a.todayDue) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("আজ উঠল") + '</span><b>' + NK.inrShort(a.todayCollected) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("OD উঠল") + '</span><b>' + NK.inrShort(a.odCollected) + '</b></div>';
@@ -1974,17 +1978,17 @@
                 /* ---- উপরের ৪ বক্স — রঙিন গ্রেডিয়েন্ট ---- */
                 h += '<div class="stat-grid">';
 
-                h += '<div class="stat-card c0"><div class="l">' + ltr("আজকের ডিউ") + '</div>' +
+                h += '<div class="stat-card c0" id="statDueTap" style="cursor:pointer;"><div class="l">' + ltr("আজকের ডিউ") + '</div>' +
                     '<div class="v">' + NK.inr(d.todayDue) + '</div>' +
-                    '<div class="sub">' + ltr("সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট") + '</div></div>';
+                    '<div class="sub">' + ltr("সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট — বিস্তারিত দেখতে চাপুন") + '</div></div>';
 
-                h += '<div class="stat-card c1"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
+                h += '<div class="stat-card c1" id="statCollTap" style="cursor:pointer;"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
                     '<div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
 
                 h += '<div class="stat-card c2"><div class="l">' + ltr("চলমান গ্রাহক") + '</div>' +
                     '<div class="v">' + d.runningCustomers + '</div></div>';
 
-                h += '<div class="stat-card c3"><div class="l">' + ltr("এই মাসের রিপোর্ট") + '</div>' +
+                h += '<div class="stat-card c3" id="statMonthTap" style="cursor:pointer;"><div class="l">' + ltr("এই মাসের রিপোর্ট") + '</div>' +
                     '<div class="sub">' + ltr("বিতরণ") + ' ' + NK.inrShort(d.monthDisbursed) + '<br>' +
                     ltr("আদায়") + ' ' + NK.inrShort(d.monthCollected) + '</div></div>';
 
@@ -2048,6 +2052,17 @@
 
                 var disbBoxTapEl = q("disbBoxTap");
                 if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", function () { openDisbByAgent(); });
+
+                /* ডিউ/আজ উঠেছে/মাসের রিপোর্ট বক্সে চাপলে "রিপোর্ট" ট্যাবের
+                   এজেন্ট-অনুযায়ী বিস্তারিত তালিকায় নিয়ে যায় — প্রতিবার তাজা করে
+                   লোড হয় যাতে ড্যাশবোর্ডের সংখ্যার সাথে মিলে */
+                ["statDueTap", "statCollTap", "statMonthTap"].forEach(function (id) {
+                    var el = q(id);
+                    if (el) el.addEventListener("click", function () {
+                        loaded.report = false;
+                        show("report");
+                    });
+                });
 
                 // Load collection list at bottom
                 loadCollectionList();
