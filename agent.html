@@ -3656,6 +3656,24 @@
                     h += '<div class="yn">';
                     h += '<button class="no" id="pyNoEmiBack" style="grid-column:1 / -1;">ঠিক আছে, ফিরে যান</button>';
                     h += '</div>';
+                    h += '<div style="text-align:center;margin:10px 0 4px;">';
+                    h += '<button class="btn ghost sm" id="pyNoEmiToggle">' + ltr('কাস্টমার আজই কিছু দিতে চাইলে?') + '</button>';
+                    h += '</div>';
+                    h += '<div id="pyEditBox" style="display:none;">';
+                    h += '<div class="sectlabel">' + ltr('কত টাকা দিয়েছে লিখুন') + '</div>';
+                    h += '<input class="pinput" id="pyAmt" type="number" inputmode="numeric" placeholder="₹0" value="' + emi.toFixed(0) + '">';
+                    h += '<div class="quickrow">';
+                    [50, 100, 150, 200, 250].forEach(function (qv) {
+                        h += '<button class="qbtn" data-q="' + qv + '">+' + qv + '</button>';
+                    });
+                    h += '</div>';
+                    h += '<div class="hint" style="margin:-4px 0 12px;">' +
+                        ltr('এটা অগ্রিম (অ্যাডভান্স) হিসেবে জমা হবে — পরের দিনগুলোর কিস্তি থেকে বাদ যাবে।') + '</div>';
+                    h += '<div class="notelbl">নোট (ঐচ্ছিক মন্তব্য)</div>';
+                    h += '<input class="noteinput" id="pyNote" type="text" maxlength="200" placeholder="যেমনঃ আজই কিছু দিতে চেয়েছে">';
+                    h += '<button class="pbtn" id="pyPay">' + ltr('জমা নিন') + '</button>';
+                    h += '<button class="cancelbtn" id="pyNoEmiCancel">✕ ' + ltr('বাতিল') + '</button>';
+                    h += '</div>';
                 } else if (todayAlreadyPaid) {
                     h += '<div class="covernote">✓ আজকের কিস্তি ইতিমধ্যে জমা হয়ে গেছে</div>';
 
@@ -3766,6 +3784,18 @@
             if (q("pyNoEmiBack")) {
                 q("pyNoEmiBack").addEventListener("click", function () {
                     closePayPage();
+                });
+            }
+            if (q("pyNoEmiToggle")) {
+                q("pyNoEmiToggle").addEventListener("click", function () {
+                    q("pyNoEmiToggle").style.display = "none";
+                    q("pyEditBox").style.display = "block";
+                });
+            }
+            if (q("pyNoEmiCancel")) {
+                q("pyNoEmiCancel").addEventListener("click", function () {
+                    q("pyEditBox").style.display = "none";
+                    q("pyNoEmiToggle").style.display = "inline-block";
                 });
             }
             if (q("pyEditToggle")) {
