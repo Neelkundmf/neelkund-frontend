@@ -569,6 +569,26 @@
             margin-top: 18px;
         }
         .rep-dl:active { transform: scale(.98); }
+        .rep-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            align-items: stretch;
+            margin-top: 18px;
+        }
+        .rep-btn-row .rep-dl { margin-top: 0; min-height: 44px; font-size: 12.5px; padding: 0 4px; }
+        .rep-datebox {
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 4px;
+            font-family: inherit;
+        }
         /* ---- গ্রাহক তালিকা (টোটাল কাস্টমার আন্ডার ব্রাঞ্চ) ---- */
         .bc-card {
             display: flex;
@@ -1052,10 +1072,6 @@
 
         <!-- ---------------- আজকের রিপোর্ট ---------------- -->
         <div class="view" id="v-report">
-            <div class="card noprint" style="margin-bottom:12px;">
-                <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">আজকের রিপোর্টের তারিখ</label>
-                <input type="date" id="repDate">
-            </div>
             <div id="reportBox"><div class="empty" id="reportComingSoon">শীঘ্রই আসছে</div></div>
         </div>
 
@@ -1843,14 +1859,14 @@
         /* =====================================================================
          * আজকের রিপোর্ট — এজেন্ট বক্স · ব্রাঞ্চ মোট · DB
          * ===================================================================== */
+        var REP_SELECTED_DATE = todayStamp();
+
         function loadReport(silent) {
             if (silent !== true) {
                 q("reportBox").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
             }
 
-            var repDateEl = q("repDate");
-            if (repDateEl && !repDateEl.value) repDateEl.value = todayStamp();
-            var repDateVal = repDateEl ? repDateEl.value : todayStamp();
+            var repDateVal = REP_SELECTED_DATE;
             var dq = "?date=" + repDateVal;
 
             Promise.all([
@@ -1913,8 +1929,11 @@
                 h += '<div class="cell"><div class="l">' + ltr("আজ বিতরণ") + '</div><div class="v">' + NK.inrShort(db.todayAmount) + '</div></div>';
                 h += '</div>';
 
-                h += '<button class="rep-dl noprint" id="repXlDaily" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
-                h += '<button class="rep-dl noprint" id="repPrintDaily" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '<div class="rep-btn-row noprint">';
+                h += '<button class="rep-dl" id="repXlDaily" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
+                h += '<input type="date" id="repDate" class="rep-datebox" value="' + repDateVal + '">';
+                h += '<button class="rep-dl" id="repPrintDaily" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '</div>';
                 h += '</div>'; // #repSectionDaily
 
                 h += '<div id="repSectionTotal">';
@@ -1933,8 +1952,11 @@
                     h += '<div class="card"><div class="empty">' + ltr("কোনো ডেটা নেই") + '</div></div>';
                 }
                 h += '</div>';
-                h += '<button class="rep-dl noprint" id="repXlTotal" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
-                h += '<button class="rep-dl noprint" id="repPrintTotal" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '<div class="rep-btn-row noprint">';
+                h += '<button class="rep-dl" id="repXlTotal" style="background:#10B981;">' + ltr("📊 Excel Report") + '</button>';
+                h += '<div class="rep-datebox">🗓️ ' + NK.dt(todayStamp()) + '</div>';
+                h += '<button class="rep-dl" id="repPrintTotal" style="background:#3B82F6;">' + ltr("🖨️ Window Print") + '</button>';
+                h += '</div>';
                 h += '</div>'; // #repSectionTotal
 
                 q("reportBox").innerHTML = h;
@@ -1945,6 +1967,12 @@
                     window.print();
                     if (el) el.classList.remove("noprint-temp");
                 }
+
+                var repDateEl = q("repDate");
+                if (repDateEl) repDateEl.addEventListener("change", function () {
+                    REP_SELECTED_DATE = repDateEl.value || todayStamp();
+                    loadReport();
+                });
 
                 var repXlDailyBtn = q("repXlDaily");
                 if (repXlDailyBtn) repXlDailyBtn.addEventListener("click", function () {
@@ -1972,9 +2000,6 @@
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
-        var repDateInputEl = q("repDate");
-        if (repDateInputEl) repDateInputEl.addEventListener("change", function () { loadReport(); });
-
         function loadDash(silent) {
             if (silent !== true) {
                 q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
