@@ -531,6 +531,15 @@
         }
         .rep-branch .line .v.g { color: #16A34A; }
         .rep-branch .line .v.r { color: var(--red); }
+        .rep-branch .rep-grp {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #D97706;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            margin: 10px 0 2px;
+        }
+        .rep-branch .rep-grp:first-child { margin-top: 4px; }
 
         /* DB হিসাব */
         .rep-db {
@@ -1940,12 +1949,16 @@
                 h += '<div class="rep-sec">' + ltr("📈 Total ব্রাঞ্চের হিসাব") + '</div>';
                 h += '<div class="rep-branch">';
                 if (tot) {
+                    h += '<div class="rep-grp">' + ltr("এখনকার অবস্থা") + '</div>';
                     h += '<div class="line"><span class="l">' + ltr("সক্রিয় লোন") + '</span><span class="v">' + tot.activeLoansCount + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("বন্ধ লোন") + '</span><span class="v">' + tot.closedLoansCount + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("ডিফল্ট লোন") + '</span><span class="v">' + tot.defaultedLoansCount + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট বকেয়া") + '</span><span class="v">' + NK.inr(tot.totalOutstanding || 0) + '</span></div>';
+                    h += '<div class="rep-grp">' + ltr("এই মাসের হিসাব") + '</div>';
                     h += '<div class="line"><span class="l">' + ltr("মোট ডিসবার্স") + '</span><span class="v">' + NK.inr(tot.totalPrincipalDisbursed || 0) + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("মোট কালেকশন") + '</span><span class="v g">' + NK.inr(tot.totalCollected || 0) + '</span></div>';
-                    h += '<div class="line"><span class="l">' + ltr("মোট বকেয়া") + '</span><span class="v">' + NK.inr(tot.totalOutstanding || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("মোট আসল আদায়") + '</span><span class="v">' + NK.inr(tot.monthPrincipalRecovered || 0) + '</span></div>';
+                    h += '<div class="line"><span class="l">' + ltr("প্রকৃত সুদ আয়") + '</span><span class="v">' + NK.inr(tot.monthInterestIncome || 0) + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("মোট খরচ") + '</span><span class="v">' + NK.inr(tot.totalExpenses || 0) + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("নেট মুনাফা") + '</span><span class="v g">' + NK.inr(tot.netProfit || 0) + '</span></div>';
                 } else {
