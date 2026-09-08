@@ -2049,7 +2049,7 @@
                     NK.esc((l.customerName || "?").charAt(0)) + '</div>';
                 h += '<div class="mid"><b>' +
                     NK.esc(l.customerName || (ltr("গ্রাহক ") + l.customerId)) + '</b>' +
-                    '<span>#' + NK.esc(l.id) + ltr(' · জমা ') +
+                    '<span>' + NK.esc(l.customerCode || ("#" + l.id)) + ltr(' · জমা ') +
                     NK.inrShort(l.totalPaid) + '</span></div>';
                 h += '<div class="end"><b>' + NK.inrShort(due) + '</b>' +
                     ltr('<span style="font-size:11px;color:var(--muted);">বাকি</span></div>');
