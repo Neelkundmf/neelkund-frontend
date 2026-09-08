@@ -319,14 +319,10 @@
         return "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 0 });
     }
 
-    /** ছোট করে — ₹১.২ ল (ইংরেজিতে ₹1.2 L) */
+    /** আগে হাজার/লাখ/কোটি করে ছোট দেখাতো — এখন সবসময় পুরো সঠিক অঙ্ক (₹১২,৩৪৫)
+        দেখায়, কল-সাইট বদলাতে হয়নি বলে এই ফাংশনটাই রেখে দেওয়া হয়েছে */
     function inrShort(n) {
-        var v = Number(n || 0);
-        var en = getLang() === "en";
-        if (Math.abs(v) >= 10000000) return "₹" + (v / 10000000).toFixed(2) + (en ? " Cr" : " কো");
-        if (Math.abs(v) >= 100000)   return "₹" + (v / 100000).toFixed(2) + (en ? " L" : " ল");
-        if (Math.abs(v) >= 1000)     return "₹" + (v / 1000).toFixed(1) + (en ? " K" : " হা");
-        return inr(v);
+        return inr(n);
     }
 
     /** তারিখ — ১৩ জুল ২০২৬ */
