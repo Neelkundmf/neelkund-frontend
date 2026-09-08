@@ -1863,7 +1863,7 @@
                     agents.forEach(function (a) {
                         h += '<div class="rep-ag">';
                         h += '<div class="nm">' + NK.esc(a.agentName) + '</div>';
-                        h += '<div class="r"><span>' + ltr("আজকের ডিউ") + '</span><b>' + NK.inrShort(a.todayDue) + '</b></div>';
+                        h += '<div class="r"><span>' + ltr("আজকের ডিউ") + '</span><b>' + NK.inr(a.todayDue) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("আজ উঠল") + '</span><b>' + NK.inrShort(a.todayCollected) + '</b></div>';
                         h += '<div class="r"><span>' + ltr("OD উঠল") + '</span><b>' + NK.inrShort(a.odCollected) + '</b></div>';
                         h += '</div>';
@@ -1975,7 +1975,7 @@
                 h += '<div class="stat-grid">';
 
                 h += '<div class="stat-card c0"><div class="l">' + ltr("আজকের ডিউ") + '</div>' +
-                    '<div class="v">' + NK.inrShort(d.todayDue) + '</div>' +
+                    '<div class="v">' + NK.inr(d.todayDue) + '</div>' +
                     '<div class="sub">' + ltr("সব এজেন্টের আজকের এখনও-না-দেওয়া কিস্তি মিলিয়ে মোট") + '</div></div>';
 
                 h += '<div class="stat-card c1"><div class="l">' + ltr("আজ উঠেছে") + '</div>' +
