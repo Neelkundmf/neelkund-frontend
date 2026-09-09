@@ -3282,15 +3282,23 @@
                     h += '<div class="ld-title">🕒 ' + ltr('পেমেন্টের সময়') + '</div>';
                     h += '<div class="list">';
                     d.paymentLog.forEach(function (p) {
+                        var isDead = p.reversed || p.isReversalEntry;
                         h += '<div class="item">';
-                        h += '<div class="av">₹</div>';
-                        h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
+                        h += '<div class="av">' + (p.isReversalEntry ? '🗑️' : '₹') + '</div>';
+                        h += '<div class="mid"><b' + (isDead ? ' style="text-decoration:line-through;opacity:.6;"' : '') + '>' +
+                            NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span>' +
                             (p.editedByName ? '<span style="color:var(--muted);">' + ltr('এডিট করেছেন') + ' ' + NK.esc(p.editedByName) + '</span>' : '') +
+                            (p.reversed && p.reversedByName ? '<span style="color:#DC2626;">' + ltr('বাতিল করেছেন') + ' ' + NK.esc(p.reversedByName) +
+                                (p.reversalReason ? ' · ' + NK.esc(p.reversalReason) : '') + '</span>' : '') +
                             '</div>';
-                        if (Number(p.amount) > 0) {
+                        if (Number(p.amount) > 0 && !isDead) {
+                            h += '<div style="display:flex;gap:6px;flex-shrink:0;">';
                             h += '<button class="btn ghost sm" data-correct="' + p.id +
                                 '" data-amt="' + p.amount + '">✏️ ' + ltr('ঠিক করুন') + '</button>';
+                            h += '<button class="btn ghost sm" data-cancel="' + p.id +
+                                '" style="color:#DC2626;">🗑️ ' + ltr('বাতিল') + '</button>';
+                            h += '</div>';
                         }
                         h += '</div>';
                     });
@@ -3354,6 +3362,28 @@
                                 toast(e.message, "er");
                                 b.disabled = false;
                                 b.textContent = "✏️ " + ltr("ঠিক করুন");
+                            });
+                    });
+                });
+
+                Array.prototype.forEach.call(q("lxBody").querySelectorAll("[data-cancel]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var pid = b.getAttribute("data-cancel");
+                        var reason = prompt(ltr("কেন বাতিল করছেন? (কারণ লিখুন)"));
+                        if (!reason || !reason.trim()) return;
+
+                        b.disabled = true;
+                        b.textContent = "...";
+
+                        NK.POST("/api/payments/" + pid + "/reverse", { reason: reason.trim() })
+                            .then(function () {
+                                toast(ltr("বাতিল হয়েছে ✓"), "ok");
+                                openLoanDetail(loanId, true);
+                            })
+                            .catch(function (e) {
+                                toast(e.message, "er");
+                                b.disabled = false;
+                                b.textContent = "🗑️ " + ltr("বাতিল");
                             });
                     });
                 });

@@ -5745,13 +5745,17 @@
                     h += '<div class="ld-title">🕒 ' + ltr('পেমেন্টের সময়') + '</div>';
                     h += '<div class="list">';
                     d.paymentLog.forEach(function (p) {
+                        var isDead = p.reversed || p.isReversalEntry;
                         h += '<div class="item">';
-                        h += '<div class="av">₹</div>';
-                        h += '<div class="mid"><b>' + NK.inr(p.amount) + '</b>' +
+                        h += '<div class="av">' + (p.isReversalEntry ? '🗑️' : '₹') + '</div>';
+                        h += '<div class="mid"><b' + (isDead ? ' style="text-decoration:line-through;opacity:.6;"' : '') + '>' +
+                            NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span>' +
                             (p.editedByName ? '<span style="color:var(--muted);">' + ltr('এডিট করেছেন') + ' ' + NK.esc(p.editedByName) + '</span>' : '') +
+                            (p.reversed && p.reversedByName ? '<span style="color:#DC2626;">' + ltr('বাতিল করেছেন') + ' ' + NK.esc(p.reversedByName) +
+                                (p.reversalReason ? ' · ' + NK.esc(p.reversalReason) : '') + '</span>' : '') +
                             '</div>';
-                        if (Number(p.amount) > 0) {
+                        if (Number(p.amount) > 0 && !isDead) {
                             h += '<button class="btn ghost sm" data-reverse="' + p.id + '">✏️ ' + ltr('ভুল?') + '</button>';
                         }
                         h += '</div>';
