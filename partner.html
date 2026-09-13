@@ -1984,6 +1984,7 @@
         }
 
         var MK_DRAW_BUSY = false;
+        var MK_EXPANDED = false; // ডিফল্ট বন্ধ — ড্রপডাউনে চাপলেই সব মার্কেট বক্স খুলবে
         function drawMarkets() {
             if (MK_DRAW_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
             MK_DRAW_BUSY = true;
@@ -1995,8 +1996,11 @@
                     return;
                 }
 
-                var h = '<div class="sec-title">📍 ' + ltr('মার্কেট') + '</div>';
-                h += '<div class="pmgrid">';
+                var h = '<div class="sec-title mk-toggle" id="mkToggle" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">' +
+                    '<span>📍 ' + ltr('মার্কেট') + ' (' + d.length + ')</span>' +
+                    '<span id="mkChev" style="transition:transform .2s;' +
+                    (MK_EXPANDED ? 'transform:rotate(180deg);' : '') + '">▾</span></div>';
+                h += '<div class="pmgrid"' + (MK_EXPANDED ? '' : ' style="display:none;"') + '>';
 
                 d.forEach(function (m, i) {
                     var profitPositive = Number(m.monthProfit) >= 0;
@@ -2040,6 +2044,15 @@
                             openMarketDetail(el.getAttribute("data-market"));
                         });
                     });
+
+                var mkToggle = q("mkToggle");
+                if (mkToggle) mkToggle.addEventListener("click", function () {
+                    MK_EXPANDED = !MK_EXPANDED;
+                    var grid = q("marketList").querySelector(".pmgrid");
+                    var chev = q("mkChev");
+                    if (grid) grid.style.display = MK_EXPANDED ? "grid" : "none";
+                    if (chev) chev.style.transform = MK_EXPANDED ? "rotate(180deg)" : "";
+                });
             }).catch(function () {
                 MK_DRAW_BUSY = false;
                 q("marketList").innerHTML = "";
