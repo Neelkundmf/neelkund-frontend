@@ -178,6 +178,28 @@
         .pmcard .pl .amt { font-size: 11px; font-family: 'Manrope', sans-serif; font-weight: 800; }
         .pmcard .pl .amt.neg { color: #FCA5A5; }
 
+        /* ---- মার্কেট বিস্তারিত পাতা (openMarketDetail) ---- */
+        .mdHero { background: linear-gradient(160deg,#0B1E42,#1D4ED8); border-radius: 20px; padding: 20px 18px; color: #fff; position: relative; overflow: hidden; margin-bottom: 14px; }
+        .mdHero::after { content: ""; position: absolute; bottom: -30%; left: -10%; width: 150px; height: 150px; background: rgba(255,255,255,.06); border-radius: 50%; }
+        .mdHero .top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+        .mdHero .lbl { font-size: 10px; opacity: .75; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+        .mdHero .amt { font-family: 'Manrope', sans-serif; font-size: 27px; font-weight: 800; margin-top: 3px; }
+        .mdRing { position: relative; width: 54px; height: 54px; flex-shrink: 0; }
+        .mdRing svg { transform: rotate(-90deg); }
+        .mdRing .pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 800; }
+        .mdHero .foot { display: flex; gap: 16px; margin-top: 14px; position: relative; z-index: 1; }
+        .mdHero .foot div span { display: block; font-size: 9px; opacity: .7; text-transform: uppercase; }
+        .mdHero .foot div b { font-family: 'Manrope', sans-serif; font-size: 12.5px; }
+        .mdSect { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 4px 2px 8px; }
+        .mdCard { background: #fff; border-radius: 16px; padding: 4px 16px; border: 1px solid #EEF2FA; box-shadow: 0 1px 2px rgba(15,41,66,.04), 0 10px 24px -18px rgba(15,41,66,.2); }
+        .mdRow { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 1px solid #F1F5F9; }
+        .mdRow:last-child { border-bottom: none; }
+        .mdRow .ico { width: 33px; height: 33px; border-radius: 10px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .mdRow .ico.warn { background: #FEF2F2; color: var(--red); }
+        .mdRow .lbl2 { flex: 1; font-size: 12px; color: var(--ink); font-weight: 600; }
+        .mdRow .val2 { font-family: 'Manrope', sans-serif; font-size: 13.5px; font-weight: 800; color: var(--ink); }
+        .mdRow .val2.r { color: var(--red); }
+
         /* #dash দিয়ে স্কোপ করা হলো — drawBranch()-এর নিজস্ব পুরনো .amtbox
            (ব্রাঞ্চ-বিস্তারিত পাতায়, #pBody-তে) এর সাথে নাম মিলে যেন সেটার
            রঙ/স্টাইল ভেঙে না যায় (সেটা এই দফায় বদলানো হয়নি) */
@@ -2068,21 +2090,35 @@
             NK.pushNavState({ view: CURRENT_VIEW, panel: "market", panelId: id });
 
             NK.GET("/api/markets/" + id + "/details").then(function (d) {
+                var due = Number(d.todayDue || 0);
+                var coll = Number(d.todayCollection || 0);
+                var todayTotal = due + coll;
+                var pct = todayTotal > 0 ? Math.round(coll / todayTotal * 100) : 0;
+                var circumference = 150.8;
+                var offset = circumference * (1 - pct / 100);
+
                 var h = "";
 
-                h += '<div class="card">';
-                h += ltr('<h3 style="margin-bottom:12px;">') + NK.esc(d.name) + '</h3>';
-                h += ltr('<div class="split" style="margin-bottom:16px;">');
-                h += ltr('<div><div class="l">বাকি টাকা</div><div class="v">') + NK.inr(d.outstandingAmount) + '</div></div>';
-                h += ltr('<div><div class="l">আজকের ওঠার কথা</div><div class="v">') + NK.inr(d.todayDue) + '</div></div>';
-                h += ltr('<div><div class="l">আজ জমা</div><div class="v g">') + NK.inr(d.todayCollection) + '</div></div>';
+                h += '<div class="mdHero">';
+                h += '<div class="top">';
+                h += '<div><div class="lbl">' + ltr('মোট বাকি টাকা') + '</div><div class="amt">' + NK.inr(d.outstandingAmount) + '</div></div>';
+                h += '<div class="mdRing"><svg width="54" height="54" viewBox="0 0 58 58">' +
+                    '<circle cx="29" cy="29" r="24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="6"/>' +
+                    '<circle cx="29" cy="29" r="24" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" ' +
+                    'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/></svg>' +
+                    '<div class="pct">' + pct + '%</div></div>';
                 h += '</div>';
-
-                h += ltr('<div class="split">');
-                h += ltr('<div><div class="l">গ্রাহক</div><div class="v">') + d.customerCount + '</div></div>';
-                h += ltr('<div><div class="l">চলমান লোন</div><div class="v">') + d.activeLoanCount + '</div></div>';
-                h += ltr('<div><div class="l">OD</div><div class="v r">') + d.odCustomerCount + '</div></div>';
+                h += '<div class="foot">';
+                h += '<div><span>' + ltr('আজকের ওঠার কথা') + '</span><b>' + NK.inr(due) + '</b></div>';
+                h += '<div><span>' + ltr('আজ জমা') + '</span><b>' + NK.inr(coll) + '</b></div>';
                 h += '</div></div>';
+
+                h += '<div class="mdSect">' + NK.esc(d.name) + ' · ' + ltr('গ্রাহক ও লোন') + '</div>';
+                h += '<div class="mdCard">';
+                h += '<div class="mdRow"><div class="ico">👤</div><div class="lbl2">' + ltr('মোট গ্রাহক') + '</div><div class="val2">' + d.customerCount + '</div></div>';
+                h += '<div class="mdRow"><div class="ico">📄</div><div class="lbl2">' + ltr('চলমান লোন') + '</div><div class="val2">' + d.activeLoanCount + '</div></div>';
+                h += '<div class="mdRow"><div class="ico warn">⚠️</div><div class="lbl2">' + ltr('OD গ্রাহক') + '</div><div class="val2 r">' + d.odCustomerCount + '</div></div>';
+                h += '</div>';
 
                 q("pBody").innerHTML = h;
             }).catch(function (e) {
