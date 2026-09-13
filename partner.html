@@ -148,6 +148,36 @@
         .marketcard .mstat .val { font-family: 'Fraunces', serif; font-size: 11.5px; font-weight: 700; }
         .marketcard .mstat .lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; margin-top: 1px; opacity: .9; }
 
+        /* ---- মার্কেট কার্ড (বিস্তারিত, পাশাপাশি ২-কলাম) ---- */
+        .pmgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .pmcard { border-radius: 13px; padding: 9px; color: #fff; cursor: pointer; position: relative; overflow: hidden; }
+        .pmcard::after { content: ""; position: absolute; top: -40%; right: -15%; width: 55px; height: 55px; background: rgba(255,255,255,.13); border-radius: 50%; }
+        .pmcard.c0 { background: linear-gradient(150deg,#3B82F6,#1E3A8A); box-shadow: 0 12px 22px -14px rgba(30,58,138,.55); }
+        .pmcard.c1 { background: linear-gradient(150deg,#34D399,#047857); box-shadow: 0 12px 22px -14px rgba(4,120,87,.5); }
+        .pmcard.c2 { background: linear-gradient(150deg,#FB923C,#C2410C); box-shadow: 0 12px 22px -14px rgba(194,65,12,.5); }
+        .pmcard.c3 { background: linear-gradient(150deg,#FB7185,#BE123C); box-shadow: 0 12px 22px -14px rgba(190,18,60,.5); }
+        .pmcard > * { position: relative; z-index: 1; }
+        .pmcard .hd { margin-bottom: 6px; }
+        .pmcard .nm { font-size: 10.5px; font-weight: 800; line-height: 1.15; }
+        .pmcard .cd { font-size: 7px; opacity: .78; margin-top: 1px; }
+        .pmcard .chip { font-size: 6.3px; font-weight: 700; background: #fff; color: var(--red); padding: 2px 5px; border-radius: 20px; white-space: nowrap; display: inline-block; margin-top: 4px; }
+        .pmcard .stats2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.22); border-bottom: 1px solid rgba(255,255,255,.22); margin-bottom: 6px; }
+        .pmcard .st b { display: block; font-size: 9.5px; font-family: 'Manrope', sans-serif; font-variant-numeric: tabular-nums; }
+        .pmcard .st span { font-size: 5.3px; opacity: .78; text-transform: uppercase; letter-spacing: .1px; }
+        .pmcard .todayrow { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; }
+        .pmcard .today b { display: block; font-size: 9px; font-family: 'Manrope', sans-serif; }
+        .pmcard .today span { font-size: 5.3px; opacity: .78; text-transform: uppercase; display: block; }
+        .pmcard .today.due b { color: #FEF3C7; }
+        .pmcard .today.coll b { color: #D1FAE5; }
+        .pmcard .row3 { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+        .pmcard .mini { display: flex; justify-content: space-between; }
+        .pmcard .mini span { font-size: 5.8px; opacity: .82; }
+        .pmcard .mini b { font-size: 7.5px; font-family: 'Manrope', sans-serif; }
+        .pmcard .pl { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.16); border-radius: 8px; padding: 5px 6px; }
+        .pmcard .pl .lft span { font-size: 5.5px; opacity: .88; }
+        .pmcard .pl .amt { font-size: 11px; font-family: 'Manrope', sans-serif; font-weight: 800; }
+        .pmcard .pl .amt.neg { color: #FCA5A5; }
+
         /* #dash দিয়ে স্কোপ করা হলো — drawBranch()-এর নিজস্ব পুরনো .amtbox
            (ব্রাঞ্চ-বিস্তারিত পাতায়, #pBody-তে) এর সাথে নাম মিলে যেন সেটার
            রঙ/স্টাইল ভেঙে না যায় (সেটা এই দফায় বদলানো হয়নি) */
@@ -1958,7 +1988,7 @@
             if (MK_DRAW_BUSY) return; // আগের রিফ্রেশ এখনও চলছে, ওভারল্যাপ আটকাও
             MK_DRAW_BUSY = true;
             var branchId = q("br").value;
-            NK.GET("/api/markets" + (branchId ? "?branchId=" + branchId : "")).then(function (d) {
+            NK.GET("/api/dashboard/partner-markets" + (branchId ? "?branchId=" + branchId : "")).then(function (d) {
                 MK_DRAW_BUSY = false;
                 if (!d || !d.length) {
                     q("marketList").innerHTML = "";
@@ -1966,21 +1996,38 @@
                 }
 
                 var h = '<div class="sec-title">📍 ' + ltr('মার্কেট') + '</div>';
-                h += '<div class="marketlist">';
+                h += '<div class="pmgrid">';
 
                 d.forEach(function (m, i) {
-                    h += '<div class="marketcard c' + (i % 4) + '" data-market="' + NK.esc(m.id) +
-                        '" data-name="' + NK.esc(m.name) + '">';
-                    h += '<div class="top">';
-                    h += '<div><div class="nm">' + NK.esc(m.name) + '</div>' +
-                        (m.code ? '<div class="cap">' + NK.esc(m.code) + '</div>' : '') + '</div>';
-                    h += '<div class="chev">›</div>';
-                    h += '</div>';
-                    h += '<div class="stats3">';
-                    h += '<div class="mstat blue"><div class="val">' + m.customerCount + '</div><div class="lbl">' + ltr('গ্রাহক') + '</div></div>';
-                    h += '<div class="mstat green" style="grid-column:span 2;"><div class="val" style="font-size:10px;">' +
-                        (m.managerName ? NK.esc(m.managerName) : "—") + '</div><div class="lbl">' + ltr('ম্যানেজার') + '</div></div>';
-                    h += '</div>';
+                    var profitPositive = Number(m.monthProfit) >= 0;
+                    h += '<div class="pmcard c' + (i % 4) + '" data-market="' + NK.esc(m.marketId) +
+                        '" data-name="' + NK.esc(m.marketName) + '">';
+                    h += '<div class="hd"><div><div class="nm">' + NK.esc(m.marketName) + '</div>' +
+                        '<div class="cd">' + (m.marketCode ? NK.esc(m.marketCode) + ' · ' : '') +
+                        (m.managerName ? NK.esc(m.managerName) : '—') + '</div></div>' +
+                        (Number(m.odAmount) > 0 ? '<div class="chip">OD ' + m.odCustomerCount + ' · ' + NK.inrShort(m.odAmount) + '</div>' : '') +
+                        '</div>';
+
+                    h += '<div class="stats2">' +
+                        '<div class="st"><b>' + m.runningCustomers + '</b><span>' + ltr('চলমান') + '</span></div>' +
+                        '<div class="st"><b>' + m.closedThisMonthCount + '</b><span>' + ltr('এ মাসে বন্ধ') + '</span></div>' +
+                        '</div>';
+
+                    h += '<div class="todayrow">' +
+                        '<div class="today due"><b>' + NK.inrShort(m.todayDue) + '</b><span>' + ltr('তুলতে হবে') + '</span></div>' +
+                        '<div class="today coll"><b>' + NK.inrShort(m.todayCollected) + '</b><span>' + ltr('উঠলো') + '</span></div>' +
+                        '</div>';
+
+                    h += '<div class="row3">' +
+                        '<div class="mini"><span>' + ltr('বিতরণ (এ মাস)') + '</span><b>' + NK.inrShort(m.monthDisbursed) + '</b></div>' +
+                        '<div class="mini"><span>' + ltr('কালেকশন (এ মাস)') + '</span><b>' + NK.inrShort(m.monthCollected) + '</b></div>' +
+                        '<div class="mini"><span>' + ltr('মোট বকেয়া') + '</span><b>' + NK.inrShort(m.totalOutstanding) + '</b></div>' +
+                        '</div>';
+
+                    h += '<div class="pl"><div class="lft"><span>' + ltr('এ মাসের প্রফিট') + '</span></div>' +
+                        '<div class="amt' + (profitPositive ? '' : ' neg') + '">' +
+                        (profitPositive ? '+' : '') + NK.inrShort(m.monthProfit) + '</div></div>';
+
                     h += '</div>';
                 });
 
