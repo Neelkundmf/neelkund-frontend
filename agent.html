@@ -4108,6 +4108,7 @@
             history.back();
         });
 
+        var LAST_TODAY_HTML = null; // নীরব রিফ্রেশে ডেটা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
         function loadToday(silent) {
             if (silent !== true) {
                 q("today").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -4173,10 +4174,15 @@
                     h += '<div class="card"><div class="empty">' + ltr('আজ কারও কিস্তি নেই') + '</div></div>';
                 }
 
-                q("today").innerHTML = h;
-                bindPay(q("today"));
-                bindProfileTap(q("today"));
-                loadCustomerPhotosIn(q("today"));
+                if (silent === true && h === LAST_TODAY_HTML) {
+                    // কিছুই বদলায়নি — আবার না বসিয়ে ব্লিংক আটকানো (ছবিও আবার লোড হবে না)
+                } else {
+                    LAST_TODAY_HTML = h;
+                    q("today").innerHTML = h;
+                    bindPay(q("today"));
+                    bindProfileTap(q("today"));
+                    loadCustomerPhotosIn(q("today"));
+                }
 
                 // Load collection list at bottom — silent রিফ্রেশে না, শুধু আসল
                 // লোডে, নাহলে নিচের ৩০ সে. টাইমারের সাথে দুইবার রিফ্রেশ হয়ে
@@ -4196,6 +4202,7 @@
         // একবার আনা ছবি মনে রাখা হয় (customerId → blob URL) — রিফ্রেশে আবার
         // ডাউনলোড না করে সাথে সাথে বসিয়ে দেওয়া যায়, তাই ছবি আর ঝিলিক দেয় না
         var RECENT_COLL_PHOTO_CACHE = {};
+        var LAST_COLL_HTML = null; // তালিকা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
 
         function collTodayISO() {
             var d = new Date();
@@ -4251,9 +4258,12 @@
                 });
                 html += '</div>';
 
-                box.innerHTML = html;
-                loadRecentCollPhotos();
-                bindProfileTap(box);
+                if (html !== LAST_COLL_HTML) {
+                    LAST_COLL_HTML = html;
+                    box.innerHTML = html;
+                    loadRecentCollPhotos();
+                    bindProfileTap(box);
+                }
             }).catch(function (e) {
                 box.innerHTML = '<div class="recentcoll-empty">' + ltr('ত্রুটি') + ': ' + NK.esc(e.message) + '</div>';
             });

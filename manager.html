@@ -2077,6 +2077,7 @@
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
+        var LAST_DASH_HTML = null; // নীরব রিফ্রেশে ডেটা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
         function loadDash(silent) {
             if (silent !== true) {
                 q("dash").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
@@ -2167,21 +2168,26 @@
                     h += '</div>';
                 }
 
-                q("dash").innerHTML = h;
+                if (silent === true && h === LAST_DASH_HTML) {
+                    // কিছুই বদলায়নি — আবার না বসিয়ে ব্লিংক আটকানো
+                } else {
+                    LAST_DASH_HTML = h;
+                    q("dash").innerHTML = h;
 
-                var disbBoxTapEl = q("disbBoxTap");
-                if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", function () { openDisbByAgent(); });
+                    var disbBoxTapEl = q("disbBoxTap");
+                    if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", function () { openDisbByAgent(); });
 
-                /* ডিউ/আজ উঠেছে/মাসের রিপোর্ট বক্সে চাপলে "রিপোর্ট" ট্যাবের
-                   এজেন্ট-অনুযায়ী বিস্তারিত তালিকায় নিয়ে যায় — প্রতিবার তাজা করে
-                   লোড হয় যাতে ড্যাশবোর্ডের সংখ্যার সাথে মিলে */
-                ["statDueTap", "statCollTap", "statMonthTap"].forEach(function (id) {
-                    var el = q(id);
-                    if (el) el.addEventListener("click", function () {
-                        loaded.report = false;
-                        show("report");
+                    /* ডিউ/আজ উঠেছে/মাসের রিপোর্ট বক্সে চাপলে "রিপোর্ট" ট্যাবের
+                       এজেন্ট-অনুযায়ী বিস্তারিত তালিকায় নিয়ে যায় — প্রতিবার তাজা করে
+                       লোড হয় যাতে ড্যাশবোর্ডের সংখ্যার সাথে মিলে */
+                    ["statDueTap", "statCollTap", "statMonthTap"].forEach(function (id) {
+                        var el = q(id);
+                        if (el) el.addEventListener("click", function () {
+                            loaded.report = false;
+                            show("report");
+                        });
                     });
-                });
+                }
 
                 // Load collection list at bottom — silent রিফ্রেশে না, শুধু আসল
                 // লোডে, নাহলে নিচের ৩০ সে. টাইমারের সাথে দুইবার রিফ্রেশ হয়ে
@@ -2201,6 +2207,7 @@
         // একবার আনা ছবি মনে রাখা হয় (customerId → blob URL) — রিফ্রেশে আবার
         // ডাউনলোড না করে সাথে সাথে বসিয়ে দেওয়া যায়, তাই ছবি আর ঝিলিক দেয় না
         var RECENT_COLL_PHOTO_CACHE = {};
+        var LAST_COLL_HTML = null; // তালিকা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
 
         function loadCollectionList() {
             var box = q("collListBody");
@@ -2241,14 +2248,17 @@
                     html += '</div>';
                 });
 
-                box.innerHTML = html;
-                loadRecentCollPhotos();
+                if (html !== LAST_COLL_HTML) {
+                    LAST_COLL_HTML = html;
+                    box.innerHTML = html;
+                    loadRecentCollPhotos();
 
-                Array.prototype.forEach.call(box.querySelectorAll("[data-prof]"), function (el) {
-                    el.addEventListener("click", function () {
-                        openCustomerProfile(el.getAttribute("data-prof"));
+                    Array.prototype.forEach.call(box.querySelectorAll("[data-prof]"), function (el) {
+                        el.addEventListener("click", function () {
+                            openCustomerProfile(el.getAttribute("data-prof"));
+                        });
                     });
-                });
+                }
             }).catch(function (e) {
                 box.innerHTML = '<div class="recentcoll-empty">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>';
             });

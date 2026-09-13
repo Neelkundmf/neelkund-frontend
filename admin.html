@@ -1880,6 +1880,7 @@
                 '</div><div class="v ' + (tone || "") + '">' + NK.esc(String(v)) + '</div></div>';
         }
 
+        var LAST_DASH_HTML = null; // নীরব রিফ্রেশে ডেটা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
         function loadDash(silent) {
             var branchId = q("br").value;
             var path = "/api/dashboard" + (branchId ? "?branchId=" + branchId : "");
@@ -1964,15 +1965,20 @@
                 html += '<div class="a">' + NK.inr(d.totalOdAmount) + ' ' + ltr('আটকে আছে') + '</div>';
                 html += "</div>";
 
-                q("dash").innerHTML = html;
+                if (silent === true && html === LAST_DASH_HTML) {
+                    // কিছুই বদলায়নি — আবার না বসিয়ে ব্লিংক আটকানো
+                } else {
+                    LAST_DASH_HTML = html;
+                    q("dash").innerHTML = html;
 
-                /* ব্লকে ক্লিক → ওই অঙ্কের গ্রাহক তালিকা */
-                Array.prototype.forEach.call(
-                    q("dash").querySelectorAll("[data-amt]"), function (el) {
-                        el.addEventListener("click", function () {
-                            openAmount(Number(el.getAttribute("data-amt")), q("br").value || null);
+                    /* ব্লকে ক্লিক → ওই অঙ্কের গ্রাহক তালিকা */
+                    Array.prototype.forEach.call(
+                        q("dash").querySelectorAll("[data-amt]"), function (el) {
+                            el.addEventListener("click", function () {
+                                openAmount(Number(el.getAttribute("data-amt")), q("br").value || null);
+                            });
                         });
-                    });
+                }
 
                 // Load collection list at bottom — silent (১২ সে.) রিফ্রেশে না, শুধু
                 // আসল লোডে, নাহলে নিচের ৩০ সে. টাইমারের সাথে দুইবার রিফ্রেশ হয়ে
@@ -2363,6 +2369,7 @@
         var FUND = null;
         var fundTimer = null;
         var fundTick = null;
+        var LAST_FUND_HTML = null; // ডেটা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
 
         var FUND_LOAD_BUSY = false;
         function loadFund() {
@@ -2448,7 +2455,10 @@
 
             h += '</div>';
 
-            q("fund").innerHTML = h;
+            if (h !== LAST_FUND_HTML) {
+                LAST_FUND_HTML = h;
+                q("fund").innerHTML = h;
+            }
         }
 
         /* প্রতি সেকেন্ডে হালকা নাড়াচাড়া, ৩০ সেকেন্ডে নতুন হিসাব */
@@ -2937,6 +2947,7 @@
         // একবার আনা ছবি মনে রাখা হয় (customerId → blob URL) — রিফ্রেশে আবার
         // ডাউনলোড না করে সাথে সাথে বসিয়ে দেওয়া যায়, তাই ছবি আর ঝিলিক দেয় না
         var RECENT_COLL_PHOTO_CACHE = {};
+        var LAST_COLL_HTML = null; // তালিকা না বদলালে আর নতুন করে না বসিয়ে ব্লিংক আটকানো
 
         function loadCollectionList() {
             var box = q("collListBody");
@@ -2977,8 +2988,11 @@
                     html += '</div>';
                 });
 
-                box.innerHTML = html;
-                loadRecentCollPhotos();
+                if (html !== LAST_COLL_HTML) {
+                    LAST_COLL_HTML = html;
+                    box.innerHTML = html;
+                    loadRecentCollPhotos();
+                }
             }).catch(function (e) {
                 box.innerHTML = '<div class="recentcoll-empty">ত্রুটি: ' + NK.esc(e.message) + '</div>';
             });
