@@ -115,6 +115,11 @@
         .stat-card.c1 { background: linear-gradient(150deg,#34D399,#059669); }
         .stat-card.c2 { background: linear-gradient(150deg,#FB923C,#DC2626); }
         .stat-card.c3 { background: linear-gradient(150deg,#F472B6,#DB2777); }
+        .stat-card.pending { background: linear-gradient(150deg,#DC2626,#991B1B); }
+        .stat-grid.stat-grid3 { grid-template-columns: 1fr 1fr 1fr; }
+        .stat-grid3 .stat-card { padding: 11px; border-radius: 14px; }
+        .stat-grid3 .stat-card .l { font-size: 9px; margin-bottom: 6px; }
+        .stat-grid3 .stat-card .v { font-size: 14px; }
 
         .inv-card { background: #fff; border-radius: 18px; padding: 15px; margin-bottom: 10px; border: 1px solid #EEF1F5; box-shadow: 0 2px 4px rgba(15,41,66,.04), 0 10px 22px -14px rgba(15,41,66,.18); }
         .inv-split { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -1649,9 +1654,12 @@
 
                 /* ---- উপরের সংখ্যা ---- */
                 html += '<div class="sec-title">📊 ' + ltr('আজকের হিসাব') + '</div>';
+                html += '<div class="stat-grid stat-grid3">';
+                html += '<div class="stat-card c0"><div class="l">' + ltr('আজ ওঠার কথা') + '</div><div class="v">' + NK.inrShort(d.todayScheduled) + '</div></div>';
+                html += '<div class="stat-card c1"><div class="l">' + ltr('আজ উঠলো') + '</div><div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
+                html += '<div class="stat-card pending"><div class="l">' + ltr('আজ ওঠেনি') + '</div><div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
+                html += "</div>";
                 html += '<div class="stat-grid">';
-                html += '<div class="stat-card c0"><div class="l">' + ltr('আজ ওঠার কথা') + '</div><div class="v">' + NK.inrShort(d.todayDue) + '</div></div>';
-                html += '<div class="stat-card c1"><div class="l">' + ltr('আজ উঠেছে') + '</div><div class="v">' + NK.inrShort(d.todayCollected) + '</div></div>';
                 html += '<div class="stat-card c2"><div class="l">' + ltr('চলমান গ্রাহক') + '</div><div class="v">' + d.runningCustomers + '</div></div>';
                 html += '<div class="stat-card c3"><div class="l">' + ltr('শোধ হয়েছে') + '</div><div class="v">' + d.completedCustomers + '</div></div>';
                 html += "</div>";
