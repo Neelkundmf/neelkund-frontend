@@ -870,6 +870,90 @@
             flex: 1; overflow-y: auto;
             padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
         }
+        /* ===== আজকের ডিউ বিস্তারিত পাতা ===== */
+        #todayDueX {
+            position: fixed; inset: 0; z-index: 550;
+            background: var(--bg, #F4F6F8);
+            display: none; flex-direction: column;
+        }
+        #todayDueX.on { display: flex; }
+        #todayDueX .lbar {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--navy); color: #fff;
+            padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
+        #todayDueX .lbar button {
+            width: 38px; height: 38px; flex-shrink: 0;
+            background: rgba(255,255,255,.14); border: 0; border-radius: 10px;
+            color: #fff; font-size: 18px; cursor: pointer;
+        }
+        #todayDueX .lbar .sm { font-size: 12px; opacity: .8; }
+        #todayDueX .lbar b { font-size: 15px; }
+        #todayDueX .lin {
+            flex: 1; overflow-y: auto;
+            padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+        }
+        .tdx-summary {
+            padding: 14px 16px; border-radius: 14px; background: #fff;
+            box-shadow: 0 3px 10px rgba(20,20,60,.06);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .tdx-summary .l { font-size: 11.5px; color: #777; }
+        .tdx-summary .amt { font-size: 20px; font-weight: 800; color: #E0433C; }
+        .tdx-summary .cnt { font-size: 11px; color: #555; background: #F3F3FB; padding: 5px 11px; border-radius: 20px; }
+        .tdx-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; }
+        .tdx-chip {
+            white-space: nowrap; font-size: 12px; padding: 6px 13px; border-radius: 20px;
+            background: #fff; color: #555; box-shadow: 0 2px 6px rgba(20,20,60,.05); cursor: pointer; border: none;
+            font-family: inherit;
+        }
+        .tdx-chip.on { background: #3B3BD6; color: #fff; }
+        .tdx-chip.paid.on { background: #1F9D5C; color: #fff; }
+        .tdx-search {
+            margin-bottom: 12px; background: #fff; border-radius: 12px; padding: 10px 14px;
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(20,20,60,.05);
+        }
+        .tdx-search input { border: none; outline: none; flex: 1; font-size: 13.5px; background: transparent; }
+        .tdx-group { background: #fff; border-radius: 14px; box-shadow: 0 3px 10px rgba(20,20,60,.06); overflow: hidden; margin-bottom: 10px; }
+        .tdx-ghead {
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer;
+            background: linear-gradient(135deg,#EEF0FF,#F6F4FF);
+        }
+        .tdx-gav {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg,#6A5CF0,#9B8CF5); color: #fff;
+            font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center;
+        }
+        .tdx-gname { font-size: 13px; font-weight: 700; flex: 1; color: #1C1C2E; }
+        .tdx-gamt { font-size: 13px; font-weight: 800; color: #E0433C; }
+        .tdx-gamt.zero { color: #2FA84F; }
+        .tdx-card {
+            display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+            border-top: 1px solid #F1F1F7; background: #fff;
+        }
+        .tdx-card.paid { background: #F8FCFA; }
+        .tdx-av {
+            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+            background: #EEF0FF; color: #6A5CF0; font-weight: 700; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tdx-av.paidav { background: #EAFAF0; color: #1F9D5C; }
+        .tdx-cinfo { flex: 1; min-width: 0; }
+        .tdx-toprow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .tdx-cname { font-size: 13.5px; font-weight: 700; color: #1C1C2E; }
+        .tdx-tag { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 8px; }
+        .tdx-tag.arrear { background: #FDECEB; color: #E0433C; }
+        .tdx-tag.partial { background: #FFF6E0; color: #C98A06; }
+        .tdx-tag.nopay { background: #ECEAFF; color: #3B3BD6; }
+        .tdx-tag.done { background: #EAFAF0; color: #1F9D5C; }
+        .tdx-csub { font-size: 11.5px; color: #888; margin-top: 2px; }
+        .tdx-camt { text-align: right; flex-shrink: 0; }
+        .tdx-camt .rs { font-size: 14px; font-weight: 800; color: #E0433C; }
+        .tdx-camt .rs.green { color: #1F9D5C; }
+        .tdx-camt .mk { font-size: 10px; color: #999; margin-top: 2px; }
+
         .mrx-preset { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .mrx-preset button {
             border: 1.5px solid var(--line); background: #fff; border-radius: 20px;
@@ -1246,6 +1330,20 @@
         </div>
     </div>
     <div class="lin" id="mrxBody">
+        <div class="loading">লোড হচ্ছে...</div>
+    </div>
+</div>
+
+<!-- ================= আজকের ডিউ বিস্তারিত ================= -->
+<div id="todayDueX">
+    <div class="lbar">
+        <button id="tdxClose">←</button>
+        <div style="flex:1;">
+            <div class="sm" id="tdxSm">আজকের ডিউ</div>
+            <b id="tdxTitle">বিস্তারিত</b>
+        </div>
+    </div>
+    <div class="lin" id="tdxBody">
         <div class="loading">লোড হচ্ছে...</div>
     </div>
 </div>
@@ -1958,7 +2056,8 @@
                 } else {
                     h += '<div class="rep-ag-grid">';
                     agents.forEach(function (a) {
-                        h += '<div class="rep-ag"' + (a.currentAgent === false ? ' style="opacity:.65;"' : '') + '>';
+                        h += '<div class="rep-ag" data-agent="' + a.agentId + '" style="cursor:pointer;' +
+                            (a.currentAgent === false ? 'opacity:.65;' : '') + '">';
                         h += '<div class="nm">' + NK.esc(a.agentName) +
                             (a.currentAgent === false ? ' <span style="font-size:9.5px;background:rgba(255,255,255,.3);' +
                                 'padding:2px 6px;border-radius:20px;font-weight:700;vertical-align:middle;">' +
@@ -1974,7 +2073,7 @@
                 h += '<div class="rep-sec">' + ltr("🏦 ব্রাঞ্চের মোট হিসাব") + '</div>';
                 h += '<div class="rep-branch">';
                 if (br) {
-                    h += '<div class="line"><span class="l">' + ltr("আজ ওঠার কথা") + '</span><span class="v">' +
+                    h += '<div class="line" id="repBranchDueTap" style="cursor:pointer;"><span class="l">' + ltr("আজ ওঠার কথা") + '</span><span class="v">' +
                         NK.inr(br.todayCollection || 0) + '</span></div>';
                     h += '<div class="line"><span class="l">' + ltr("আজ উঠল") + '</span><span class="v g">' +
                         NK.inr(br.todayCollected || 0) + '</span></div>';
@@ -2032,6 +2131,20 @@
                 h += '</div>'; // #repSectionTotal
 
                 q("reportBox").innerHTML = h;
+
+                // এজেন্টের কার্ডে চাপলে সেই এজেন্টের একার বাকি+জমা লিস্ট,
+                // "আজ ওঠার কথা" রো-তে চাপলে সব এজেন্ট মিলিয়ে গ্রুপ করা লিস্ট
+                var repAgEls = document.querySelectorAll(".rep-ag");
+                for (var ri = 0; ri < repAgEls.length; ri++) {
+                    repAgEls[ri].addEventListener("click", function () {
+                        var aid = this.getAttribute("data-agent");
+                        if (aid) openTodayDue(Number(aid));
+                    });
+                }
+                var repBranchDueTapEl = q("repBranchDueTap");
+                if (repBranchDueTapEl) repBranchDueTapEl.addEventListener("click", function () {
+                    openTodayDue(null);
+                });
 
                 function printReportSection(idToHide) {
                     var el = q(idToHide);
@@ -2177,15 +2290,22 @@
                     var disbBoxTapEl = q("disbBoxTap");
                     if (disbBoxTapEl) disbBoxTapEl.addEventListener("click", function () { openDisbByAgent(); });
 
-                    /* ডিউ/আজ উঠেছে/মাসের রিপোর্ট বক্সে চাপলে "রিপোর্ট" ট্যাবের
+                    /* আজ উঠেছে/মাসের রিপোর্ট বক্সে চাপলে "রিপোর্ট" ট্যাবের
                        এজেন্ট-অনুযায়ী বিস্তারিত তালিকায় নিয়ে যায় — প্রতিবার তাজা করে
                        লোড হয় যাতে ড্যাশবোর্ডের সংখ্যার সাথে মিলে */
-                    ["statDueTap", "statCollTap", "statMonthTap"].forEach(function (id) {
+                    ["statCollTap", "statMonthTap"].forEach(function (id) {
                         var el = q(id);
                         if (el) el.addEventListener("click", function () {
                             loaded.report = false;
                             show("report");
                         });
+                    });
+
+                    // আজকের ডিউ বক্সে চাপলে — কোন গ্রাহকের কিস্তি বাকি তার
+                    // এজেন্ট-অনুযায়ী গ্রুপ করা বিস্তারিত তালিকা সরাসরি খোলে
+                    var statDueTapEl = q("statDueTap");
+                    if (statDueTapEl) statDueTapEl.addEventListener("click", function () {
+                        openTodayDue(null);
                     });
                 }
 
@@ -3020,6 +3140,230 @@
             }).catch(function (e) {
                 box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
+        }
+
+        /* =====================================================================
+         * আজকের ডিউ বিস্তারিত — নীল বক্সে / এজেন্ট কার্ডে চাপলে
+         * ===================================================================== */
+        var tdxClose = q("tdxClose");
+        if (tdxClose) tdxClose.addEventListener("click", function () { history.back(); });
+
+        var TDX_AGENT_ID = null;
+        var TDX_ROWS = [];
+        var TDX_FILTER = "ALL";
+        var TDX_SEARCH = "";
+        var TDX_TOTAL_DUE = 0;
+        var TDX_DUE_COUNT = 0;
+
+        function openTodayDue(agentId, isRestore) {
+            q("todayDueX").classList.add("on");
+            var pid = agentId ? agentId : "all";
+            if (isRestore) {
+                NK.replaceNavState({ view: CURRENT_VIEW, panel: "todayDue", panelId: pid });
+            } else {
+                NK.pushNavState({ view: CURRENT_VIEW, panel: "todayDue", panelId: pid });
+            }
+            TDX_AGENT_ID = agentId || null;
+            TDX_FILTER = "ALL";
+            TDX_SEARCH = "";
+            q("tdxSm").textContent = ltr("আজকের ডিউ");
+            q("tdxTitle").textContent = ltr("বিস্তারিত");
+            q("tdxBody").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
+
+            var url = "/api/dashboard/today-due-detail" + (TDX_AGENT_ID ? ("?agentId=" + TDX_AGENT_ID) : "");
+            NK.GET(url).then(function (d) {
+                TDX_ROWS = d.rows || [];
+                TDX_TOTAL_DUE = d.totalDue || 0;
+                TDX_DUE_COUNT = d.dueCustomerCount || 0;
+                if (TDX_AGENT_ID && TDX_ROWS.length) {
+                    q("tdxSm").textContent = TDX_ROWS[0].agentName || ltr("এজেন্ট");
+                    q("tdxTitle").textContent = ltr("আজকের কালেকশন");
+                } else {
+                    q("tdxSm").textContent = ltr("আজকের ডিউ");
+                    q("tdxTitle").textContent = ltr("বিস্তারিত — এজেন্ট অনুযায়ী");
+                }
+                drawTodayDue();
+            }).catch(function (e) {
+                q("tdxBody").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        function tdxTagHtml(status, arrearsDays) {
+            if (status === "ARREAR") {
+                return '<span class="tdx-tag arrear">' + ltr("বকেয়া") + ' ' + arrearsDays + ' ' + ltr("দিন") + '</span>';
+            }
+            if (status === "PARTIAL") return '<span class="tdx-tag partial">' + ltr("আংশিক জমা") + '</span>';
+            if (status === "PAID") return '<span class="tdx-tag done">✅ ' + ltr("সম্পূর্ণ জমা") + '</span>';
+            return '<span class="tdx-tag nopay">' + ltr("দেননি") + '</span>';
+        }
+
+        function tdxMatchesSearch(r) {
+            if (!TDX_SEARCH) return true;
+            var s = TDX_SEARCH.toLowerCase();
+            return (r.customerName || "").toLowerCase().indexOf(s) >= 0 ||
+                (r.customerCode || "").toLowerCase().indexOf(s) >= 0;
+        }
+
+        function tdxCardHtml(r) {
+            var isPaid = r.status === "PAID";
+            var initial = (r.customerName || "?").trim().charAt(0) || "?";
+            var subParts = [r.customerCode || ""];
+            if (r.marketName) subParts.push(r.marketName);
+            if (!TDX_AGENT_ID && r.agentName) subParts.push(ltr("এজেন্ট") + ": " + r.agentName);
+
+            var amtHtml;
+            if (isPaid) {
+                amtHtml = '<div class="rs green">' + NK.inr(r.collectedAmount || 0) + '</div>' +
+                    '<div class="mk">' + ltr("জমা হয়ে গেছে") + '</div>';
+            } else if (r.status === "PARTIAL") {
+                amtHtml = '<div class="rs">' + NK.inr(r.netAmount) + '</div>' +
+                    '<div class="mk">' + NK.inrShort(r.collectedAmount) + ' ' + ltr("জমা হয়েছে") + '</div>';
+            } else if (r.status === "ARREAR") {
+                amtHtml = '<div class="rs">' + NK.inr(r.netAmount) + '</div>' +
+                    '<div class="mk">' + ltr("আজ+আগের বকেয়া") + '</div>';
+            } else {
+                amtHtml = '<div class="rs">' + NK.inr(r.netAmount) + '</div>' +
+                    '<div class="mk">' + ltr("আজকের কিস্তি") + '</div>';
+            }
+
+            return '<div class="tdx-card' + (isPaid ? " paid" : "") + '" data-loan="' + r.loanId + '">' +
+                '<div class="tdx-av' + (isPaid ? " paidav" : "") + '">' + NK.esc(initial) + '</div>' +
+                '<div class="tdx-cinfo">' +
+                '<div class="tdx-toprow"><div class="tdx-cname">' + NK.esc(r.customerName) + '</div>' +
+                tdxTagHtml(r.status, r.arrearsDays) + '</div>' +
+                '<div class="tdx-csub">' + NK.esc(subParts.filter(Boolean).join(" · ")) + '</div>' +
+                '</div>' +
+                '<div class="tdx-camt">' + amtHtml + '</div>' +
+                '</div>';
+        }
+
+        function tdxBindCardClicks() {
+            var cards = document.querySelectorAll("#tdxBody .tdx-card");
+            for (var k = 0; k < cards.length; k++) {
+                cards[k].addEventListener("click", function () {
+                    var loanId = this.getAttribute("data-loan");
+                    if (loanId) {
+                        q("todayDueX").classList.remove("on");
+                        openLoanDetail(Number(loanId));
+                    }
+                });
+            }
+        }
+
+        function drawTodayDue() {
+            var h = "";
+
+            if (!TDX_AGENT_ID) {
+                /* ---- ব্রাঞ্চ-ওয়াইড — এজেন্ট অনুযায়ী গ্রুপ, শুধু বাকি-থাকা ---- */
+                h += '<div class="tdx-summary"><div><div class="l">' + ltr("মোট বাকি") + '</div><div class="amt">' +
+                    NK.inr(TDX_TOTAL_DUE) + '</div></div><div class="cnt">' + TDX_DUE_COUNT + ' ' +
+                    ltr("জন গ্রাহক") + '</div></div>';
+
+                h += '<div class="tdx-search">🔍 <input id="tdxSearch" placeholder="' +
+                    ltr("নাম / ফোন / CUST কোড দিয়ে খুঁজুন") + '" value="' + NK.esc(TDX_SEARCH) + '"></div>';
+
+                var dueRows = TDX_ROWS.filter(function (r) { return r.status !== "PAID"; }).filter(tdxMatchesSearch);
+
+                var byAgent = {};
+                var order = [];
+                dueRows.forEach(function (r) {
+                    var key = r.agentId || 0;
+                    if (!byAgent[key]) { byAgent[key] = { name: r.agentName, rows: [], total: 0 }; order.push(key); }
+                    byAgent[key].rows.push(r);
+                    byAgent[key].total += Number(r.netAmount || 0);
+                });
+
+                if (!order.length) {
+                    h += '<div class="card"><div class="empty">' + ltr("কেউ বাকি নেই") + '</div></div>';
+                } else {
+                    order.forEach(function (key) {
+                        var g = byAgent[key];
+                        h += '<div class="tdx-group">';
+                        h += '<div class="tdx-ghead" data-agent="' + key + '">' +
+                            '<div class="tdx-gav">' + NK.esc((g.name || "?").charAt(0) || "?") + '</div>' +
+                            '<div class="tdx-gname">' + NK.esc(g.name || "—") + '</div>' +
+                            '<div class="tdx-gamt">' + NK.inr(g.total) + '</div></div>';
+                        g.rows.forEach(function (r) { h += tdxCardHtml(r); });
+                        h += '</div>';
+                    });
+                }
+
+                q("tdxBody").innerHTML = h;
+
+                var tdxSearchEl = q("tdxSearch");
+                if (tdxSearchEl) tdxSearchEl.addEventListener("input", function () {
+                    TDX_SEARCH = tdxSearchEl.value || "";
+                    drawTodayDue();
+                    var again = q("tdxSearch");
+                    if (again) { again.focus(); again.selectionStart = again.selectionEnd = again.value.length; }
+                });
+
+                var gheads = document.querySelectorAll(".tdx-ghead");
+                for (var gi = 0; gi < gheads.length; gi++) {
+                    gheads[gi].addEventListener("click", function () {
+                        var aid = this.getAttribute("data-agent");
+                        if (aid && aid !== "0") openTodayDue(Number(aid));
+                    });
+                }
+
+            } else {
+                /* ---- একজন এজেন্ট — চিপ ফিল্টার সহ ফ্ল্যাট লিস্ট ---- */
+                var all = TDX_ROWS;
+                var counts = { ALL: all.length, ARREAR: 0, PARTIAL: 0, NOT_PAID: 0, PAID: 0 };
+                all.forEach(function (r) { counts[r.status] = (counts[r.status] || 0) + 1; });
+
+                var dueAmt = all.filter(function (r) { return r.status !== "PAID"; })
+                    .reduce(function (s, r) { return s + Number(r.netAmount || 0); }, 0);
+
+                h += '<div class="tdx-summary"><div><div class="l">' + ltr("এখনও বাকি") + '</div><div class="amt">' +
+                    NK.inr(dueAmt) + '</div></div><div class="cnt">' + all.length + ' ' + ltr("জন গ্রাহকের মধ্যে") + ' ' +
+                    (counts.ALL - counts.PAID) + ' ' + ltr("জন বাকি") + '</div></div>';
+
+                h += '<div class="tdx-chips">';
+                h += '<button class="tdx-chip' + (TDX_FILTER === "ALL" ? " on" : "") + '" data-f="ALL">' +
+                    ltr("সব") + ' (' + counts.ALL + ')</button>';
+                h += '<button class="tdx-chip' + (TDX_FILTER === "ARREAR" ? " on" : "") + '" data-f="ARREAR">' +
+                    ltr("বকেয়া আছে") + ' (' + (counts.ARREAR || 0) + ')</button>';
+                h += '<button class="tdx-chip' + (TDX_FILTER === "PARTIAL" ? " on" : "") + '" data-f="PARTIAL">' +
+                    ltr("আংশিক জমা") + ' (' + (counts.PARTIAL || 0) + ')</button>';
+                h += '<button class="tdx-chip' + (TDX_FILTER === "NOT_PAID" ? " on" : "") + '" data-f="NOT_PAID">' +
+                    ltr("এখনও দেননি") + ' (' + (counts.NOT_PAID || 0) + ')</button>';
+                h += '<button class="tdx-chip paid' + (TDX_FILTER === "PAID" ? " on" : "") + '" data-f="PAID">✅ ' +
+                    ltr("সম্পূর্ণ জমা") + ' (' + (counts.PAID || 0) + ')</button>';
+                h += '</div>';
+
+                h += '<div class="tdx-search">🔍 <input id="tdxSearch" placeholder="' +
+                    ltr("নাম / ফোন / CUST কোড দিয়ে খুঁজুন") + '" value="' + NK.esc(TDX_SEARCH) + '"></div>';
+
+                var rows = all.filter(function (r) { return TDX_FILTER === "ALL" || r.status === TDX_FILTER; })
+                    .filter(tdxMatchesSearch);
+
+                if (!rows.length) {
+                    h += '<div class="card"><div class="empty">' + ltr("কেউ নেই") + '</div></div>';
+                } else {
+                    rows.forEach(function (r) { h += tdxCardHtml(r); });
+                }
+
+                q("tdxBody").innerHTML = h;
+
+                var chipBtns = document.querySelectorAll(".tdx-chip");
+                for (var ci = 0; ci < chipBtns.length; ci++) {
+                    chipBtns[ci].addEventListener("click", function () {
+                        TDX_FILTER = this.getAttribute("data-f");
+                        drawTodayDue();
+                    });
+                }
+
+                var tdxSearchEl2 = q("tdxSearch");
+                if (tdxSearchEl2) tdxSearchEl2.addEventListener("input", function () {
+                    TDX_SEARCH = tdxSearchEl2.value || "";
+                    drawTodayDue();
+                    var again2 = q("tdxSearch");
+                    if (again2) { again2.focus(); again2.selectionStart = again2.selectionEnd = again2.value.length; }
+                });
+            }
+
+            tdxBindCardClicks();
         }
 
         /* =====================================================================
@@ -4474,7 +4818,7 @@
         // dashboard থেকে সরাসরি খোলা কোনো প্যানেল (নোটিফিকেশন/প্রোফাইল/লোন) ব্যাক করে
         // বন্ধ করলে যে অবস্থায় ফেরে সেটাও bare {view:"dash"} — এক্সিট-প্রোটেকশন
         // তাই তখনই চলবে যখন সত্যিই কোনো প্যানেল/ওভারলে খোলা নেই
-        var anyOverlayOpen = ["profX", "loanX", "disbByAgentX", "prof", "notifSheet", "myProfileX"].some(function (id) {
+        var anyOverlayOpen = ["profX", "loanX", "disbByAgentX", "prof", "notifSheet", "myProfileX", "todayDueX"].some(function (id) {
             var el = q(id);
             return el && el.classList.contains("on");
         });
@@ -4523,6 +4867,9 @@
                 openCustomerProfile(e.state.panelId, null, true);
             } else if (e.state.panel === "loan") {
                 openLoanDetail(e.state.panelId, true);
+            } else if (e.state.panel === "todayDue") {
+                q("loanX").classList.remove("on");
+                openTodayDue(e.state.panelId === "all" ? null : Number(e.state.panelId), true);
             }
         } else if (e.state.panel === "disbByAgent") {
             // #profX (500) #disbByAgentX (450)-এর ওপরে খোলে, তাই এখান থেকে
@@ -4542,6 +4889,7 @@
             q("notifSheet").classList.remove("on");
             q("myProfileX").classList.remove("on");
             q("monthlyRepX").classList.remove("on");
+            q("todayDueX").classList.remove("on");
         }
     });
 
