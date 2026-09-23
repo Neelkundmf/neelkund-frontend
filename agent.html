@@ -5206,15 +5206,12 @@
                     if (filter === "COMPLETED") return c.status === "CLOSED";
                     if (filter === "ALL") return true;
                 } else {
-                    // search filter
-                    var matches = (c.fullName || "").toLowerCase().indexOf(s) !== -1
+                    // সার্চ করলে ট্যাবের স্ট্যাটাস-ফিল্টার আর বসানো হয় না — নাহলে
+                    // শোধ/বন্ধ হয়ে যাওয়া গ্রাহক "চলমান" ট্যাবে থেকে সার্চ করলেও
+                    // নাম/কোড মিলে যাওয়া সত্ত্বেও দেখাত না
+                    return (c.fullName || "").toLowerCase().indexOf(s) !== -1
                         || (c.customerCode || "").toLowerCase().indexOf(s) !== -1
                         || (c.phone || "").indexOf(s) !== -1;
-                    if (!matches) return false;
-                    // then apply status filter
-                    if (filter === "ACTIVE") return c.status === "ACTIVE";
-                    if (filter === "COMPLETED") return c.status === "CLOSED";
-                    return true;
                 }
                 return true;
             });
@@ -5244,9 +5241,14 @@
                             (x.cycleNumber || "") + '</text></svg> <span style="font-size:10.5px;font-weight:800;color:#64748B;">' + ltr('রিপিট') + '</span>';
                     }
 
+                    var closedBadge = x.status === "CLOSED"
+                        ? ' <span style="font-size:9.5px;font-weight:800;color:#1F9D5C;background:#EAFAF0;' +
+                            'padding:2px 7px;border-radius:8px;vertical-align:middle;">' + ltr('শোধ হয়ে গেছে') + '</span>'
+                        : "";
+
                     h += '<div class="mcitem ' + flagCls + '" data-prof="' + x.customerId + '">';
                     h += '<div class="av" data-photo="' + x.customerId + '">' + initial + '</div>';
-                    h += '<div class="mid"><b>' + NK.esc(x.fullName) + repeatBadge + '</b>' +
+                    h += '<div class="mid"><b>' + NK.esc(x.fullName) + repeatBadge + closedBadge + '</b>' +
                         '<span>' + NK.esc(x.customerCode || "—") + ' · ' + ltr('লোন') + ' ₹' + NK.inr(x.principal || 0) + '</span></div>';
                     if (days > 0) {
                         h += '<div class="od">' + days + '<span>' + ltr('দিন') + '</span></div>';
