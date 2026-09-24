@@ -6137,6 +6137,16 @@
                     h += '<div class="li"><span>🏠</span><b>' + NK.esc(c.address) + '</b></div>';
                 h += '</div></div>';
 
+                // চলমান লোন না থাকলে (canTakeNewLoan false না হলে) সরাসরি এই
+                // গ্রাহকের নামেই নতুন (রিপিট) লোন-অনুরোধ পাঠানোর বাটন — আগে
+                // এজেন্টকে "নতুন গ্রাহক" ফর্মে গিয়ে ফোন/আধার আবার টাইপ করে
+                // ডুপ্লিকেট-সতর্কতার ঘুরপথে যেতে হতো
+                if (p.canTakeNewLoan !== false) {
+                    var nextCycle = (p.totalLoans || 0) + 1;
+                    h += '<button class="btn block" id="pfNewLoanBtn" style="margin-bottom:14px;">🔁 ' +
+                        ltr('নতুন লোন দিন') + ' (' + nextCycle + (NK.getLang() === "en" ? " cycle" : ' নম্বর সাইকেল') + ')</button>';
+                }
+
                 // Aadhar/PAN details সহ star masking
                 h += '<div class="card" style="padding:12px;">';
                 h += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;"><b>📋 ' + ltr('নথিপত্র') + '</b></div>';
@@ -6254,12 +6264,80 @@
                     });
                 });
 
+                var pfNewLoanBtnEl = q("pfNewLoanBtn");
+                if (pfNewLoanBtnEl) pfNewLoanBtnEl.addEventListener("click", function () {
+                    openNewLoanSheet(c);
+                });
+
             }).catch(function (e) {
                 if (myReq !== PF_REQ_ID) return;
                 q("pfBody").innerHTML = '<div class="card"><div class="empty">' +
                     NK.esc(e.message) + '</div></div>';
             });
         }
+
+        /* ---- পুরনো (শোধ হয়ে যাওয়া) গ্রাহকের নামে সরাসরি নতুন লোন-অনুরোধ ---- */
+        function openNewLoanSheet(c) {
+            q("newLoanSheet").classList.add("on");
+
+            var h = "";
+            h += '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">' +
+                NK.esc(c.fullName || "—") + (c.customerCode ? ' · ' + NK.esc(c.customerCode) : '') + '</div>';
+            h += '<div class="fld"><label>' + ltr('কত টাকার লোন') + ' *</label>';
+            h += '<select id="nls_amt">';
+            h += '<option value="2000">₹2,000</option>';
+            h += '<option value="4000">₹4,000</option>';
+            h += '<option value="6000">₹6,000</option>';
+            h += '<option value="8000">₹8,000</option>';
+            h += '<option value="10000">₹10,000</option>';
+            h += '</select>';
+            h += '<div class="hint" id="nls_calc"></div></div>';
+            h += '<button class="btn block" id="nlsSend">' + ltr('লোন অনুরোধ পাঠান') + '</button>';
+            q("nlsBody").innerHTML = h;
+
+            function nlsCalc() {
+                var p = Number(q("nls_amt").value || 0);
+                var total = Math.round(p * LOAN_MARKUP_MULT);
+                var emi = (Math.floor((total / LOAN_TENURE_DAYS) * 100) / 100).toFixed(2);
+                q("nls_calc").innerHTML = ltr('আসল') + ' ₹' + p + ' · ' + ltr('মোট ফেরত') + ' ₹' + total +
+                    ' · ' + ltr('দৈনিক') + ' ₹' + emi;
+            }
+            q("nls_amt").addEventListener("change", nlsCalc);
+            nlsCalc();
+
+            q("nlsSend").addEventListener("click", function () {
+                var b = q("nlsSend");
+                b.disabled = true;
+                b.innerHTML = '<span class="spin"></span> ' + ltr('পাঠাচ্ছি...');
+
+                NK.POST("/api/loan-requests", {
+                    customerId: Number(c.id),
+                    principal: Number(q("nls_amt").value),
+                    latitude: NGPS ? NGPS.lat : null,
+                    longitude: NGPS ? NGPS.lng : null,
+                    locationAccuracy: NGPS ? NGPS.acc : null,
+                    address: null,
+                    agentNote: null,
+                    clientEntryId: uid(),
+                    clientCreatedAt: null
+                }).then(function () {
+                    closeNewLoanSheet();
+                    toast(ltr('লোন অনুরোধ পাঠানো হয়েছে ✓'), 'ok');
+                }).catch(function (e) {
+                    toast(e.message, 'er');
+                    b.disabled = false;
+                    b.textContent = ltr('লোন অনুরোধ পাঠান');
+                });
+            });
+        }
+        function closeNewLoanSheet() {
+            q("newLoanSheet").classList.remove("on");
+        }
+        document.addEventListener("click", function (e) {
+            if (e.target && e.target.id === "newLoanSheetBg") {
+                closeNewLoanSheet();
+            }
+        });
 
         /* =====================================================================
          * বিতরণ
@@ -6899,6 +6977,16 @@
         <div class="grip"></div>
         <h3>🔔 খবর</h3>
         <div id="notifSheetList"></div>
+    </div>
+</div>
+
+<!-- ================= পুরনো গ্রাহকের নামে নতুন লোন ================= -->
+<div id="newLoanSheet">
+    <div class="bg" id="newLoanSheetBg"></div>
+    <div class="panel">
+        <div class="grip"></div>
+        <h3 id="nlsTitle">🔁 নতুন লোন</h3>
+        <div id="nlsBody"></div>
     </div>
 </div>
 
