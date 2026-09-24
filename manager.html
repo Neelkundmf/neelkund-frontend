@@ -3646,7 +3646,10 @@
                             (p.reversed && p.reversedByName ? '<span style="color:#DC2626;">' + ltr('বাতিল করেছেন') + ' ' + NK.esc(p.reversedByName) +
                                 (p.reversalReason ? ' · ' + NK.esc(p.reversalReason) : '') + '</span>' : '') +
                             '</div>';
-                        if (Number(p.amount) > 0 && !isDead) {
+                        // শুধু আজকের এন্ট্রিতেই বাটন দেখানো হয় — পুরনো দিনের এন্ট্রি
+                        // এমনিতেও ব্যাকএন্ড বাতিল/ঠিক করতে দেয় না, বাটন দেখালে
+                        // চাপার পর এরর দিয়ে বিভ্রান্তি হতো
+                        if (Number(p.amount) > 0 && !isDead && p.paymentDate === todayStamp()) {
                             h += '<div style="display:flex;gap:6px;flex-shrink:0;">';
                             h += '<button class="btn ghost sm" data-correct="' + p.id +
                                 '" data-amt="' + p.amount + '">✏️ ' + ltr('ঠিক করুন') + '</button>';
