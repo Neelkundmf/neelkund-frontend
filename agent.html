@@ -1079,6 +1079,11 @@
             padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
         }
 
+        /* app.css-এ #newLoanSheet-এর z-index (200) #prof (400)-এর নিচে পড়ে
+           যায় — তাই বাটনে চাপলে শীট আসলে খুলত, কিন্তু প্রোফাইলের আড়ালে
+           লুকানো থাকত বলে কিছুই দেখা যেত না। এখানেই সবচেয়ে ওপরে তুলে দেওয়া হলো */
+        #newLoanSheet { z-index: 650; }
+
         /* ===== এজেন্টের নিজের প্রোফাইল পাতা ===== */
         #myProfileX {
             position: fixed; inset: 0; z-index: 600;
