@@ -2868,11 +2868,15 @@
                     h += '<div class="pf-loans">';
                     loans.forEach(function (l) {
                         var bg = l.gradeColor || l.stageColor || "#64748B";
-                        h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
+                        // পুরনো রেজিস্টারের লোন — শুধু শুরু আর শোধের দিন আছে, দৈনিক হিসাব নেই: টিপলে খোলে না
+                        var noData = l.dailyData === false;
+                        h += '<div class="pf-loan"' + (noData ? ' style="background:' + bg + ';opacity:.75;cursor:default;"'
+                            : ' data-loan="' + l.loanId + '" style="background:' + bg + ';"') + '>';
                         h += '<div class="cyc">' + l.cycle + ' ' + ltr("নম্বর লোন") + '</div>';
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
                         h += '<div class="d">' + ltr("ক্লোজ") + ': ' + (l.closedDate ? NK.dt(l.closedDate) : ltr("চলছে")) + '</div>';
+                        if (noData) h += '<div class="d" style="margin-top:4px;">📁 ' + ltr('পুরনো ডেটা নেই') + '</div>';
                         h += '<span class="st">' +
                             NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
                         h += '</div>';
@@ -3865,6 +3869,7 @@
                         h += '<div class="mid"><b' + (isDead ? ' style="text-decoration:line-through;opacity:.6;"' : '') + '>' +
                             NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span>' +
+                            (p.note ? '<span style="color:var(--muted);">' + NK.esc(p.note) + '</span>' : '') +
                             (p.editedByName ? '<span style="color:var(--muted);">' + ltr('এডিট করেছেন') + ' ' + NK.esc(p.editedByName) + '</span>' : '') +
                             (p.reversed && p.reversedByName ? '<span style="color:#DC2626;">' + ltr('বাতিল করেছেন') + ' ' + NK.esc(p.reversedByName) +
                                 (p.reversalReason ? ' · ' + NK.esc(p.reversalReason) : '') + '</span>' : '') +

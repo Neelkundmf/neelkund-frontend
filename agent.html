@@ -1859,6 +1859,7 @@
                 </div>
                 <div class="msg" id="nMsg"></div>
                 <div id="dupBox" style="display:none;"></div>
+                <div id="oldBox" style="display:none;"></div>
                 <div class="pic-row">
                     <div class="fld"><label>গ্রাহকের কোড</label><input id="n_code" maxlength="40" placeholder="[অটো] টিপুন"></div>
                     <button type="button" class="pic-btn" id="n_auto" style="width:auto;padding:0 14px;font-size:13px;font-weight:700;">অটো</button>
@@ -4471,6 +4472,111 @@
             clearTimeout(dupTimer);
             dupTimer = setTimeout(checkDup, 500);
         });
+        /* =====================================================================
+         * পুরনো খাতা (মে-র আগের ইমপোর্ট) — নাম → বাবার নাম → ফোন → ভোটার → আধার
+         * যত লেখা হয়, তালিকা তত ছোট হয়। জোড়া যাবে শুধু নাম + বাবার নাম মিললে এবং
+         * ফোন/ভোটার/আধার-এর কোনো একটা হুবহু মিললে; নিজে থেকে কখনো জোড়া হয় না।
+         * ===================================================================== */
+        var OLD_LINK = null, OLD_BLOCK = null, OLD_SKIP = {}, oldTimer = null, OLD_REQ = 0, OLD_LAST = null;
+
+        function checkOld() {
+            var name = q("n_name").value.trim(), fh = q("n_fh").value.trim();
+            var phone = q("n_phone").value.trim(), aad = q("n_aad").value.trim();
+            var voter = q("n_voter_id").value.trim().toUpperCase();
+            if (name.length < 3 && phone.length !== 10 && aad.length !== 12 && voter.length < 6) {
+                OLD_REQ++; OLD_BLOCK = null; OLD_LAST = null;
+                if (!OLD_LINK) q("oldBox").style.display = "none";
+                return;
+            }
+            var qs = ["name=" + encodeURIComponent(name)];
+            if (fh) qs.push("father=" + encodeURIComponent(fh));
+            if (phone.length === 10) qs.push("phone=" + encodeURIComponent(phone));
+            if (aad.length === 12) qs.push("aadhaar=" + encodeURIComponent(aad));
+            if (voter.length >= 6) qs.push("voter=" + encodeURIComponent(voter));
+            var my = ++OLD_REQ;
+            NK.GET("/api/customers/old-match?" + qs.join("&")).then(function (m) {
+                if (my !== OLD_REQ) return;
+                OLD_LAST = m;
+                OLD_BLOCK = (m.blocks && m.blocks.length) ? m.blocks[0] : null;
+                // জোড়া বাছাই করা লোক আর মিলছে না (ফোন/নাম বদলানো হয়েছে) — জোড়া বাতিল
+                if (OLD_LINK) {
+                    var still = (m.candidates || []).filter(function (c) { return c.id === OLD_LINK.id && c.linkable; })[0];
+                    OLD_LINK = still || null;
+                    if (!still) toast(ltr("পুরনো রেকর্ড আর মিলছে না — জোড়া বাতিল হলো"), "er");
+                }
+                renderOld();
+            }).catch(function () {});
+        }
+
+        function oldChip(ok, label) {
+            if (ok === null || ok === undefined) return '<span style="font-size:11px;padding:2px 7px;border-radius:20px;background:#F1F5F9;color:#64748B;">' + label + ' ?</span>';
+            return '<span style="font-size:11px;padding:2px 7px;border-radius:20px;font-weight:700;background:' +
+                (ok ? '#ECFDF5;color:#059669' : '#FEF2F2;color:#DC2626') + ';">' + label + (ok ? ' ✓' : ' ✗') + '</span>';
+        }
+
+        function renderOld() {
+            var box = q("oldBox"), m = OLD_LAST || { candidates: [], blocks: [] };
+            var h = "";
+            (m.blocks || []).forEach(function (b) {
+                h += '<div class="msg er" style="display:block;margin-bottom:8px;">⛔ ' + NK.esc(b) + '</div>';
+            });
+            if (OLD_LINK) {
+                var c = OLD_LINK;
+                h += '<div style="border:2px solid #059669;background:#ECFDF5;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13px;">' +
+                    '<b style="color:#059669;">✓ ' + ltr("পুরনো রেকর্ড জোড়া হবে") + '</b><br>' +
+                    NK.esc(c.name) + ' · ' + NK.esc(c.legacyId || "") + ' · ' + ltr("পুরনো লোন ") + c.loans + ltr("টা") +
+                    (c.runningLoans ? '<br><b style="color:#B45309;">' + ltr("একটা লোন এখনো চলছে — প্রোফাইল তৈরি হবে, কিন্তু নতুন লোন অনুরোধ যাবে না") + '</b>' : '') +
+                    '<button type="button" class="btn ghost block" id="oldUnlink" style="margin-top:8px;">' + ltr("জোড়া বাতিল করুন") + '</button></div>';
+            } else {
+                var list = (m.candidates || []).filter(function (c) { return !OLD_SKIP[c.id]; }).slice(0, 5);
+                if (list.length) {
+                    h += '<div style="border:2px solid #F59E0B;background:#FFFBEB;border-radius:12px;padding:10px 12px;margin-bottom:14px;">';
+                    h += '<b style="font-size:13.5px;">⚠ ' + ltr("পুরনো খাতায় মিলছে") + ' (' + list.length + ')</b>';
+                    list.forEach(function (c) {
+                        h += '<div style="background:#fff;border-radius:10px;padding:9px 10px;margin-top:8px;font-size:13px;">' +
+                            '<b>' + NK.esc(c.name) + '</b> <span style="color:var(--muted);">' + NK.esc(c.legacyId || "") + '</span><br>' +
+                            (c.father ? ltr("বাবা/স্বামী: ") + NK.esc(c.father) + '<br>' : '') +
+                            (c.phoneTail ? ltr("ফোন: ") + NK.esc(c.phoneTail) + ' · ' : '') + NK.esc(c.market || "") + (c.agent ? ' · ' + NK.esc(c.agent) : '') + '<br>' +
+                            ltr("লোন ") + c.loans + ltr("টা") + ' (' + c.closedLoans + ltr(" শোধ") + (c.runningLoans ? ', ' + c.runningLoans + ltr(" চলছে") : '') + ')' +
+                            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;">' +
+                            oldChip(c.nameMatch, ltr("নাম")) + oldChip(c.fatherMatch, ltr("বাবার নাম")) +
+                            oldChip(c.phoneMatch || null, ltr("ফোন")) + oldChip(c.voterMatch || null, ltr("ভোটার")) + oldChip(c.aadhaarMatch || null, ltr("আধার")) + '</div>';
+                        if (c.linkable) {
+                            h += '<div style="font-weight:700;margin:4px 0;">' + ltr("এটাই কি সেই লোক?") + '</div>' +
+                                '<div style="display:flex;gap:6px;">' +
+                                '<button type="button" class="btn" style="flex:1;" data-oldyes="' + c.id + '">' + ltr("হ্যাঁ, জুড়ুন") + '</button>' +
+                                '<button type="button" class="btn ghost" style="flex:1;" data-oldno="' + c.id + '">' + ltr("না, আলাদা লোক") + '</button></div>';
+                        } else {
+                            h += '<div class="hint" style="margin:0;">' + ltr("জুড়তে নাম, বাবার নাম আর ফোন/ভোটার/আধার-এর একটা মিলতে হবে") + '</div>';
+                        }
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+            }
+            box.innerHTML = h;
+            box.style.display = h ? "block" : "none";
+            if (q("oldUnlink")) q("oldUnlink").addEventListener("click", function () { OLD_LINK = null; renderOld(); });
+            Array.prototype.forEach.call(box.querySelectorAll("[data-oldyes]"), function (el) {
+                el.addEventListener("click", function () {
+                    var id = Number(el.getAttribute("data-oldyes"));
+                    OLD_LINK = (OLD_LAST.candidates || []).filter(function (c) { return c.id === id; })[0] || null;
+                    toast(ltr("জোড়া হবে — বাকি তথ্য আর ছবি দিয়ে জমা দিন"), "ok");
+                    renderOld();
+                });
+            });
+            Array.prototype.forEach.call(box.querySelectorAll("[data-oldno]"), function (el) {
+                el.addEventListener("click", function () { OLD_SKIP[Number(el.getAttribute("data-oldno"))] = true; renderOld(); });
+            });
+        }
+
+        ["n_name", "n_fh", "n_phone", "n_aad", "n_voter_id"].forEach(function (id) {
+            q(id).addEventListener("input", function () {
+                clearTimeout(oldTimer);
+                oldTimer = setTimeout(checkOld, 500);
+            });
+        });
+
         /* ---- পুরনো গ্রাহকের প্রোফাইল দেখা (ছোট popup) ---- */
         function openDupProfile(id) {
             NK.GET("/api/customers/" + id + "/profile").then(function (p) {
@@ -4564,6 +4670,9 @@
             NGPS = null;
             DUP = null;
             q("dupBox").style.display = "none";
+            q("n_voter_id").value = "";
+            OLD_LINK = null; OLD_BLOCK = null; OLD_SKIP = {};
+            q("oldBox").style.display = "none";
             q("n_loc").textContent = ltr("গ্রাহকের বাড়িতে দাঁড়িয়ে টিপুন");
             q("n_loc").style.color = "";
             resetCPics();
@@ -4859,6 +4968,10 @@
         q("n_go").addEventListener("click", function () {
             hide("nMsg");
 
+            if (OLD_BLOCK) {
+                say("nMsg", OLD_BLOCK, false);
+                return;
+            }
             if (DUP && DUP.id) {
                 sendOldCustomerLoan(DUP);
                 return;
@@ -4982,13 +5095,16 @@
                 marketId: Number(marketId),
                 latitude: NGPS ? NGPS.lat : null,
                 longitude: NGPS ? NGPS.lng : null,
-                agentId: me.userId
+                agentId: me.userId,
+                linkCustomerId: OLD_LINK ? OLD_LINK.id : null
             })
                 .then(function (c) {
                     newCust = c;
                     return uploadCustPics(c.id);
                 })
                 .then(function () {
+                    // পুরনো খাতার চলতি লোন শেষ হয়নি — প্রোফাইল তৈরি হলো, নতুন লোন অনুরোধ যাবে না
+                    if (OLD_LINK && OLD_LINK.runningLoans > 0) return null;
                     return NK.POST("/api/loan-requests", {
                         customerId: Number(newCust.id),
                         principal: Number(q("n_amt").value),
@@ -5002,6 +5118,12 @@
                     });
                 })
                 .then(function (loanReq) {
+                    if (!loanReq) {
+                        say("nMsg", ltr("✓ পুরনো রেকর্ড জুড়ে প্রোফাইল তৈরি হয়েছে। চলতি লোন শেষ হলে নতুন লোন অনুরোধ পাঠান।"), true);
+                        toast(ltr("প্রোফাইল তৈরি হয়েছে ✓"), "ok");
+                        clearNewForm();
+                        return;
+                    }
                     var amountInr = NK.inr(loanReq.principal);
                     q("loanWait").classList.add("on");
                     q("loanWait").innerHTML = '⏳ ' + ltr("ম্যানেজারের অনুমোদনের অপেক্ষায়") + ' | ' +
@@ -5772,6 +5894,7 @@
                         h += '<div class="mid"><b' + (isDead ? ' style="text-decoration:line-through;opacity:.6;"' : '') + '>' +
                             NK.inr(p.amount) + '</b>' +
                             '<span>' + (p.paidAt ? NK.dtTime(p.paidAt) : NK.dt(p.paymentDate)) + '</span>' +
+                            (p.note ? '<span style="color:var(--muted);">' + NK.esc(p.note) + '</span>' : '') +
                             (p.editedByName ? '<span style="color:var(--muted);">' + ltr('এডিট করেছেন') + ' ' + NK.esc(p.editedByName) + '</span>' : '') +
                             (p.reversed && p.reversedByName ? '<span style="color:#DC2626;">' + ltr('বাতিল করেছেন') + ' ' + NK.esc(p.reversedByName) +
                                 (p.reversalReason ? ' · ' + NK.esc(p.reversalReason) : '') + '</span>' : '') +
@@ -6225,13 +6348,17 @@
                         // gradeColor (শোধ হওয়া লোনের ধরন) আগে না থাকলে stageColor
                         // (চলমান লোনের বর্তমান ধাপ) — কোনোটাই না থাকলে সাদামাটা ধূসর
                         var bg = l.gradeColor || l.stageColor || "#64748B";
-                        h += '<div class="pf-loan" data-loan="' + l.loanId + '" style="background:' + bg + ';">';
+                        // পুরনো রেজিস্টারের লোন — শুধু শুরু আর শোধের দিন আছে, দৈনিক হিসাব নেই: টিপলে খোলে না
+                        var noData = l.dailyData === false;
+                        h += '<div class="pf-loan"' + (noData ? ' style="background:' + bg + ';opacity:.75;cursor:default;"'
+                            : ' data-loan="' + l.loanId + '" style="background:' + bg + ';"') + '>';
                         h += '<div class="cyc">' + (NK.getLang() === "en"
                             ? "Loan #" + l.cycle
                             : l.cycle + " নম্বর লোন") + '</div>';
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
                         h += '<div class="d">' + ltr('ক্লোজ:') + ' ' + (l.closedDate ? NK.dt(l.closedDate) : ltr("চলছে")) + '</div>';
+                        if (noData) h += '<div class="d" style="margin-top:4px;">📁 ' + ltr('পুরনো ডেটা নেই') + '</div>';
                         h += '<span class="st">' +
                             NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
                         h += '</div>';
