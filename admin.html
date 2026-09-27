@@ -3291,6 +3291,28 @@
         }
 
         /* =====================================================================
+         * নতুন এজেন্ট বানানোর পরে — পুরনো চার্টের RO (লগইন-বন্ধ অ্যাকাউন্ট) নামে মিললে জিজ্ঞেস;
+         * "হ্যাঁ" বললে পুরনো মার্কেট, গ্রাহক, লোন আর জমা নতুন অ্যাকাউন্টে চলে যায়
+         * ===================================================================== */
+        function offerOldAgent(newId, name) {
+            if (!newId || !name) return;
+            NK.GET("/api/admin/old-agents/match?name=" + encodeURIComponent(name) + "&exceptId=" + newId).then(function (list) {
+                (list || []).some(function (o) {
+                    var msg = ltr("পুরনো খাতায় এজেন্ট আছে: ") + o.name + "\n" +
+                        ltr("মার্কেট: ") + (o.marketNames || []).join(", ") + "\n" +
+                        ltr("গ্রাহক ") + o.customers + " · " + ltr("লোন ") + o.loans + " (" + o.runningLoans + ltr(" চলছে") + ")\n\n" +
+                        ltr("এটাই কি সেই লোক? হ্যাঁ বললে সব নতুন অ্যাকাউন্টে চলে যাবে।");
+                    if (!confirm(msg)) return false;
+                    NK.POST("/api/admin/old-agents/" + o.id + "/adopt?newUserId=" + newId, {}).then(function (r) {
+                        toast(ltr("জোড়া হয়েছে ✓ গ্রাহক ") + r.customers + ltr(" · লোন ") + r.loans, "ok");
+                        if (typeof fetchTeam === "function") fetchTeam();
+                    }).catch(function (e) { toast(e.message, "er"); });
+                    return true;
+                });
+            }).catch(function () {});
+        }
+
+        /* =====================================================================
          * পুরনো কাগজের কালেকশন চার্ট — আগে মিলিয়ে দেখা, সব ✓ হলে তবেই ইমপোর্ট
          * ===================================================================== */
         var ciBound = false;
@@ -3562,7 +3584,10 @@
                         if (!code) { toast(ltr("এজেন্টের কোড দিন"), "er"); return; }
                         b.disabled = true;
                         NK.POST("/api/staff-requests/" + id + "/approve", { salary: sal ? Number(sal) : null, password: pass, code: code })
-                            .then(function () { toast(ltr("অনুমোদিত — নতুন এজেন্ট তৈরি হয়েছে ✓"), "ok"); loadStaffReq(); loadStaffReqBadge(); })
+                            .then(function (r) {
+                                toast(ltr("অনুমোদিত — নতুন এজেন্ট তৈরি হয়েছে ✓"), "ok"); loadStaffReq(); loadStaffReqBadge();
+                                if (r && r.userId) offerOldAgent(r.userId, r.fullName);
+                            })
                             .catch(function (e) { toast(e.message, "er"); b.disabled = false; });
                     });
                 });
@@ -4666,6 +4691,8 @@
                     }
                 });
             }).then(function () {
+                var made = TEAM.filter(function (u) { return u.phone === phone; })[0];
+                if (made && made.role === "AGENT") offerOldAgent(made.id, name);
                 say("tmMsg", ltr("কর্মী তৈরি হয়েছে ✓ প্রথম লগইনে সে নিজে পাসওয়ার্ড বদলাবে।"), true);
                 toast(ltr("কর্মী তৈরি হয়েছে"), "ok");
                 q("tm_name").value = "";
@@ -6766,11 +6793,15 @@
                     h += '<div class="pf-loans">';
                     loans.forEach(function (l) {
                         var bg = l.gradeColor || l.stageColor || "#64748B";
-                        h += '<div class="pf-loan" data-loan="' + NK.esc(l.loanId) + '" style="background:' + bg + ';">';
+                        // পুরনো রেজিস্টারের লোন — শুধু শুরু আর শোধের দিন আছে, দৈনিক হিসাব নেই: টিপলে খোলে না
+                        var noData = l.dailyData === false;
+                        h += '<div class="pf-loan"' + (noData ? ' style="background:' + bg + ';opacity:.75;cursor:default;"'
+                            : ' data-loan="' + NK.esc(l.loanId) + '" style="background:' + bg + ';"') + '>';
                         h += '<div class="cyc">' + l.cycle + ltr(' নম্বর লোন</div>');
                         h += '<div class="amt">' + NK.inr(l.principal) + '</div>';
                         h += '<div class="d">DB: ' + (l.startDate ? NK.dt(l.startDate) : "—") + '</div>';
                         h += ltr('<div class="d">ক্লোজ: ') + (l.closedDate ? NK.dt(l.closedDate) : ltr('চলছে')) + '</div>';
+                        if (noData) h += '<div class="d" style="margin-top:4px;">📁 ' + ltr('পুরনো ডেটা নেই') + '</div>';
                         h += '<span class="st">' +
                             NK.esc(l.gradeLabel || l.stageName || l.status || "") + '</span>';
                         h += '</div>';
