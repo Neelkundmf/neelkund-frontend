@@ -5750,6 +5750,10 @@
                             } else {
                                 cls += " due";
                             }
+                            // নতুন APK — আংশিক জমা থাকলে কত পড়েছে
+                            if (e.status !== "PAID" && Number(e.paidAmount) > 0) {
+                                note = '<span class="pm">½ ' + NK.inrShort(e.paidAmount) + '</span>';
+                            }
                         }
 
                         h += '<div class="' + cls + '">' + dd + note + '</div>';
