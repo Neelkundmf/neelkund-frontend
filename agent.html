@@ -5789,6 +5789,9 @@
 
                 if (d.approvalStatus === "APPROVED") {
                     h += '<div class="sig-capture" id="sigCaptureSection">';
+                    // নতুন APK — সইয়ের সাথে লোন ফর্মের ছবি (ঐচ্ছিক)
+                    h += '<div class="fld" style="margin-bottom:10px;"><label>' + ltr('লোন ফর্মের ছবি (ঐচ্ছিক)') + '</label>' +
+                        '<input type="file" id="sigFormPhoto" accept="image/*" capture="environment" style="display:block;width:100%;"></div>';
                     h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
                     h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
                     h += '<button id="sigFileToggle" class="btn sm" style="flex:1">📤 ফাইল আপলোড</button>';
@@ -6015,6 +6018,9 @@
             } else if (file) {
                 formData.append("file", file);
             }
+            // নতুন APK — লোন ফর্মের ছবি থাকলে সাথে যায়
+            var fp = q("sigFormPhoto");
+            if (fp && fp.files && fp.files[0]) formData.append("formPhoto", fp.files[0]);
 
             // ফাইল আপলোডের জন্য FormData ব্যবহার করুন — শেয়ার্ড ইঞ্জিন দিয়ে,
             // নেট মাঝপথে কেটে গেলে নিজে থেকে আবার চেষ্টা করবে

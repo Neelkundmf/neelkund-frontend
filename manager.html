@@ -1188,6 +1188,32 @@
         <div class="view" id="v-agent">
             <!-- এজেন্ট তালিকা -->
             <div id="agListWrap">
+                <!-- নতুন APK — নতুন এজেন্টের আবেদন -->
+                <div id="srWrap" style="display:none;">
+                    <button class="btn block" id="srNewBtn" style="margin-bottom:10px;">＋ নতুন এজেন্টের আবেদন</button>
+                    <div class="card" id="srForm" style="display:none;">
+                        <div class="msg" id="srMsg"></div>
+                        <div class="fld"><label>নাম *</label><input id="sr_name"></div>
+                        <div class="fld"><label>ফোন *</label><input id="sr_phone" inputmode="numeric" maxlength="10"></div>
+                        <div class="fld"><label>আধার নম্বর</label><input id="sr_aad" inputmode="numeric" maxlength="12"></div>
+                        <div class="fld"><label>ভোটার কার্ড নম্বর</label><input id="sr_voter" maxlength="20" style="text-transform:uppercase"></div>
+                        <div class="fld"><label>প্যান কার্ড আছে?</label><select id="sr_haspan"><option value="1">হ্যাঁ, আছে</option><option value="0">না, প্যান নেই</option></select></div>
+                        <div class="fld" id="sr_panfld"><label>প্যান নম্বর</label><input id="sr_pan" maxlength="10" style="text-transform:uppercase"></div>
+                        <div class="fld"><label>শিক্ষাগত যোগ্যতা</label><select id="sr_edu"><option value="">— বাছুন —</option><option value="EIGHT">অষ্টম শ্রেণি পাস</option><option value="MP">মাধ্যমিক পাস</option><option value="HS">উচ্চমাধ্যমিক পাস</option><option value="GRAD">স্নাতক</option><option value="PG">স্নাতকোত্তর</option></select></div>
+                        <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="sr_fh"></div>
+                        <div class="fld"><label>জন্মতারিখ</label><input id="sr_dob" type="date"></div>
+                        <div class="fld"><label>স্থায়ী ঠিকানা</label><input id="sr_perm"></div>
+                        <div class="fld"><label>বর্তমান ঠিকানা</label><input id="sr_curr"></div>
+                        <div class="fld"><label>জরুরি যোগাযোগের নাম</label><input id="sr_en"></div>
+                        <div class="fld"><label>জরুরি ফোন</label><input id="sr_ep" inputmode="numeric" maxlength="10"></div>
+                        <div class="fld"><label>মার্কেট (খালি মার্কেট থেকে)</label><select id="sr_mk" multiple></select></div>
+                        <div class="fld"><label>কাগজের ছবি</label>
+                            <div id="sr_docs" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+                        </div>
+                        <button class="btn block" id="srSave">আবেদন পাঠান</button>
+                    </div>
+                    <div id="srList"></div>
+                </div>
                 <div id="agList"><div class="loading">লোড হচ্ছে...</div></div>
             </div>
 
@@ -1196,6 +1222,8 @@
                 <button class="btn ghost block" id="agBack" style="margin-bottom:14px;">← এজেন্ট তালিকা</button>
                 <div id="agMktHead"></div>
                 <div id="agMktList"></div>
+                <!-- নতুন APK — এজেন্টের প্রোফাইল একবার আপডেট -->
+                <div id="agOnce"></div>
             </div>
 
             <!-- মার্কেটের আজকের হিসাব -->
@@ -1261,6 +1289,24 @@
         </div>
 
         <div class="view" id="v-exp">
+            <!-- নতুন APK — আজ / মাসের খরচ আর নতুন খরচ লেখা -->
+            <div style="display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-bottom:12px;">
+                <div class="card" style="margin:0;padding:12px;"><div style="font-size:11px;color:var(--muted);">আজকের খরচ</div><div id="expToday" style="font-size:18px;font-weight:700;color:var(--red);">—</div></div>
+                <div class="card" style="margin:0;padding:12px;"><div style="font-size:11px;color:var(--muted);">এই মাসের খরচ</div><div id="expMonth" style="font-size:18px;font-weight:700;color:var(--red);">—</div></div>
+            </div>
+            <button class="btn block" id="expNewBtn" style="margin-bottom:12px;">＋ নতুন খরচ লিখুন</button>
+            <div class="card" id="expForm" style="display:none;">
+                <div class="msg" id="expMsg"></div>
+                <div class="fld"><label>খাত *</label>
+                    <select id="expCat"><option value="RENT">ভাড়া</option><option value="TRANSPORT">যাতায়াত</option><option value="UTILITIES">বিদ্যুৎ / জল</option><option value="OFFICE_SUPPLIES">অফিস সামগ্রী</option><option value="MARKETING">বিজ্ঞাপন</option><option value="SALARY">বেতন</option><option value="MISCELLANEOUS">বিবিধ</option></select>
+                </div>
+                <div class="fld"><label>অঙ্ক *</label><input id="expAmt" type="number" inputmode="numeric"></div>
+                <div class="fld"><label>তারিখ *</label><input id="expDate" type="date"></div>
+                <div class="fld"><label>বিবরণ</label><input id="expDesc"></div>
+                <div class="fld"><label>সই করা ভাউচারের ছবি</label><input id="expVoucher" type="file" accept="image/*" capture="environment"></div>
+                <div class="hint" style="margin:-6px 0 12px;">খরচ নিজের ব্রাঞ্চেই লেখা হবে · নিজের লেখা খরচ শুধু আজকের দিনেই মোছা যায়</div>
+                <button class="btn block" id="expSave">সংরক্ষণ করুন</button>
+            </div>
             <div style="padding:14px;margin-bottom:14px;background:var(--card);border-radius:12px;">
                 <div style="display:grid;gap:10px;grid-template-columns:repeat(2,1fr);font-size:12px;">
                     <div><label style="color:var(--muted);">ধরন</label><select id="expType" style="width:100%;"><option value="">সব</option><option value="SALARY">বেতন</option><option value="RENT">ভাড়া</option><option value="TRANSPORT">যাতায়াত</option><option value="UTILITIES">বিদ্যুৎ/জল</option><option value="OFFICE_SUPPLIES">অফিস</option><option value="MARKETING">বিজ্ঞাপন</option><option value="MISCELLANEOUS">বিবিধ</option></select></div>
@@ -1847,6 +1893,7 @@
             q("agListWrap").style.display = "block";
             q("agMktWrap").style.display = "none";
             q("agDetWrap").style.display = "none";
+            loadStaffRequests();   // নতুন APK
 
             q("agList").innerHTML = '<div class="loading">' + ltr("লোড হচ্ছে...") + '</div>';
 
@@ -1952,7 +1999,126 @@
                 q("agMktList").innerHTML =
                     '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
+
+            // নতুন APK — এই এজেন্টের প্রোফাইল একবার আপডেট
+            q("agOnce").innerHTML = "";
+            NK.GET("/api/manager/users/" + agentId).then(function (au) {
+                if (myReq !== AG_REQ_ID) return;
+                renderProfileOnce(q("agOnce"), au, function () { openAgentMarkets(agentId, agentName); });
+            }).catch(function () {});
         }
+
+        /* =====================================================================
+         * নতুন APK — ম্যানেজারের "নতুন এজেন্ট" আবেদন
+         * ===================================================================== */
+        var SR_PICS = {};
+        var SR_DOC_BN = [["SELFIE", "ছবি"], ["AADHAAR", "আধার সামনে"], ["AADHAAR_BACK", "আধার পিছন"],
+            ["VOTER", "ভোটার সামনে"], ["VOTER_BACK", "ভোটার পিছন"], ["PAN", "প্যান"], ["EDU", "যোগ্যতার প্রমাণ"]];
+        var SR_ST_BN = { PENDING: "অপেক্ষায়", APPROVED: "অনুমোদিত", REJECTED: "বাতিল" };
+
+        function srDrawDocs() {
+            q("sr_docs").innerHTML = SR_DOC_BN.map(function (d) {
+                var has = !!SR_PICS[d[0]];
+                return '<button type="button" data-srd="' + d[0] + '" style="min-height:58px;padding:6px 2px;border-radius:10px;border:1.5px solid ' +
+                    (has ? 'var(--green)' : 'var(--line)') + ';background:' + (has ? 'var(--green-soft)' : '#fff') +
+                    ';font-size:10px;font-weight:600;color:' + (has ? 'var(--green)' : 'var(--muted)') + ';">' +
+                    (has ? '✓' : '📷') + '<br>' + ltr(d[1]) + '</button>';
+            }).join("");
+            Array.prototype.forEach.call(q("sr_docs").querySelectorAll("[data-srd]"), function (b) {
+                b.addEventListener("click", function () {
+                    var inp = document.createElement("input");
+                    inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+                    inp.addEventListener("change", function () {
+                        var f = inp.files[0];
+                        if (!f) return;
+                        if (f.size > 5 * 1024 * 1024) { toast(ltr("ছবি ৫MB-র কম হতে হবে"), "er"); return; }
+                        SR_PICS[b.getAttribute("data-srd")] = f;
+                        srDrawDocs();
+                    });
+                    inp.click();
+                });
+            });
+        }
+
+        function loadStaffRequests() {
+            NK.GET("/api/staff-requests").then(function (list) {
+                q("srWrap").style.display = "block";
+                var rows = NK.rows(list);
+                if (!rows.length) { q("srList").innerHTML = ""; return; }
+                var h = '<div class="card"><h4 style="margin:0 0 8px;">' + ltr("আমার আবেদন") + '</h4>';
+                rows.forEach(function (r) {
+                    h += '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px;">' +
+                        '<div><b>' + NK.esc(r.fullName) + '</b><div style="font-size:11px;color:var(--muted);">' + NK.esc(r.phone) +
+                        ' · ' + NK.esc(String(r.createdAt || "").slice(0, 10)) + (r.reason ? ' · ' + ltr('কারণ: ') + NK.esc(r.reason) : '') + '</div></div>' +
+                        '<span style="font-size:11px;font-weight:700;color:' + (r.status === "APPROVED" ? 'var(--green)' : r.status === "REJECTED" ? 'var(--red)' : '#B45309') + ';">' +
+                        ltr(SR_ST_BN[r.status] || r.status) + '</span></div>';
+                });
+                q("srList").innerHTML = h + '</div>';
+            }).catch(function () { /* পুরনো সার্ভার বা অনুমতি নেই — অংশটা লুকানোই থাকবে */ });
+        }
+
+        q("srNewBtn").addEventListener("click", function () {
+            var f = q("srForm");
+            var open = f.style.display === "none";
+            f.style.display = open ? "block" : "none";
+            if (!open) return;
+            srDrawDocs();
+            // নিজের ব্রাঞ্চের খালি মার্কেট
+            NK.GET("/api/markets/all").then(function (list) {
+                var free = NK.rows(list).filter(function (m) { return m.active !== false && (!m.agentIds || !m.agentIds.length); });
+                q("sr_mk").innerHTML = free.map(function (m) {
+                    return '<option value="' + m.id + '">' + NK.esc(m.name) + '</option>';
+                }).join("") || '<option value="" disabled>' + ltr("কোনো খালি মার্কেট নেই") + '</option>';
+            }).catch(function () {});
+        });
+        q("sr_haspan").addEventListener("change", function () {
+            q("sr_panfld").style.display = this.value === "1" ? "" : "none";
+            if (this.value !== "1") q("sr_pan").value = "";
+        });
+        ["sr_phone", "sr_ep"].forEach(function (id) {
+            q(id).addEventListener("input", function () { this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10); });
+        });
+        q("sr_aad").addEventListener("input", function () { this.value = this.value.replace(/[^0-9]/g, "").slice(0, 12); });
+
+        q("srSave").addEventListener("click", function () {
+            var b = this;
+            function bad(m) { q("srMsg").textContent = m; q("srMsg").className = "msg er"; }
+            var name = q("sr_name").value.trim(), phone = q("sr_phone").value.trim();
+            var aad = q("sr_aad").value.trim(), voter = q("sr_voter").value.trim().toUpperCase();
+            var pan = q("sr_pan").value.trim().toUpperCase(), ep = q("sr_ep").value.trim();
+            if (!name) return bad(ltr("নাম দিন"));
+            if (!/^[6-9]\d{9}$/.test(phone)) return bad(ltr("সঠিক ১০ সংখ্যার ফোন নম্বর দিন (৬-৯ দিয়ে শুরু)"));
+            if (aad && aad.length !== 12) return bad(ltr("আধার ঠিক ১২ সংখ্যার হতে হবে"));
+            if (voter && !/^[A-Z0-9\/]{6,20}$/.test(voter)) return bad(ltr("ভোটার কার্ডের নম্বর ঠিক নয় (যেমন ABC1234567)"));
+            if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) return bad(ltr("প্যান নম্বর ঠিক নয় (যেমন ABCDE1234F)"));
+            if (ep && !/^[6-9]\d{9}$/.test(ep)) return bad(ltr("জরুরি ফোন নম্বর ঠিক নয়"));
+            var mids = Array.from(q("sr_mk").selectedOptions).map(function (o) { return Number(o.value); }).filter(Boolean);
+            b.disabled = true;
+            NK.POST("/api/staff-requests", {
+                fullName: name, phone: phone, marketIds: mids,
+                aadhaar: aad || null, voterId: voter || null,
+                hasPan: q("sr_haspan").value === "1", pan: pan || null,
+                education: q("sr_edu").value || null,
+                fatherOrHusband: q("sr_fh").value.trim() || null, dateOfBirth: q("sr_dob").value || null,
+                permanentAddress: q("sr_perm").value.trim() || null, currentAddress: q("sr_curr").value.trim() || null,
+                emergencyName: q("sr_en").value.trim() || null, emergencyPhone: ep || null
+            }).then(function (r) {
+                var jobs = Object.keys(SR_PICS).map(function (t) {
+                    var fd = new FormData();
+                    fd.append("file", SR_PICS[t]);
+                    return NK.UPLOAD("/api/staff-requests/" + r.id + "/document?type=" + t, fd);
+                });
+                return Promise.all(jobs);
+            }).then(function () {
+                toast(ltr("আবেদন পাঠানো হয়েছে — অ্যাডমিন অনুমোদন দিলে এজেন্ট তৈরি হবে ✓"), "ok");
+                ["sr_name", "sr_phone", "sr_aad", "sr_voter", "sr_pan", "sr_edu", "sr_fh", "sr_dob", "sr_perm", "sr_curr", "sr_en", "sr_ep"]
+                    .forEach(function (id) { q(id).value = ""; });
+                SR_PICS = {};
+                q("srMsg").className = "msg";
+                q("srForm").style.display = "none";
+                loadStaffRequests();
+            }).catch(function (e) { bad(e.message); }).then(function () { b.disabled = false; });
+        });
 
         var AG_MKTS = [];
 
@@ -3427,6 +3593,11 @@
                 if (u.aadhaarBackPhotoUrl) docs.push({ type: "AADHAAR_BACK", label: ltr("আধার (পিছনে)") });
                 if (u.panPhotoUrl) docs.push({ type: "PAN", label: ltr("প্যান") });
                 if (u.panBackPhotoUrl) docs.push({ type: "PAN_BACK", label: ltr("প্যান (পিছনে)") });
+                // নতুন APK
+                if (u.voterIdMasked) kycRows += mrow(ltr("ভোটার"), u.voterIdMasked);
+                if (u.voterPhotoUrl) docs.push({ type: "VOTER", label: ltr("ভোটার (সামনে)") });
+                if (u.voterBackPhotoUrl) docs.push({ type: "VOTER_BACK", label: ltr("ভোটার (পিছনে)") });
+                if (u.educationProofUrl) docs.push({ type: "EDU", label: ltr("যোগ্যতার প্রমাণ") });
 
                 if (kycRows || docs.length) {
                     h += '<div class="mp-sec"><h4>KYC</h4>' + kycRows;
@@ -3441,7 +3612,11 @@
                     h += '</div>';
                 }
 
+                // নতুন APK — প্রোফাইল একবার আপডেট
+                h += '<div id="mpOnce"></div>';
+
                 q("mpBody").innerHTML = h;
+                renderProfileOnce(q("mpOnce"), u, loadMyProfilePage);
 
                 docs.forEach(function (d) {
                     NK.GET("/api/agent/me/document?type=" + d.type).then(function (blob) {
@@ -3460,6 +3635,50 @@
         // "আরও" মেনুর প্রোফাইল বাটন DOM-এ পরে লোড হয় বলে সেই click listener
         // নিচের দিকের script block-এ বসানো — openMyProfile() এখানে window-তে expose করা হলো
         window.openMyProfile = openMyProfile;
+
+        /* =====================================================================
+         * নতুন APK — প্রোফাইল একবার আপডেট (নিজের আর নিজের ব্রাঞ্চের এজেন্টের)
+         * u = UserResponse (profileOnceUsed ইত্যাদি), done = সফল হলে যা চলবে
+         * ===================================================================== */
+        function renderProfileOnce(box, u, done) {
+            if (!box || u.profileOnceUsed === undefined) return;   // পুরনো সার্ভার — কিছু দেখাই না
+            var h = '<div class="card" style="margin-top:14px;">';
+            h += '<h4 style="margin:0 0 6px;">' + ltr("✏️ প্রোফাইল একবার আপডেট") + '</h4>';
+            if (u.profileOnceUsed) {
+                h += '<div class="hint">' + ltr("একবার আপডেট হয়ে গেছে") +
+                    (u.profileOnceFields ? ' · ' + NK.esc(u.profileOnceFields) : '') +
+                    ltr(" — আবার বদলাতে অ্যাডমিনকে বলুন") + '</div></div>';
+                box.innerHTML = h;
+                return;
+            }
+            h += '<div class="hint" style="margin-bottom:10px;">' + ltr("শুধু একবারই বদলানো যায় — ভেবে বদলান") + '</div>';
+            h += '<div class="fld"><label>' + ltr("নতুন ছবি") + '</label><input type="file" accept="image/*" capture="user" id="po_selfie_' + u.id + '"></div>';
+            h += '<div class="fld"><label>' + ltr("বর্তমান ঠিকানা") + '</label><input id="po_addr_' + u.id + '" value="' + NK.esc(u.currentAddress || "") + '"></div>';
+            h += '<div class="fld"><label>' + ltr("রক্তের গ্রুপ") + '</label><input id="po_bg_' + u.id + '" maxlength="5" value="' + NK.esc(u.bloodGroup || "") + '"></div>';
+            h += '<div class="fld"><label>' + ltr("জরুরি যোগাযোগের নাম") + '</label><input id="po_en_' + u.id + '" value="' + NK.esc(u.emergencyName || "") + '"></div>';
+            h += '<div class="fld"><label>' + ltr("জরুরি ফোন") + '</label><input id="po_ep_' + u.id + '" inputmode="numeric" maxlength="10" value="' + NK.esc(u.emergencyPhone || "") + '"></div>';
+            h += '<div class="fld"><label>' + ltr("ইমেল") + '</label><input id="po_em_' + u.id + '" type="email"></div>';
+            h += '<button class="btn block" id="po_go_' + u.id + '">' + ltr("আপডেট করুন") + '</button></div>';
+            box.innerHTML = h;
+            q("po_go_" + u.id).addEventListener("click", function () {
+                var b = this;
+                if (!confirm(ltr("প্রোফাইল একবারই বদলানো যায়। নিশ্চিত?"))) return;
+                var fd = new FormData();
+                [["currentAddress", "po_addr_"], ["bloodGroup", "po_bg_"], ["emergencyName", "po_en_"],
+                 ["emergencyPhone", "po_ep_"], ["email", "po_em_"]].forEach(function (p) {
+                    var v = q(p[1] + u.id).value.trim();
+                    if (v) fd.append(p[0], v);
+                });
+                var f = q("po_selfie_" + u.id).files[0];
+                if (f) fd.append("selfie", f);
+                b.disabled = true;
+                NK.UPLOAD("/api/manager/users/" + u.id + "/profile-once", fd).then(function () {
+                    toast(ltr("প্রোফাইল আপডেট হয়েছে ✓"), "ok");
+                    if (done) done();
+                }).catch(function (e) { toast(e.message, "er"); b.disabled = false; });
+            });
+        }
+        window.renderProfileOnce = renderProfileOnce;
 
         var LD_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
@@ -4782,24 +5001,64 @@
             loadNotif();
 
             // Expense tab — ট্যাব চাপলে বা "ধরন" ড্রপডাউন বদলালে, দুটোতেই তালিকা নতুন করে লোড হবে
+            var EXP_CAT_BN = { RENT: "ভাড়া", TRANSPORT: "যাতায়াত", UTILITIES: "বিদ্যুৎ / জল", OFFICE_SUPPLIES: "অফিস সামগ্রী",
+                MARKETING: "বিজ্ঞাপন", INCENTIVE: "ইনসেনটিভ", SALARY: "বেতন", MISCELLANEOUS: "বিবিধ" };
             function loadExpenses() {
                 var type = q("expType").value;
                 q("expList").innerHTML = '<div class="loading">লোড হচ্ছে...</div>';
-                var url = type ? "/api/expenses?type=" + type : "/api/expenses";
-                NK.GET(url).then(function(list) {
-                    var rows = NK.rows(list);
+                // সার্ভার ধরন দিয়ে ছাঁকে না — তাই এখানে ছাঁকি; ম্যানেজার শুধু নিজের ব্রাঞ্চেরটা পান
+                NK.GET("/api/expenses?page=0&size=300").then(function(list) {
+                    var all = NK.rows(list);
+                    var todayS = todayStamp(), monthS = todayS.slice(0, 7);
+                    var tSum = 0, mSum = 0;
+                    all.forEach(function (r) {
+                        var d = String(r.expenseDate || r.date || "");
+                        if (d === todayS) tSum += Number(r.amount || 0);
+                        if (d.slice(0, 7) === monthS) mSum += Number(r.amount || 0);
+                    });
+                    q("expToday").textContent = NK.inr(tSum);
+                    q("expMonth").textContent = NK.inr(mSum);
+
+                    var rows = type ? all.filter(function (r) { return (r.category || r.type) === type; }) : all;
                     var html = '';
                     rows.forEach(function(r) {
-                        var date = NK.dt(r.date);
+                        var date = NK.dt(r.expenseDate || r.date);
                         var amt = NK.inr(r.amount);
+                        var cat = r.category || r.type;
+                        // নিজের লেখা আর আজকের তৈরি হলে তবেই মোছা যায় (সার্ভারও যাচাই করে)
+                        var made = r.createdAt ? new Date(r.createdAt) : null;
+                        var madeToday = made && (made.getFullYear() + "-" + String(made.getMonth() + 1).padStart(2, "0") + "-" + String(made.getDate()).padStart(2, "0")) === todayS;
+                        var canDel = r.createdBy === u.userId && madeToday;
                         html += '<div class="row" style="padding:12px;border-bottom:1px solid var(--line);">';
-                        html += '<div><div style="font-size:13px;font-weight:600;">' + NK.esc(r.description || r.type) + '</div>';
-                        html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date + '</div></div>';
+                        html += '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">' + NK.esc(ltr(EXP_CAT_BN[cat] || cat || "")) +
+                            (r.description ? ' · ' + NK.esc(r.description) : '') + '</div>';
+                        html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + date +
+                            (r.createdByName ? ' · ✍ ' + NK.esc(r.createdByName) : '') +
+                            (r.hasVoucher === false ? ' · ' + ltr('ভাউচার নেই') : '') + '</div></div>';
                         html += '<div style="font-weight:600;color:var(--red);">' + amt + '</div>';
+                        if (r.hasVoucher) html += '<button class="btn sm ghost" data-mev="' + r.id + '" style="margin-left:6px;">🧾</button>';
+                        if (canDel) html += '<button class="btn sm" data-med="' + r.id + '" style="margin-left:6px;background:#FEE2E2;color:#DC2626;">🗑</button>';
                         html += '</div>';
                     });
                     if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);">' + ltr("কোনো খরচ নেই") + '</div>';
                     q("expList").innerHTML = html;
+
+                    Array.prototype.forEach.call(q("expList").querySelectorAll("[data-mev]"), function (b) {
+                        b.addEventListener("click", function () {
+                            NK.GET("/api/expenses/" + b.getAttribute("data-mev") + "/voucher").then(function (blob) {
+                                if (blob) window.open(URL.createObjectURL(blob), "_blank");
+                            }).catch(function (e) { toast(e.message, "er"); });
+                        });
+                    });
+                    Array.prototype.forEach.call(q("expList").querySelectorAll("[data-med]"), function (b) {
+                        b.addEventListener("click", function () {
+                            if (!confirm(ltr("এই খরচটা মুছে ফেলবেন?"))) return;
+                            b.disabled = true;
+                            NK.DELETE("/api/expenses/" + b.getAttribute("data-med"))
+                                .then(function () { toast(ltr("খরচ মোছা হয়েছে"), "ok"); loadExpenses(); })
+                                .catch(function (e) { toast(e.message, "er"); b.disabled = false; });
+                        });
+                    });
                 }).catch(function(e) { q("expList").innerHTML = '<div style="padding:20px;color:var(--red);">' + ltr("ত্রুটি") + ': ' + NK.esc(e.message) + '</div>'; });
             }
 
@@ -4808,6 +5067,50 @@
 
             var expTypeEl = q("expType");
             if (expTypeEl) expTypeEl.addEventListener("change", loadExpenses);
+
+            /* নতুন APK — ম্যানেজারের নতুন খরচ লেখা (নিজের ব্রাঞ্চ, ইনসেনটিভ নয়, ভবিষ্যতের তারিখ নয়) */
+            q("expNewBtn").addEventListener("click", function () {
+                var f = q("expForm");
+                var open = f.style.display === "none";
+                f.style.display = open ? "block" : "none";
+                if (open) {
+                    q("expDate").value = todayStamp();
+                    q("expDate").max = todayStamp();
+                }
+            });
+            q("expSave").addEventListener("click", function () {
+                var b = this;
+                var amt = Number(q("expAmt").value);
+                if (!amt || amt <= 0) { toast(ltr("অঙ্ক দিন"), "er"); return; }
+                if (!q("expDate").value) { toast(ltr("তারিখ দিন"), "er"); return; }
+                if (q("expDate").value > todayStamp()) { toast(ltr("ভবিষ্যতের তারিখে খরচ লেখা যায় না"), "er"); return; }
+                var body = {
+                    category: q("expCat").value,
+                    amount: amt,
+                    expenseDate: q("expDate").value,
+                    description: q("expDesc").value.trim() || null
+                };
+                var vf = q("expVoucher").files && q("expVoucher").files[0];
+                var req;
+                if (vf) {
+                    var fd = new FormData();
+                    fd.append("expense", new Blob([JSON.stringify(body)], { type: "application/json" }));
+                    fd.append("voucher", vf);
+                    req = NK.UPLOAD("/api/expenses", fd);
+                } else {
+                    req = NK.POST("/api/expenses", body);
+                }
+                b.disabled = true;
+                req.then(function () {
+                    toast(ltr("খরচ লেখা হয়েছে ✓"), "ok");
+                    q("expAmt").value = ""; q("expDesc").value = ""; q("expVoucher").value = "";
+                    q("expForm").style.display = "none";
+                    loadExpenses();
+                }).catch(function (e) {
+                    q("expMsg").textContent = e.message;
+                    q("expMsg").className = "msg er";
+                }).then(function () { b.disabled = false; });
+            });
         });
 
     // নিচের Back-বাটন হ্যান্ডলিং এই একই IIFE-এর ভেতরেই থাকতে হবে, নাহলে
