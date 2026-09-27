@@ -567,6 +567,7 @@
 
         .req .acts { display: flex; gap: 8px; }
         .req .acts button { flex: 1; }
+        .pill { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 2px 9px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -726,6 +727,30 @@
         <!-- নতুন APK — টাকা বসানোর নতুন নিয়ম: আগে দেখে নিন, তারপর চালু করুন -->
         <div class="view" id="v-payrule">
             <div id="prBox"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- পুরনো কাগজের কালেকশন চার্ট (মে ২০২৬ থেকে) — আগে মিলিয়ে দেখা, তারপর ইমপোর্ট -->
+        <div class="view" id="v-chartimp">
+            <div class="card">
+                <h2 style="margin-bottom:8px;">পুরনো কালেকশন চার্ট</h2>
+                <div style="font-size:13px;line-height:1.8;margin-bottom:10px;">
+                    কাগজের চার্ট যেমন, এক্সেলেও তেমন টাইপ করুন। সব মার্কেট রানাঘাট ব্রাঞ্চে যাবে।<br>
+                    <b>100</b> = ক্যাশে জমা (কাগজে "500–" হলে শুধু 500) · <b>100 P</b> = PhonePe · <b>D</b> = দেয়নি ·
+                    <b>AD</b> = আগের অ্যাডভান্স থেকে · <b>250 C</b> = এই টাকা দিয়ে লোন বন্ধ (গোল দাগ) · <b>0</b> = কালেকশন শুরু হয়নি
+                </div>
+                <button class="btn ghost block" id="ci_tpl">⬇ খালি টেমপ্লেট নামান</button>
+            </div>
+            <div class="card">
+                <div class="msg" id="ciMsg"></div>
+                <div class="fld"><label>টাইপ করা এক্সেল ফাইল</label><input type="file" id="ci_f" accept=".xlsx,.xls"></div>
+                <button class="btn block" id="ci_check">আগে মিলিয়ে দেখুন</button>
+            </div>
+            <div id="ciOut"></div>
+        </div>
+
+        <!-- ⚠️ পুরো সিস্টেম রিসেট — ব্যাকআপ → মেইলে কোড → "সব মুছুন" -->
+        <div class="view" id="v-sysreset">
+            <div id="rsBox"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
         <!-- নতুন APK — ম্যানেজারের "নতুন এজেন্ট" আবেদন -->
@@ -1388,6 +1413,8 @@
             <button data-go="perm"><i>🔐</i>পারমিশন</button>
             <button data-go="access"><i>⏰</i>অ্যাক্সেস</button>
             <button data-go="import"><i>📥</i>ইম্পোর্ট</button>
+            <button data-go="chartimp"><i>🗒️</i>পুরনো চার্ট ইমপোর্ট</button>
+            <button data-go="sysreset"><i>🧨</i>সব রিসেট</button>
             <button data-go="export"><i>📥</i>গ্রাহক এক্সপোর্ট</button>
             <button data-go="report"><i>📋</i>রিপোর্ট</button>
             <button data-go="log"><i>🔑</i>লগইন লগ</button>
@@ -1833,6 +1860,8 @@
             profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
             export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq,
             payrule: loadPayRule,
+            chartimp: loadChartImp,
+            sysreset: loadSysReset,
             staffreq: loadStaffReq
         };
 
@@ -3256,6 +3285,195 @@
                         });
                     });
                 }
+            }).catch(function (e) {
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        /* =====================================================================
+         * পুরনো কাগজের কালেকশন চার্ট — আগে মিলিয়ে দেখা, সব ✓ হলে তবেই ইমপোর্ট
+         * ===================================================================== */
+        var ciBound = false;
+
+        function saveBlob(blob, name) {
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            a.click();
+        }
+
+        function loadChartImp() {
+            if (ciBound) return;
+            ciBound = true;
+            q("ci_tpl").addEventListener("click", function () {
+                download("/api/admin/chart-import/template", "COLLECTION_CHART_template.xlsx");
+            });
+            q("ci_f").addEventListener("change", function () { q("ciOut").innerHTML = ""; });
+            q("ci_check").addEventListener("click", function () { ciRun(false); });
+        }
+
+        function ciRun(commit) {
+            var f = q("ci_f").files;
+            if (!f || !f.length) { say("ciMsg", ltr("ফাইল বাছুন"), false); return; }
+            var fd = new FormData();
+            fd.append("file", f[0]);
+            var b = commit ? q("ci_go") : q("ci_check");
+            var label = b.textContent;
+            b.disabled = true;
+            b.innerHTML = '<span class="spin"></span> ' + (commit ? ltr("ইমপোর্ট হচ্ছে...") : ltr("মেলানো হচ্ছে..."));
+            NK.UPLOAD("/api/admin/chart-import/" + (commit ? "commit" : "preview"), fd).then(function (r) {
+                b.disabled = false;
+                b.textContent = label;
+                if (commit) {
+                    say("ciMsg", ltr("ইমপোর্ট হয়ে গেছে ✓"), true);
+                    toast(ltr("ইমপোর্ট শেষ ✓"), "ok");
+                    q("ciOut").innerHTML = '<div class="card"><div class="stats">' +
+                        st(ltr("নতুন এজেন্ট"), r.agentsCreated) + st(ltr("নতুন মার্কেট"), r.marketsCreated) +
+                        st(ltr("নতুন গ্রাহক"), r.customersCreated) + st(ltr("নতুন লোন"), r.loansCreated) +
+                        st(ltr("জমা"), r.paymentsCreated) + st(ltr("টাকা"), NK.inr(r.amount)) +
+                        st(ltr("লোন বন্ধ"), r.loansClosed) + '</div>' +
+                        '<div class="hint" style="margin-top:8px;">' + ltr("নতুন এজেন্টদের লগইন বন্ধ আছে — কর্মী পাতায় আসল ফোন দিয়ে চালু করুন।") + '</div></div>';
+                    return;
+                }
+                ciShow(r);
+            }).catch(function (e) {
+                b.disabled = false;
+                b.textContent = label;
+                say("ciMsg", e.message, false);
+            });
+        }
+
+        function ciShow(p) {
+            var h = '<div class="card"><h2 style="margin-bottom:10px;">' + ltr("ফাইলে যা পাওয়া গেল") + '</h2><div class="stats">';
+            h += st(ltr("এজেন্ট (RO)"), p.agents) + st(ltr("মার্কেট"), p.markets);
+            h += st(ltr("লোন"), p.loans) + st(ltr("এর মধ্যে নতুন"), p.newLoans);
+            h += st(ltr("জমা"), p.payments) + st(ltr("টাকা"), NK.inr(p.amount));
+            h += st(ltr("PhonePe"), p.phonePe) + st(ltr("লোন বন্ধ (C)"), p.closures);
+            h += st(ltr("চার্টের আগের জমা"), NK.inr(p.openingAmount));
+            h += '</div>';
+            if (p.firstDate) h += '<div class="hint" style="margin-top:8px;">' + NK.esc(p.firstDate) + ' → ' + NK.esc(p.lastDate) + '</div>';
+            if (!p.ruleOn) h += '<div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#FEF3C7;color:#92400E;font-size:13px;font-weight:600;">' +
+                ltr("⚠ \"পেমেন্টের নিয়ম\" এখনো চালু হয়নি। চার্টের টাকা নতুন নিয়মেই বসবে, কিন্তু আগে ব্যাকআপ নিয়ে নিয়মটা চালু করে নেওয়া ভালো।") + '</div>';
+            h += '</div>';
+
+            h += '<div class="card"><h2 style="margin-bottom:10px;">' + ltr("মিলছে কি না — প্রতিটা চার্টের প্রতিদিন") + '</h2>';
+            (p.blocks || []).forEach(function (bl) {
+                h += '<div style="font-weight:700;margin:10px 0 4px;">' + NK.esc(bl.market || "?") + ' · ' + NK.esc(bl.agent || "?") +
+                    ' <span style="color:var(--muted);font-weight:500;font-size:12px;">(' + bl.customers + ltr(" জন") + ')</span></div>';
+                (bl.days || []).forEach(function (d) {
+                    var tag = d.expected == null ? '<span class="pill" style="background:#F1F5F9;color:var(--muted);">' + ltr("খাতায় যোগফল নেই") + '</span>'
+                        : d.ok ? '<span class="pill" style="background:var(--green-soft);color:var(--green);">✓</span>'
+                        : '<span class="pill" style="background:#FEF2F2;color:#DC2626;">' + ltr("মিলছে না") + '</span>';
+                    h += '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px;">' +
+                        '<span>' + NK.esc(d.date) + '</span><span>' + NK.inr(d.sum) + (d.expected != null ? ' / ' + NK.inr(d.expected) : '') + ' ' + tag + '</span></div>';
+                });
+            });
+            h += '</div>';
+
+            var iss = p.issues || [];
+            if (iss.length) {
+                h += '<div class="card"><h2 style="margin-bottom:10px;">' + ltr("দেখে নিন") + ' — ' +
+                    '<span style="color:#DC2626;">' + p.errors + ltr(" ভুল") + '</span> · <span style="color:#B45309;">' + p.warnings + ltr(" সতর্কতা") + '</span></h2>';
+                iss.slice(0, 400).forEach(function (i) {
+                    var er = i.level === "ERROR";
+                    h += '<div style="padding:8px 10px;margin-bottom:6px;border-radius:8px;font-size:12.5px;background:' + (er ? '#FEF2F2' : '#FFFBEB') + ';">' +
+                        '<b style="color:' + (er ? '#DC2626' : '#B45309') + ';">' + (er ? ltr("ভুল") : ltr("দেখুন")) + '</b> · ' +
+                        NK.esc(i.where) + '<br>' + NK.esc(i.message) + '</div>';
+                });
+                if (iss.length > 400) h += '<div class="hint">' + ltr("প্রথম ৪০০টা দেখানো হলো") + '</div>';
+                h += '</div>';
+            }
+
+            h += '<div class="card">';
+            if (p.errors > 0) {
+                h += '<button class="btn block" disabled style="background:#94A3B8;">' + ltr("সব ✓ হলে তবেই \"ইমপোর্ট করুন\"") + '</button>';
+                h += '<div class="hint" style="margin-top:6px;">' + ltr("লাল ভুলগুলো এক্সেলে ঠিক করে ফাইলটা আবার দিন।") + '</div>';
+            } else {
+                if (p.warnings > 0) h += '<div class="hint" style="margin-bottom:8px;">' + ltr("হলুদগুলো সতর্কতা — ঠিক থাকলে ইমপোর্ট করা যাবে।") + '</div>';
+                h += '<button class="btn block" id="ci_go">' + ltr("ইমপোর্ট করুন") + '</button>';
+            }
+            h += '</div>';
+            q("ciOut").innerHTML = h;
+            if (q("ci_go")) q("ci_go").addEventListener("click", function () {
+                if (!confirm(ltr("ইমপোর্ট করবেন? একই ফাইল পরে আবার দিলেও কিছু দুবার ঢুকবে না।"))) return;
+                ciRun(true);
+            });
+        }
+
+        /* =====================================================================
+         * ⚠️ পুরো সিস্টেম রিসেট — ① ব্যাকআপ ② মেইলে কোড ③ কোড + "সব মুছুন"
+         * ===================================================================== */
+        function loadSysReset() {
+            var box = q("rsBox");
+            NK.GET("/api/admin/system-reset/status").then(function (s) {
+                var h = '<div class="card" style="border:1.5px solid #FCA5A5;">';
+                h += '<h2 style="margin-bottom:8px;color:#DC2626;">' + ltr("⚠️ সব ডেটা রিসেট") + '</h2>';
+                h += '<div style="font-size:13px;line-height:1.7;">' +
+                    ltr("পুরনো ডেটা আবার গোড়া থেকে তোলার জন্য। যতবার দরকার করা যাবে।") + '<br>' +
+                    '<b>' + ltr("মুছবে:") + '</b> ' + ltr("গ্রাহক ") + s.customers + ' · ' + ltr("লোন ") + s.loans + ' · ' + ltr("জমা ") + s.payments +
+                    ' · ' + ltr("মার্কেট ") + s.markets + ' · ' + ltr("এজেন্ট/ম্যানেজার ") + s.staff + ' · ' + ltr("খরচ, ফান্ড, বেতন, ইমপোর্টের ইতিহাস") + '<br>' +
+                    '<b>' + ltr("থাকবে:") + '</b> ' + ltr("অ্যাডমিন ও পার্টনার অ্যাকাউন্ট, সেটিংস, পারমিশন, ছুটি, অডিট লগ, রানাঘাট ব্রাঞ্চ") + '</div></div>';
+
+                h += '<div class="card"><div class="msg" id="rsMsg"></div>';
+                h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;">' +
+                    '<span>' + ltr("① ব্যাকআপ ফাইল নামান") + '</span>' +
+                    (s.backupDone ? '<span class="pill" style="background:var(--green-soft);color:var(--green);">' + ltr("✓ নামানো হয়েছে") + '</span>'
+                        : '<button class="btn ghost" id="rs_bk">' + ltr("⬇ নামান") + '</button>') + '</div>';
+                h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);">' +
+                    '<span>' + ltr("② কোড যাবে: ") + '<b>' + NK.esc(s.email || ltr("মেইল নেই")) + '</b></span>' +
+                    '<button class="btn ghost" id="rs_code"' + (s.backupDone && s.email ? '' : ' disabled') + '>' +
+                    (s.codeSent ? ltr("আবার পাঠান") : ltr("কোড পাঠান")) + '</button></div>';
+                h += '<div style="padding:8px 0;border-top:1px solid var(--line);">' +
+                    '<div class="fld"><label>' + ltr("③ মেইলে আসা ৬ সংখ্যার কোড") + '</label><input id="rs_otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="letter-spacing:6px;font-size:20px;font-weight:700;"></div>' +
+                    '<div class="fld"><label>' + ltr("লিখুন: সব মুছুন") + '</label><input id="rs_txt"></div>' +
+                    '<button class="btn danger block" id="rs_go"' + (s.codeSent ? '' : ' disabled') + '>' + ltr("রিসেট করুন") + '</button>' +
+                    '<div class="hint" style="margin-top:6px;">' + ltr("কোড ১০ মিনিট চলবে, ৩ বার ভুল হলে বাতিল।") + '</div></div>';
+                h += '</div>';
+                box.innerHTML = h;
+
+                if (!s.email) say("rsMsg", ltr("আপনার অ্যাকাউন্টে মেইল নেই — আগে মেইল বসান"), false);
+                if (q("rs_bk")) q("rs_bk").addEventListener("click", function () {
+                    var b = this;
+                    b.disabled = true;
+                    NK.GET("/api/admin/system-reset/backup").then(function (blob) {
+                        saveBlob(blob, "NEELKUND_backup_" + new Date().toISOString().slice(0, 10) + ".csv");
+                        toast(ltr("ব্যাকআপ নামানো হয়েছে ✓"), "ok");
+                        loadSysReset();
+                    }).catch(function (e) { b.disabled = false; toast(e.message, "er"); });
+                });
+                q("rs_code").addEventListener("click", function () {
+                    var b = this;
+                    b.disabled = true;
+                    b.innerHTML = '<span class="spin"></span>';
+                    NK.POST("/api/admin/system-reset/send-code", {}).then(function (r) {
+                        toast(ltr("কোড পাঠানো হয়েছে: ") + r.sentTo, "ok");
+                        loadSysReset();
+                    }).catch(function (e) { b.disabled = false; b.textContent = ltr("কোড পাঠান"); say("rsMsg", e.message, false); });
+                });
+                q("rs_go").addEventListener("click", function () {
+                    var code = q("rs_otp").value.trim(), txt = q("rs_txt").value.trim();
+                    if (!/^\d{6}$/.test(code)) { say("rsMsg", ltr("৬ সংখ্যার কোড দিন"), false); return; }
+                    if (!confirm(ltr("শেষবার জিজ্ঞেস করছি — সব ডেটা মুছে যাবে, ফেরত আনা যাবে না। রিসেট করবেন?"))) return;
+                    var b = this;
+                    b.disabled = true;
+                    b.innerHTML = ltr('<span class="spin"></span> মোছা হচ্ছে...');
+                    NK.POST("/api/admin/system-reset/confirm", { code: code, confirm: txt }).then(function (r) {
+                        toast(ltr("রিসেট হয়ে গেছে ✓"), "ok");
+                        loaded = {};
+                        q("rsBox").innerHTML = '<div class="card"><h2 style="color:var(--green);margin-bottom:8px;">' + ltr("✓ রিসেট হয়ে গেছে") + '</h2>' +
+                            '<div style="font-size:13px;line-height:1.8;">' + ltr("মোছা হয়েছে — গ্রাহক ") + r.customers + ' · ' + ltr("লোন ") + r.loans +
+                            ' · ' + ltr("জমা ") + r.payments + ' · ' + ltr("মার্কেট ") + r.markets + ' · ' + ltr("কর্মী ") + r.staff + '</div>' +
+                            '<button class="btn block" style="margin-top:12px;" id="rs_next">' + ltr("এবার পুরনো ডেটা তুলুন →") + '</button></div>';
+                        q("rs_next").addEventListener("click", function () {
+                            var m = document.querySelector('[data-go="chartimp"]');
+                            if (m) m.click();
+                        });
+                    }).catch(function (e) {
+                        b.disabled = false;
+                        b.textContent = ltr("রিসেট করুন");
+                        say("rsMsg", e.message, false);
+                    });
+                });
             }).catch(function (e) {
                 box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
