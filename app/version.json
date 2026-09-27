@@ -1,0 +1,14 @@
+{
+  "build": 27,
+  "version": "2.5.2",
+  "force": false,
+  "notes": "",
+  "apk": {
+    "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
+    "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
+  },
+  "sha256": {
+    "arm64-v8a": "df38f8aebeefedffc26a879a737fbea72f720cf2b32a741b1144b2825e1d4078",
+    "armeabi-v7a": "0ca101ae48d525e846da3609a317e25d94026e40b2a4eea6ceeea31f2fa3f195"
+  }
+}
