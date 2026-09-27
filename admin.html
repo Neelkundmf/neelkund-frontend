@@ -720,6 +720,11 @@
             <div id="reqList"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
+        <!-- নতুন APK — ম্যানেজারের "নতুন এজেন্ট" আবেদন -->
+        <div class="view" id="v-staffreq">
+            <div id="srList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
 
         <!-- ---------------- ব্রাঞ্চ ---------------- -->
         <div class="view" id="v-branch">
@@ -729,6 +734,7 @@
 
                 <div class="fld"><label>নাম *</label><input id="br_name"><div class="error-msg" id="err_br_name" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>কোড * (যেমন PTL)</label><input id="br_code" maxlength="10" style="text-transform:uppercase"><div class="error-msg" id="err_br_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
+                <div class="fld"><label>ব্রাঞ্চ নম্বর (৩ অঙ্ক)</label><input id="br_num" maxlength="3" inputmode="numeric" placeholder="যেমন 101"><div class="hint">গ্রাহক নম্বর হবে ব্রাঞ্চ-মার্কেট-ক্রমিক (যেমন 101-01-0001)</div><div class="error-msg" id="err_br_num" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>কোডের ছাঁচ (ঐচ্ছিক)</label><input id="br_pattern" maxlength="40" placeholder="যেমন PTL/25-A/"><div class="hint">ফাঁকা রাখলে পুরনো নিয়ম: কোড-নম্বর (যেমন PTL-000001)</div><div class="error-msg" id="err_br_pattern" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>নম্বর কত অঙ্কের</label><input id="br_digits" type="number" min="3" max="9" value="6"><div class="hint">৬ হলে 000001</div><div class="error-msg" id="err_br_digits" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>প্রথম গ্রাহকের নম্বর</label><input id="br_start" type="number" value="1"><div class="error-msg" id="err_br_start" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
@@ -776,6 +782,13 @@
                 <div class="fld"><label>কোড</label><div style="display:flex;gap:8px;"><input id="mk_code" maxlength="10" style="text-transform:uppercase;flex:1;"><button type="button" class="btn sm" id="mk_auto" style="flex-shrink:0;">Auto</button></div><div class="error-msg" id="err_mk_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ব্রাঞ্চ *</label><select id="mk_br"></select><div class="error-msg" id="err_mk_br" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div></div>
                 <div class="fld"><label>ম্যানেজার</label><select id="mk_mg"><option value="">— নেই —</option></select></div>
+                <!-- নতুন APK — গ্রাহক নম্বর ব্রাঞ্চ-মার্কেট-ক্রমিক -->
+                <div style="display:flex;gap:8px;">
+                    <div class="fld" style="flex:1;"><label>মার্কেট নম্বর (২ অঙ্ক)</label><input id="mk_num" maxlength="2" inputmode="numeric" placeholder="01"></div>
+                    <div class="fld" style="flex:1;"><label>গ্রাহক নম্বর কত অঙ্কের</label><input id="mk_digits" type="number" min="3" max="6" value="4"></div>
+                    <div class="fld" style="flex:1;"><label>শুরুর নম্বর</label><input id="mk_start" type="number" min="1" value="1"></div>
+                </div>
+                <div class="hint" id="mk_preview" style="margin:-6px 0 12px;"></div>
 
                 <button class="btn block" id="mk_go">মার্কেট তৈরি করুন</button>
                 <button class="btn block" id="mk_cancelEdit" style="display:none;margin-top:8px;background:var(--muted);">✕ বাতিল</button>
@@ -891,7 +904,6 @@
                         <option value="AGENT">এজেন্ট</option>
                         <option value="MANAGER">ম্যানেজার</option>
                         <option value="PARTNER">পার্টনার</option>
-                        <option value="ADMIN">অ্যাডমিন</option>
                     </select>
                 </div>
                 <div class="error-msg" id="err_tm_role" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
@@ -904,7 +916,7 @@
                 <div class="error-msg" id="err_tm_mk" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>মাসিক বেতন</label><input id="tm_sal" type="number"></div>
                 <div class="error-msg" id="err_tm_sal" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-                <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন</div></div>
+                <div class="fld"><label>কর্মীর কোড</label><input id="tm_code" maxlength="30" placeholder="যেমন EMP-001/A"><div class="hint">অক্ষর + সংখ্যা + চিহ্ন · এজেন্টের কোড ম্যানেজারের সিরিজ থেকে নিজে বসে</div></div>
                 <div class="error-msg" id="err_tm_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="pic-row">
                     <div class="fld"><label>আধার নম্বর *</label><input id="tm_aad" inputmode="numeric" maxlength="12"></div>
@@ -914,13 +926,40 @@
                 <div class="error-msg" id="err_tm_aad" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="hint" style="margin:-10px 0 14px;">আধারের ছবি — সামনে ও পিছন (বাধ্যতামূলক)</div>
 
+                <!-- নতুন APK — ভোটার কার্ড -->
                 <div class="pic-row">
+                    <div class="fld"><label>ভোটার কার্ড নম্বর</label><input id="tm_voter" maxlength="20" style="text-transform:uppercase" placeholder="যেমন ABC1234567"></div>
+                    <button type="button" class="pic-btn" id="tp_vot">📷</button>
+                    <button type="button" class="pic-btn" id="tp_votb">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">ভোটার কার্ডের ছবি — সামনে ও পিছন</div>
+
+                <div class="fld"><label>প্যান কার্ড আছে?</label>
+                    <select id="tm_haspan"><option value="1">হ্যাঁ, আছে</option><option value="0">না, প্যান নেই</option></select>
+                </div>
+                <div class="pic-row" id="tm_panrow">
                     <div class="fld"><label>প্যান নম্বর</label><input id="tm_pan" maxlength="10" style="text-transform:uppercase"></div>
                     <button type="button" class="pic-btn" id="tp_pan">📷</button>
                     <button type="button" class="pic-btn" id="tp_panb">📷</button>
                 </div>
                 <div class="error-msg" id="err_tm_pan" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
-                <div class="hint" style="margin:-10px 0 14px;">প্যানের ছবি — সামনে ও পিছন</div>
+                <div class="hint" style="margin:-10px 0 14px;" id="tm_panhint">প্যানের ছবি — সামনে ও পিছন</div>
+
+                <!-- নতুন APK — শিক্ষাগত যোগ্যতা -->
+                <div class="pic-row">
+                    <div class="fld"><label>শিক্ষাগত যোগ্যতা</label>
+                        <select id="tm_edu">
+                            <option value="">— বাছুন —</option>
+                            <option value="EIGHT">অষ্টম শ্রেণি পাস</option>
+                            <option value="MP">মাধ্যমিক পাস</option>
+                            <option value="HS">উচ্চমাধ্যমিক পাস</option>
+                            <option value="GRAD">স্নাতক</option>
+                            <option value="PG">স্নাতকোত্তর</option>
+                        </select>
+                    </div>
+                    <button type="button" class="pic-btn" id="tp_edu">📷</button>
+                </div>
+                <div class="hint" style="margin:-10px 0 14px;">যোগ্যতার প্রমাণের ছবি (সার্টিফিকেট / মার্কশিট)</div>
                 <div class="fld"><label>জয়েনিং তারিখ</label><input id="tm_join" type="date"></div>
                 <div class="error-msg" id="err_tm_join" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>বাবা / স্বামীর নাম</label><input id="tm_fh"></div>
@@ -1043,6 +1082,8 @@
                 <div class="error-msg" id="err_ex_date" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
                 <div class="fld"><label>বিবরণ</label><input id="ex_desc"></div>
                 <div class="error-msg" id="err_ex_desc" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>
+                <!-- নতুন APK — ভাউচারের ছবি (অ্যাডমিনের জন্য ঐচ্ছিক) -->
+                <div class="fld"><label>ভাউচারের ছবি (ঐচ্ছিক)</label><input id="ex_voucher" type="file" accept="image/*" capture="environment"></div>
 
                 <button class="btn block" id="ex_go">খরচ যোগ করুন</button>
             </div>
@@ -1323,6 +1364,7 @@
             <button data-go="branch"><i>🏢</i>ব্রাঞ্চ</button>
             <button data-go="market"><i>🏬</i>মার্কেট</button>
             <button data-go="team"><i>👥</i>টিম</button>
+            <button data-go="staffreq"><i>🧑‍💼</i>নতুন কর্মী অনুমোদন</button>
             <button data-go="agent-markets"><i>🗂️</i>এজেন্ট মার্কেট</button>
             <button data-go="market-transfer"><i>📊</i>মার্কেট ট্রান্সফার</button>
             <button data-go="money"><i>🏦</i>ফান্ড</button>
@@ -1780,7 +1822,8 @@
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
             profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
-            export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq
+            export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq,
+            staffreq: loadStaffReq
         };
 
         /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
@@ -3087,6 +3130,123 @@
         }
 
         /* =====================================================================
+         * নতুন APK — নতুন কর্মী অনুমোদন (ম্যানেজারের আবেদন)
+         * ===================================================================== */
+        var SR_EDU = { EIGHT: "অষ্টম শ্রেণি পাস", MP: "মাধ্যমিক পাস", HS: "উচ্চমাধ্যমিক পাস", GRAD: "স্নাতক", PG: "স্নাতকোত্তর" };
+        var SR_DOC = { SELFIE: "ছবি", AADHAAR: "আধার সামনে", AADHAAR_BACK: "আধার পিছন", VOTER: "ভোটার সামনে",
+            VOTER_BACK: "ভোটার পিছন", PAN: "প্যান", PAN_BACK: "প্যান পিছন", EDU: "যোগ্যতার প্রমাণ" };
+
+        function loadStaffReq() {
+            var box = q("srList");
+            box.innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
+            NK.GET("/api/staff-requests").then(function (list) {
+                var rows = NK.rows(list);
+                if (!rows.length) {
+                    box.innerHTML = ltr('<div class="card"><div class="empty">কোনো আবেদন নেই</div></div>');
+                    return;
+                }
+                var html = "";
+                rows.forEach(function (r) {
+                    var pending = r.status === "PENDING";
+                    html += '<div class="card" data-sr="' + r.id + '">';
+                    html += '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">' +
+                        '<b style="font-size:15px;">' + NK.esc(r.fullName) + '</b>' +
+                        '<span class="pill" style="font-size:11px;padding:3px 8px;border-radius:8px;background:' +
+                        (pending ? '#FEF3C7;color:#92400E' : r.status === "APPROVED" ? 'var(--green-soft);color:var(--green)' : '#FEE2E2;color:#DC2626') + ';">' +
+                        (pending ? ltr('অপেক্ষায়') : r.status === "APPROVED" ? ltr('অনুমোদিত') : ltr('বাতিল')) + '</span></div>';
+                    html += '<div class="hint" style="margin:6px 0 10px;">' + NK.esc(r.phone) + ' · ' + NK.esc(r.branchName) +
+                        ' · ' + ltr('আবেদন: ') + NK.esc(r.requestedByName) + ' · ' + NK.esc(String(r.createdAt || "").slice(0, 10)) + '</div>';
+                    var facts = [];
+                    if (r.aadhaarMasked) facts.push(ltr("আধার ") + NK.esc(r.aadhaarMasked));
+                    if (r.voterIdMasked) facts.push(ltr("ভোটার ") + NK.esc(r.voterIdMasked));
+                    facts.push(r.hasPan ? (r.panMasked ? ltr("প্যান ") + NK.esc(r.panMasked) : ltr("প্যান —")) : ltr("প্যান নেই"));
+                    if (r.education) facts.push(ltr(SR_EDU[r.education] || r.education));
+                    if (r.marketNames && r.marketNames.length) facts.push(ltr("মার্কেট: ") + r.marketNames.map(NK.esc).join(", "));
+                    html += '<div style="font-size:13px;line-height:1.7;">' + facts.join(" · ") + '</div>';
+                    var docTypes = Object.keys(r.docs || {});
+                    if (docTypes.length) {
+                        html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;">';
+                        docTypes.forEach(function (t) {
+                            html += '<div style="width:72px;text-align:center;font-size:10px;color:var(--muted);">' +
+                                '<div id="srDoc_' + r.id + '_' + t + '" style="width:72px;height:56px;border-radius:8px;background:var(--paper);overflow:hidden;"></div>' +
+                                ltr(SR_DOC[t] || t) + '</div>';
+                        });
+                        html += '</div>';
+                    }
+                    if (pending) {
+                        html += '<div style="display:flex;gap:8px;margin-top:8px;">' +
+                            ltr('<div class="fld" style="flex:1;"><label>বেতন</label><input type="number" data-sr-sal="') + r.id + '"></div>' +
+                            ltr('<div class="fld" style="flex:1;"><label>প্রথম পাসওয়ার্ড *</label><input type="text" data-sr-pass="') + r.id + '"></div></div>';
+                        html += ltr('<div class="fld"><label>এজেন্টের কোড *</label><input style="text-transform:uppercase" data-sr-code="') + r.id +
+                            '" value="' + NK.esc(r.suggestedCode || "") + '"></div>';
+                        html += '<div style="display:flex;gap:8px;">' +
+                            ltr('<button class="btn" style="flex:1;" data-sr-ok="') + r.id + ltr('">✓ অনুমোদন</button>') +
+                            ltr('<button class="btn danger" style="flex:1;" data-sr-no="') + r.id + ltr('">✕ বাতিল</button>') + '</div>';
+                    } else if (r.reason) {
+                        html += '<div class="hint" style="color:#DC2626;margin-top:6px;">' + ltr('কারণ: ') + NK.esc(r.reason) + '</div>';
+                    }
+                    html += '</div>';
+                });
+                box.innerHTML = html;
+
+                rows.forEach(function (r) {
+                    Object.keys(r.docs || {}).forEach(function (t) {
+                        NK.GET(r.docs[t]).then(function (blob) {
+                            var el = q("srDoc_" + r.id + "_" + t);
+                            if (!el || !blob) return;
+                            var img = document.createElement("img");
+                            img.src = URL.createObjectURL(blob);
+                            img.style.cssText = "width:100%;height:100%;object-fit:cover;";
+                            el.appendChild(img);
+                        }).catch(function () {});
+                    });
+                });
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-sr-ok]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var id = b.getAttribute("data-sr-ok");
+                        var pass = box.querySelector('[data-sr-pass="' + id + '"]').value;
+                        var code = box.querySelector('[data-sr-code="' + id + '"]').value.trim().toUpperCase();
+                        var sal = box.querySelector('[data-sr-sal="' + id + '"]').value;
+                        if (pass.length < 8) { toast(ltr("পাসওয়ার্ড কমপক্ষে ৮ অক্ষর"), "er"); return; }
+                        if (!code) { toast(ltr("এজেন্টের কোড দিন"), "er"); return; }
+                        b.disabled = true;
+                        NK.POST("/api/staff-requests/" + id + "/approve", { salary: sal ? Number(sal) : null, password: pass, code: code })
+                            .then(function () { toast(ltr("অনুমোদিত — নতুন এজেন্ট তৈরি হয়েছে ✓"), "ok"); loadStaffReq(); loadStaffReqBadge(); })
+                            .catch(function (e) { toast(e.message, "er"); b.disabled = false; });
+                    });
+                });
+                Array.prototype.forEach.call(box.querySelectorAll("[data-sr-no]"), function (b) {
+                    b.addEventListener("click", function () {
+                        var id = b.getAttribute("data-sr-no");
+                        var reason = prompt(ltr("বাতিলের কারণ লিখুন:"));
+                        if (reason === null) return;
+                        if (!reason.trim()) { toast(ltr("বাতিলের কারণ লিখুন"), "er"); return; }
+                        b.disabled = true;
+                        NK.POST("/api/staff-requests/" + id + "/reject", { reason: reason.trim() })
+                            .then(function () { toast(ltr("আবেদন বাতিল হয়েছে"), "ok"); loadStaffReq(); loadStaffReqBadge(); })
+                            .catch(function (e) { toast(e.message, "er"); b.disabled = false; });
+                    });
+                });
+            }).catch(function (e) {
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        /* মেনুতে অপেক্ষমাণ আবেদনের সংখ্যা */
+        function loadStaffReqBadge() {
+            var btn = document.querySelector('[data-go="staffreq"]');
+            if (!btn) return;
+            NK.GET("/api/staff-requests/pending/count").then(function (r) {
+                var n = r && r.count ? r.count : 0;
+                var s = btn.querySelector(".sr-badge");
+                if (!s) { s = document.createElement("span"); s.className = "sr-badge"; s.style.cssText = "margin-left:6px;background:#DC2626;color:#fff;border-radius:9px;padding:0 7px;font-size:11px;"; btn.appendChild(s); }
+                s.textContent = n;
+                s.style.display = n ? "" : "none";
+            }).catch(function () { /* পুরনো সার্ভার — মেনু বাটন লুকোই */ btn.style.display = "none"; });
+        }
+
+        /* =====================================================================
          * লোন-রিকোয়েস্ট (অনুমোদন / নাকচ)
          * ===================================================================== */
         function loadLoanReq(silent) {
@@ -3234,8 +3394,11 @@
                     html += '<div class="av">' + NK.esc(b.code || "?") + '</div>';
                     html += '<div class="mid"><b>' + NK.esc(b.name) + '</b>' +
                         '<span>' + NK.esc(b.nextCodePreview || b.code || "") +
-                        ' · ' + b.customerCount + ltr(' গ্রাহক</span></div>');
+                        ' · ' + b.customerCount + ltr(' গ্রাহক') +
+                        ' · ' + (b.numCode ? ltr('নম্বর ') + NK.esc(b.numCode) : ltr('নম্বর নেই')) + '</span></div>';
                     html += '<div class="end"><b>#' + b.nextCustomerNumber + '</b></div>';
+                    html += '<button type="button" class="btn sm" data-num-branch="' + b.id +
+                        '" style="margin-left:8px;flex-shrink:0;">' + ltr('নম্বর') + '</button>';
                     html += '<button type="button" class="btn sm" data-reset-branch="' + b.id +
                         '" data-reset-name="' + NK.esc(b.name) +
                         '" style="margin-left:8px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;flex-shrink:0;">🏭</button>';
@@ -3250,7 +3413,32 @@
                         openBranchResetPanel(el.getAttribute("data-reset-branch"), el.getAttribute("data-reset-name"));
                     });
                 });
+
+                // নতুন APK — পুরনো ব্রাঞ্চে ৩ অঙ্কের নম্বর বসানো (পুরনো গ্রাহকের কোড বদলায় না)
+                Array.prototype.forEach.call(q("brList").querySelectorAll("[data-num-branch]"), function (el) {
+                    el.addEventListener("click", function () {
+                        var id = Number(el.getAttribute("data-num-branch"));
+                        var b = BRANCHES.filter(function (x) { return x.id === id; })[0];
+                        if (!b) return;
+                        var v = prompt(ltr("ব্রাঞ্চের ৩ অঙ্কের নম্বর (যেমন 101):"), b.numCode || "");
+                        if (v === null) return;
+                        v = v.trim();
+                        if (!/^[0-9]{3}$/.test(v)) { toast(ltr("ঠিক ৩ অঙ্কের নম্বর দিন"), "error"); return; }
+                        NK.PUT("/api/branches/" + id, { name: b.name, code: b.code, numCode: v })
+                            .then(function () { toast(ltr("ব্রাঞ্চ নম্বর বসানো হয়েছে ✓"), "ok"); loadBranch(); loadBranches(); })
+                            .catch(function (e) { toast(e.message, "error"); });
+                    });
+                });
             });
+            suggestBranchNum();
+        }
+
+        /** নতুন APK — পরের খালি ব্রাঞ্চ নম্বর আগে থেকে বসানো */
+        function suggestBranchNum() {
+            if (!q("br_num") || q("br_num").value.trim()) return;
+            NK.GET("/api/branches/suggest-num").then(function (r) {
+                if (r && r.numCode && !q("br_num").value.trim()) q("br_num").value = r.numCode;
+            }).catch(function () { /* পুরনো সার্ভারে এই পথ নেই — চুপচাপ বাদ */ });
         }
 
         q("br_go").addEventListener("click", function () {
@@ -3274,7 +3462,8 @@
                 codePattern: q("br_pattern").value.trim() || null,
                 codeDigits: Number(q("br_digits").value || 6),
                 startNumber: Number(q("br_start").value || 1),
-                address: q("br_addr").value.trim() || null
+                address: q("br_addr").value.trim() || null,
+                numCode: q("br_num").value.trim() || null
             }).then(function () {
                 say("brMsg", ltr("ব্রাঞ্চ তৈরি হয়েছে ✓"), true);
                 toast(ltr("ব্রাঞ্চ তৈরি হয়েছে"), "ok");
@@ -3282,6 +3471,7 @@
                 q("br_code").value = "";
                 q("br_pattern").value = "";
                 q("br_addr").value = "";
+                suggestBranchNum();
                 loadBranch();
                 loadBranches();
             }).catch(function (e) {
@@ -3448,6 +3638,10 @@
             q("mk_code").value = m.code || "";
             q("mk_br").value = m.branchId || "";
             q("mk_mg").value = m.managerId || "";
+            q("mk_num").value = m.numCode || "";
+            q("mk_digits").value = m.codeDigits || 4;
+            q("mk_start").value = m.nextCustomerNumber || 1;
+            updateMarketPreview();
 
             q("mk_formTtl").textContent = ltr("মার্কেট এডিট করুন");
             q("mk_go").textContent = ltr("আপডেট করুন");
@@ -3464,6 +3658,10 @@
             q("mk_code").value = "";
             q("mk_br").value = "";
             q("mk_mg").value = "";
+            q("mk_num").value = "";
+            q("mk_digits").value = 4;
+            q("mk_start").value = 1;
+            updateMarketPreview();
 
             q("mk_formTtl").textContent = ltr("নতুন মার্কেট");
             q("mk_go").textContent = ltr("মার্কেট তৈরি করুন");
@@ -3471,6 +3669,32 @@
         }
 
         q("mk_cancelEdit").addEventListener("click", exitMarketEdit);
+
+        /* নতুন APK — গ্রাহক নম্বরের নমুনা (যেমন 101-01-0001) */
+        function updateMarketPreview() {
+            var el = q("mk_preview");
+            if (!el) return;
+            var num = q("mk_num").value.trim();
+            var br = (typeof BRANCHES !== "undefined" ? BRANCHES : []).filter(function (x) {
+                return String(x.id) === String(q("mk_br").value);
+            })[0];
+            if (!num) { el.textContent = ltr("মার্কেট নম্বর না দিলে গ্রাহক নম্বর পুরনো নিয়মে হবে"); return; }
+            if (!br || !br.numCode) { el.textContent = ltr("⚠ আগে এই ব্রাঞ্চে ৩ অঙ্কের নম্বর বসান (ব্রাঞ্চ পাতা)"); return; }
+            var d = Math.max(3, Math.min(6, Number(q("mk_digits").value || 4)));
+            var s = String(Math.max(1, Number(q("mk_start").value || 1)));
+            while (s.length < d) s = "0" + s;
+            el.textContent = ltr("প্রথম গ্রাহক: ") + br.numCode + "-" + num + "-" + s;
+        }
+        ["mk_num", "mk_digits", "mk_start"].forEach(function (id) {
+            q(id).addEventListener("input", updateMarketPreview);
+        });
+        q("mk_br").addEventListener("change", function () {
+            updateMarketPreview();
+            if (EDIT_MARKET_ID != null || !q("mk_br").value) return;
+            NK.GET("/api/markets/suggest-num?branchId=" + q("mk_br").value).then(function (r) {
+                if (r && r.numCode && EDIT_MARKET_ID == null) { q("mk_num").value = r.numCode; updateMarketPreview(); }
+            }).catch(function () { /* পুরনো সার্ভার — বাদ */ });
+        });
 
         q("mk_auto").addEventListener("click", function () {
             var name = q("mk_name").value.trim();
@@ -3521,6 +3745,13 @@
                 managerId: mgId ? Number(mgId) : null,
                 description: isEdit ? EDIT_MARKET_DESCRIPTION : null
             };
+            // নতুন APK — মার্কেট নম্বর দিলে তবেই গ্রাহক নম্বরের ছাঁচ বদলায়
+            var mkNum = q("mk_num").value.trim();
+            if (mkNum) {
+                payload.numCode = mkNum;
+                payload.custDigits = Number(q("mk_digits").value || 4);
+                payload.startNo = Number(q("mk_start").value || 1);
+            }
 
             var req = isEdit
                 ? NK.PUT("/api/markets/" + EDIT_MARKET_ID, payload)
@@ -3920,9 +4151,35 @@
         bindPicker("tp_aadb",   "AADHAAR_BACK", false);
         bindPicker("tp_pan",    "PAN", false);
         bindPicker("tp_panb",   "PAN_BACK", false);
+        // নতুন APK
+        bindPicker("tp_vot",    "VOTER", false);
+        bindPicker("tp_votb",   "VOTER_BACK", false);
+        bindPicker("tp_edu",    "EDU", false);
 
         /* ছবি ১ তোলার পর ছবি ২ (পিছনের দিক) এমনিতেই খুলে যাবে */
-        var NEXT_PIC = { AADHAAR: "tp_aadb", PAN: "tp_panb" };
+        var NEXT_PIC = { AADHAAR: "tp_aadb", PAN: "tp_panb", VOTER: "tp_votb" };
+
+        /* নতুন APK — প্যান না থাকলে প্যানের ঘর লুকোই */
+        q("tm_haspan").addEventListener("change", function () {
+            var has = this.value === "1";
+            q("tm_panrow").style.display = has ? "" : "none";
+            q("tm_panhint").style.display = has ? "" : "none";
+            if (!has) { q("tm_pan").value = ""; delete TPICS.PAN; delete TPICS.PAN_BACK; }
+        });
+        q("tm_voter").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+
+        /* নতুন APK — এজেন্টের কোড ব্রাঞ্চের ম্যানেজারের সিরিজ থেকে আগে বসানো */
+        function suggestAgentCode() {
+            if (q("tm_role").value !== "AGENT" || !q("tm_br").value || q("tm_code").value.trim()) return;
+            NK.GET("/api/admin/users/next-agent-code?branchId=" + q("tm_br").value).then(function (r) {
+                if (r && r.code && !q("tm_code").value.trim()) q("tm_code").value = r.code;
+            }).catch(function () { /* পুরনো সার্ভার — বাদ */ });
+        }
+        q("tm_role").addEventListener("change", suggestAgentCode);
+        q("tm_br").addEventListener("change", function () {
+            if (q("tm_role").value === "AGENT") q("tm_code").value = "";
+            suggestAgentCode();
+        });
 
         q("picFile").addEventListener("change", function () {
             var f = this.files[0];
@@ -3967,7 +4224,7 @@
         function resetPics() {
             TPICS = {};
 
-            ["tp_selfie", "tp_aad", "tp_aadb", "tp_pan", "tp_panb"].forEach(function (id) {
+            ["tp_selfie", "tp_aad", "tp_aadb", "tp_pan", "tp_panb", "tp_vot", "tp_votb", "tp_edu"].forEach(function (id) {
                 var el = q(id);
                 el.innerHTML = (id === "tp_selfie") ? "👤" : "📷";
                 el.classList.remove("has");
@@ -4014,6 +4271,8 @@
             if (aad && aad.length !== 12) return bad("tm_aad", ltr("আধার ঠিক ১২ সংখ্যার হতে হবে, নয়তো খালি রাখুন"));
             if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) return bad("tm_pan", ltr("PAN ফরম্যাট ভুল (যেমন: AAAAA1234A), নয়তো খালি রাখুন"));
             if (ep && ep.length && !/^[6-9]\d{9}$/.test(ep)) return bad("tm_ep", ltr("জরুরি ফোন নম্বর ঠিক নয় (৬-৯ দিয়ে শুরু, ১০ সংখ্যা), নয়তো খালি রাখুন"));
+            var voter = q("tm_voter").value.trim().toUpperCase();
+            if (voter && !/^[A-Z0-9\/]{6,20}$/.test(voter)) return bad("tm_voter", ltr("ভোটার কার্ডের নম্বর ঠিক নয় (যেমন ABC1234567), নয়তো খালি রাখুন"));
 
             var b = q("tm_go");
             b.disabled = true;
@@ -4043,7 +4302,12 @@
                 currentAddress: q("tm_curr").value.trim() || null,
                 emergencyName: q("tm_en").value.trim() || null,
                 emergencyPhone: ep || null,
-                bloodGroup: q("tm_bg").value || null
+                bloodGroup: q("tm_bg").value || null,
+                // নতুন APK
+                voterId: voter || null,
+                education: q("tm_edu").value || null,
+                hasPan: q("tm_haspan").value === "1",
+                staffCode: q("tm_code").value.trim().toUpperCase() || null
             }).then(function () {
                 return fetchTeam().then(function () {
                     var made = TEAM.filter(function (u) { return u.phone === phone; })[0];
@@ -4063,8 +4327,11 @@
                 q("tm_aad").value = "";
                 q("tm_pan").value = "";
                 q("tm_join").value = "";
-                ["tm_fh","tm_dob","tm_gen","tm_perm","tm_curr","tm_en","tm_ep","tm_bg"]
+                ["tm_fh","tm_dob","tm_gen","tm_perm","tm_curr","tm_en","tm_ep","tm_bg","tm_voter","tm_edu"]
                     .forEach(function (id) { q(id).value = ""; });
+                q("tm_haspan").value = "1";
+                q("tm_panrow").style.display = "";
+                q("tm_panhint").style.display = "";
                 resetPics();
                 loadTeam();
             }).catch(function (e) {
@@ -4219,14 +4486,41 @@
                 html += '<div class="av">💸</div>';
                 html += '<div class="mid"><b>' + (EXP_BN[x.category] || x.category) + '</b>' +
                     '<span>' + NK.dt(x.expenseDate) +
-                    (x.description ? ' · ' + NK.esc(x.description) : '') + '</span></div>';
+                    (x.description ? ' · ' + NK.esc(x.description) : '') +
+                    (x.createdByName ? ' · ✍ ' + NK.esc(x.createdByName) : '') + '</span></div>';
                 html += '<div class="end"><b style="color:var(--red);">' +
                     NK.inr(x.amount) + '</b></div>';
+                // নতুন APK — ভাউচার দেখা আর মোছা
+                if (x.hasVoucher) {
+                    html += '<button type="button" class="btn sm ghost" data-ex-v="' + x.id + '" style="margin-left:6px;flex-shrink:0;">🧾</button>';
+                } else if (x.hasVoucher === false) {
+                    html += '<span style="margin-left:6px;font-size:10px;color:var(--muted);flex-shrink:0;">' + ltr('ভাউচার নেই') + '</span>';
+                }
+                if (x.hasVoucher !== undefined) {
+                    html += '<button type="button" class="btn sm" data-ex-del="' + x.id + '" style="margin-left:6px;flex-shrink:0;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;">🗑</button>';
+                }
                 html += '</div>';
             });
             html += '</div>';
 
             q("exList").innerHTML = html;
+
+            Array.prototype.forEach.call(q("exList").querySelectorAll("[data-ex-v]"), function (b) {
+                b.addEventListener("click", function () {
+                    NK.GET("/api/expenses/" + b.getAttribute("data-ex-v") + "/voucher").then(function (blob) {
+                        if (blob) window.open(URL.createObjectURL(blob), "_blank");
+                    }).catch(function (e) { toast(e.message, "er"); });
+                });
+            });
+            Array.prototype.forEach.call(q("exList").querySelectorAll("[data-ex-del]"), function (b) {
+                b.addEventListener("click", function () {
+                    if (!confirm(ltr("এই খরচটা মুছে ফেলবেন?"))) return;
+                    b.disabled = true;
+                    NK.DELETE("/api/expenses/" + b.getAttribute("data-ex-del"))
+                        .then(function () { toast(ltr("খরচ মোছা হয়েছে"), "ok"); loadExpense(); })
+                        .catch(function (e) { toast(e.message, "er"); b.disabled = false; });
+                });
+            });
         }
 
         Array.prototype.forEach.call(document.querySelectorAll("#extabs button"), function (b) {
@@ -4256,18 +4550,31 @@
             b.innerHTML = ltr('<span class="spin"></span> যোগ হচ্ছে...');
 
             var br = q("ex_br").value;
-
-            NK.POST("/api/expenses", {
+            var exBody = {
                 category: q("ex_cat").value,
                 branchId: br ? Number(br) : null,
                 amount: Number(q("ex_amt").value),
                 expenseDate: q("ex_date").value,
                 description: q("ex_desc").value.trim() || null
-            }).then(function () {
+            };
+            // নতুন APK — ভাউচার থাকলে multipart, না থাকলে আগের মতো JSON
+            var vf = q("ex_voucher").files && q("ex_voucher").files[0];
+            var exReq;
+            if (vf) {
+                var fd = new FormData();
+                fd.append("expense", new Blob([JSON.stringify(exBody)], { type: "application/json" }));
+                fd.append("voucher", vf);
+                exReq = NK.UPLOAD("/api/expenses", fd);
+            } else {
+                exReq = NK.POST("/api/expenses", exBody);
+            }
+
+            exReq.then(function () {
                 say("exMsg", ltr("খরচ যোগ হয়েছে ✓"), true);
                 toast(ltr("খরচ যোগ হয়েছে"), "ok");
                 q("ex_amt").value = "";
                 q("ex_desc").value = "";
+                q("ex_voucher").value = "";
                 loadExpense();
             }).catch(function (e) {
                 say("exMsg", e.message, false);
@@ -4459,17 +4766,24 @@
             var role = q("pm_role").value;
             q("pmList").innerHTML = ltr('<div class="loading">লোড হচ্ছে...</div>');
 
-            NK.GET("/api/permissions/" + role).then(function (list) {
+            // নতুন APK — শুধু-অ্যাডমিন অনুমতিগুলো তালা দেওয়া (পুরনো সার্ভারে পথ না থাকলে খালি তালিকা)
+            var lockReq = NK.GET("/api/permissions/admin-only").catch(function () { return []; });
+            Promise.all([NK.GET("/api/permissions/" + role), lockReq]).then(function (res) {
+                var list = res[0];
+                var locked = NK.rows(res[1]);
                 var rows = NK.rows(list);
                 var html = '<div class="card">';
 
                 rows.forEach(function (p) {
+                    var isLocked = locked.indexOf(p.permissionKey) >= 0;
                     html += '<label style="display:flex;align-items:center;gap:10px;' +
-                        'padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;">';
+                        'padding:11px 0;border-bottom:1px solid var(--line);cursor:' + (isLocked ? 'not-allowed' : 'pointer') + ';' +
+                        (isLocked ? 'opacity:.55;' : '') + '">';
                     html += '<input type="checkbox" data-p="' + NK.esc(p.permissionKey) + '"' +
-                        (p.enabled ? ' checked' : '') +
+                        (p.enabled && !isLocked ? ' checked' : '') + (isLocked ? ' disabled' : '') +
                         ' style="width:20px;height:20px;flex-shrink:0;">';
-                    html += '<span style="font-size:14px;">' + NK.esc(p.label) + '</span>';
+                    html += '<span style="font-size:14px;">' + NK.esc(p.label || p.permissionKey) +
+                        (isLocked ? ltr(' 🔒 শুধু অ্যাডমিন') : '') + '</span>';
                     html += '</label>';
                 });
 
@@ -4820,6 +5134,26 @@
                 NK.esc(u.staffCode || "") + ltr('" placeholder="যেমন EMP-001/A"></div>');
             html += '<div class="error-msg" id="err_pf_code" style="color:#ff4444;font-size:12px;margin-top:4px;display:none;"></div>';
 
+            /* নতুন APK — ভোটার, শিক্ষা, প্যান আছে কিনা */
+            html += ltr('<div class="fld"><label>ভোটার কার্ড নম্বর</label><input id="pf_voter" maxlength="20" ') +
+                'style="text-transform:uppercase" placeholder="' + NK.esc(u.voterIdMasked || "ABC1234567") + '"></div>';
+            var EDU = [["", ltr("— বাছুন —")], ["EIGHT", ltr("অষ্টম শ্রেণি পাস")], ["MP", ltr("মাধ্যমিক পাস")],
+                ["HS", ltr("উচ্চমাধ্যমিক পাস")], ["GRAD", ltr("স্নাতক")], ["PG", ltr("স্নাতকোত্তর")]];
+            html += ltr('<div class="fld"><label>শিক্ষাগত যোগ্যতা</label><select id="pf_edu">') +
+                EDU.map(function (e) {
+                    return '<option value="' + e[0] + '"' + ((u.education || "") === e[0] ? ' selected' : '') + '>' + e[1] + '</option>';
+                }).join("") + '</select></div>';
+            html += ltr('<div class="fld"><label>প্যান কার্ড আছে?</label><select id="pf_haspan">') +
+                '<option value="1"' + (u.hasPan !== false ? ' selected' : '') + '>' + ltr('হ্যাঁ, আছে') + '</option>' +
+                '<option value="0"' + (u.hasPan === false ? ' selected' : '') + '>' + ltr('না, প্যান নেই') + '</option></select></div>';
+            if (u.kycMissing && u.kycMissing.length) {
+                var KYC_BN = { SELFIE: "ছবি", AADHAAR_NO: "আধার নম্বর", AADHAAR: "আধার সামনে", AADHAAR_BACK: "আধার পিছন",
+                    VOTER_NO: "ভোটার নম্বর", VOTER: "ভোটার সামনে", VOTER_BACK: "ভোটার পিছন", PAN_NO: "প্যান নম্বর",
+                    PAN: "প্যান ছবি", EDUCATION: "শিক্ষাগত যোগ্যতা", EDU: "যোগ্যতার প্রমাণ" };
+                html += '<div class="hint" style="color:#B45309;margin:-6px 0 12px;">⚠ ' + ltr('বাকি কাগজ: ') +
+                    u.kycMissing.map(function (k) { return ltr(KYC_BN[k] || k); }).join(", ") + '</div>';
+            }
+
             /* KYC ছবি */
             html += '<div style="margin:18px 0;">';
             html += ltr('<div style="font-size:13.5px;font-weight:600;margin-bottom:10px;">KYC ছবি</div>');
@@ -4829,7 +5163,11 @@
                 ["AADHAAR", ltr("আধার সামনে"), u.aadhaarPhotoUrl],
                 ["AADHAAR_BACK", ltr("আধার পিছন"), u.aadhaarBackPhotoUrl],
                 ["PAN", ltr("প্যান সামনে"), u.panPhotoUrl],
-                ["PAN_BACK", ltr("প্যান পিছন"), u.panBackPhotoUrl]
+                ["PAN_BACK", ltr("প্যান পিছন"), u.panBackPhotoUrl],
+                // নতুন APK
+                ["VOTER", ltr("ভোটার সামনে"), u.voterPhotoUrl],
+                ["VOTER_BACK", ltr("ভোটার পিছন"), u.voterBackPhotoUrl],
+                ["EDU", ltr("যোগ্যতার প্রমাণ"), u.educationProofUrl]
             ];
 
             SD.forEach(function (d) {
@@ -4846,6 +5184,32 @@
             html += '</div></div>';
             html += ltr('<button class="btn block" id="pf_save">সংরক্ষণ করুন</button>');
             html += '</div>';
+
+            /* নতুন APK — ম্যানেজারের এজেন্ট কোড সিরিজ */
+            if (u.role === "MANAGER") {
+                html += '<div class="card">';
+                html += ltr('<h2 style="margin-bottom:6px;">এজেন্ট কোড সিরিজ</h2>');
+                html += ltr('<div class="hint" style="margin-bottom:12px;">এই ম্যানেজারের এজেন্টদের কোড এই সিরিজ থেকে নিজে বসবে</div>');
+                html += '<div style="display:flex;gap:8px;">';
+                html += ltr('<div class="fld" style="flex:2;"><label>শুরুর অংশ</label><input id="pf_ser_pre" maxlength="14" style="text-transform:uppercase" placeholder="NK-101-" value="') + NK.esc(u.agentCodePrefix || "") + '"></div>';
+                html += ltr('<div class="fld" style="flex:1;"><label>অঙ্ক</label><input id="pf_ser_dig" type="number" min="1" max="5" value="') + NK.esc(u.agentCodeDigits || 2) + '"></div>';
+                html += ltr('<div class="fld" style="flex:1;"><label>পরের নম্বর</label><input id="pf_ser_next" type="number" min="1" value="') + NK.esc(u.agentCodeNext || 1) + '"></div>';
+                html += '</div>';
+                html += ltr('<button class="btn block" id="pf_ser_go">সিরিজ সংরক্ষণ</button>');
+                html += '</div>';
+            }
+
+            /* নতুন APK — প্রোফাইল একবার আপডেট */
+            if (u.role === "MANAGER" || u.role === "AGENT") {
+                html += '<div class="card">';
+                html += ltr('<h2 style="margin-bottom:6px;">প্রোফাইল একবার আপডেট</h2>');
+                html += '<div class="hint" style="margin-bottom:12px;">' + (u.profileOnceUsed
+                    ? ltr('ব্যবহার হয়েছে') + (u.profileOnceAt ? ' · ' + NK.esc(String(u.profileOnceAt).slice(0, 10)) : '') +
+                      (u.profileOnceFields ? ' · ' + NK.esc(u.profileOnceFields) : '')
+                    : ltr('এখনো ব্যবহার হয়নি')) + '</div>';
+                if (u.profileOnceUsed) html += ltr('<button class="btn ghost block" id="pf_once_reset">আবার একবার সুযোগ দিন</button>');
+                html += '</div>';
+            }
 
             /* পাসওয়ার্ড রিসেট */
             html += '<div class="card">';
@@ -4935,6 +5299,35 @@
                 });
             });
             /* সংরক্ষণ */
+            /* নতুন APK — এজেন্ট কোড সিরিজ সংরক্ষণ */
+            if (q("pf_ser_go")) {
+                q("pf_ser_go").addEventListener("click", function () {
+                    var btn = this;
+                    btn.disabled = true;
+                    NK.PUT("/api/admin/users/" + id + "/agent-code-series", {
+                        prefix: q("pf_ser_pre").value.trim().toUpperCase(),
+                        digits: Number(q("pf_ser_dig").value || 2),
+                        next: Number(q("pf_ser_next").value || 1)
+                    }).then(function () {
+                        toast(ltr("সিরিজ সংরক্ষিত ✓"), "ok");
+                        fetchTeam();
+                    }).catch(function (e) { toast(e.message, "error"); })
+                      .then(function () { btn.disabled = false; });
+                });
+            }
+            /* নতুন APK — প্রোফাইল আবার একবার আপডেটের সুযোগ */
+            if (q("pf_once_reset")) {
+                q("pf_once_reset").addEventListener("click", function () {
+                    var btn = this;
+                    btn.disabled = true;
+                    NK.POST("/api/admin/users/" + id + "/profile-once/reset").then(function () {
+                        toast(ltr("আবার একবার সুযোগ দেওয়া হয়েছে ✓"), "ok");
+                        btn.style.display = "none";
+                        fetchTeam();
+                    }).catch(function (e) { toast(e.message, "error"); btn.disabled = false; });
+                });
+            }
+
             q("pf_save").addEventListener("click", function () {
                 // Clear errors first
                 ["pf_name", "pf_area", "pf_aad", "pf_pan", "pf_join", "pf_sal", "pf_code"].forEach(id => NK.validate.clearError(id));
@@ -4957,7 +5350,11 @@
                     monthlySalary: q("pf_sal").value ? Number(q("pf_sal").value) : null,
                     staffCode: q("pf_code").value.trim() || null,
                     reportsToId: null,
-                    branchId: null
+                    branchId: null,
+                    // নতুন APK
+                    voterId: q("pf_voter").value.trim().toUpperCase() || null,
+                    education: q("pf_edu").value || null,
+                    hasPan: q("pf_haspan").value === "1"
                 };
 
                 NK.PUT("/api/admin/users/" + id, body)
@@ -6254,6 +6651,9 @@
 
                 if (d.approvalStatus === "APPROVED") {
                     h += '<div class="sig-capture" id="sigCaptureSection">';
+                    // নতুন APK — সইয়ের সাথে লোন ফর্মের ছবি (ঐচ্ছিক)
+                    h += '<div class="fld" style="margin-bottom:10px;"><label>' + ltr('লোন ফর্মের ছবি (ঐচ্ছিক)') + '</label>' +
+                        '<input type="file" id="sigFormPhoto" accept="image/*" capture="environment" style="display:block;width:100%;"></div>';
                     h += '<div style="display:flex;gap:10px;margin-bottom:12px;">';
                     h += '<button id="sigCanvasToggle" class="btn sm" style="flex:1">📝 ক্যানভাসে আঁকুন</button>';
                     h += '<button id="sigFileToggle" class="btn sm" style="flex:1">📤 ফাইল আপলোড</button>';
@@ -6432,6 +6832,9 @@
             } else if (file) {
                 formData.append("file", file);
             }
+            // নতুন APK — লোন ফর্মের ছবি থাকলে সাথে যায়
+            var fp = q("sigFormPhoto");
+            if (fp && fp.files && fp.files[0]) formData.append("formPhoto", fp.files[0]);
 
             // ফাইল আপলোডের জন্য FormData ব্যবহার করুন
             fetch("/api/loans/" + loanId + "/sign-customer", {
@@ -6655,6 +7058,7 @@
             loadMarkets();
             loadNotif();
             startFund();
+            loadStaffReqBadge();
         });
 
     // Back button handling - restore previous view
