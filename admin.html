@@ -695,6 +695,9 @@
         <!-- ---------------- কালেকশন ---------------- -->
         <div class="view" id="v-coll">
 
+            <!-- নতুন APK — আজকের ১-২-৩-৪ হিসেব (সব এজেন্ট, বা বাছা এজেন্টের) -->
+            <div id="collCalc"></div>
+
             <div class="fld">
                 <label>এজেন্ট বাছুন</label>
                 <select id="ag"><option value="">— বাছুন —</option></select>
@@ -718,6 +721,11 @@
         <!-- ---------------- লোন-রিকোয়েস্ট ---------------- -->
         <div class="view" id="v-loanreq">
             <div id="reqList"><div class="loading">লোড হচ্ছে...</div></div>
+        </div>
+
+        <!-- নতুন APK — টাকা বসানোর নতুন নিয়ম: আগে দেখে নিন, তারপর চালু করুন -->
+        <div class="view" id="v-payrule">
+            <div id="prBox"><div class="loading">লোড হচ্ছে...</div></div>
         </div>
 
 
@@ -1334,6 +1342,7 @@
             <button data-go="loanreq"><i>📝</i>লোন-রিকোয়েস্ট</button>
             <button data-go="stages"><i>🎨</i>ধাপ</button>
             <button data-go="settings"><i>⚙️</i>সেটিংস</button>
+            <button data-go="payrule"><i>⚖️</i>পেমেন্টের নিয়ম</button>
             <button data-go="perm"><i>🔐</i>পারমিশন</button>
             <button data-go="access"><i>⏰</i>অ্যাক্সেস</button>
             <button data-go="import"><i>📥</i>ইম্পোর্ট</button>
@@ -1780,7 +1789,8 @@
             money: loadMoney, expense: loadExpense, stages: loadStages,
             settings: loadSettings, perm: loadPerm, log: loadLog, salary: loadSalary,
             profile: loadProfile, kyc: loadKyc, access: loadAccess, report: loadReport,
-            export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq
+            export: loadExport, "market-transfer": loadMarketTransfer, loanreq: loadLoanReq,
+            payrule: loadPayRule
         };
 
         /* auto-refresh শুধু এই view-গুলোতে হবে — যেগুলোতে ভেতরে কোনো
@@ -2737,6 +2747,42 @@
             if (!q("cd").value) {
                 q("cd").value = new Date().toISOString().slice(0, 10);
             }
+            loadCollCalc();
+        }
+
+        /* =====================================================================
+         * নতুন APK — আজকের কালেকশনের ১-২-৩-৪ হিসেব
+         * ১) আজকের কিস্তি ২) উঠেছে (কিস্তিতে / পুরনোতে) ৩) আজকের বাকি ৪) আগের বকেয়া
+         * পুরনো সার্ভারে এই ঘরগুলো না থাকলে কার্ডটা দেখায় না।
+         * ===================================================================== */
+        function loadCollCalc() {
+            var box = q("collCalc");
+            if (!box) return;
+            var todayS = new Date().toISOString().slice(0, 10);
+            if (q("cd").value && q("cd").value !== todayS) { box.innerHTML = ""; return; }
+            var ag = q("ag").value;
+            var br = q("br") ? q("br").value : "";
+            var url = "/api/dashboard/today-due-detail" + (ag ? "?agentId=" + ag : (br ? "?branchId=" + br : ""));
+            NK.GET(url).then(function (r) {
+                if (!r || r.kistiTotal === undefined) { box.innerHTML = ""; return; }
+                function row(n, label, v, tone, sub) {
+                    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);">' +
+                        '<span style="width:22px;height:22px;border-radius:50%;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">' + n + '</span>' +
+                        '<div style="flex:1;"><div style="font-size:13px;">' + ltr(label) + '</div>' + (sub ? '<div style="font-size:11px;color:var(--muted);">' + sub + '</div>' : '') + '</div>' +
+                        '<b style="font-size:15px;color:' + (tone || 'inherit') + ';">' + NK.inr(v) + '</b></div>';
+                }
+                var h = '<div class="card">';
+                h += '<h2 style="margin-bottom:6px;">' + ltr('আজকের হিসেব') + (ag ? '' : ltr(' — সব এজেন্ট')) + '</h2>';
+                h += row("১", "আজকের কিস্তি", r.kistiTotal);
+                h += row("২", "উঠেছে", r.collected, "var(--green)",
+                    ltr("কিস্তিতে ") + NK.inr(r.collectedForKisti) + " · " + ltr("পুরনো / অগ্রিমে ") + NK.inr(r.collectedForOld));
+                h += row("৩", "আজকের বাকি", r.todayLeftTotal, "var(--red)");
+                h += row("৪", "আগের দিনের বকেয়া", r.oldDueTotal, "var(--red)");
+                h += '<div style="display:flex;justify-content:space-between;padding-top:10px;font-weight:700;">' +
+                    '<span>' + ltr('মোট বাকি (৩ + ৪)') + '</span><span style="color:var(--red);">' + NK.inr(r.totalLeft) + '</span></div>';
+                h += '</div>';
+                box.innerHTML = h;
+            }).catch(function () { box.innerHTML = ""; });
         }
 
         function showColl() {
@@ -2832,6 +2878,9 @@
 
         q("ag").addEventListener("change", showColl);
         q("cd").addEventListener("change", showColl);
+        // নতুন APK — এজেন্ট/তারিখ বদলালে উপরের হিসেবও বদলায়
+        q("ag").addEventListener("change", loadCollCalc);
+        q("cd").addEventListener("change", loadCollCalc);
         /* =====================================================================
    * সাহায্যকারী
    * ===================================================================== */
@@ -3083,6 +3132,89 @@
 
             }).catch(function (e) {
                 q("odList").innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
+            });
+        }
+
+        /* =====================================================================
+         * নতুন APK — টাকা বসানোর নতুন নিয়ম
+         * ১) সেদিনের কিস্তি ২) পিছনের দিকে শেষ মিস করা কিস্তি ৩) অগ্রিম
+         * আগে দেখে নিন (কিছুই বদলায় না) → মিলিয়ে ঠিক লাগলে "চালু করুন"
+         * ===================================================================== */
+        function loadPayRule() {
+            var box = q("prBox");
+            box.innerHTML = ltr('<div class="loading">হিসাব মেলানো হচ্ছে... (একটু সময় লাগতে পারে)</div>');
+            NK.GET("/api/admin/payment-rule/preview").then(function (p) {
+                var h = '<div class="card">';
+                h += ltr('<h2 style="margin-bottom:8px;">টাকা বসানোর নিয়ম</h2>');
+                h += '<div style="font-size:13px;line-height:1.7;margin-bottom:10px;">' +
+                    ltr('নতুন নিয়মে প্রতিটা জমা: <b>১)</b> আগে সেদিনের কিস্তিতে, <b>২)</b> তারপর পিছনের দিকে সবচেয়ে শেষে মিস করা কিস্তিতে, <b>৩)</b> তারপর সামনের কিস্তিতে অগ্রিম। "কত দিন পিছিয়ে" আগের মতোই মোট টাকার হিসেবে।') + '</div>';
+                h += '<div style="padding:10px 12px;border-radius:10px;font-weight:700;background:' +
+                    (p.ruleOn ? 'var(--green-soft);color:var(--green)' : '#FEF3C7;color:#92400E') + ';">' +
+                    (p.ruleOn ? ltr('✓ নতুন নিয়ম চালু আছে') : ltr('এখন পুরনো নিয়ম চলছে')) + '</div>';
+                h += '</div>';
+
+                h += '<div class="card">';
+                h += ltr('<h2 style="margin-bottom:10px;">নতুন নিয়মে কী বদলাবে</h2>');
+                h += '<div class="stats">';
+                h += st(ltr("চলতি লোন"), p.loansChecked);
+                h += st(ltr("বদলাবে"), p.loansChanged, p.loansChanged ? "r" : "g");
+                h += st(ltr("মোট বকেয়া এখন"), NK.inr(p.oldArrearsTotal));
+                h += st(ltr("নতুন নিয়মে"), NK.inr(p.newArrearsTotal));
+                h += st(ltr("OD এখন"), p.oldOdCount);
+                h += st(ltr("OD নতুন নিয়মে"), p.newOdCount);
+                h += '</div>';
+                var rows = p.changed || [];
+                if (rows.length) {
+                    h += '<div style="overflow-x:auto;margin-top:12px;"><table style="width:100%;border-collapse:collapse;font-size:12px;">';
+                    h += '<tr style="text-align:left;color:var(--muted);"><th style="padding:6px 4px;">' + ltr('লোন') + '</th><th>' + ltr('বকেয়া এখন') + '</th><th>' + ltr('নতুন') + '</th><th>' + ltr('আজ বাকি এখন') + '</th><th>' + ltr('নতুন') + '</th><th>' + ltr('দিন এখন') + '</th><th>' + ltr('নতুন') + '</th></tr>';
+                    rows.slice(0, 300).forEach(function (r) {
+                        h += '<tr style="border-top:1px solid var(--line);"><td style="padding:6px 4px;"><a href="#" data-prloan="' + r.loanId + '">#' + r.loanId + '</a></td>' +
+                            '<td>' + NK.inr(r.oldArrears) + '</td><td><b>' + NK.inr(r.newArrears) + '</b></td>' +
+                            '<td>' + NK.inr(r.oldTodayLeft) + '</td><td><b>' + NK.inr(r.newTodayLeft) + '</b></td>' +
+                            '<td>' + r.oldOverdueDays + '</td><td><b>' + r.newOverdueDays + '</b></td></tr>';
+                    });
+                    h += '</table></div>';
+                    if (rows.length > 300) h += '<div class="hint">' + ltr('প্রথম ৩০০টা দেখানো হলো') + '</div>';
+                } else {
+                    h += '<div class="empty" style="margin-top:10px;">' + ltr('কোনো লোনের হিসাব বদলাবে না') + '</div>';
+                }
+                h += '</div>';
+
+                if (!p.ruleOn) {
+                    h += '<div class="card" style="border:1.5px solid #FCA5A5;">';
+                    h += ltr('<h2 style="margin-bottom:8px;color:#DC2626;">চালু করুন</h2>');
+                    h += '<div style="font-size:13px;line-height:1.7;margin-bottom:10px;">' +
+                        ltr('⚠ চালু করার আগে ডেটাবেসের ব্যাকআপ নিয়ে রাখুন। চালু করলে সব চলতি লোনের কিস্তি নতুন নিয়মে বসবে — উপরের তালিকা মিলিয়ে নিন। বন্ধ লোনে হাত দেওয়া হবে না।') + '</div>';
+                    h += ltr('<button class="btn danger block" id="prApply">নতুন নিয়ম চালু করুন</button>');
+                    h += '</div>';
+                }
+                box.innerHTML = h;
+
+                Array.prototype.forEach.call(box.querySelectorAll("[data-prloan]"), function (a) {
+                    a.addEventListener("click", function (ev) {
+                        ev.preventDefault();
+                        if (typeof openLoanDetail === "function") openLoanDetail(Number(a.getAttribute("data-prloan")));
+                    });
+                });
+                if (q("prApply")) {
+                    q("prApply").addEventListener("click", function () {
+                        var t = prompt(ltr('নিশ্চিত হলে লিখুন: চালু করুন'));
+                        if (t === null) return;
+                        var b = this;
+                        b.disabled = true;
+                        b.innerHTML = ltr('<span class="spin"></span> সব লোন নতুন করে হিসেব হচ্ছে...');
+                        NK.POST("/api/admin/payment-rule/apply", { confirm: t.trim() }).then(function (r) {
+                            toast(ltr("নতুন নিয়ম চালু হয়েছে ✓ ") + r.loans + ltr("টা লোন"), "ok");
+                            loadPayRule();
+                        }).catch(function (e) {
+                            toast(e.message, "er");
+                            b.disabled = false;
+                            b.textContent = ltr("নতুন নিয়ম চালু করুন");
+                        });
+                    });
+                }
+            }).catch(function (e) {
+                box.innerHTML = '<div class="card"><div class="empty">' + NK.esc(e.message) + '</div></div>';
             });
         }
 
@@ -6242,6 +6374,10 @@
                                 cls += " miss";
                             } else {
                                 cls += " due";
+                            }
+                            // নতুন APK — আংশিক জমা থাকলে কত পড়েছে
+                            if (e.status !== "PAID" && Number(e.paidAmount) > 0) {
+                                note = '<span class="pm">½ ' + NK.inrShort(e.paidAmount) + '</span>';
                             }
                         }
 
