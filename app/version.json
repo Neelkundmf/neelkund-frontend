@@ -1,14 +1,14 @@
 {
-  "build": 29,
-  "version": "2.5.4",
+  "build": 30,
+  "version": "2.5.5",
   "force": false,
-  "notes": "App 2.5.4: collection entry works after login expiry, voter ID optional, edit today's entry",
+  "notes": "App 2.5.5: fix in-app update closing the app at 100%",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
   },
   "sha256": {
-    "arm64-v8a": "ab99e92f0f454682d7d1187129d5ccd02964e2cde48619bac827a9644202101f",
-    "armeabi-v7a": "7c72a75cabc0288f0229eb8af3b70857b9825ad659a7f1c60aac0eb99b0a9563"
+    "arm64-v8a": "0b4034170fba1d4164360bc7b24737a9dce76439982b4d627d377cb6fe7e18d6",
+    "armeabi-v7a": "4c77d5be2b514a3bc8470a8acd672307cae551f1e1dbad3e9653a0bf24af6e23"
   }
 }
