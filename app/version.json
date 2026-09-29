@@ -1,14 +1,14 @@
 {
-  "build": 30,
-  "version": "2.5.5",
+  "build": 31,
+  "version": "2.5.6",
   "force": false,
-  "notes": "Merge pull request #8 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
+  "notes": "App 2.5.6: one universal APK (no per-ABI split)",
   "apk": {
-    "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
-    "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
+    "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
+    "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "49047a835a85d5933b89dead5bd8ff426235bc3041ead4a67dbd8ac3b6c8f61c",
-    "armeabi-v7a": "73c287b7437bcfefbc9b9bed2e416b3b0a29b9cf30a9b81ace224f552c7fa435"
+    "arm64-v8a": "ae165846ac120e750c09975518b6b848c2b6f0ac421944ea9448d19212ee6c0a",
+    "armeabi-v7a": "ae165846ac120e750c09975518b6b848c2b6f0ac421944ea9448d19212ee6c0a"
   }
 }
