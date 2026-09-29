@@ -1,14 +1,14 @@
 {
-  "build": 28,
-  "version": "2.5.3",
+  "build": 29,
+  "version": "2.5.4",
   "force": false,
-  "notes": "Merge pull request #6: App 2.5.3 — customer photo + ID everywhere, market page fix",
+  "notes": "App 2.5.4: collection entry works after login expiry, voter ID optional, edit today's entry",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
   },
   "sha256": {
-    "arm64-v8a": "236d91504050c8d37a0136008b734032c3e71830142fe3cedcf5a6e99761e51d",
-    "armeabi-v7a": "d7e67b48d803d4df624856fa5726a520eaa46319af25c5cbfa93383e570b4f2b"
+    "arm64-v8a": "3fc6426f1ac1c08b2704e22eade5d596ed39d0fbe7319c1e7026b62913e75f96",
+    "armeabi-v7a": "595e0fc0dcc45428970f3133339147ad01d24bff49e0366ca8e575add14f0419"
   }
 }
