@@ -8,7 +8,7 @@
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
   },
   "sha256": {
-    "arm64-v8a": "3fc6426f1ac1c08b2704e22eade5d596ed39d0fbe7319c1e7026b62913e75f96",
-    "armeabi-v7a": "595e0fc0dcc45428970f3133339147ad01d24bff49e0366ca8e575add14f0419"
+    "arm64-v8a": "ab99e92f0f454682d7d1187129d5ccd02964e2cde48619bac827a9644202101f",
+    "armeabi-v7a": "7c72a75cabc0288f0229eb8af3b70857b9825ad659a7f1c60aac0eb99b0a9563"
   }
 }
