@@ -2,13 +2,13 @@
   "build": 28,
   "version": "2.5.3",
   "force": false,
-  "notes": "App 2.5.3: round customer photo + ID on every list, market page layout fix",
+  "notes": "Merge pull request #6: App 2.5.3 — customer photo + ID everywhere, market page fix",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
   },
   "sha256": {
-    "arm64-v8a": "4e4292254d619fca574c4df3911bc5490645d6b314226a7ccad2360e2f9ad397",
-    "armeabi-v7a": "f1582873f69d3326cbffba17a2864ec49facffb613415570b273edf61babe177"
+    "arm64-v8a": "236d91504050c8d37a0136008b734032c3e71830142fe3cedcf5a6e99761e51d",
+    "armeabi-v7a": "d7e67b48d803d4df624856fa5726a520eaa46319af25c5cbfa93383e570b4f2b"
   }
 }
