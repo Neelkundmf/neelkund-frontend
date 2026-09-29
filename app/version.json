@@ -2,13 +2,13 @@
   "build": 32,
   "version": "2.5.7",
   "force": false,
-  "notes": "Merge pull request #10 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
+  "notes": "App 2.5.7: photo uploads work (image content-type), more resilient actions",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "c9c3fae1afc0fe3c3ebf530680f62f53c810c231eaaa3f13f2c05a1198d54f95",
-    "armeabi-v7a": "c9c3fae1afc0fe3c3ebf530680f62f53c810c231eaaa3f13f2c05a1198d54f95"
+    "arm64-v8a": "424b5e6c337f15c58d635e4666f9e7a0d47a8c4d346dd1ab7dbaef972203452e",
+    "armeabi-v7a": "424b5e6c337f15c58d635e4666f9e7a0d47a8c4d346dd1ab7dbaef972203452e"
   }
 }
