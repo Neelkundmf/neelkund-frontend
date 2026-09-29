@@ -2,13 +2,13 @@
   "build": 30,
   "version": "2.5.5",
   "force": false,
-  "notes": "App 2.5.5: fix in-app update closing the app at 100%",
+  "notes": "Merge pull request #8 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND-arm64.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND-armv7.apk"
   },
   "sha256": {
-    "arm64-v8a": "0b4034170fba1d4164360bc7b24737a9dce76439982b4d627d377cb6fe7e18d6",
-    "armeabi-v7a": "4c77d5be2b514a3bc8470a8acd672307cae551f1e1dbad3e9653a0bf24af6e23"
+    "arm64-v8a": "49047a835a85d5933b89dead5bd8ff426235bc3041ead4a67dbd8ac3b6c8f61c",
+    "armeabi-v7a": "73c287b7437bcfefbc9b9bed2e416b3b0a29b9cf30a9b81ace224f552c7fa435"
   }
 }
