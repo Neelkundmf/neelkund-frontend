@@ -1,14 +1,14 @@
 {
-  "build": 32,
-  "version": "2.5.7",
+  "build": 33,
+  "version": "2.5.8",
   "force": false,
-  "notes": "App 2.5.7: photo uploads work (image content-type), more resilient actions",
+  "notes": "App 2.5.8: admin can fix/cancel any-day payment entry",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "424b5e6c337f15c58d635e4666f9e7a0d47a8c4d346dd1ab7dbaef972203452e",
-    "armeabi-v7a": "424b5e6c337f15c58d635e4666f9e7a0d47a8c4d346dd1ab7dbaef972203452e"
+    "arm64-v8a": "7f3d7b02da66004245ca611d560e543bef8b12f88e16250ee9c89461b630ac3b",
+    "armeabi-v7a": "7f3d7b02da66004245ca611d560e543bef8b12f88e16250ee9c89461b630ac3b"
   }
 }
