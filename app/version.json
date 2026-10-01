@@ -2,13 +2,13 @@
   "build": 33,
   "version": "2.5.8",
   "force": false,
-  "notes": "App 2.5.8: admin can fix/cancel any-day payment entry",
+  "notes": "Merge pull request #11 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "7f3d7b02da66004245ca611d560e543bef8b12f88e16250ee9c89461b630ac3b",
-    "armeabi-v7a": "7f3d7b02da66004245ca611d560e543bef8b12f88e16250ee9c89461b630ac3b"
+    "arm64-v8a": "269cd75e5490d31e93663b4a113edbe4adb8a88ab4628d6e407cb21c7c0fbb4b",
+    "armeabi-v7a": "269cd75e5490d31e93663b4a113edbe4adb8a88ab4628d6e407cb21c7c0fbb4b"
   }
 }
