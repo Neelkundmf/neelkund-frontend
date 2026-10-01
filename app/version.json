@@ -2,13 +2,13 @@
   "build": 35,
   "version": "2.5.10",
   "force": false,
-  "notes": "App 2.5.10: loan agreement / form photo now shows real photo",
+  "notes": "Merge pull request #13 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "1b1079d977ca3ba8ad5ed52b4a1985f5a77673bd5c1536a5f129f9001953a167",
-    "armeabi-v7a": "1b1079d977ca3ba8ad5ed52b4a1985f5a77673bd5c1536a5f129f9001953a167"
+    "arm64-v8a": "d0fa2ff48d77a362d0ad2835359e90d4b32a6fb0c288d94d5437ca0d0e393153",
+    "armeabi-v7a": "d0fa2ff48d77a362d0ad2835359e90d4b32a6fb0c288d94d5437ca0d0e393153"
   }
 }
