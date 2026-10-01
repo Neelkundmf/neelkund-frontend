@@ -1,14 +1,14 @@
 {
-  "build": 33,
-  "version": "2.5.8",
+  "build": 34,
+  "version": "2.5.9",
   "force": false,
-  "notes": "Merge pull request #11 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
+  "notes": "App 2.5.9: payment correction limits shown in the app, admin-configurable",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "269cd75e5490d31e93663b4a113edbe4adb8a88ab4628d6e407cb21c7c0fbb4b",
-    "armeabi-v7a": "269cd75e5490d31e93663b4a113edbe4adb8a88ab4628d6e407cb21c7c0fbb4b"
+    "arm64-v8a": "74c57163cabca2c9379fc8f5746f2a471d142bc6bce02510fd85aee869f4006f",
+    "armeabi-v7a": "74c57163cabca2c9379fc8f5746f2a471d142bc6bce02510fd85aee869f4006f"
   }
 }
