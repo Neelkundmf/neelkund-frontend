@@ -1,14 +1,14 @@
 {
-  "build": 37,
-  "version": "2.5.12",
+  "build": 38,
+  "version": "2.5.13",
   "force": false,
-  "notes": "Merge pull request #16 from Neelkundmf/claude/peaceful-dijkstra-csz33f",
+  "notes": "App: offline queue for new customers, repeat loan requests and form photos (2.5.13) (#17)",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "cdebed1f5effe71c11fd0b2a0341131d7ac121234e8ab87b19b3bcdefe0716df",
-    "armeabi-v7a": "cdebed1f5effe71c11fd0b2a0341131d7ac121234e8ab87b19b3bcdefe0716df"
+    "arm64-v8a": "d1b9ec60bf454032fb8613436b3a4a227ee28875319312ca4f7b73157d025ca5",
+    "armeabi-v7a": "d1b9ec60bf454032fb8613436b3a4a227ee28875319312ca4f7b73157d025ca5"
   }
 }
