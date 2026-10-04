@@ -1,14 +1,14 @@
 {
-  "build": 41,
-  "version": "2.5.16",
+  "build": 42,
+  "version": "2.5.17",
   "force": false,
-  "notes": "App 2.5.16: stop the app closing after a few collections (#22)",
+  "notes": "App 2.5.17: lighter photos, cheaper refresh, tidy old releases (#23)",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "f09747d7c224012f6cb83853c1624cf016bc98caf2a9cc71e527dc23a45aa8ad",
-    "armeabi-v7a": "f09747d7c224012f6cb83853c1624cf016bc98caf2a9cc71e527dc23a45aa8ad"
+    "arm64-v8a": "2fdd7a1bdeb47a3113125f6eebc835e04f7858a725111b913600bdf4e1b77e59",
+    "armeabi-v7a": "2fdd7a1bdeb47a3113125f6eebc835e04f7858a725111b913600bdf4e1b77e59"
   }
 }
