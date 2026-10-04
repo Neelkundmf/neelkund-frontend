@@ -1,14 +1,14 @@
 {
-  "build": 42,
-  "version": "2.5.17",
+  "build": 43,
+  "version": "2.5.18",
   "force": false,
-  "notes": "App 2.5.17: lighter photos, cheaper refresh, tidy old releases (#23)",
+  "notes": "App 2.5.18: fetch only what changed (#24)",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "2fdd7a1bdeb47a3113125f6eebc835e04f7858a725111b913600bdf4e1b77e59",
-    "armeabi-v7a": "2fdd7a1bdeb47a3113125f6eebc835e04f7858a725111b913600bdf4e1b77e59"
+    "arm64-v8a": "075a3684e76397b054daec561d672a789503aa9f2ae0a5a80337e07223fab87c",
+    "armeabi-v7a": "075a3684e76397b054daec561d672a789503aa9f2ae0a5a80337e07223fab87c"
   }
 }
