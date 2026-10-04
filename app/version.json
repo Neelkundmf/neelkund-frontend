@@ -1,14 +1,14 @@
 {
-  "build": 39,
-  "version": "2.5.14",
+  "build": 40,
+  "version": "2.5.15",
   "force": false,
-  "notes": "App 2.5.14: app lock (phone PIN / fingerprint) when opening or returning after 60s (#20)",
+  "notes": "App 2.5.15: manager can give markets to agents and add new markets (#21)",
   "apk": {
     "arm64-v8a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk",
     "armeabi-v7a": "https://neelkund-frontend.onrender.com/app/NEELKUND.apk"
   },
   "sha256": {
-    "arm64-v8a": "5008dcf283f229eb7ecb25a47deb640d5ad81bee00c9cc87ff47f4997dc2c71b",
-    "armeabi-v7a": "5008dcf283f229eb7ecb25a47deb640d5ad81bee00c9cc87ff47f4997dc2c71b"
+    "arm64-v8a": "208a90564694c942ad55ac1f1fe4cd684c6def56f961b4b968412122322b2c6d",
+    "armeabi-v7a": "208a90564694c942ad55ac1f1fe4cd684c6def56f961b4b968412122322b2c6d"
   }
 }
